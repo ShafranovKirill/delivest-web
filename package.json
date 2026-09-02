@@ -13,7 +13,7 @@
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "schema:download": "curl \"http://localhost:8000/api/schema/?format=json\" -o ./src/api/docs/swagger.json",
+    "schema:download": "curl \"http://localhost:4000/api/openapi\" -o ./src/api/docs/swagger.json",
     "schema:generate": "openapi-typescript ./src/api/docs/swagger.json --output ./src/api/types.ts",
     "schema:sync": "pnpm run schema:download && pnpm run schema:generate"
   },
