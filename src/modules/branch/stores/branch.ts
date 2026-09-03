@@ -37,7 +37,6 @@ export const useBranchStore = defineStore('branch', () => {
     }
   }
 
-  // Читаем active_branch_id из кук (так как http_only: false)
   function getBranchIdFromCookie(): string | undefined {
     return Cookies.get('active_branch_id')
   }
