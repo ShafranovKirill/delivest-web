@@ -24,6 +24,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client/branches/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Очистить активный филиал
+         * @description Удаляет куку active_branch_id.
+         */
+        delete: operations["DelivestWeb.Client.Branch.BranchController.clear_active"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/client/branches/{branch_id}/menu": {
         parameters: {
             query?: never;
@@ -44,20 +64,20 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/client/branches/{id}": {
+    "/client/branches/{id}/select": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * Получить филиал по ID
-         * @description Возвращает детальную информацию о филиале с предзагруженными данными (info).
-         */
-        get: operations["DelivestWeb.Client.Branch.BranchController.show"];
+        get?: never;
         put?: never;
-        post?: never;
+        /**
+         * Выбрать филиал по ID
+         * @description Возвращает детальную информацию о филиале и устанавливает cookie.
+         */
+        post: operations["DelivestWeb.Client.Branch.BranchController.select"];
         delete?: never;
         options?: never;
         head?: never;
@@ -75,13 +95,13 @@ export interface components {
              * Format: uuid
              * @example c4a3b8e0-1234-5678-9abc-def012345678
              */
-            id?: string;
+            id: string;
             /** @example true */
-            is_active?: boolean;
+            is_active: boolean;
             /** @example Центральный филиал */
-            name?: string;
+            name: string;
             /** @example central */
-            slug?: string;
+            slug: string;
         };
         /** BranchInfoResponse */
         BranchInfoResponse: {
@@ -91,7 +111,7 @@ export interface components {
              * Format: uuid
              * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
              */
-            id?: string;
+            id: string;
             /** @example https://instagram.com/profile_name */
             instagram_url?: string | null;
             /** @example +79990000000 */
@@ -103,11 +123,11 @@ export interface components {
         };
         /** BranchListResponse */
         BranchListResponse: {
-            data?: components["schemas"]["Branch"][];
+            data: components["schemas"]["Branch"][];
         };
         /** BranchResponse */
         BranchResponse: {
-            data?: components["schemas"]["Branch"];
+            data: components["schemas"]["Branch"];
         };
         /** CategoryResponse */
         CategoryResponse: {
@@ -194,6 +214,29 @@ export interface operations {
             };
         };
     };
+    "DelivestWeb.Client.Branch.BranchController.clear_active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Кука активного филиала удалена */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Active branch cleared */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
     "DelivestWeb.Client.Menu.MenuController.index": {
         parameters: {
             query?: never;
@@ -232,7 +275,7 @@ export interface operations {
             };
         };
     };
-    "DelivestWeb.Client.Branch.BranchController.show": {
+    "DelivestWeb.Client.Branch.BranchController.select": {
         parameters: {
             query?: never;
             header?: never;
@@ -264,7 +307,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example Branch not found */
-                        error?: string;
+                        error: string;
                     };
                 };
             };
