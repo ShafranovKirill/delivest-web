@@ -11,8 +11,16 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Button: typeof import('primevue/button')['default']
+    Dialog: typeof import('primevue/dialog')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    IVkLogoBlack: typeof import('~icons/vk/logo-black')['default']
+    IVkLogoWhite: typeof import('~icons/vk/logo-white')['default']
+    Menu: typeof import('primevue/menu')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Sidebar: typeof import('primevue/sidebar')['default']
+    Toast: typeof import('primevue/toast')['default']
+    Toolbar: typeof import('primevue/toolbar')['default']
   }
 }

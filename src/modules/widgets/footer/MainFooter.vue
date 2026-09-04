@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useContactsStore } from '../contacts/stores/constacts.store'
 import { openLink } from '@/utils/browser'
+import { useContactsStore } from '../contacts/stores/constacts.store'
 
 const contactsStore = useContactsStore()
 const currentYear = new Date().getFullYear()

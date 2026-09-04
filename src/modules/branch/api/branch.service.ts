@@ -14,22 +14,22 @@ export type BranchSlugResponse =
 
 export const BranchService = {
   async getBranches(): Promise<Branch[]> {
-    const { data } = await api.get<BranchListResponse>('/api/client/branches')
+    const { data } = await api.get<BranchListResponse>('/client/branches')
     return data.data
   },
 
   async selectBranch(id: string): Promise<Branch> {
-    const { data } = await api.post<BranchResponse>(`/api/client/branches/${id}/select`)
+    const { data } = await api.post<BranchResponse>(`/client/branches/${id}/select`)
     return data.data
   },
 
   async selectBranchBySlug(slug: string): Promise<Branch> {
-    const { data } = await api.post<BranchSlugResponse>(`/api/client/branches/slug/${slug}/select`)
+    const { data } = await api.post<BranchSlugResponse>(`/client/branches/slug/${slug}/select`)
     return data.data
   },
 
   async clearActive(): Promise<{ message: string }> {
-    const { data } = await api.delete<{ message: string }>('/api/client/branches/active')
+    const { data } = await api.delete<{ message: string }>('/client/branches/active')
     return data
   },
 }

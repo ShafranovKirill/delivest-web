@@ -1,7 +1,7 @@
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { RouteLocationNormalized } from 'vue-router'
 
-export async function branchGuard(to: RouteLocationNormalized) {
+export async function branchMiddleware(to: RouteLocationNormalized) {
   const branchStore = useBranchStore()
 
   if (!branchStore.isInitialized) {
