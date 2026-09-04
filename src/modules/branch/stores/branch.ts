@@ -12,28 +12,36 @@ export const useBranchStore = defineStore('branch', () => {
     if (isInitialized.value) return
     try {
       branches.value = await BranchService.getBranches()
-    } catch (error) {
-      console.error('Ошибка загрузки филиалов:', error)
-    } finally {
       isInitialized.value = true
+    } catch (error) {
+      console.error('[BranchStore] Failed to initialize branches:', error)
+      throw error
     }
   }
 
   async function selectBranch(branch: Branch) {
+    const previousBranch = activeBranch.value
     activeBranch.value = branch
+
     try {
       await BranchService.selectBranch(branch.id)
     } catch (error) {
-      console.error('Ошибка установки активного филиала:', error)
+      activeBranch.value = previousBranch
+      console.error(`[BranchStore] Failed to select branch ID ${branch.id}:`, error)
+      throw error
     }
   }
 
   async function clearActiveBranch() {
+    const previousBranch = activeBranch.value
     activeBranch.value = null
+
     try {
       await BranchService.clearActive()
     } catch (error) {
-      console.error('Ошибка очистки активного филиала:', error)
+      activeBranch.value = previousBranch
+      console.error('[BranchStore] Failed to clear active branch:', error)
+      throw error
     }
   }
 
