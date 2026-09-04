@@ -9,6 +9,9 @@ export type Branch = BranchListResponse['data'][number]
 export type BranchResponse =
   paths['/client/branches/{id}/select']['post']['responses']['200']['content']['application/json']
 
+export type BranchSlugResponse =
+  paths['/client/branches/slug/{slug}/select']['post']['responses']['200']['content']['application/json']
+
 export const BranchService = {
   async getBranches(): Promise<Branch[]> {
     const { data } = await api.get<BranchListResponse>('/api/client/branches')
@@ -17,6 +20,11 @@ export const BranchService = {
 
   async selectBranch(id: string): Promise<Branch> {
     const { data } = await api.post<BranchResponse>(`/api/client/branches/${id}/select`)
+    return data.data
+  },
+
+  async selectBranchBySlug(slug: string): Promise<Branch> {
+    const { data } = await api.post<BranchSlugResponse>(`/api/client/branches/slug/${slug}/select`)
     return data.data
   },
 

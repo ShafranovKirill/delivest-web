@@ -32,6 +32,20 @@ export const useBranchStore = defineStore('branch', () => {
     }
   }
 
+  async function selectBranchBySlug(slug: string): Promise<Branch> {
+    const previousBranch = activeBranch.value
+
+    try {
+      const selected = await BranchService.selectBranchBySlug(slug)
+      activeBranch.value = selected
+      return selected
+    } catch (error) {
+      activeBranch.value = previousBranch
+      console.error(`[BranchStore] Failed to select branch slug ${slug}:`, error)
+      throw error
+    }
+  }
+
   async function clearActiveBranch() {
     const previousBranch = activeBranch.value
     activeBranch.value = null
@@ -55,6 +69,7 @@ export const useBranchStore = defineStore('branch', () => {
     isInitialized,
     initBranches,
     selectBranch,
+    selectBranchBySlug,
     clearActiveBranch,
     getBranchIdFromCookie,
   }

@@ -44,6 +44,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client/branches/slug/{slug}/select": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Выбрать филиал по Slug
+         * @description Возвращает детальную информацию о филиале по его slug и устанавливает cookie.
+         */
+        post: operations["DelivestWeb.Client.Branch.BranchController.select_by_slug"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/client/branches/{branch_id}/menu": {
         parameters: {
             query?: never;
@@ -233,6 +253,41 @@ export interface operations {
                         /** @example Active branch cleared */
                         message?: string;
                     };
+                };
+            };
+        };
+    };
+    "DelivestWeb.Client.Branch.BranchController.select_by_slug": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Slug филиала
+                 * @example sochi-central
+                 */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Детальная информация о филиале */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchResponse"];
+                };
+            };
+            /** @description Филиал не найден */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
                 };
             };
         };
