@@ -12,7 +12,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
+    Card: typeof import('primevue/card')['default']
     Dialog: typeof import('primevue/dialog')['default']
+    Drawer: typeof import('primevue/drawer')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IVkLogoBlack: typeof import('~icons/vk/logo-black')['default']
     IVkLogoWhite: typeof import('~icons/vk/logo-white')['default']
@@ -20,6 +22,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sidebar: typeof import('primevue/sidebar')['default']
+    Skeleton: typeof import('primevue/skeleton')['default']
     Toast: typeof import('primevue/toast')['default']
     Toolbar: typeof import('primevue/toolbar')['default']
   }

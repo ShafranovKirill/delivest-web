@@ -8,7 +8,7 @@ import PrimeVue from 'primevue/config'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import { queryClient } from './api/client.ts'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import { ToastService } from 'primevue'
+import ToastService from 'primevue/toastservice'
 import { MyPreset } from './assets/colorPreset.ts'
 
 const app = createApp(App)

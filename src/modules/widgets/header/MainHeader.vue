@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CartButtonDesktop from '@/modules/cart/components/CartButtonDesktop.vue'
 import { useContactsStore } from '../contacts/stores/constacts.store'
 import { useSidebarStore } from '../sidebar/sidebar.store'
 
@@ -11,7 +12,13 @@ const contactStore = useContactsStore()
       <template #start>
         <Button icon="pi pi-bars" class="mr-4" @click="sidebarStore.toggleSidebar"></Button>
 
-        <div class="tracking-widest text-4xl font-bold text-(--p-primary-500)">Olivia</div>
+        <img
+          src="/delivest-logo/logo-dark.png"
+          alt="Logo"
+          class="w-20 h-12 rounded-lg object-contain mr-3 border border-slate-300"
+        />
+
+        <div class="tracking-widest text-4xl font-bold text-(--p-primary-500)">Sushi Like</div>
       </template>
 
       <template #end>

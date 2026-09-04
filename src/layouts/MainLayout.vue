@@ -1,4 +1,3 @@
->
 <script setup lang="ts">
 import ContactModal from '@/modules/widgets/contacts/components/ContactModal.vue'
 import MainFooter from '@/modules/widgets/footer/MainFooter.vue'

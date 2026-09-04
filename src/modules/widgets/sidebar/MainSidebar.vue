@@ -12,7 +12,7 @@ const items = ref([
 ])
 </script>
 <template>
-  <Sidebar v-model:visible="sidebarStore.isSidebarVisible">
+  <Drawer v-model:visible="sidebarStore.isSidebarVisible">
     <Menu :model="items"></Menu>
-  </Sidebar>
+  </Drawer>
 </template>
