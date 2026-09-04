@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { openLink } from '@/utils/browser'
 import { useContactsStore } from '../contacts/stores/constacts.store'
+import { getCafeName } from '@/utils/env'
 
 const contactsStore = useContactsStore()
 const currentYear = new Date().getFullYear()
+const cafeName = getCafeName()
 </script>
 
 <template>
@@ -22,10 +24,9 @@ const currentYear = new Date().getFullYear()
       class="flex flex-col md:flex-row gap-12 max-w-5xl mx-auto items-center md:items-start justify-between"
     >
       <div class="text-center md:text-left flex-1 max-w-md">
-        <h3 class="text-2xl font-bold mb-4">Оливия Пицца</h3>
+        <h3 class="text-2xl font-bold mb-4">{{ cafeName }}</h3>
         <p class="text-slate-600 leading-relaxed">
-          Самая домашняя, уютная и по-настоящему душевная пицца в городе Орёл. Готовим с любовью для
-          каждого из вас!
+          Самая домашняя, уютная и по-настоящему душевная еда. Готовим с любовью для каждого из вас!
         </p>
       </div>
 
@@ -63,7 +64,7 @@ const currentYear = new Date().getFullYear()
     </div>
 
     <div class="text-center text-sm text-slate-400 mt-12 pt-8">
-      © {{ currentYear }} Оливия Пицца. Все права защищены.
+      © {{ currentYear }} {{ cafeName }}. Все права защищены.
     </div>
   </footer>
 </template>

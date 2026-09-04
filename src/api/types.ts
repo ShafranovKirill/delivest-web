@@ -174,7 +174,7 @@ export interface components {
         /** ProductResponse */
         ProductResponse: {
             /** @example Сочная пицца с колбасками */
-            description?: string;
+            description?: string | null;
             external_id?: string | null;
             /**
              * Format: uuid
@@ -183,15 +183,34 @@ export interface components {
             id?: string;
             /** @example true */
             is_active?: boolean;
-            /** Format: uuid */
-            media_id?: string | null;
             /** @example Пипперони */
             name?: string;
+            /**
+             * @description Старая цена до скидки
+             * @example 690
+             */
+            old_price?: string | null;
+            /**
+             * Format: uri
+             * @description Ссылка на изображение товара
+             * @example https://storage.example.com/images/pepperoni.jpg
+             */
+            photo_url?: string | null;
             /**
              * @description Цена в копейках/минимальных единицах
              * @example 590
              */
             price?: number;
+            /**
+             * @description Количество товара на складе (в шт)
+             * @example 10
+             */
+            quantity?: number | null;
+            /**
+             * @description Вес товара (в граммах)
+             * @example 450
+             */
+            weight?: number | null;
         };
     };
     responses: never;

@@ -2,9 +2,11 @@
 import CartButtonDesktop from '@/modules/cart/components/CartButtonDesktop.vue'
 import { useContactsStore } from '../contacts/stores/constacts.store'
 import { useSidebarStore } from '../sidebar/sidebar.store'
+import { getCafeName } from '@/utils/env'
 
 const sidebarStore = useSidebarStore()
 const contactStore = useContactsStore()
+const cafeName = getCafeName()
 </script>
 <template>
   <header class="w-full bg-gray-200 border-solid">
@@ -12,13 +14,7 @@ const contactStore = useContactsStore()
       <template #start>
         <Button icon="pi pi-bars" class="mr-4" @click="sidebarStore.toggleSidebar"></Button>
 
-        <img
-          src="/delivest-logo/logo-dark.png"
-          alt="Logo"
-          class="w-20 h-12 rounded-lg object-contain mr-3 border border-slate-300"
-        />
-
-        <div class="tracking-widest text-4xl font-bold text-(--p-primary-500)">Sushi Like</div>
+        <div class="tracking-widest text-4xl font-bold text-(--p-primary-500)">{{ cafeName }}</div>
       </template>
 
       <template #end>

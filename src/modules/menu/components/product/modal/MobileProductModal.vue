@@ -27,7 +27,7 @@ const { activeProduct } = storeToRefs(menuStore)
       <div class="flex flex-col p-4 pt-10 h-full">
         <div class="w-full flex justify-center items-center">
           <img
-            :src="getImageUrl(activeProduct?.media_id)"
+            :src="getImageUrl(activeProduct?.photo_url)"
             @error="handleImageError"
             class="w-full aspect-square object-cover rounded-4xl"
           />
@@ -35,7 +35,7 @@ const { activeProduct } = storeToRefs(menuStore)
         <div class="h-full justify-between flex flex-col">
           <div class="flex flex-col mt-4 gap-2">
             <h2 class="text-3xl font-normal!">{{ activeProduct?.name }}</h2>
-
+            <p v-if="activeProduct?.weight">{{ activeProduct?.weight }} г.</p>
             <p v-if="activeProduct?.description" class="text-black text-md leading-tight">
               {{ activeProduct?.description }}
             </p>
