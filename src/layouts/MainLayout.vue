@@ -2,12 +2,14 @@
 import ContactModal from '@/modules/widgets/contacts/components/ContactModal.vue'
 import MainFooter from '@/modules/widgets/footer/MainFooter.vue'
 import MainHeader from '@/modules/widgets/header/MainHeader.vue'
+import TopBar from '@/modules/widgets/header/TopBar.vue'
 import MainSidebar from '@/modules/widgets/sidebar/MainSidebar.vue'
 </script>
 <template>
   <div
     class="min-h-screen flex flex-col mx-auto items-center bg-white rounded-4xl lg:rounded-b-[70px]"
   >
+    <TopBar />
     <MainHeader />
 
     <main class="w-full mx-auto">
