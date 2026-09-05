@@ -8,6 +8,9 @@ import SkeletonCategory from './category/SkeletonCategory.vue'
 import ErrorComponent from './category/ErrorComponent.vue'
 import ProductModal from './product/modal/ProductModal.vue'
 import CartButtonMobile from '@/modules/cart/components/CartButtonMobile.vue'
+import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
+
+const viewportStore = useViewportStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
 
@@ -16,8 +19,8 @@ const menu = computed(() => {
 })
 </script>
 <template>
-  <MobileCategoryBar class="md:hidden" />
-  <DesktopCategoryBar class="hidden md:block" />
+  <MobileCategoryBar v-if="viewportStore.isMobile" />
+  <DesktopCategoryBar v-if="!viewportStore.isMobile" />
   <div v-if="isLoading" class="px-2 sm:px-4 max-w-7xl mx-auto">
     <SkeletonCategory v-for="i in 4" :key="i"></SkeletonCategory>
   </div>
@@ -28,5 +31,5 @@ const menu = computed(() => {
     <CategoryComponent v-for="category in menu" :key="category.id" :category="category" />
   </div>
   <ProductModal />
-  <CartButtonMobile class="md:hidden!" />
+  <CartButtonMobile v-if="viewportStore.isMobile" />
 </template>

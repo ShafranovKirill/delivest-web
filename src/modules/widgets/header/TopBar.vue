@@ -1,6 +1,8 @@
 <template>
   <div class="w-full bg-gray-200 border-b border-gray-300">
-    <div class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center text-sm">
+    <div
+      class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center text-sm text-gray-600"
+    >
       <div class="flex gap-4">
         <a href="#" class="hover:underline">О нас</a>
         <a href="#" class="hover:underline">Контакты</a>
