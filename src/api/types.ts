@@ -104,6 +104,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client/{branch_id}/stocks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Получить список активных акций филиала
+         * @description Возвращает список всех активных акций, привязанных к данному branch_id
+         */
+        get: operations["DelivestWeb.Client.Stock.StockController.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -212,6 +232,39 @@ export interface components {
              */
             weight?: number | null;
         };
+        /** StockResponse */
+        StockResponse: {
+            /**
+             * Format: uuid
+             * @example 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+             */
+            id?: string;
+            /**
+             * @description Флаг активности акции
+             * @example true
+             */
+            is_active?: boolean;
+            /**
+             * Format: float
+             * @example 1
+             */
+            order?: number;
+            /**
+             * Format: uri
+             * @description Ссылка на медиафайл акции
+             * @example https://storage.example.com/images/stock.jpg
+             */
+            photo_url?: string;
+            /**
+             * @description Текст или описание акции
+             * @example Скидка 20% на первую покупку
+             */
+            text?: string;
+        };
+        /** StocksListResponse */
+        StocksListResponse: {
+            data?: components["schemas"]["StockResponse"][];
+        };
     };
     responses: never;
     parameters: never;
@@ -283,7 +336,7 @@ export interface operations {
             path: {
                 /**
                  * @description Slug филиала
-                 * @example sochi-central
+                 * @example centralny-filial
                  */
                 slug: string;
             };
@@ -383,6 +436,32 @@ export interface operations {
                         /** @example Branch not found */
                         error: string;
                     };
+                };
+            };
+        };
+    };
+    "DelivestWeb.Client.Stock.StockController.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description UUID филиала
+                 * @example 123e4567-e89b-12d3-a456-426614174000
+                 */
+                branch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Список акций */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StocksListResponse"];
                 };
             };
         };
