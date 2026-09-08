@@ -11,7 +11,7 @@ const viewportStore = useViewportStore()
 const cafeName = getCafeName()
 </script>
 <template>
-  <header class="w-full bg-gray-200 border-solid">
+  <header class="w-full bg-gray-200 border-solid h-15 sticky top-0 z-50">
     <Toolbar class="rounded-none! max-w-7xl mx-auto px-4! bg-gray-200! border-0!">
       <template #start>
         <Button

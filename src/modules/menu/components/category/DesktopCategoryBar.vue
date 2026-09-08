@@ -62,7 +62,7 @@ watch(categories, updateVisibleCount, { deep: true })
 </script>
 
 <template>
-  <div class="bg-gray-200 w-full sticky top-0 z-50">
+  <div class="bg-gray-200 w-full sticky top-15 z-50">
     <div class="bg-white rounded-t-full w-full min-h-20">
       <div
         ref="containerRef"

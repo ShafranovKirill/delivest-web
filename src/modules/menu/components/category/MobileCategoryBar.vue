@@ -17,7 +17,7 @@ const { activeCategoryId } = storeToRefs(menuStore)
 useMobCatBarScroll(activeCategoryId, containerRef)
 </script>
 <template>
-  <div class="bg-gray-200 w-full sticky top-0 z-50">
+  <div class="bg-gray-200 w-full sticky top-15 z-50">
     <div class="py-4 bg-white rounded-t-4xl w-full overflow-hidden">
       <div ref="containerRef" class="flex overflow-x-auto scrollbar-none max-w-7xl mx-auto">
         <Button
