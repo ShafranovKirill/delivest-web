@@ -66,7 +66,7 @@ watch(categories, updateVisibleCount, { deep: true })
     <div class="bg-white rounded-t-full w-full min-h-20">
       <div
         ref="containerRef"
-        class="whitespace-nowrap flex gap-4 max-w-7xl mx-auto py-3 px-12 2xl:px-2 items-center"
+        class="whitespace-nowrap flex gap-4 max-w-7xl mx-auto py-6 px-12 2xl:px-2 items-center"
       >
         <Button
           v-for="(category, index) in categories.slice(0, visibleCount)"

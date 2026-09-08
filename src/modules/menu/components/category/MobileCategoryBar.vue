@@ -18,13 +18,13 @@ useMobCatBarScroll(activeCategoryId, containerRef)
 </script>
 <template>
   <div class="bg-gray-200 w-full sticky top-0 z-50">
-    <div class="py-2 bg-white rounded-t-4xl w-full overflow-hidden">
+    <div class="py-4 bg-white rounded-t-4xl w-full overflow-hidden">
       <div ref="containerRef" class="flex overflow-x-auto scrollbar-none max-w-7xl mx-auto">
         <Button
           v-for="category in categories"
           :key="category.id"
           :data-id="category.id"
-          class="shrink-0 transition-all duration-200 border-none! ml-2"
+          class="shrink-0 transition-all duration-200 border-none! ml-4"
           @click="menuStore.scrollToCategory(category.id)"
           :severity="menuStore.isActive(category.id) ? 'primary' : 'secondary'"
           :outlined="!menuStore.isActive(category.id)"
