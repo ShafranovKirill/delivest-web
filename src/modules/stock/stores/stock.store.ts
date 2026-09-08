@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { StockService, type Stock } from '../api/stock.service'
 
-export const useStockStore = defineStore('menu', {
+export const useStockStore = defineStore('stock', {
   state: () => ({
     stocks: [] as Stock[],
     isLoadingStocks: false,

@@ -21,7 +21,7 @@ const responsiveOptions = ref([
   },
   {
     breakpoint: '640px',
-    numVisible: 1,
+    numVisible: 2,
     numScroll: 1,
   },
 ])
@@ -48,7 +48,7 @@ const responsiveOptions = ref([
             <img
               :src="data.photo_url"
               :alt="data.text || 'Акция'"
-              class="w-full object-cover block h-60"
+              class="w-full object-cover object-center block h-50"
               loading="lazy"
             />
           </div>
