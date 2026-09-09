@@ -147,6 +147,8 @@ export interface components {
         BranchInfoResponse: {
             /** @example ул. Пушкина, д. 10 */
             address?: string | null;
+            /** @example 30 */
+            delivery_time?: number | null;
             /**
              * Format: uuid
              * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
