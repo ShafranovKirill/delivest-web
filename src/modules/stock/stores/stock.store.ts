@@ -12,12 +12,20 @@ export const useStockStore = defineStore('stock', {
   getters: {},
 
   actions: {
+    resetStocks() {
+      this.stocks = []
+      this.activeStock = null
+      this.isStockModalOpen = false
+    },
+
     async fetchStocks(branchId: string) {
+      this.resetStocks()
+
       this.isLoadingStocks = true
       try {
         this.stocks = await StockService.getStocks(branchId)
       } catch (error) {
-        console.error('[MenuStore] Failed to fetch stocks:', error)
+        console.error('[StockStore] Failed to fetch stocks:', error)
         this.stocks = []
       } finally {
         this.isLoadingStocks = false

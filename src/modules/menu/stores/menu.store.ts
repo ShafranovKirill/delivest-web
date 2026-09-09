@@ -17,6 +17,13 @@ export const useMenuStore = defineStore('menu', {
   },
 
   actions: {
+    resetMenu() {
+      this.activeCategoryId = null
+      this.isManualScroll = false
+      this.isProductModalOpen = false
+      this.activeProduct = null
+    },
+
     setActiveCategory(id: string | undefined) {
       if (!id) return
       this.activeCategoryId = id

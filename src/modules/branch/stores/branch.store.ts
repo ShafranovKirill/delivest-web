@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import Cookies from 'js-cookie'
 import { BranchService, type Branch } from '../api/branch.service'
+import { useStockStore } from '@/modules/stock/stores/stock.store'
+import { useMenuStore } from '@/modules/menu/stores/menu.store' // если есть стор меню
 
 export const useBranchStore = defineStore('branch', () => {
   const branches = ref<Branch[]>([])
@@ -22,6 +24,13 @@ export const useBranchStore = defineStore('branch', () => {
     isModalOpen.value = !isModalOpen.value
   }
 
+  function resetDependentData() {
+    const stockStore = useStockStore()
+    stockStore.resetStocks()
+    const menuStore = useMenuStore()
+    menuStore.resetMenu()
+  }
+
   async function initBranches() {
     if (isInitialized.value) return
     try {
@@ -34,8 +43,12 @@ export const useBranchStore = defineStore('branch', () => {
   }
 
   async function selectBranch(branch: Branch) {
+    if (activeBranch.value?.id === branch.id) return
+
     const previousBranch = activeBranch.value
     activeBranch.value = branch
+
+    resetDependentData()
 
     try {
       await BranchService.selectBranch(branch.id)
@@ -47,11 +60,18 @@ export const useBranchStore = defineStore('branch', () => {
   }
 
   async function selectBranchBySlug(slug: string): Promise<Branch> {
+    if (activeBranch.value?.slug === slug) {
+      return activeBranch.value
+    }
+
     const previousBranch = activeBranch.value
 
     try {
       const selected = await BranchService.selectBranchBySlug(slug)
       activeBranch.value = selected
+
+      resetDependentData()
+
       return selected
     } catch (error) {
       activeBranch.value = previousBranch
@@ -63,6 +83,7 @@ export const useBranchStore = defineStore('branch', () => {
   async function clearActiveBranch() {
     const previousBranch = activeBranch.value
     activeBranch.value = null
+    resetDependentData()
 
     try {
       await BranchService.clearActive()
