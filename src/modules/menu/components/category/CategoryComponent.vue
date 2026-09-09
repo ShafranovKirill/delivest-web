@@ -17,7 +17,7 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   <div
     :id="`category-${category.id}`"
     v-intersection-observer="[onIntersectionObserver, { rootMargin: '-20% 0px -60% 0px' }]"
-    class="my-4 scroll-mt-20"
+    class="my-4 scroll-mt-40"
   >
     <h2 class="mb-2 text-3xl font-bold!">{{ category.name }}</h2>
     <div

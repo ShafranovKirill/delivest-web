@@ -1,17 +1,15 @@
 <template>
   <div
-    class="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center px-4 py-12"
+    class="min-h-screen bg-gray-50 text-gray-900 flex flex-col justify-center items-center px-4 py-12"
   >
     <div class="w-full max-w-md space-y-8 text-center">
       <div class="space-y-2">
-        <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Выберите филиал</h1>
-        <p class="text-sm text-slate-400">Укажите удобный филиал для оформления заказа</p>
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Выберите филиал</h1>
+        <p class="text-sm text-gray-500">Укажите удобный филиал для оформления заказа</p>
       </div>
 
       <div v-if="loading" class="flex justify-center items-center py-12">
-        <div
-          class="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"
-        ></div>
+        <i class="pi pi-spin pi-spinner text-3xl text-(--p-primary-500)"></i>
       </div>
 
       <div v-else class="space-y-3">
@@ -21,35 +19,27 @@
           type="button"
           :disabled="selectingId === branch.id"
           @click="handleSelect(branch)"
-          class="w-full group relative flex items-center justify-between p-4 text-left rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-emerald-500/50 hover:bg-slate-800/60 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+          class="w-full group relative flex items-center justify-between p-4 text-left rounded-2xl bg-white border border-gray-200 hover:border-(--p-primary-500) transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer shadow-xs hover:shadow-md"
         >
-          <span
-            class="text-base font-medium text-slate-200 group-hover:text-white transition-colors"
-          >
-            {{ branch.name }}
-          </span>
+          <div class="flex items-center space-x-2.5 min-w-0 pr-3">
+            <i
+              class="pi pi-map-marker text-gray-400 group-hover:text-(--p-primary-500) transition-colors"
+            ></i>
+            <span
+              class="text-base font-medium text-gray-800 group-hover:text-(--p-primary-500) transition-colors truncate"
+            >
+              {{ branch.name }}
+            </span>
+          </div>
 
           <div
-            class="flex items-center space-x-2 text-slate-500 group-hover:text-emerald-400 transition-colors"
+            class="flex items-center text-gray-400 group-hover:text-(--p-primary-500) transition-colors shrink-0"
           >
-            <div
-              v-if="selectingId === branch.id"
-              class="w-5 h-5 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"
-            ></div>
-            <svg
+            <i v-if="selectingId === branch.id" class="pi pi-spin pi-spinner text-lg"></i>
+            <i
               v-else
-              class="w-5 h-5 transform group-hover:translate-x-0.5 transition-transform"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+              class="pi pi-chevron-right text-sm transform group-hover:translate-x-0.5 transition-transform"
+            ></i>
           </div>
         </button>
       </div>

@@ -13,9 +13,14 @@ const deliveryTime = computed(() => {
   <div class="flex flex-col text-sm border-gray-300 pl-4">
     <div class="flex items-center gap-1.5 font-medium leading-tight">
       <span class="text-gray-600">Доставка еды</span>
-      <span class="text-(--p-primary-500) font-bold">
-        {{ branchStore.activeBranch?.name }}
-      </span>
+
+      <button
+        type="button"
+        @click="branchStore.openModal()"
+        class="text-(--p-primary-500) font-bold hover:text-(--p-primary-800) focus:outline-none cursor-pointer flex items-center gap-1 transition-colors"
+      >
+        <span>{{ branchStore.activeBranch?.name || 'Выберите филиал' }}</span>
+      </button>
     </div>
 
     <div class="flex items-center gap-2 text-sm font-medium leading-tight text-gray-600 mt-0.5">

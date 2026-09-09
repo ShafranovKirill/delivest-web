@@ -8,6 +8,20 @@ export const useBranchStore = defineStore('branch', () => {
   const activeBranch = ref<Branch | null>(null)
   const isInitialized = ref(false)
 
+  const isModalOpen = ref(false)
+
+  function openModal() {
+    isModalOpen.value = true
+  }
+
+  function closeModal() {
+    isModalOpen.value = false
+  }
+
+  function toggleModal() {
+    isModalOpen.value = !isModalOpen.value
+  }
+
   async function initBranches() {
     if (isInitialized.value) return
     try {
@@ -67,6 +81,10 @@ export const useBranchStore = defineStore('branch', () => {
     branches,
     activeBranch,
     isInitialized,
+    isModalOpen,
+    openModal,
+    closeModal,
+    toggleModal,
     initBranches,
     selectBranch,
     selectBranchBySlug,

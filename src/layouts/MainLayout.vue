@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BranchSelectModal from '@/modules/branch/components/BranchSelectModal.vue'
 import ContactModal from '@/modules/widgets/contacts/components/ContactModal.vue'
 import MainFooter from '@/modules/widgets/footer/MainFooter.vue'
 import MainHeader from '@/modules/widgets/header/MainHeader.vue'
@@ -21,4 +22,5 @@ import MainSidebar from '@/modules/widgets/sidebar/MainSidebar.vue'
   </div>
   <MainSidebar />
   <ContactModal />
+  <BranchSelectModal />
 </template>
