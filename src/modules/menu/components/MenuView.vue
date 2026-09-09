@@ -10,22 +10,14 @@ import ProductModal from './product/modal/ProductModal.vue'
 import CartButtonMobile from '@/modules/cart/components/CartButtonMobile.vue'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
 import StockSlider from '@/modules/stock/components/StockSlider.vue'
-import { useBranchStore } from '@/modules/branch/stores/branch.store.ts'
-import { useStockStore } from '@/modules/stock/stores/stock.store.ts'
 
 const viewportStore = useViewportStore()
-const branchStore = useBranchStore()
-const stockStore = useStockStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
 
 const menu = computed(() => {
   return menuData.value?.filter((category) => category.products && category.products.length > 0)
 })
-
-if (branchStore.activeBranch?.id) {
-  stockStore.fetchStocks(branchStore.activeBranch.id)
-}
 </script>
 <template>
   <div class="bg-gray-200">

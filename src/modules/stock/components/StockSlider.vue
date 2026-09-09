@@ -1,13 +1,27 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import Carousel from 'primevue/carousel'
 import type { Stock } from '../api/stock.service'
 import { useStockStore } from '../stores/stock.store'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import StockModal from './StockModal.vue'
 
 const stockStore = useStockStore()
+const branchStore = useBranchStore()
+
 const { stocks } = storeToRefs(stockStore)
+const { activeBranch } = storeToRefs(branchStore)
+
+watch(
+  () => activeBranch.value?.id,
+  (newBranchId) => {
+    if (newBranchId) {
+      stockStore.fetchStocks(newBranchId)
+    }
+  },
+  { immediate: true },
+)
 
 const isCircular = computed(() => stocks.value.length > 5)
 
