@@ -18,7 +18,7 @@
     "schema:sync": "pnpm run schema:download && pnpm run schema:generate"
   },
   "dependencies": {
-    "@primeuix/themes": "^3.0.0",
+    "@primeuix/themes": "^2.0.3",
     "@tanstack/vue-query": "^5.102.8",
     "@vueuse/components": "^14.4.0",
     "@vueuse/core": "^14.4.0",
@@ -27,12 +27,12 @@
     "pinia": "^4.0.3",
     "pinia-plugin-persistedstate": "^4.7.1",
     "primeicons": "^8.0.0",
-    "primevue": "^5.0.1",
+    "primevue": "^4.5.5",
     "vue": "^3.5.41",
     "vue-router": "^5.3.0"
   },
   "devDependencies": {
-    "@primevue/auto-import-resolver": "^5.0.1",
+    "@primevue/auto-import-resolver": "^4.5.5",
     "@tailwindcss/vite": "^4.3.3",
     "@tsconfig/node24": "^24.0.5",
     "@types/js-cookie": "^3.0.6",
