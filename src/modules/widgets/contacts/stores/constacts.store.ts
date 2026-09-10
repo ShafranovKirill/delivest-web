@@ -1,29 +1,23 @@
-import {
-  getAddress,
-  getCafeName,
-  getInstagramUrl,
-  getPhoneNumber,
-  getVkUrl,
-  getYmapsUrl,
-} from '@/utils/env'
 import { defineStore } from 'pinia'
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { formatPhoneNumber } from '../utils/tel-format'
 
 export const useContactsStore = defineStore('contacts', () => {
-  const rawPhone = getPhoneNumber()
+  const branchStore = useBranchStore()
 
-  const contacts = reactive({
-    cafeName: getCafeName(),
-    phone: rawPhone,
-    phoneFormatted: computed(() => formatPhoneNumber(rawPhone)),
-    address: getAddress(),
-    social: {
-      vk: getVkUrl(),
-      instagram: getInstagramUrl(),
-      ymaps: getYmapsUrl(),
-    },
-  })
+  const phone = computed(() => branchStore.activeBranch?.branch_info?.phone_number || '')
+  const phoneFormatted = computed(() => formatPhoneNumber(phone.value))
+
+  const cafeName = computed(() => branchStore.activeBranch?.name || '')
+  const address = computed(() => branchStore.activeBranch?.branch_info?.address || '')
+
+  const social = computed(() => ({
+    vk: branchStore.activeBranch?.branch_info?.vk_url || '',
+    instagram: branchStore.activeBranch?.branch_info?.instagram_url || '',
+    whatsapp: branchStore.activeBranch?.branch_info?.whatsapp_url || '',
+  }))
+
   const isModalOpen = ref(false)
 
   const openModal = () => {
@@ -39,13 +33,15 @@ export const useContactsStore = defineStore('contacts', () => {
   }
 
   const copyPhoneNumber = async () => {
+    if (!phone.value) return { success: false, message: 'Номер отсутствует' }
+
     try {
-      await navigator.clipboard.writeText(contacts.phone)
+      await navigator.clipboard.writeText(phone.value)
       return { success: true, message: 'Номер скопирован!' }
     } catch (error) {
       console.error('Ошибка копирования:', error)
       const textArea = document.createElement('textarea')
-      textArea.value = contacts.phone
+      textArea.value = phone.value
       document.body.appendChild(textArea)
       textArea.select()
       document.execCommand('copy')
@@ -55,17 +51,23 @@ export const useContactsStore = defineStore('contacts', () => {
   }
 
   const makeCall = () => {
+    if (!phone.value) return
+
     const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)
 
     if (isMobile) {
-      window.location.href = `tel:${contacts.phone}`
+      window.location.href = `tel:${phone.value}`
     } else {
       copyPhoneNumber()
     }
   }
 
   return {
-    contacts,
+    phone,
+    phoneFormatted,
+    cafeName,
+    address,
+    social,
     isModalOpen,
 
     openModal,
