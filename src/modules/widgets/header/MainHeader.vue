@@ -1,17 +1,29 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import CartButtonDesktop from '@/modules/cart/components/CartButtonDesktop.vue'
 import { useContactsStore } from '../contacts/stores/constacts.store'
 import { useSidebarStore } from '../sidebar/sidebar.store'
 import { getCafeName } from '@/utils/env'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store'
-import { useBranchStore } from '@/modules/branch/stores/branch.store.ts'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
 
+const router = useRouter()
 const sidebarStore = useSidebarStore()
 const contactStore = useContactsStore()
 const viewportStore = useViewportStore()
 const branchStore = useBranchStore()
 const cafeName = getCafeName()
+
+const navigateToMenu = () => {
+  sidebarStore.isSidebarVisible = false
+  if (branchStore.activeBranch?.slug) {
+    router.push({
+      name: 'menu',
+      params: { slug: branchStore.activeBranch.slug },
+    })
+  }
+}
 </script>
 
 <template>
@@ -19,7 +31,10 @@ const cafeName = getCafeName()
     <Toolbar class="rounded-none! max-w-7xl mx-auto px-4! py-0! h-full bg-gray-200! border-0!">
       <template #start>
         <div class="flex items-center gap-3">
-          <div class="tracking-widest text-4xl font-bold text-(--p-primary-500)">
+          <div
+            class="tracking-widest text-4xl font-bold text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity"
+            @click="navigateToMenu"
+          >
             {{ cafeName }}
           </div>
 
