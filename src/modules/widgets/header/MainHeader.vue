@@ -19,12 +19,6 @@ const cafeName = getCafeName()
     <Toolbar class="rounded-none! max-w-7xl mx-auto px-4! py-0! h-full bg-gray-200! border-0!">
       <template #start>
         <div class="flex items-center gap-3">
-          <Button
-            icon="pi pi-bars"
-            @click="sidebarStore.toggleSidebar"
-            v-if="viewportStore.isMobile"
-          ></Button>
-
           <div class="tracking-widest text-4xl font-bold text-(--p-primary-500)">
             {{ cafeName }}
           </div>
@@ -34,10 +28,18 @@ const cafeName = getCafeName()
       </template>
 
       <template #end>
-        <div class="flex gap-2">
-          <Button icon="pi pi-phone text-lg!" variant="text" @click="contactStore.openModal" />
+        <div class="flex items-center sm:gap-2">
+          <Button icon="pi pi-phone text-xl!" variant="text" @click="contactStore.openModal" />
 
           <CartButtonDesktop v-if="!viewportStore.isMobile" />
+
+          <Button
+            v-if="viewportStore.isMobile"
+            icon="pi pi-bars text-3xl!"
+            variant="text"
+            class="p-2!"
+            @click="sidebarStore.toggleSidebar"
+          />
         </div>
       </template>
     </Toolbar>
