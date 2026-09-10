@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useSidebarStore } from '@/modules/widgets/sidebar/sidebar.store'
 
 const branchStore = useBranchStore()
+const sidebarStore = useSidebarStore()
 const showInfo = ref(false)
 
 const deliveryTime = computed(() => {
   return branchStore.activeBranch?.branch_info?.delivery_time
 })
+
+const openBranchModal = () => {
+  sidebarStore.isSidebarVisible = false
+  branchStore.openModal()
+}
 
 const toggleInfo = () => {
   showInfo.value = !showInfo.value
@@ -16,21 +23,23 @@ const toggleInfo = () => {
 
 <template>
   <div class="flex flex-col text-sm w-full">
-    <div class="flex flex-col items-start pb-2">
+    <div class="flex flex-col items-start pb-2 cursor-pointer group" @click="openBranchModal">
       <div class="flex items-center gap-1.5">
-        <i class="pi pi-map-marker text-lg text-gray-700"></i>
-        <span class="text-lg font-bold text-gray-900 leading-tight">
+        <i
+          class="pi pi-map-marker text-xl! text-gray-700 group-hover:text-(--p-primary-500) transition-colors"
+        ></i>
+        <span
+          class="text-xl font-bold text-gray-900 leading-tight group-hover:text-(--p-primary-500) transition-colors"
+        >
           {{ branchStore.activeBranch?.name || 'Не выбран' }}
         </span>
       </div>
 
-      <button
-        type="button"
-        @click="branchStore.openModal()"
-        class="text-(--p-primary-500) font-semibold text-xs hover:text-(--p-primary-800) focus:outline-none cursor-pointer transition-colors mt-1"
+      <span
+        class="pl-6.5 text-(--p-primary-500) font-semibold text-xs group-hover:text-(--p-primary-800) transition-colors mt-1"
       >
         Изменить
-      </button>
+      </span>
     </div>
 
     <div class="border-b border-gray-100 my-1"></div>
