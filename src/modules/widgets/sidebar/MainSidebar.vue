@@ -35,9 +35,7 @@ const items = ref([
   {
     label: 'О нас',
     icon: 'pi pi-info-circle',
-    command: () => {
-      sidebarStore.isSidebarVisible = false
-    },
+    command: () => navigateTo('branch-info'),
   },
   {
     label: 'Контакты',
