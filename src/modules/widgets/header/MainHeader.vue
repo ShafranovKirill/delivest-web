@@ -9,7 +9,7 @@ import { getCafeName } from '@/utils/env'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
-import { useMobileModalStore } from '../mobile-modal/stores/modal.store'
+import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
 
 const router = useRouter()
 const sidebarStore = useSidebarStore()

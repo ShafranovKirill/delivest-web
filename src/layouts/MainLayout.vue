@@ -5,7 +5,8 @@ import ContactModal from '@/modules/widgets/contacts/components/ContactModal.vue
 import MainFooter from '@/modules/widgets/footer/MainFooter.vue'
 import MainHeader from '@/modules/widgets/header/MainHeader.vue'
 import TopBar from '@/modules/widgets/header/TopBar.vue'
-import UniversalMobileModal from '@/modules/widgets/mobile-modal/components/UniversalMobileModal.vue'
+import UniversalMobileModal from '@/modules/widgets/modal/mobile-modal/components/UniversalMobileModal.vue'
+import UniversalDesktopModal from '@/modules/widgets/modal/modal-desktop/components/UniversalDesktopModal.vue'
 import MainSidebar from '@/modules/widgets/sidebar/MainSidebar.vue'
 
 const viewportStore = useViewportStore()
@@ -28,4 +29,5 @@ const viewportStore = useViewportStore()
   <ContactModal />
   <BranchSelectModal />
   <UniversalMobileModal v-if="viewportStore.isMobile" />
+  <UniversalDesktopModal v-if="!viewportStore.isMobile" />
 </template>
