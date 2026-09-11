@@ -1,6 +1,6 @@
-import { CartService, type Cart, type CartItem } from '@/modules/branch/api/cart.service'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { CartService, type Cart, type CartItem } from '../api/cart.service'
 
 export const useCartStore = defineStore('cart', () => {
   const cart = ref<Cart | null>(null)

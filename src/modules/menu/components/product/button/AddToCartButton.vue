@@ -6,11 +6,16 @@ const props = defineProps<{
   product?: MenuProduct | null
 }>()
 
+const emit = defineEmits<{
+  (e: 'added'): void
+}>()
+
 const cartStore = useCartStore()
 
 const handleAddToCart = async () => {
   if (!props.product) return
   await cartStore.addItem(props.product.id!)
+  emit('added')
 }
 </script>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
-import CartComponent from '@/modules/cart/components/CartComponent.vue' // Укажите ваш точный путь к компоненту корзины
+import CartComponent from '@/modules/cart/components/CartComponent.vue'
 import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store'
 
 const modalStore = useMobileModalStore()

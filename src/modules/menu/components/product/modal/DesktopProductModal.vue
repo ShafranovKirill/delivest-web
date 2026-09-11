@@ -3,8 +3,8 @@ import { storeToRefs } from 'pinia'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import { useImagePlaceholder } from '../../../composables/useImagePlaceholder'
-import AddToCartButton from './AddToCartButton.vue'
 import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
+import AddToCartButton from '../button/AddToCartButton.vue'
 
 const menuStore = useMenuStore()
 const { activeProduct } = storeToRefs(menuStore)
@@ -64,7 +64,7 @@ const { getImageUrl, handleImageError } = useImagePlaceholder()
             </div>
 
             <div class="mt-6 flex flex-col gap-4">
-              <AddToCartButton :product="activeProduct" />
+              <AddToCartButton :product="activeProduct" @added="menuStore.closeProductModal()" />
             </div>
           </div>
         </div>

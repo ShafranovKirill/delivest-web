@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CartItem } from '@/modules/branch/api/cart.service'
+import type { CartItem } from '@/modules/cart/api/cart.service.ts'
 import { ref } from 'vue'
 import { useCartStore } from '../stores/cart.store.ts'
 import { useImagePlaceholder } from '@/modules/menu/composables/useImagePlaceholder.ts'

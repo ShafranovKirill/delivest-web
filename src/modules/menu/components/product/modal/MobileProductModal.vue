@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import AddToCartButton from './AddToCartButton.vue'
 import { useImagePlaceholder } from '@/modules/menu/composables/useImagePlaceholder'
 import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
 import { storeToRefs } from 'pinia'
 import Drawer from 'primevue/drawer'
+import AddToCartButton from '../button/AddToCartButton.vue'
 
 const { getImageUrl, handleImageError } = useImagePlaceholder()
 const menuStore = useMenuStore()
@@ -56,7 +56,7 @@ const { activeProduct } = storeToRefs(menuStore)
           </div>
 
           <div class="pt-4 mt-auto">
-            <AddToCartButton :product="activeProduct" class="w-full" />
+            <AddToCartButton :product="activeProduct" @added="menuStore.closeProductModal()" />
           </div>
         </div>
       </div>
