@@ -90,7 +90,7 @@ const handleRemove = async (event: Event) => {
         type="button"
         @click="handleAdd"
         :disabled="isPending"
-        class="bg-(--p-primary-color) w-full rounded-full text-white py-2 px-4 flex items-center justify-center gap-2 cursor-pointer border-none font-bold hover:opacity-90 transition-opacity disabled:opacity-50 min-h-[40px]"
+        class="bg-(--p-primary-color) w-full rounded-full text-white py-2 px-4 flex items-center justify-center gap-2 cursor-pointer border-none font-bold hover:opacity-90 transition-opacity disabled:opacity-50 min-h-10"
       >
         <ProgressSpinner
           v-if="isPending"
