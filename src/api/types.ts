@@ -104,6 +104,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Получить корзину пользователя
+         * @description Извлекает session_id из кук и возвращает состав текущей корзины.
+         */
+        get: operations["DelivestWeb.Client.Cart.CartController.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/client/cart/{cart_id}/items/{product_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Добавить товар в корзину
+         * @description Добавляет товар в корзину по cart_id и product_id.
+         */
+        post: operations["DelivestWeb.Client.Cart.CartController.add_item"];
+        /**
+         * Удалить товар из корзины
+         * @description Уменьшает количество товара на 1 или удаляет его полностью из корзины.
+         */
+        delete: operations["DelivestWeb.Client.Cart.CartController.remove_item"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/client/{branch_id}/stocks": {
         parameters: {
             query?: never;
@@ -170,6 +214,52 @@ export interface components {
         /** BranchResponse */
         BranchResponse: {
             data: components["schemas"]["Branch"];
+        };
+        /** CartItemResponse */
+        CartItemResponse: {
+            /** @example https://example.com/images/pizza.jpg */
+            image_url?: string | null;
+            /** @example Пицца Маргарита */
+            name: string;
+            /**
+             * @description Цена за единицу в копейках/рублях
+             * @example 590
+             */
+            price: number;
+            /**
+             * Format: uuid
+             * @example c4a3b8e0-1234-5678-9abc-def012345678
+             */
+            product_id: string;
+            /** @example 2 */
+            quantity: number;
+            /**
+             * @description Итоговая стоимость позиций
+             * @example 1180
+             */
+            total_price: number;
+        };
+        /** CartResponse */
+        CartResponse: {
+            data: {
+                /**
+                 * Format: uuid
+                 * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
+                 */
+                branch_id?: string | null;
+                /**
+                 * Format: uuid
+                 * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+                 */
+                id: string;
+                items: components["schemas"]["CartItemResponse"][];
+                /** @example eceaec3d-dd25-4e19-8afc-f1d0f1412c9c */
+                session_id?: string | null;
+                /** @example 1500 */
+                total_amount: number;
+                /** @example 3 */
+                total_quantity: number;
+            };
         };
         /** CategoryResponse */
         CategoryResponse: {
@@ -438,6 +528,109 @@ export interface operations {
                         /** @example Branch not found */
                         error: string;
                     };
+                };
+            };
+        };
+    };
+    "DelivestWeb.Client.Cart.CartController.show": {
+        parameters: {
+            query?: {
+                /** @description Принудительно пересчитать и обновить кэш корзины */
+                force?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Данные корзины */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResponse"];
+                };
+            };
+            /** @description Ошибка создания корзины */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    "DelivestWeb.Client.Cart.CartController.add_item": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description UUID корзины */
+                cart_id: string;
+                /** @description UUID товара */
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Обновленная корзина */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResponse"];
+                };
+            };
+            /** @description Ошибка добавления товара */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    "DelivestWeb.Client.Cart.CartController.remove_item": {
+        parameters: {
+            query?: {
+                /** @description Удалить все единицы товара из корзины */
+                all?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description UUID корзины */
+                cart_id: string;
+                /** @description UUID товара */
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Обновленная корзина */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResponse"];
+                };
+            };
+            /** @description Товар не найден в корзине */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
                 };
             };
         };
