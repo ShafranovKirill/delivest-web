@@ -1,11 +1,18 @@
 <script setup lang="ts">
+import { useCartStore } from '@/modules/cart/stores/cart.store'
 import type { MenuProduct } from '../../api/menu.service'
 import { useImagePlaceholder } from '../../composables/useImagePlaceholder'
 import { useMenuStore } from '../../stores/menu.store'
 
 const props = defineProps<{ product: MenuProduct }>()
 const menuStore = useMenuStore()
+const cartStore = useCartStore()
 const { getImageUrl, handleImageError } = useImagePlaceholder()
+
+const handleAddToCart = async (event: MouseEvent) => {
+  event.stopPropagation()
+  await cartStore.addItem(props.product.id!)
+}
 </script>
 
 <template>
@@ -24,7 +31,11 @@ const { getImageUrl, handleImageError } = useImagePlaceholder()
           <p class="text-xl font-bold text-center mb-2">{{ product.name }}</p>
         </div>
 
-        <Button class="rounded-4xl! bg-primary py-1.5! px-4! flex items-center gap-2 mt-auto">
+        <Button
+          @click="handleAddToCart"
+          :loading="cartStore.isLoading"
+          class="rounded-4xl! bg-primary py-1.5! px-4! flex items-center gap-2 mt-auto"
+        >
           <span class="text-lg font-bold text-white"> {{ product.price }} ₽ </span>
 
           <span

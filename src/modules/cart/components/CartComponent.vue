@@ -49,7 +49,7 @@ onMounted(() => {
           type="button"
           @click="emit('checkout')"
           :disabled="cartStore.isLoading"
-          class="w-full py-3 px-4 rounded-xl bg-[var(--p-primary-500)] text-white font-medium text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+          class="w-full py-3 px-4 rounded-xl bg-(--p-primary-500) text-white font-medium text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           К оформлению заказа
         </button>
