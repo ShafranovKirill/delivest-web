@@ -17,7 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full flex flex-col h-full">
+  <div class="w-full flex flex-col h-full py-3 lg:py-4">
     <div
       v-if="cartStore.isLoading && !cartStore.isInitialized"
       class="py-8 text-center text-sm text-muted-foreground"
