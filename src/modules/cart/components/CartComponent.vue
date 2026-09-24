@@ -2,18 +2,33 @@
 import { onMounted } from 'vue'
 import CartItemCard from './CartItem.vue'
 import { useCartStore } from '../stores/cart.store.ts'
+import { useRoute, useRouter } from 'vue-router'
+import { useDesktopModalStore } from '@/modules/widgets/modal/modal-desktop/stores/modal.store.ts'
+import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store.ts'
 
 const cartStore = useCartStore()
+const router = useRouter()
+const route = useRoute()
 
-const emit = defineEmits<{
-  (e: 'checkout'): void
-}>()
+const desktopModalStore = useDesktopModalStore()
+const mobileModalStore = useMobileModalStore()
 
 onMounted(() => {
   if (!cartStore.isInitialized) {
     cartStore.fetchCart()
   }
 })
+function handleCheckout() {
+  desktopModalStore.closeModal()
+  mobileModalStore.closeModal()
+
+  const slug = route.params.slug
+  if (slug) {
+    router.push({ name: 'checkout', params: { slug } })
+  } else {
+    router.push({ name: 'checkout' })
+  }
+}
 </script>
 
 <template>
@@ -47,7 +62,7 @@ onMounted(() => {
 
         <button
           type="button"
-          @click="emit('checkout')"
+          @click="handleCheckout"
           :disabled="cartStore.isLoading"
           class="w-full py-3 px-4 rounded-xl bg-(--p-primary-500) text-white font-medium text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
         >

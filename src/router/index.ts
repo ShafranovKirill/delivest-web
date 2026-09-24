@@ -5,6 +5,7 @@ import MainLayout from '@/layouts/MainLayout.vue'
 import MenuView from '@/modules/menu/components/MenuView.vue'
 import StockView from '@/modules/stock/views/StockView.vue'
 import BranchInfoView from '@/modules/branch/views/BranchInfoView.vue'
+import CheckoutView from '@/modules/order/views/CheckoutView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
           path: 'branch-info',
           name: 'branch-info',
           component: BranchInfoView,
+        },
+        {
+          path: 'checkout',
+          name: 'checkout',
+          component: CheckoutView,
         },
       ],
     },
