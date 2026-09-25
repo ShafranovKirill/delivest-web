@@ -1,3 +1,4 @@
+// order.store.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
@@ -20,6 +21,12 @@ export const useOrderStore = defineStore('order', () => {
 
   function handleStepChange(step: string | number) {
     const numericStep = Number(step)
+
+    // Если заказ уже оформлен (шаг 3), запрещаем возвращаться на 1 и 2 шаги[cite: 1]
+    if (createdOrderId.value && numericStep !== 3) {
+      return
+    }
+
     if (Number(activeStep.value) === 3 && numericStep !== 3) {
       return
     }
@@ -31,7 +38,15 @@ export const useOrderStore = defineStore('order', () => {
     createdOrderId.value = null
     lastCreatedOrder.value = null
     errorMessage.value = null
-    cartStore.clearCart?.()
+    cartStore.clearCart?.() // Сбрасываем корзину[cite: 1, 4]
+  }
+
+  // Очистка данных заказа при уходе со страницы, если заказ был создан
+  function clearCreatedOrder() {
+    createdOrderId.value = null
+    lastCreatedOrder.value = null
+    activeStep.value = 1
+    errorMessage.value = null
   }
 
   async function createOrder(form: OrderFormValues): Promise<Order | void> {
@@ -84,6 +99,7 @@ export const useOrderStore = defineStore('order', () => {
       createdOrderId.value = order.id
       activeStep.value = 3
 
+      await cartStore.clearCart()
       await cartStore.fetchCart(true)
 
       return order
@@ -109,6 +125,7 @@ export const useOrderStore = defineStore('order', () => {
     errorMessage,
     handleStepChange,
     resetOrderState,
+    clearCreatedOrder,
     createOrder,
   }
 })

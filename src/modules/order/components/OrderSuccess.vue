@@ -46,12 +46,12 @@ function handleReturnHome() {
         :href="`tel:${contactsStore.phone}`"
         label="Позвонить нам"
         severity="secondary"
-        class="rounded-2xl h-14 font-semibold w-full flex-1"
+        class="rounded-4xl! h-14 font-semibold w-full flex-1"
       />
 
       <Button
         label="Вернуться в меню"
-        class="rounded-2xl h-14 font-semibold w-full flex-1"
+        class="rounded-4xl! h-14 font-semibold w-full flex-1"
         @click="handleReturnHome"
       />
     </div>

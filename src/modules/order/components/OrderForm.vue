@@ -183,7 +183,7 @@ function handleSubmit() {
       type="submit"
       label="Подтвердить и оформить заказ"
       :loading="isLoading"
-      class="w-full h-14 rounded-2xl text-base font-semibold"
+      class="w-full h-14 rounded-4xl! text-base font-semibold"
     />
   </form>
 </template>

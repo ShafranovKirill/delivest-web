@@ -18,6 +18,7 @@ onMounted(() => {
     cartStore.fetchCart()
   }
 })
+
 function handleCheckout() {
   desktopModalStore.closeModal()
   mobileModalStore.closeModal()
@@ -27,6 +28,18 @@ function handleCheckout() {
     router.push({ name: 'checkout', params: { slug } })
   } else {
     router.push({ name: 'checkout' })
+  }
+}
+
+function goToCatalog() {
+  desktopModalStore.closeModal()
+  mobileModalStore.closeModal()
+
+  const slug = route.params.slug
+  if (slug) {
+    router.push({ name: 'catalog', params: { slug } })
+  } else {
+    router.push({ name: 'catalog' })
   }
 }
 </script>
@@ -40,8 +53,29 @@ function handleCheckout() {
       Загрузка корзины...
     </div>
 
-    <div v-else-if="cartStore.isEmpty" class="py-12 text-center text-sm text-muted-foreground">
-      Ваша корзина пуста
+    <div
+      v-else-if="cartStore.isEmpty"
+      class="flex flex-col items-center justify-center h-full my-auto py-12 px-4 text-center"
+    >
+      <div
+        class="w-16 h-16 rounded-full bg-muted/60 flex items-center justify-center mb-4 text-muted-foreground"
+      >
+        <i class="pi pi-shopping-cart text-2xl"></i>
+      </div>
+
+      <h3 class="text-base font-semibold text-foreground mb-1">Ваша корзина пуста</h3>
+
+      <p class="text-sm text-muted-foreground max-w-xs mb-6">
+        Самое время добавить сюда что-нибудь интересное из каталога.
+      </p>
+
+      <button
+        type="button"
+        @click="goToCatalog"
+        class="py-2.5 px-5 rounded-xl bg-(--p-primary-500) text-white font-medium text-sm transition-opacity hover:opacity-90"
+      >
+        Перейти в каталог
+      </button>
     </div>
 
     <div v-else class="flex flex-col h-full justify-between gap-4">
