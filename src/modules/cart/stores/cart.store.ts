@@ -84,6 +84,21 @@ export const useCartStore = defineStore('cart', () => {
     return item?.quantity ?? 0
   }
 
+  async function clearCart(): Promise<void> {
+    if (!cart.value?.id) return
+
+    isLoading.value = true
+    try {
+      const updatedCart = await CartService.clearCart(cart.value.id)
+      cart.value = updatedCart
+    } catch (error) {
+      console.error('[CartStore] Failed to clear cart:', error)
+      throw error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     cart,
     items,
@@ -97,6 +112,7 @@ export const useCartStore = defineStore('cart', () => {
     addItem,
     removeItem,
     removeAllOfItem,
+    clearCart,
     getItemQuantity,
   }
 })

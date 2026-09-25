@@ -1,53 +1,59 @@
+name=OrderSuccess.vue
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
+import { useOrderStore } from '../stores/order.store'
 import Button from 'primevue/button'
 
+const router = useRouter()
 const contactsStore = useContactsStore()
+const orderStore = useOrderStore()
 
-defineEmits<{
-  (e: 'home'): void
-}>()
+function handleReturnHome() {
+  orderStore.resetOrderState()
+  router.push('/')
+}
 </script>
 
 <template>
-  <div class="flex flex-col items-center text-center gap-6 px-2">
+  <div class="flex flex-col items-center text-center gap-6 px-2 py-4 max-w-md mx-auto">
     <div
-      class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center text-3xl"
+      class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center text-3xl shadow-sm"
     >
       ✓
     </div>
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-1.5">
       <h2 class="text-xl sm:text-2xl font-bold">Заказ успешно оформлен!</h2>
+      <p class="text-sm text-muted-foreground">Спасибо за ваш выбор. Мы уже начали подготовку.</p>
     </div>
 
-    <div class="flex flex-col gap-3 text-sm max-w-md">
-      <p class="font-medium text-foreground">
-        Вам позвонит оператор в течение 5 минут для подтверждения заказа.
-      </p>
-      <p class="text-muted-foreground text-xs leading-relaxed">
-        Если оператор не связался с вами в указанное время, пожалуйста, свяжитесь с работниками
-        кафе:
-        <template v-if="contactsStore.phone">
-          <a
-            :href="`tel:${contactsStore.phone}`"
-            class="font-semibold text-primary hover:underline block mt-1 text-sm"
-          >
-            {{ contactsStore.phoneFormatted || contactsStore.phone }}
-          </a>
-        </template>
-        <template v-else>
-          <span class="font-semibold text-foreground block mt-1 text-sm">
-            Свяжитесь с работниками кафе
-          </span>
-        </template>
+    <div class="w-full flex flex-col gap-3 py-2 border-y border-border/40 text-sm">
+      <div class="flex items-center justify-center gap-2 text-foreground font-medium">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        Ожидайте звонок оператора
+      </div>
+      <p class="text-xs text-muted-foreground leading-relaxed px-4">
+        Мы свяжемся с вами в течение <span class="font-semibold text-foreground">5 минут</span> для
+        подтверждения деталей. Если этого не случилось, пожалуйста, позвоните нам.
       </p>
     </div>
 
-    <Button
-      label="Вернуться на главную"
-      class="rounded-2xl px-8 h-12 font-semibold w-full sm:w-auto"
-      @click="$emit('home')"
-    />
+    <div class="flex flex-col sm:flex-row gap-3 w-full mt-2">
+      <Button
+        v-if="contactsStore.phone"
+        as="a"
+        :href="`tel:${contactsStore.phone}`"
+        label="Позвонить нам"
+        severity="secondary"
+        class="rounded-2xl h-14 font-semibold w-full flex-1"
+      />
+
+      <Button
+        label="Вернуться в меню"
+        class="rounded-2xl h-14 font-semibold w-full flex-1"
+        @click="handleReturnHome"
+      />
+    </div>
   </div>
 </template>

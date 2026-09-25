@@ -1,5 +1,7 @@
+name=OrderForm.vue
 <script setup lang="ts">
 import { reactive } from 'vue'
+import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
@@ -33,6 +35,8 @@ const emit = defineEmits<{
   (e: 'submit', form: OrderFormValues): void
 }>()
 
+const toast = useToast()
+
 const form = reactive<OrderFormValues>({
   customer_name: '',
   customer_phone: '+7',
@@ -62,6 +66,16 @@ const paymentOptions = [
 ]
 
 function handleSubmit() {
+  if (!form.customer_phone || form.customer_phone.length < 12) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка',
+      detail: 'Заполните обязательные поля',
+      life: 3000,
+    })
+    return
+  }
+
   emit('submit', form)
 }
 </script>
@@ -79,7 +93,9 @@ function handleSubmit() {
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-muted-foreground">Номер телефона *</label>
+        <label class="text-sm font-medium text-muted-foreground">
+          Номер телефона <span class="text-red-500">*</span>
+        </label>
         <PhoneInput v-model="form.customer_phone" required class="w-full" />
       </div>
     </div>

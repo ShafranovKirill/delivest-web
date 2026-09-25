@@ -26,4 +26,9 @@ export const CartService = {
     })
     return data.data
   },
+
+  async clearCart(cartId: string): Promise<Cart> {
+    const { data } = await api.delete<CartResponse>(`/client/cart/${cartId}/clear`)
+    return data.data
+  },
 }
