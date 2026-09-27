@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useMenuQuery } from '../composables/useMenuQuery'
 import MobileCategoryBar from './category/MobileCategoryBar.vue'
 import DesktopCategoryBar from './category/DesktopCategoryBar.vue'
@@ -10,13 +10,21 @@ import ProductModal from './product/modal/ProductModal.vue'
 import CartButtonMobile from '@/modules/cart/components/CartButtonMobile.vue'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
 import StockSlider from '@/modules/stock/components/StockSlider.vue'
+import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
 
 const viewportStore = useViewportStore()
+const cartStore = useCartStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
 
 const menu = computed(() => {
   return menuData.value?.filter((category) => category.products && category.products.length > 0)
+})
+
+onMounted(() => {
+  if (!cartStore.isInitialized) {
+    cartStore.fetchCart()
+  }
 })
 </script>
 <template>
