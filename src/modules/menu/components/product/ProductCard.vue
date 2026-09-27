@@ -2,6 +2,7 @@
 import type { MenuProduct } from '../../api/menu.service'
 import { useImagePlaceholder } from '../../composables/useImagePlaceholder'
 import { useMenuStore } from '../../stores/menu.store'
+import AddToCartSwitch from './button/AddToCartSwitch.vue'
 
 const props = defineProps<{ product: MenuProduct }>()
 const menuStore = useMenuStore()
@@ -24,16 +25,7 @@ const { getImageUrl, handleImageError } = useImagePlaceholder()
           <p class="text-xl font-bold text-center mb-2">{{ product.name }}</p>
         </div>
 
-        <Button class="rounded-4xl! bg-primary py-1.5! px-4! flex items-center gap-2 mt-auto">
-          <span class="text-lg font-bold text-white"> {{ product.price }} ₽ </span>
-
-          <span
-            v-if="product.old_price && product.old_price !== '0.00'"
-            class="text-sm text-white/70 line-through decoration-white/50"
-          >
-            {{ product.old_price }} ₽
-          </span>
-        </Button>
+        <AddToCartSwitch :product="product" />
       </div>
     </template>
   </Card>
