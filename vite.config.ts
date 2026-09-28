@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
     envDir: rootDir,
     envPrefix: 'VITE_',
     server: {
-      port: Number(loadedEnv.VITE_PORT_WEB) || 4000,
+      port: Number(loadedEnv.VITE_PORT_WEB) || 3000,
     },
     plugins: [
       vue(),
