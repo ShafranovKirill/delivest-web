@@ -11,7 +11,7 @@ const { activeProduct } = storeToRefs(menuStore)
 </script>
 
 <template>
-  <Drawer v-model:visible="menuStore.isProductModalOpen" position="bottom" class="h-screen!">
+  <Drawer v-model:visible="menuStore.isProductModalOpen" position="bottom" class="h-dvh!">
     <template #container>
       <button
         @click="menuStore.closeProductModal()"
@@ -20,16 +20,16 @@ const { activeProduct } = storeToRefs(menuStore)
         <i class="pi pi-angle-down text-3xl! font-extralight!" />
       </button>
 
-      <div class="flex flex-col p-4 pt-10 h-full">
-        <div class="w-full flex justify-center items-center">
+      <div class="flex flex-col p-4 pt-16 h-full overflow-y-auto">
+        <div class="w-full flex justify-center items-center shrink-0">
           <img
             :src="getImageUrl(activeProduct?.photo_url)"
             @error="handleImageError"
-            class="w-full aspect-square object-cover rounded-4xl"
+            class="w-full max-w-70 sm:max-w-xs aspect-square object-cover rounded-4xl"
           />
         </div>
 
-        <div class="h-full justify-between flex flex-col mt-4">
+        <div class="flex flex-col justify-between grow mt-4">
           <div class="flex flex-col gap-3">
             <h2 class="text-3xl font-normal! text-gray-900 tracking-tight">
               {{ activeProduct?.name }}
@@ -49,13 +49,14 @@ const { activeProduct } = storeToRefs(menuStore)
 
             <p
               v-if="activeProduct?.description"
-              class="text-gray-600 leading-relaxed text-sm sm:text-base"
+              class="text-gray-600 leading-relaxed text-sm sm:text-base pb-4"
             >
               {{ activeProduct.description }}
             </p>
           </div>
 
-          <div class="pt-4 mt-auto">
+          <!-- Прижимаем кнопку заказа к низу, если контента мало, или оставляем после описания -->
+          <div class="pt-4 mt-auto sticky bottom-0 bg-white/80 backdrop-blur-md pb-4">
             <AddToCartButton :product="activeProduct" @added="menuStore.closeProductModal()" />
           </div>
         </div>

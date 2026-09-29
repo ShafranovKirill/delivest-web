@@ -45,17 +45,17 @@ function goToCatalog() {
 </script>
 
 <template>
-  <div class="w-full flex flex-col h-full py-3 lg:py-4">
+  <div class="w-full h-full flex flex-col relative overflow-hidden bg-white">
     <div
       v-if="cartStore.isLoading && !cartStore.isInitialized"
-      class="py-8 text-center text-sm text-muted-foreground"
+      class="p-6 text-center text-sm text-muted-foreground my-auto"
     >
       Загрузка корзины...
     </div>
 
     <div
       v-else-if="cartStore.isEmpty"
-      class="flex flex-col items-center justify-center h-full my-auto py-12 px-4 text-center"
+      class="flex flex-col items-center justify-center h-full my-auto py-12 px-6 text-center"
     >
       <div
         class="w-16 h-16 rounded-full bg-muted/60 flex items-center justify-center mb-4 text-muted-foreground"
@@ -78,31 +78,35 @@ function goToCatalog() {
       </button>
     </div>
 
-    <div v-else class="flex flex-col h-full justify-between gap-4">
-      <div class="flex flex-col gap-3 overflow-y-auto">
-        <CartItemCard v-for="item in cartStore.items" :key="item.product_id" :item="item" />
+    <template v-else>
+      <div class="flex-1 overflow-y-auto pb-17 flex flex-col gap-3">
+        <div class="flex flex-col gap-3">
+          <CartItemCard v-for="item in cartStore.items" :key="item.product_id" :item="item" />
+        </div>
+
+        <div class="pt-4 mt-auto border-t flex flex-col gap-3">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-muted-foreground">Товаров в корзине:</span>
+            <span class="font-medium">{{ cartStore.totalQuantity }} шт.</span>
+          </div>
+
+          <div class="flex items-center justify-between text-base font-semibold">
+            <span>Сумма:</span>
+            <span>{{ cartStore.totalAmount }} ₽</span>
+          </div>
+        </div>
       </div>
 
-      <div class="pt-3 border-t flex flex-col gap-3 mt-auto">
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-muted-foreground">Товаров в корзине:</span>
-          <span class="font-medium">{{ cartStore.totalQuantity }} шт.</span>
-        </div>
-
-        <div class="flex items-center justify-between text-base font-semibold">
-          <span>Сумма:</span>
-          <span>{{ cartStore.totalAmount }} ₽</span>
-        </div>
-
+      <div class="fixed bottom-0 left-0 right-0 p-2 bg-white z-20">
         <button
           type="button"
           @click="handleCheckout"
           :disabled="cartStore.isLoading"
-          class="w-full py-3 px-4 rounded-xl bg-(--p-primary-500) text-white font-medium text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+          class="w-full py-3 px-4 rounded-4xl bg-(--p-primary-500) text-white font-medium text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           К оформлению заказа
         </button>
       </div>
-    </div>
+    </template>
   </div>
 </template>
