@@ -45,7 +45,7 @@ function goToCatalog() {
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col relative overflow-hidden bg-white">
+  <div class="w-full h-full flex flex-col overflow-hidden bg-white">
     <div
       v-if="cartStore.isLoading && !cartStore.isInitialized"
       class="p-6 text-center text-sm text-muted-foreground my-auto"
@@ -79,12 +79,12 @@ function goToCatalog() {
     </div>
 
     <template v-else>
-      <div class="flex-1 overflow-y-auto pb-17 flex flex-col gap-3">
+      <div class="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
         <div class="flex flex-col gap-3">
           <CartItemCard v-for="item in cartStore.items" :key="item.product_id" :item="item" />
         </div>
 
-        <div class="pt-4 mt-auto border-t flex flex-col gap-3">
+        <div class="pt-4 pb-2 mt-auto border-t flex flex-col gap-3">
           <div class="flex items-center justify-between text-sm">
             <span class="text-muted-foreground">Товаров в корзине:</span>
             <span class="font-medium">{{ cartStore.totalQuantity }} шт.</span>
@@ -97,12 +97,14 @@ function goToCatalog() {
         </div>
       </div>
 
-      <div class="fixed bottom-0 left-0 right-0 p-2 bg-white z-20">
+      <div
+        class="pt-3 pb-[calc(env(safe-area-inset-bottom))] bg-white z-20 border-t border-gray-100 mt-2"
+      >
         <button
           type="button"
           @click="handleCheckout"
           :disabled="cartStore.isLoading"
-          class="w-full py-3 px-4 rounded-4xl bg-(--p-primary-500) text-white font-medium text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+          class="w-full py-3.5 px-4 rounded-2xl bg-(--p-primary-500) text-white font-medium text-base transition-opacity hover:opacity-90 disabled:opacity-50 shadow-sm"
         >
           К оформлению заказа
         </button>

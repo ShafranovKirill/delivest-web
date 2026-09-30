@@ -18,15 +18,17 @@ const modalStore = useMobileModalStore()
       },
       root: {
         class:
-          '!w-screen !max-w-full !h-[calc(100vh-57px)] !max-h-[calc(100vh-57px)] !m-0 !rounded-none !border-none !shadow-none bg-gray-200',
+          '!w-screen !max-w-full !h-[calc(100dvh-57px)] !max-h-[calc(100dvh-57px)] !m-0 !rounded-none !border-none !shadow-none bg-gray-200',
       },
       content: {
-        class: '!p-0 !flex !flex-col !h-full bg-gray-200 overflow-y-auto',
+        class: '!p-0 !flex !flex-col !h-full bg-gray-200 overflow-hidden',
       },
     }"
   >
-    <div v-if="modalStore.currentComponent" class="w-full flex-1 flex flex-col min-h-full">
-      <div class="bg-white rounded-4xl w-full flex-1 pt-8 pb-4 px-4 shadow-sm">
+    <div v-if="modalStore.currentComponent" class="w-full h-full flex flex-col">
+      <div
+        class="bg-white rounded-t-4xl w-full h-full flex flex-col pt-6 pb-4 px-4 shadow-sm overflow-hidden"
+      >
         <component
           :is="modalStore.currentComponent"
           v-bind="modalStore.currentProps"
