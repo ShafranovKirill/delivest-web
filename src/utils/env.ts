@@ -11,6 +11,8 @@ export const getEnv = <T = string>(key: keyof ImportMetaEnv, defaultValue?: T): 
   return value as T
 }
 
+export const getSiteDescription = () =>
+  getEnv('VITE_SITE_DESCRIPTION', 'Описание сайта по умолчанию')
 export const getCafeName = () => getEnv('VITE_CAFE_NAME', 'Cafe_name')
 export const getPhoneNumber = () => getEnv('VITE_PHONE_NUMBER', '+71234567890')
 export const getVkUrl = () => getEnv('VITE_VK_URL', 'https://vk.com')

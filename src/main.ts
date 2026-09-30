@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { createHead } from '@vueuse/head'
 import App from './App.vue'
 import router from './router'
 import './assets/main.css'
@@ -13,6 +14,7 @@ import { MyPreset } from './assets/colorPreset.ts'
 
 const app = createApp(App)
 const pinia = createPinia()
+const head = createHead()
 
 app.use(PrimeVue, {
   theme: {
@@ -26,6 +28,7 @@ app.use(PrimeVue, {
 })
 
 app.use(router)
+app.use(head)
 app.use(VueQueryPlugin, { queryClient })
 pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
