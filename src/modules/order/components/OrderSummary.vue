@@ -12,7 +12,7 @@ const orderStore = useOrderStore()
   >
     <h2 class="text-base sm:text-lg font-semibold">Ваш заказ</h2>
 
-    <div class="flex flex-col gap-3 max-h-80 lg:max-h-96 overflow-y-auto pr-1">
+    <div class="flex flex-col gap-3">
       <div
         v-for="item in cartStore.items"
         :key="item.product_id"
