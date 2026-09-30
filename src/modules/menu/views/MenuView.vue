@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useMenuQuery } from '../composables/useMenuQuery'
-import MobileCategoryBar from './category/MobileCategoryBar.vue'
-import DesktopCategoryBar from './category/DesktopCategoryBar.vue'
-import CategoryComponent from './category/CategoryComponent.vue'
-import SkeletonCategory from './category/SkeletonCategory.vue'
-import ErrorComponent from './category/ErrorComponent.vue'
-import ProductModal from './product/modal/ProductModal.vue'
+
 import CartButtonMobile from '@/modules/cart/components/CartButtonMobile.vue'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
 import StockSlider from '@/modules/stock/components/StockSlider.vue'
 import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import MobileCategoryBar from '../components/category/MobileCategoryBar.vue'
+import DesktopCategoryBar from '../components/category/DesktopCategoryBar.vue'
+import SkeletonCategory from '../components/category/SkeletonCategory.vue'
+import CategoryComponent from '../components/category/CategoryComponent.vue'
+import ProductModal from '../components/product/modal/ProductModal.vue'
 
 const viewportStore = useViewportStore()
 const cartStore = useCartStore()
+const branchStore = useBranchStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
 
@@ -22,11 +24,14 @@ const menu = computed(() => {
 })
 
 onMounted(() => {
+  cartStore.initBranchSync()
+
   if (!cartStore.isInitialized) {
-    cartStore.fetchCart()
+    cartStore.fetchCart(branchStore.activeBranch?.id)
   }
 })
 </script>
+
 <template>
   <div class="bg-gray-200">
     <StockSlider />

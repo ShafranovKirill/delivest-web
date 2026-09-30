@@ -7,11 +7,18 @@ export type CartResponse =
 export type Cart = CartResponse['data']
 export type CartItem = Cart['items'][number]
 
+interface CartQueryParams {
+  force?: boolean
+  branch_id?: string
+}
+
 export const CartService = {
-  async getCart(force = false): Promise<Cart> {
-    const { data } = await api.get<CartResponse>('/client/cart', {
-      params: force ? { force: true } : undefined,
-    })
+  async getCart(branchId?: string, force: boolean = false): Promise<Cart> {
+    const params: CartQueryParams = {}
+    if (force) params.force = true
+    if (branchId) params.branch_id = branchId
+
+    const { data } = await api.get<CartResponse>('/client/cart', { params })
     return data.data
   },
 

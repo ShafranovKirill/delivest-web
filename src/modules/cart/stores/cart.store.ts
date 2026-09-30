@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { CartService, type Cart, type CartItem } from '../api/cart.service'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 
 export const useCartStore = defineStore('cart', () => {
   const cart = ref<Cart | null>(null)
@@ -12,19 +13,41 @@ export const useCartStore = defineStore('cart', () => {
   const totalAmount = computed<number>(() => cart.value?.total_amount ?? 0)
   const isEmpty = computed<boolean>(() => items.value.length === 0)
 
-  async function fetchCart(force = false): Promise<Cart> {
+  const branchStore = useBranchStore()
+
+  async function fetchCart(branchId?: string, force: boolean = false): Promise<Cart> {
     isLoading.value = true
     try {
-      const data = await CartService.getCart(force)
+      const currentBranchId = branchId ?? branchStore.activeBranch?.id
+      const data = await CartService.getCart(currentBranchId, force)
       cart.value = data
       isInitialized.value = true
       return data
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('[CartStore] Failed to fetch cart:', error)
       throw error
     } finally {
       isLoading.value = false
     }
+  }
+
+  function initBranchSync() {
+    return watch(
+      () => branchStore.activeBranch?.id,
+      async (newBranchId, oldBranchId) => {
+        if (newBranchId === oldBranchId) return
+
+        if (newBranchId) {
+          try {
+            await fetchCart(newBranchId, true)
+          } catch (error) {
+            console.error('[CartStore] Failed to update cart after branch change:', error)
+          }
+        } else {
+          cart.value = null
+        }
+      },
+    )
   }
 
   async function addItem(productId: string): Promise<Cart> {
@@ -109,6 +132,7 @@ export const useCartStore = defineStore('cart', () => {
     isInitialized,
 
     fetchCart,
+    initBranchSync,
     addItem,
     removeItem,
     removeAllOfItem,
