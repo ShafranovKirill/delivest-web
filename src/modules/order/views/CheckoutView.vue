@@ -43,72 +43,82 @@ onUnmounted(() => {
 
 <template>
   <div class="bg-gray-200 w-full min-h-screen">
-    <div class="bg-white rounded-4xl w-full min-h-screen py-8 px-4 sm:px-6">
-      <h1 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Оформление заказа</h1>
+    <div class="bg-white rounded-4xl sm:rounded-[4rem] w-full min-h-screen py-8 px-4 sm:px-8">
+      <div class="max-w-5xl mx-auto w-full">
+        <Message v-if="orderStore.errorMessage" severity="error" class="mb-6">{{
+          orderStore.errorMessage
+        }}</Message>
 
-      <Message v-if="orderStore.errorMessage" severity="error" class="mb-6">{{
-        orderStore.errorMessage
-      }}</Message>
+        <div
+          v-if="cartStore.isLoading && !cartStore.isInitialized"
+          class="text-center py-12 text-muted-foreground"
+        >
+          Проверяем корзину...
+        </div>
 
-      <div
-        v-if="cartStore.isLoading && !cartStore.isInitialized"
-        class="text-center py-12 text-muted-foreground"
-      >
-        Проверяем корзину...
-      </div>
+        <div
+          v-else-if="cartStore.isEmpty && Number(orderStore.activeStep) !== 3"
+          class="text-center py-12 bg-muted/20 rounded-3xl p-6 sm:p-8"
+        >
+          <p class="text-lg font-medium mb-4">Ваша корзина пуста или устарела</p>
+          <Button label="Вернуться к меню" @click="router.push('/')" />
+        </div>
 
-      <div
-        v-else-if="cartStore.isEmpty && Number(orderStore.activeStep) !== 3"
-        class="text-center py-12 bg-muted/20 rounded-3xl p-6 sm:p-8"
-      >
-        <p class="text-lg font-medium mb-4">Ваша корзина пуста или устарела</p>
-        <Button label="Вернуться к меню" @click="router.push('/')" />
-      </div>
+        <Stepper
+          :value="orderStore.activeStep"
+          @update:value="orderStore.handleStepChange"
+          class="w-full"
+          :pt="{
+            separator: 'translate-y-[-14px]',
+          }"
+        >
+          <StepList>
+            <Step
+              :value="1"
+              :disabled="Boolean(orderStore.createdOrderId)"
+              :pt="{ header: 'flex-col items-center gap-2' }"
+            >
+              Корзина
+            </Step>
 
-      <Stepper
-        :value="orderStore.activeStep"
-        @update:value="orderStore.handleStepChange"
-        class="w-full"
-      >
-        <StepList>
-          <!-- Блокируем шаги 1 и 2, если заказ уже успешно создан (шаг 3) -->
-          <Step :value="1" :disabled="Boolean(orderStore.createdOrderId)">Корзина</Step>
-          <Step :value="2" :disabled="cartStore.isEmpty || Boolean(orderStore.createdOrderId)"
-            >Данные</Step
-          >
-          <Step :value="3" :disabled="!orderStore.createdOrderId">Заказ принят</Step>
-        </StepList>
+            <Step
+              :value="2"
+              :disabled="cartStore.isEmpty || Boolean(orderStore.createdOrderId)"
+              :pt="{ header: 'flex-col items-center gap-2' }"
+            >
+              Данные
+            </Step>
 
-        <StepPanels class="mt-4 sm:mt-6">
-          <StepPanel :value="1">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div class="lg:col-span-7 flex flex-col gap-6"></div>
-              <div class="lg:col-span-5 flex flex-col gap-4">
+            <Step
+              :value="3"
+              :disabled="!orderStore.createdOrderId"
+              :pt="{ header: 'flex-col items-center gap-2' }"
+            >
+              Заказ принят
+            </Step>
+          </StepList>
+
+          <StepPanels class="mt-4 sm:mt-6">
+            <StepPanel :value="1">
+              <div class="w-full">
                 <OrderSummary />
-                <Button
-                  label="Далее"
-                  class="w-full h-14 rounded-4xl! text-base font-semibold"
-                  @click="orderStore.activeStep = 2"
-                />
               </div>
-            </div>
-          </StepPanel>
+            </StepPanel>
 
-          <StepPanel :value="2">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div class="lg:col-span-12">
+            <StepPanel :value="2">
+              <div class="w-full">
                 <OrderForm :isLoading="orderStore.isLoading" @submit="orderStore.createOrder" />
               </div>
-            </div>
-          </StepPanel>
+            </StepPanel>
 
-          <StepPanel :value="3">
-            <div class="max-w-xl mx-auto">
-              <OrderSuccess />
-            </div>
-          </StepPanel>
-        </StepPanels>
-      </Stepper>
+            <StepPanel :value="3">
+              <div class="w-full">
+                <OrderSuccess />
+              </div>
+            </StepPanel>
+          </StepPanels>
+        </Stepper>
+      </div>
     </div>
   </div>
 </template>

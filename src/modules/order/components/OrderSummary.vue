@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { useOrderStore } from '../stores/order.store'
 
 const cartStore = useCartStore()
+const orderStore = useOrderStore()
 </script>
 
 <template>
@@ -37,4 +39,9 @@ const cartStore = useCartStore()
       </div>
     </div>
   </div>
+  <Button
+    label="Далее"
+    class="w-full h-14 rounded-4xl! text-base font-semibold mt-4"
+    @click="orderStore.activeStep = 2"
+  />
 </template>
