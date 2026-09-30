@@ -96,7 +96,7 @@ export const useOrderStore = defineStore('order', () => {
       createdOrderId.value = order.id
       activeStep.value = 3
 
-      await cartStore.fetchCart(true)
+      await cartStore.fetchCart(branchId, true)
 
       return order
     } catch (error: unknown) {

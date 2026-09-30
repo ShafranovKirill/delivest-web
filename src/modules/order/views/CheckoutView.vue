@@ -10,6 +10,7 @@ import Step from 'primevue/step'
 import StepPanel from 'primevue/steppanel'
 
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { useBranchStore } from '@/modules/branch/stores/branch.store' // 1. Импортируем бранч-стор
 import { useOrderStore } from '../stores/order.store'
 import OrderForm from '../components/OrderForm.vue'
 import OrderSummary from '../components/OrderSummary.vue'
@@ -17,11 +18,12 @@ import OrderSuccess from '../components/OrderSuccess.vue'
 
 const router = useRouter()
 const cartStore = useCartStore()
+const branchStore = useBranchStore()
 const orderStore = useOrderStore()
 
 onMounted(async () => {
   try {
-    await cartStore.fetchCart(true)
+    await cartStore.fetchCart(branchStore.activeBranch?.id, true)
   } catch (e) {
     console.error(e)
   }
