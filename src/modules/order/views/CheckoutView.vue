@@ -22,6 +22,7 @@ const branchStore = useBranchStore()
 const orderStore = useOrderStore()
 
 onMounted(async () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
   try {
     await cartStore.fetchCart(branchStore.activeBranch?.id, true)
   } catch (e) {
