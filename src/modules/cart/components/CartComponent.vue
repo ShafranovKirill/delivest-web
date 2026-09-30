@@ -97,9 +97,7 @@ function goToCatalog() {
         </div>
       </div>
 
-      <div
-        class="pt-3 pb-[calc(env(safe-area-inset-bottom))] bg-white z-20 border-t border-gray-100 mt-2"
-      >
+      <div class="pt-3 pb-[calc(env(safe-area-inset-bottom))] bg-white z-20">
         <button
           type="button"
           @click="handleCheckout"
