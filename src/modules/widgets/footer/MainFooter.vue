@@ -8,7 +8,6 @@ const currentYear = new Date().getFullYear()
 
 <template>
   <footer class="w-full py-12 px-6">
-    <!-- Кнопка связи -->
     <div class="mb-12 w-full max-w-5xl mx-auto">
       <Button
         class="w-full! rounded-full! h-14! shadow-sm justify-center"

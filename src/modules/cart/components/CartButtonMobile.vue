@@ -23,7 +23,7 @@ const openCartModal = () => {
 <template>
   <Button
     v-if="!cartStore.isEmpty"
-    class="fixed! bottom-6 right-6 h-15! w-auto! shrink-0 rounded-full! px-6! min-w-max flex! items-center justify-center gap-2!"
+    class="fixed! bottom-6 right-6 h-15! z-50 w-auto! shrink-0 rounded-full! px-6! min-w-max flex! items-center justify-center gap-2!"
     @click="openCartModal"
   >
     <i class="pi pi-shopping-bag text-xl! shrink-0"></i>
