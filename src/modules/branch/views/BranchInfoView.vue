@@ -59,7 +59,6 @@ const handleChangeBranch = () => {
             <div
               class="p-5 rounded-2xl bg-gray-50 border border-gray-100 md:col-span-2 overflow-hidden"
             >
-              <!-- Верхняя часть с иконкой и текстом -->
               <div class="flex items-start gap-4">
                 <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500) shrink-0">
                   <i class="pi pi-building text-xl"></i>
