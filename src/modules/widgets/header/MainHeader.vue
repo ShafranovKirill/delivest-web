@@ -48,6 +48,7 @@ const navigateToMenu = () => {
           </template>
 
           <div
+            translate="no"
             class="tracking-widest text-2xl sm:text-4xl font-bold text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity truncate max-w-50 sm:max-w-none"
             @click="navigateToMenu"
           >
