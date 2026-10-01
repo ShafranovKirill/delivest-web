@@ -4,8 +4,8 @@ declare global {
   }
 }
 
-export const getEnv = <T = string>(key: keyof ImportMetaEnv, defaultValue?: T): T => {
-  const value = window._env?.[key] ?? import.meta.env[key]
+export const getEnv = <T = string>(key: string, defaultValue?: T): T => {
+  const value = window._env?.[key] ?? (import.meta.env[key] as string)
 
   if (value === undefined || value === '') {
     if (defaultValue !== undefined) {
