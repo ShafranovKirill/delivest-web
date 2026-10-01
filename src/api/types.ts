@@ -113,12 +113,32 @@ export interface paths {
         };
         /**
          * Получить корзину пользователя
-         * @description Извлекает session_id из кук и возвращает состав текущей корзины.
+         * @description Извлекает branch_id из query или кук и возвращает состав текущей корзины.
          */
         get: operations["DelivestWeb.Client.Cart.CartController.show"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/client/cart/{cart_id}/clear": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Очистить корзину
+         * @description Удаляет все товары из указанной корзины.
+         */
+        delete: operations["DelivestWeb.Client.Cart.CartController.clear"];
         options?: never;
         head?: never;
         patch?: never;
@@ -256,6 +276,20 @@ export interface components {
             vk_url?: string | null;
             /** @example https://wa.me/79990000000 */
             whatsapp_url?: string | null;
+            ycart_settings?: ({
+                /** @example Москва, Красная площадь */
+                address?: string | null;
+                /** @example true */
+                enabled?: boolean | null;
+                /** @example 55.7558 */
+                latitude?: number | null;
+                /** @example 37.6173 */
+                longitude?: number | null;
+                /** @example 123456789 */
+                yandex_org_id?: string | null;
+            } & {
+                [key: string]: unknown;
+            }) | null;
         };
         /** BranchListResponse */
         BranchListResponse: {
@@ -684,6 +718,8 @@ export interface operations {
             query?: {
                 /** @description Принудительно пересчитать и обновить кэш корзины */
                 force?: boolean;
+                /** @description ID активного филиала */
+                branch_id?: string;
             };
             header?: never;
             path?: never;
@@ -702,6 +738,38 @@ export interface operations {
             };
             /** @description Ошибка создания корзины */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    "DelivestWeb.Client.Cart.CartController.clear": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description UUID корзины */
+                cart_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Очищенная корзина */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResponse"];
+                };
+            };
+            /** @description Корзина не найдена */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

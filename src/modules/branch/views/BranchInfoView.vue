@@ -3,9 +3,15 @@ import { storeToRefs } from 'pinia'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { Branch } from '../api/branch.service'
 import type { Ref } from 'vue'
+import { useMapStore } from '../stores/map.store'
+import BranchYandexMap from '../components/BranchYandexMap.vue'
 
 const branchStore = useBranchStore()
+const mapStore = useMapStore()
+
 const { activeBranch } = storeToRefs(branchStore) as { activeBranch: Ref<Branch | null> }
+const { isMapEnabled, coordinates, yandexOrgUrl } = storeToRefs(mapStore)
+
 const handleChangeBranch = () => {
   branchStore.openModal()
 }
@@ -50,17 +56,42 @@ const handleChangeBranch = () => {
 
         <div v-if="activeBranch" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-4">
-              <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500)">
-                <i class="pi pi-building text-xl"></i>
+            <div
+              class="p-5 rounded-2xl bg-gray-50 border border-gray-100 md:col-span-2 overflow-hidden"
+            >
+              <!-- Верхняя часть с иконкой и текстом -->
+              <div class="flex items-start gap-4">
+                <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500) shrink-0">
+                  <i class="pi pi-building text-xl"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                    >Адрес и расположение</span
+                  >
+                  <p class="text-base font-semibold text-gray-900 mt-1 mb-3 wrap-break-word">
+                    {{ activeBranch.branch_info?.address || 'Адрес не указан' }}
+                  </p>
+                </div>
               </div>
-              <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
-                  >Адрес</span
-                >
-                <p class="text-base font-semibold text-gray-900 mt-1">
-                  {{ activeBranch.branch_info?.address || 'Адрес не указан' }}
-                </p>
+
+              <div v-if="isMapEnabled && coordinates" class="mt-4 space-y-3 w-full">
+                <BranchYandexMap
+                  :coordinates="coordinates"
+                  :branch-name="activeBranch?.name"
+                  :address="activeBranch?.branch_info?.address"
+                />
+
+                <div v-if="yandexOrgUrl" class="flex justify-end">
+                  <a
+                    :href="yandexOrgUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1.5 text-sm font-semibold text-(--p-primary-500) hover:underline"
+                  >
+                    <i class="pi pi-external-link text-xs"></i>
+                    <span>Открыть на Яндекс Картах / Отзывы</span>
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -102,7 +133,9 @@ const handleChangeBranch = () => {
               </div>
             </div>
 
-            <div class="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-4">
+            <div
+              class="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-4 md:col-span-2"
+            >
               <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500)">
                 <i class="pi pi-info-circle text-xl"></i>
               </div>
