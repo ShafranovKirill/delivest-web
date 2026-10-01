@@ -19,5 +19,7 @@ export const getEnv = <T = string>(key: keyof ImportMetaEnv, defaultValue?: T): 
 
 export const getSiteDescription = () =>
   getEnv('VITE_SITE_DESCRIPTION', 'Описание сайта по умолчанию')
+export const getApiBaseUrl = () =>
+  getEnv('VITE_API_BASE_URL', 'https://delivest-server.shafranov.tech2')
 export const getCafeName = () => getEnv('VITE_CAFE_NAME', 'Cafe_name')
 export const getYandexMapsApiKey = () => getEnv('VITE_YANDEX_MAPS_API_KEY', '')
