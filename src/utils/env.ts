@@ -1,7 +1,13 @@
-export const getEnv = <T = string>(key: keyof ImportMetaEnv, defaultValue?: T): T => {
-  const value = import.meta.env[key]
+declare global {
+  interface Window {
+    _env?: Record<string, string>
+  }
+}
 
-  if (value === undefined) {
+export const getEnv = <T = string>(key: keyof ImportMetaEnv, defaultValue?: T): T => {
+  const value = window._env?.[key] ?? import.meta.env[key]
+
+  if (value === undefined || value === '') {
     if (defaultValue !== undefined) {
       return defaultValue
     }
@@ -14,9 +20,4 @@ export const getEnv = <T = string>(key: keyof ImportMetaEnv, defaultValue?: T): 
 export const getSiteDescription = () =>
   getEnv('VITE_SITE_DESCRIPTION', 'Описание сайта по умолчанию')
 export const getCafeName = () => getEnv('VITE_CAFE_NAME', 'Cafe_name')
-export const getPhoneNumber = () => getEnv('VITE_PHONE_NUMBER', '+71234567890')
-export const getVkUrl = () => getEnv('VITE_VK_URL', 'https://vk.com')
-export const getInstagramUrl = () => getEnv('VITE_INSTAGRAM_URL', 'https://www.instagram.com')
-export const getYmapsUrl = () => getEnv('VITE_YMAPS_URL', 'https://yandex.ru')
-export const getAddress = () => getEnv('VITE_ADDRESS', 'ул. Уличная, 1/23, Город')
 export const getYandexMapsApiKey = () => getEnv('VITE_YANDEX_MAPS_API_KEY', '')
