@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import Button from 'primevue/button'
 import CartComponent from '@/modules/cart/components/CartComponent.vue'
-import { useDesktopModalStore } from '@/modules/widgets/modal/modal-desktop/stores/modal.store'
+import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 
 const desktopModalStore = useDesktopModalStore()

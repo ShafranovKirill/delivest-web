@@ -276,6 +276,23 @@ export interface components {
             vk_url?: string | null;
             /** @example https://wa.me/79990000000 */
             whatsapp_url?: string | null;
+            /**
+             * @example {
+             *       "monday": {
+             *         "close": "22:00",
+             *         "enabled": true,
+             *         "open": "09:00"
+             *       },
+             *       "sunday": {
+             *         "close": null,
+             *         "enabled": false,
+             *         "open": null
+             *       }
+             *     }
+             */
+            working_hours?: {
+                [key: string]: unknown;
+            } | null;
             ycart_settings?: ({
                 /** @example Москва, Красная площадь */
                 address?: string | null;
@@ -381,6 +398,12 @@ export interface components {
             /** @example Без лука */
             comment?: string | null;
             /**
+             * Format: date_time
+             * @description Желаемое время приготовления. Если пусто — как можно скорее
+             * @example 2026-10-05T18:30:00
+             */
+            cook_by?: string | null;
+            /**
              * @description Имя клиента
              * @example Иван
              */
@@ -442,6 +465,11 @@ export interface components {
                 client_id?: string | null;
                 /** @example Без лука */
                 comment?: string | null;
+                /**
+                 * Format: date_time
+                 * @example 2026-10-05T18:30:00
+                 */
+                cook_by?: string | null;
                 /** @example Иван */
                 customer_name?: string | null;
                 /** @example +79990000000 */

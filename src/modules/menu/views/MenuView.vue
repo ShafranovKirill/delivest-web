@@ -12,6 +12,7 @@ import DesktopCategoryBar from '../components/category/DesktopCategoryBar.vue'
 import SkeletonCategory from '../components/category/SkeletonCategory.vue'
 import CategoryComponent from '../components/category/CategoryComponent.vue'
 import ProductModal from '../components/product/modal/ProductModal.vue'
+import ErrorComponent from '../components/category/ErrorComponent.vue'
 
 const viewportStore = useViewportStore()
 const cartStore = useCartStore()

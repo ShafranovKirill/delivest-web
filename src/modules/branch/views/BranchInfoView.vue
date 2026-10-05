@@ -1,15 +1,25 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { Branch } from '../api/branch.service'
 import type { Ref } from 'vue'
 import { useMapStore } from '../stores/map.store'
 import BranchYandexMap from '../components/BranchYandexMap.vue'
+import { useBranchStore } from '../stores/branch.store.ts'
+import type { WorkingHoursMap } from '../composables/useBranchSchedule.ts'
 
 const branchStore = useBranchStore()
 const mapStore = useMapStore()
 
-const { activeBranch } = storeToRefs(branchStore) as { activeBranch: Ref<Branch | null> }
+const { activeBranch, isOpenNow, closingTimeToday, formattedScheduleList, workingHours } =
+  storeToRefs(branchStore) as {
+    activeBranch: Ref<Branch | null>
+    isOpenNow: Ref<boolean>
+    closingTimeToday: Ref<string>
+    formattedScheduleList: Ref<
+      Array<{ day: string; enabled: boolean; open: string; close: string }>
+    >
+    workingHours: Ref<WorkingHoursMap | null>
+  }
 const { isMapEnabled, coordinates, yandexOrgUrl } = storeToRefs(mapStore)
 
 const handleChangeBranch = () => {
@@ -132,27 +142,66 @@ const handleChangeBranch = () => {
               </div>
             </div>
 
+            <!-- Блок статуса и работы сегодня -->
             <div
               class="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-4 md:col-span-2"
             >
               <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500)">
                 <i class="pi pi-info-circle text-xl"></i>
               </div>
-              <div>
+              <div class="flex-1">
                 <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
                   >Статус филиала</span
                 >
-                <div class="mt-1 flex items-center gap-2">
-                  <span
-                    class="w-2.5 h-2.5 rounded-full"
-                    :class="activeBranch.is_active ? 'bg-green-500' : 'bg-red-500'"
-                  ></span>
-                  <span class="text-base font-semibold text-gray-900">
-                    {{
-                      activeBranch.is_active ? 'Открыто / Принимает заказы' : 'Временно не работает'
-                    }}
+                <div class="mt-1 flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-2.5 h-2.5 rounded-full"
+                      :class="isOpenNow ? 'bg-green-500' : 'bg-red-500'"
+                    ></span>
+                    <span class="text-base font-semibold text-gray-900">
+                      {{ isOpenNow ? 'Открыто / Принимает заказы' : 'Закрыто' }}
+                    </span>
+                  </div>
+                  <span v-if="workingHours" class="text-sm text-gray-500 font-medium">
+                    Сегодня работает {{ closingTimeToday }}
                   </span>
                 </div>
+              </div>
+            </div>
+
+            <!-- Полное расписание на странице «О нас» -->
+            <div class="p-5 rounded-2xl bg-gray-50 border border-gray-100 md:col-span-2">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500)">
+                  <i class="pi pi-calendar text-xl"></i>
+                </div>
+                <div>
+                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                    >Режим работы</span
+                  >
+                  <h3 class="text-base font-semibold text-gray-900">Расписание по дням недели</h3>
+                </div>
+              </div>
+
+              <div
+                v-if="workingHours && formattedScheduleList.length > 0"
+                class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3"
+              >
+                <div
+                  v-for="item in formattedScheduleList"
+                  :key="item.day"
+                  class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100 text-sm"
+                >
+                  <span class="font-medium text-gray-700">{{ item.day }}</span>
+                  <span v-if="item.enabled" class="font-semibold text-gray-900">
+                    {{ item.open }} — {{ item.close }}
+                  </span>
+                  <span v-else class="text-gray-400 font-medium">Выходной</span>
+                </div>
+              </div>
+              <div v-else class="text-sm text-gray-500 italic py-2">
+                Расписание филиала не указано.
               </div>
             </div>
           </div>

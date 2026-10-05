@@ -1,5 +1,15 @@
 @import 'tailwindcss';
 
+@font-face {
+  font-family: 'Unbounded';
+  src:
+    url('./fonts/unbounded-cyrillic-500-normal.woff2') format('woff2'),
+    url('./fonts/unbounded-latin-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-brand-light: #ffedd5;
   --color-brand: #f97316;

@@ -68,24 +68,30 @@ export const useOrderStore = defineStore('order', () => {
 
     isLoading.value = true
 
+    const shouldSendAddress =
+      form.fulfillment_type === 'delivery' && !form.call_operator_for_address
+
+    let comment = form.comment?.trim() || null
+    if (form.call_operator_for_address) {
+      const note = 'Адрес назовет по телефону'
+      comment = comment ? `${comment} (${note})` : note
+    }
+
     const payload: CreateOrderPayload = {
       customer_name: form.customer_name || null,
       customer_phone: form.customer_phone.length === 12 ? form.customer_phone : null,
       fulfillment_type: form.fulfillment_type,
       payment_method: form.payment_method,
-      comment: form.comment || null,
-      address:
-        form.fulfillment_type === 'delivery'
-          ? {
-              city: form.address.city || null,
-              street: form.address.street || null,
-              house: form.address.house || null,
-              apartment: form.address.apartment || null,
-              entrance: form.address.entrance || null,
-              floor: form.address.floor || null,
-              intercom: form.address.intercom || null,
-            }
-          : undefined,
+      comment,
+      cook_by: form.cook_by || null,
+      address: {
+        street: shouldSendAddress ? form.address.street || null : null,
+        house: shouldSendAddress ? form.address.house || null : null,
+        apartment: shouldSendAddress ? form.address.apartment || null : null,
+        entrance: shouldSendAddress ? form.address.entrance || null : null,
+        floor: shouldSendAddress ? form.address.floor || null : null,
+        intercom: shouldSendAddress ? form.address.intercom || null : null,
+      },
       branch_id: branchId,
       cart_id: cartId,
     }

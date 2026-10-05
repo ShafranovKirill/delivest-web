@@ -3,7 +3,7 @@ import { onMounted } from 'vue'
 import CartItemCard from './CartItem.vue'
 import { useCartStore } from '../stores/cart.store.ts'
 import { useRoute, useRouter } from 'vue-router'
-import { useDesktopModalStore } from '@/modules/widgets/modal/modal-desktop/stores/modal.store.ts'
+import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store.ts'
 import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store.ts'
 
 const cartStore = useCartStore()
@@ -45,7 +45,7 @@ function goToCatalog() {
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col overflow-hidden bg-white">
+  <div class="w-full h-full min-h-0 flex flex-col overflow-hidden bg-white">
     <div
       v-if="cartStore.isLoading && !cartStore.isInitialized"
       class="p-6 text-center text-sm text-muted-foreground my-auto"
@@ -79,7 +79,7 @@ function goToCatalog() {
     </div>
 
     <template v-else>
-      <div class="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
+      <div class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 pr-1">
         <div class="flex flex-col gap-3">
           <CartItemCard v-for="item in cartStore.items" :key="item.product_id" :item="item" />
         </div>
