@@ -8,8 +8,8 @@ import { useSidebarStore } from '../sidebar/sidebar.store'
 import { getCafeName } from '@/utils/env'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
-import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
 import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
+import MobileBranchHeaderInfo from '@/modules/branch/components/MobileBranchHeaderInfo.vue'
 
 const router = useRouter()
 const sidebarStore = useSidebarStore()
@@ -32,7 +32,9 @@ const navigateToMenu = () => {
 
 <template>
   <header class="w-full bg-gray-200 h-15 sticky top-0 z-50">
-    <Toolbar class="rounded-none! max-w-7xl mx-auto px-4! py-0! h-full bg-gray-200! border-0!">
+    <Toolbar
+      class="rounded-none! max-w-7xl mx-auto px-3! lg:px-4! py-0! h-full bg-gray-200! border-0!"
+    >
       <template #start>
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
           <template v-if="modalStore.isOpen">
@@ -49,15 +51,17 @@ const navigateToMenu = () => {
 
           <div
             translate="no"
-            class="text-2xl sm:text-3xl px-0.5 tracking-tighter text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity shrink-0"
+            class="text-3xl sm:text-3xl px-0.5 tracking-tighter text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity shrink-0"
             style="font-family: 'Unbounded', sans-serif; font-weight: 500"
             @click="navigateToMenu"
           >
             {{ cafeName }}
           </div>
-
-          <BranchInfoBar v-if="branchStore.activeBranch && !viewportStore.isMobile" />
         </div>
+      </template>
+
+      <template #center>
+        <MobileBranchHeaderInfo v-if="branchStore.activeBranch && viewportStore.isMobile" />
       </template>
 
       <template #end>

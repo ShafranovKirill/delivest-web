@@ -11,27 +11,18 @@ const deliveryTime = computed(() => {
 
 <template>
   <div
-    class="flex flex-col text-xs cursor-pointer select-none py-1 min-w-0 w-full"
+    class="flex flex-col text-xs cursor-pointer select-none py-1 min-w-0 w-fit items-start mx-auto"
     @click="branchStore.openModal()"
   >
-    <div class="flex items-center gap-1.5 text-[11px] font-medium leading-tight mb-0.5">
-      <span
-        class="w-2 h-2 rounded-full shrink-0"
-        :class="branchStore.isOpenNow ? 'bg-emerald-500' : 'bg-red-500'"
-      ></span>
-      <span
-        :class="
-          branchStore.isOpenNow
-            ? 'text-emerald-600 dark:text-emerald-400'
-            : 'text-red-600 dark:text-red-400'
-        "
-      >
-        {{ branchStore.isOpenNow ? 'Открыто' : 'Закрыто' }}
+    <!-- Верхняя строка: Название филиала (обрезается, если длиннее низа) -->
+    <div class="flex items-center gap-1 font-medium leading-tight mb-0.5 min-w-0 w-full">
+      <span class="text-(--p-primary-500) font-bold truncate min-w-0 w-full text-center">
+        {{ branchStore.activeBranch?.name || 'Выберите филиал' }}
       </span>
     </div>
 
     <div
-      class="flex items-center gap-1.5 text-[11px] text-gray-700 font-medium leading-tight min-w-0"
+      class="flex items-center justify-start gap-1.5 text-[11px] text-gray-700 font-medium leading-tight min-w-0 w-full"
     >
       <template v-if="deliveryTime">
         <span class="shrink-0">~{{ deliveryTime }} мин</span>
