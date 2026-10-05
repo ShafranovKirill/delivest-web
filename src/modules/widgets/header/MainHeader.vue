@@ -10,6 +10,7 @@ import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
 import MobileBranchHeaderInfo from '@/modules/branch/components/MobileBranchHeaderInfo.vue'
+import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
 
 const router = useRouter()
 const sidebarStore = useSidebarStore()
@@ -51,12 +52,13 @@ const navigateToMenu = () => {
 
           <div
             translate="no"
-            class="text-3xl sm:text-3xl px-0.5 tracking-tighter text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity shrink-0"
+            class="text-3xl sm:text-4xl px-0.5 tracking-tighter text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity shrink-0"
             style="font-family: 'Unbounded', sans-serif; font-weight: 500"
             @click="navigateToMenu"
           >
             {{ cafeName }}
           </div>
+          <BranchInfoBar v-if="branchStore.activeBranch && !viewportStore.isMobile" />
         </div>
       </template>
 
