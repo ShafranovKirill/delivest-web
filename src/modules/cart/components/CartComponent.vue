@@ -3,7 +3,7 @@ import { onMounted } from 'vue'
 import CartItemCard from './CartItem.vue'
 import { useCartStore } from '../stores/cart.store.ts'
 import { useRoute, useRouter } from 'vue-router'
-import { useDesktopModalStore } from '@/modules/widgets/modal/modal-desktop/stores/modal.store.ts'
+import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store.ts'
 import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store.ts'
 
 const cartStore = useCartStore()
