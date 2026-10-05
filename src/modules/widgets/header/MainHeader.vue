@@ -49,7 +49,8 @@ const navigateToMenu = () => {
 
           <div
             translate="no"
-            class="tracking-widest text-2xl sm:text-4xl font-bold text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity truncate max-w-50 sm:max-w-none"
+            class="text-xl sm:text-3xl px-0.5 font-light! tracking-tighter text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity truncate max-w-50 sm:max-w-none"
+            style="font-family: 'Unbounded', sans-serif"
             @click="navigateToMenu"
           >
             {{ cafeName }}
