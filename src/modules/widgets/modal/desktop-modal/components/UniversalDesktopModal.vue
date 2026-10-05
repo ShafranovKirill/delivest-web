@@ -31,12 +31,12 @@ const modalStore = useDesktopModalStore()
         class: '!m-0 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-full',
       },
       content: {
-        class: '!p-6 !h-full overflow-y-auto flex flex-col',
+        class: '!p-6 !h-full !min-h-0 overflow-hidden flex flex-col',
       },
     }"
   >
-    <div v-if="modalStore.currentComponent" class="w-full h-full flex flex-col">
-      <div class="flex-1">
+    <div v-if="modalStore.currentComponent" class="w-full h-full min-h-0 flex flex-col">
+      <div class="flex-1 min-h-0">
         <component
           :is="modalStore.currentComponent"
           v-bind="modalStore.currentProps"
