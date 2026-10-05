@@ -74,10 +74,10 @@ export const useOrderStore = defineStore('order', () => {
       fulfillment_type: form.fulfillment_type,
       payment_method: form.payment_method,
       comment: form.comment || null,
+      cook_by: form.cook_by || null,
       address:
         form.fulfillment_type === 'delivery'
           ? {
-              city: form.address.city || null,
               street: form.address.street || null,
               house: form.address.house || null,
               apartment: form.address.apartment || null,

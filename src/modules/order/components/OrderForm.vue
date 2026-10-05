@@ -1,4 +1,3 @@
-name=OrderForm.vue
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useToast } from 'primevue/usetoast'
@@ -7,9 +6,9 @@ import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Select from 'primevue/select'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
+import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 
 interface AddressForm {
-  city: string
   street: string
   house: string
   apartment: string
@@ -24,6 +23,7 @@ export interface OrderFormValues {
   fulfillment_type: 'delivery' | 'pickup' | 'dine_in'
   payment_method: 'cash' | 'card_offline'
   comment: string
+  cook_by: string | null
   address: AddressForm
 }
 
@@ -43,8 +43,8 @@ const form = reactive<OrderFormValues>({
   fulfillment_type: 'delivery',
   payment_method: 'cash',
   comment: '',
+  cook_by: null,
   address: {
-    city: '',
     street: '',
     house: '',
     apartment: '',
@@ -113,11 +113,7 @@ function handleSubmit() {
       />
 
       <div v-if="form.fulfillment_type === 'delivery'" class="flex flex-col gap-3 sm:gap-4 mt-2">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs text-muted-foreground">Город</label>
-            <InputText v-model="form.address.city" placeholder="Москва" class="w-full" />
-          </div>
+        <div class="grid grid-cols-1 gap-3">
           <div class="flex flex-col gap-1.5">
             <label class="text-xs text-muted-foreground">Улица</label>
             <InputText v-model="form.address.street" placeholder="Ленина" class="w-full" />
@@ -151,6 +147,8 @@ function handleSubmit() {
         </div>
       </div>
     </div>
+
+    <OrderTimeSelect v-model="form.cook_by" />
 
     <div
       class="bg-card border border-border/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col gap-4"
