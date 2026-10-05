@@ -1,4 +1,3 @@
-name=OrderSuccess.vue
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'

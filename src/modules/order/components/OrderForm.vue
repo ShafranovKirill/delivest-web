@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Select from 'primevue/select'
+import Checkbox from 'primevue/checkbox'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 
 interface AddressForm {
   street: string
@@ -25,6 +27,7 @@ export interface OrderFormValues {
   comment: string
   cook_by: string | null
   address: AddressForm
+  call_operator_for_address: boolean
 }
 
 defineProps<{
@@ -36,11 +39,12 @@ const emit = defineEmits<{
 }>()
 
 const toast = useToast()
+const branchStore = useBranchStore()
 
 const form = reactive<OrderFormValues>({
   customer_name: '',
   customer_phone: '+7',
-  fulfillment_type: 'delivery',
+  fulfillment_type: 'pickup', // По умолчанию самовывоз
   payment_method: 'cash',
   comment: '',
   cook_by: null,
@@ -52,13 +56,20 @@ const form = reactive<OrderFormValues>({
     floor: '',
     intercom: '',
   },
+  call_operator_for_address: false,
 })
 
-const fulfillmentOptions = [
+// Динамический лейбл для самовывоза с учетом адреса филиала
+const pickupLabel = computed(() => {
+  const address = branchStore.activeBranch?.branch_info?.address
+  return address ? `Самовывоз (откуда: ${address})` : 'Самовывоз'
+})
+
+const fulfillmentOptions = computed(() => [
   { label: 'Доставка', value: 'delivery' },
-  { label: 'Самовывоз', value: 'pickup' },
+  { label: pickupLabel.value, value: 'pickup' },
   { label: 'В заведении', value: 'dine_in' },
-]
+])
 
 const paymentOptions = [
   { label: 'Наличными', value: 'cash' },
@@ -113,38 +124,47 @@ function handleSubmit() {
       />
 
       <div v-if="form.fulfillment_type === 'delivery'" class="flex flex-col gap-3 sm:gap-4 mt-2">
-        <div class="grid grid-cols-1 gap-3">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs text-muted-foreground">Улица</label>
-            <InputText v-model="form.address.street" placeholder="Ленина" class="w-full" />
-          </div>
+        <div class="flex items-center gap-2">
+          <Checkbox v-model="form.call_operator_for_address" inputId="call_operator" binary />
+          <label for="call_operator" class="text-sm cursor-pointer select-none">
+            Назвать адрес оператору по телефону
+          </label>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 sm:gap-3">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs text-muted-foreground">Дом</label>
-            <InputText v-model="form.address.house" placeholder="10" class="w-full" />
+        <template v-if="!form.call_operator_for_address">
+          <div class="grid grid-cols-1 gap-3">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs text-muted-foreground">Улица</label>
+              <InputText v-model="form.address.street" placeholder="Ленина" class="w-full" />
+            </div>
           </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs text-muted-foreground">Кв / офис</label>
-            <InputText v-model="form.address.apartment" placeholder="12" class="w-full" />
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs text-muted-foreground">Подъезд</label>
-            <InputText v-model="form.address.entrance" placeholder="2" class="w-full" />
-          </div>
-        </div>
 
-        <div class="grid grid-cols-3 gap-2 sm:gap-3">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs text-muted-foreground">Этаж</label>
-            <InputText v-model="form.address.floor" placeholder="3" class="w-full" />
+          <div class="grid grid-cols-3 gap-2 sm:gap-3">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs text-muted-foreground">Дом</label>
+              <InputText v-model="form.address.house" placeholder="10" class="w-full" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs text-muted-foreground">Кв / офис</label>
+              <InputText v-model="form.address.apartment" placeholder="12" class="w-full" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs text-muted-foreground">Подъезд</label>
+              <InputText v-model="form.address.entrance" placeholder="2" class="w-full" />
+            </div>
           </div>
-          <div class="flex flex-col gap-1.5 col-span-2">
-            <label class="text-xs text-muted-foreground">Домофон</label>
-            <InputText v-model="form.address.intercom" placeholder="42" class="w-full" />
+
+          <div class="grid grid-cols-3 gap-2 sm:gap-3">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs text-muted-foreground">Этаж</label>
+              <InputText v-model="form.address.floor" placeholder="3" class="w-full" />
+            </div>
+            <div class="flex flex-col gap-1.5 col-span-2">
+              <label class="text-xs text-muted-foreground">Домофон</label>
+              <InputText v-model="form.address.intercom" placeholder="42" class="w-full" />
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
 

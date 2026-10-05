@@ -68,6 +68,7 @@ onUnmounted(() => {
         </div>
 
         <Stepper
+          v-else
           :value="orderStore.activeStep"
           @update:value="orderStore.handleStepChange"
           class="w-full"

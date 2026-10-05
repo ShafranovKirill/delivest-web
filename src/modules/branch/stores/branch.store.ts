@@ -10,7 +10,6 @@ export const useBranchStore = defineStore('branch', () => {
   const isInitialized = ref(false)
   const isModalOpen = ref(false)
 
-  // Подключаем логику расписания, передавая реактивную ссылку на activeBranch
   const schedule = useBranchSchedule(activeBranch)
 
   function openModal() {
