@@ -53,9 +53,7 @@ onUnmounted(() => {
 
 <template>
   <div class="bg-gray-200 w-full min-h-screen flex flex-col justify-start">
-    <div
-      class="bg-white rounded-4xl sm:rounded-[4rem] min-h-[calc(100vh-3.8rem)] md:min-h-[calc(100vh-6rem)] w-full py-8 px-4 sm:px-8 flex flex-col"
-    >
+    <div class="bg-white rounded-4xl sm:rounded-[4rem] w-full py-8 px-4 sm:px-8 flex flex-col">
       <div class="max-w-5xl mx-auto w-full flex-1 flex flex-col">
         <Message v-if="orderStore.errorMessage" severity="error" class="mb-6">{{
           orderStore.errorMessage

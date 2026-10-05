@@ -63,7 +63,9 @@ const navigateToMenu = () => {
       </template>
 
       <template #center>
-        <MobileBranchHeaderInfo v-if="branchStore.activeBranch && viewportStore.isMobile" />
+        <MobileBranchHeaderInfo
+          v-if="branchStore.activeBranch && viewportStore.isMobile && !modalStore.isOpen"
+        />
       </template>
 
       <template #end>
