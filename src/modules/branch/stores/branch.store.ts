@@ -32,22 +32,23 @@ export const useBranchStore = defineStore('branch', () => {
       throw error
     }
   }
-
   async function selectBranch(branch: Branch) {
     if (activeBranch.value?.id === branch.id) return
 
     const previousBranch = activeBranch.value
-    activeBranch.value = branch
 
     try {
-      await BranchService.selectBranch(branch.id)
+      const selected = await BranchService.selectBranch(branch.id)
+
+      activeBranch.value = selected || branch
+
+      return activeBranch.value
     } catch (error) {
       activeBranch.value = previousBranch
       console.error(`[BranchStore] Failed to select branch ID ${branch.id}:`, error)
       throw error
     }
   }
-
   async function selectBranchBySlug(slug: string): Promise<Branch> {
     if (activeBranch.value?.slug === slug) {
       return activeBranch.value
