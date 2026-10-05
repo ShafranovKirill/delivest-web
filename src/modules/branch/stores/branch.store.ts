@@ -2,22 +2,23 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import Cookies from 'js-cookie'
 import { BranchService, type Branch } from '../api/branch.service'
+import { useBranchSchedule } from '../composables/useBranchSchedule'
 
 export const useBranchStore = defineStore('branch', () => {
   const branches = ref<Branch[]>([])
   const activeBranch = ref<Branch | null>(null)
   const isInitialized = ref(false)
-
   const isModalOpen = ref(false)
+
+  // Подключаем логику расписания, передавая реактивную ссылку на activeBranch
+  const schedule = useBranchSchedule(activeBranch)
 
   function openModal() {
     isModalOpen.value = true
   }
-
   function closeModal() {
     isModalOpen.value = false
   }
-
   function toggleModal() {
     isModalOpen.value = !isModalOpen.value
   }
@@ -32,38 +33,29 @@ export const useBranchStore = defineStore('branch', () => {
       throw error
     }
   }
+
   async function selectBranch(branch: Branch) {
     if (activeBranch.value?.id === branch.id) return
-
     const previousBranch = activeBranch.value
-
     try {
       const selected = await BranchService.selectBranch(branch.id)
-
       activeBranch.value = selected || branch
-
       return activeBranch.value
     } catch (error) {
       activeBranch.value = previousBranch
-      console.error(`[BranchStore] Failed to select branch ID ${branch.id}:`, error)
       throw error
     }
   }
+
   async function selectBranchBySlug(slug: string): Promise<Branch> {
-    if (activeBranch.value?.slug === slug) {
-      return activeBranch.value
-    }
-
+    if (activeBranch.value?.slug === slug) return activeBranch.value
     const previousBranch = activeBranch.value
-
     try {
       const selected = await BranchService.selectBranchBySlug(slug)
       activeBranch.value = selected
-
       return selected
     } catch (error) {
       activeBranch.value = previousBranch
-      console.error(`[BranchStore] Failed to select branch slug ${slug}:`, error)
       throw error
     }
   }
@@ -71,12 +63,10 @@ export const useBranchStore = defineStore('branch', () => {
   async function clearActiveBranch() {
     const previousBranch = activeBranch.value
     activeBranch.value = null
-
     try {
       await BranchService.clearActive()
     } catch (error) {
       activeBranch.value = previousBranch
-      console.error('[BranchStore] Failed to clear active branch:', error)
       throw error
     }
   }
@@ -98,5 +88,6 @@ export const useBranchStore = defineStore('branch', () => {
     selectBranchBySlug,
     clearActiveBranch,
     getBranchIdFromCookie,
+    ...schedule,
   }
 })
