@@ -5,9 +5,10 @@ import MenuView from '@/modules/menu/views/MenuView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  // New page opens at the top; Back/Forward restores the previous position.
-  scrollBehavior(_to, _from, savedPosition) {
-    return savedPosition ?? { top: 0, left: 0 }
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) return savedPosition
+    if (to.path === from.path) return false
+    return { top: 0, left: 0 }
   },
   routes: [
     {

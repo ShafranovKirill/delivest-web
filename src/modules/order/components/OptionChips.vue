@@ -1,5 +1,4 @@
 <script setup lang="ts" generic="T extends string">
-/** Segmented single-choice control used across the checkout form. */
 defineProps<{
   options: Array<{ value: T; label: string; icon?: string }>
   columns?: 2 | 3 | 4
@@ -29,7 +28,6 @@ const model = defineModel<T>({ required: true })
         model === option.value
           ? 'bg-primary text-white border-primary shadow-sm'
           : 'bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary',
-        // Three labels do not fit in a row on phones: stack icon above the label.
         columns === 3 ? 'flex-col gap-1 px-2 sm:flex-row sm:gap-2 sm:px-3' : '',
       ]"
       @click="model = option.value"

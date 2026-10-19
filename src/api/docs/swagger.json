@@ -101,12 +101,7 @@
             "x-validate": null
           }
         },
-        "required": [
-          "id",
-          "name",
-          "slug",
-          "is_active"
-        ],
+        "required": ["id", "name", "slug", "is_active"],
         "title": "Branch",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.Branch",
@@ -227,9 +222,7 @@
             "x-validate": null
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "title": "BranchInfoResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.BranchInfoResponse",
@@ -246,9 +239,7 @@
             "x-validate": null
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "BranchListResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.BranchListResponse",
@@ -260,9 +251,7 @@
             "$ref": "#/components/schemas/Branch"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "BranchResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.BranchResponse",
@@ -311,13 +300,7 @@
             "x-validate": null
           }
         },
-        "required": [
-          "product_id",
-          "name",
-          "price",
-          "quantity",
-          "total_price"
-        ],
+        "required": ["product_id", "name", "price", "quantity", "total_price"],
         "title": "CartItemResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.CartItemResponse",
@@ -370,20 +353,13 @@
                 "x-validate": null
               }
             },
-            "required": [
-              "id",
-              "items",
-              "total_quantity",
-              "total_amount"
-            ],
+            "required": ["id", "items", "total_quantity", "total_amount"],
             "type": "object",
             "x-struct": null,
             "x-validate": null
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "CartResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.CartResponse",
@@ -485,11 +461,7 @@
             "x-validate": null
           },
           "fulfillment_type": {
-            "enum": [
-              "dine_in",
-              "delivery",
-              "pickup"
-            ],
+            "enum": ["dine_in", "delivery", "pickup"],
             "example": "delivery",
             "nullable": true,
             "type": "string",
@@ -497,10 +469,7 @@
             "x-validate": null
           },
           "payment_method": {
-            "enum": [
-              "cash",
-              "card_offline"
-            ],
+            "enum": ["cash", "card_offline"],
             "example": "cash",
             "nullable": true,
             "type": "string",
@@ -508,10 +477,7 @@
             "x-validate": null
           }
         },
-        "required": [
-          "cart_id",
-          "branch_id"
-        ],
+        "required": ["cart_id", "branch_id"],
         "title": "CreateOrderRequest",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.CreateOrderRequest",
@@ -524,9 +490,7 @@
             "additionalProperties": true,
             "description": "Ошибки валидации по полям: {поле: [сообщения]}",
             "example": {
-              "customer_phone": [
-                "must be in format +7XXXXXXXXXX"
-              ]
+              "customer_phone": ["must be in format +7XXXXXXXXXX"]
             },
             "nullable": true,
             "type": "object",
@@ -562,10 +526,7 @@
             "x-validate": null
           }
         },
-        "required": [
-          "error",
-          "message"
-        ],
+        "required": ["error", "message"],
         "title": "ErrorResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.ErrorSchemas.ErrorResponse",
@@ -615,12 +576,7 @@
             "x-validate": null
           }
         },
-        "required": [
-          "product_id",
-          "title",
-          "price",
-          "quantity"
-        ],
+        "required": ["product_id", "title", "price", "quantity"],
         "title": "OrderItemResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.OrderItemResponse",
@@ -734,23 +690,13 @@
                 "x-validate": null
               }
             },
-            "required": [
-              "id",
-              "number",
-              "status",
-              "total_amount",
-              "branch_id",
-              "cart_id",
-              "items"
-            ],
+            "required": ["id", "number", "status", "total_amount", "branch_id", "cart_id", "items"],
             "type": "object",
             "x-struct": null,
             "x-validate": null
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "OrderResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.OrderResponse",
@@ -822,6 +768,14 @@
             "x-struct": null,
             "x-validate": null
           },
+          "slug": {
+            "description": "Человекочитаемый идентификатор товара для URL (?product=hinkali)",
+            "example": "hinkali",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
           "weight": {
             "description": "Вес товара (в граммах)",
             "example": 450,
@@ -863,6 +817,14 @@
             "description": "Ссылка на медиафайл акции",
             "example": "https://storage.example.com/images/stock.jpg",
             "format": "uri",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "product_slug": {
+            "description": "Slug товара, к которому ведёт акция (null — акция без товара)",
+            "example": "hinkali",
+            "nullable": true,
             "type": "string",
             "x-struct": null,
             "x-validate": null
@@ -933,9 +895,7 @@
           }
         },
         "summary": "Получить список филиалов",
-        "tags": [
-          "Branches"
-        ]
+        "tags": ["Branches"]
       }
     },
     "/client/branches/active": {
@@ -967,9 +927,7 @@
           }
         },
         "summary": "Очистить активный филиал",
-        "tags": [
-          "Branches"
-        ]
+        "tags": ["Branches"]
       }
     },
     "/client/branches/slug/{slug}/select": {
@@ -1014,9 +972,7 @@
           }
         },
         "summary": "Выбрать филиал по Slug",
-        "tags": [
-          "Branches"
-        ]
+        "tags": ["Branches"]
       }
     },
     "/client/branches/{branch_id}/menu": {
@@ -1062,9 +1018,7 @@
           }
         },
         "summary": "Получить меню филиала",
-        "tags": [
-          "Menu"
-        ]
+        "tags": ["Menu"]
       }
     },
     "/client/branches/{id}/select": {
@@ -1110,9 +1064,7 @@
           }
         },
         "summary": "Выбрать филиал по ID",
-        "tags": [
-          "Branches"
-        ]
+        "tags": ["Branches"]
       }
     },
     "/client/cart": {
@@ -1169,9 +1121,7 @@
           }
         },
         "summary": "Получить корзину пользователя",
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       }
     },
     "/client/cart/{cart_id}/clear": {
@@ -1216,9 +1166,7 @@
           }
         },
         "summary": "Очистить корзину",
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       }
     },
     "/client/cart/{cart_id}/items/{product_id}": {
@@ -1287,9 +1235,7 @@
           }
         },
         "summary": "Удалить товар из корзины",
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       },
       "post": {
         "callbacks": {},
@@ -1354,9 +1300,7 @@
           }
         },
         "summary": "Добавить товар в корзину",
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       }
     },
     "/client/orders": {
@@ -1409,9 +1353,7 @@
           }
         },
         "summary": "Создать заказ",
-        "tags": [
-          "Orders"
-        ]
+        "tags": ["Orders"]
       }
     },
     "/client/{branch_id}/stocks": {

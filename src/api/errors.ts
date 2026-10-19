@@ -31,7 +31,6 @@ function isApiErrorResponse(data: unknown): data is ApiErrorResponse {
   )
 }
 
-/** Returns the server error code, if the error is an API error response. */
 export function getApiErrorCode(error: unknown): ApiErrorCode | null {
   if (axios.isAxiosError(error) && isApiErrorResponse(error.response?.data)) {
     return error.response.data.error
@@ -39,7 +38,6 @@ export function getApiErrorCode(error: unknown): ApiErrorCode | null {
   return null
 }
 
-/** Human-readable (Russian) text for any error thrown by an API call. */
 export function getApiErrorMessage(error: unknown, fallback: string = FALLBACK): string {
   if (axios.isAxiosError(error)) {
     if (!error.response) return 'Нет связи с сервером. Проверьте интернет'

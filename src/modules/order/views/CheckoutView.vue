@@ -35,7 +35,6 @@ function goTo(value: number) {
   if (canOpen(value)) orderStore.handleStepChange(value)
 }
 
-// Jump (not smooth-scroll) to the top so each step opens from its beginning.
 function jumpToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
 }

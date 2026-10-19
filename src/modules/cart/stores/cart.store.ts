@@ -34,8 +34,6 @@ export const useCartStore = defineStore('cart', () => {
 
   let stopBranchSync: WatchStopHandle | null = null
 
-  // Called from MenuView.onMounted on every visit: keep a single watcher, otherwise
-  // each mount adds one more and a branch switch fires N parallel cart requests.
   function initBranchSync() {
     if (stopBranchSync) return stopBranchSync
 
@@ -59,10 +57,6 @@ export const useCartStore = defineStore('cart', () => {
     return stopBranchSync
   }
 
-  /**
-   * Runs a mutation against the current cart. If the server no longer recognises the
-   * cart for this session (ordered in another tab, cleaned up), reload it and retry once.
-   */
   async function withCart(mutate: (cartId: string) => Promise<Cart>): Promise<Cart> {
     if (!cart.value?.id) await fetchCart()
 

@@ -1,8 +1,4 @@
 <script setup lang="ts">
-/**
- * White rounded panel under the header, shared by all secondary pages.
- * Its top radius matches the menu category bar, so every page reads as one frame.
- */
 withDefaults(
   defineProps<{
     title?: string

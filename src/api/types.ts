@@ -4,958 +4,984 @@
  */
 
 export interface paths {
-    "/client/branches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Получить список филиалов
-         * @description Возвращает список всех активных филиалов.
-         */
-        get: operations["DelivestWeb.Client.Branch.BranchController.index"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/branches/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Очистить активный филиал
-         * @description Удаляет куку active_branch_id.
-         */
-        delete: operations["DelivestWeb.Client.Branch.BranchController.clear_active"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/branches/slug/{slug}/select": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Выбрать филиал по Slug
-         * @description Возвращает детальную информацию о филиале по его slug и устанавливает cookie.
-         */
-        post: operations["DelivestWeb.Client.Branch.BranchController.select_by_slug"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/branches/{branch_id}/menu": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Получить меню филиала
-         * @description Возвращает список категорий с предзагруженными товарами для филиала из кеша или БД.
-         */
-        get: operations["DelivestWeb.Client.Menu.MenuController.index"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/branches/{id}/select": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Выбрать филиал по ID
-         * @description Возвращает детальную информацию о филиале и устанавливает cookie.
-         */
-        post: operations["DelivestWeb.Client.Branch.BranchController.select"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/cart": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Получить корзину пользователя
-         * @description Извлекает branch_id из query или кук и возвращает состав текущей корзины.
-         */
-        get: operations["DelivestWeb.Client.Cart.CartController.show"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/cart/{cart_id}/clear": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Очистить корзину
-         * @description Удаляет все товары из указанной корзины.
-         */
-        delete: operations["DelivestWeb.Client.Cart.CartController.clear"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/cart/{cart_id}/items/{product_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Добавить товар в корзину
-         * @description Добавляет товар в корзину по cart_id и product_id.
-         */
-        post: operations["DelivestWeb.Client.Cart.CartController.add_item"];
-        /**
-         * Удалить товар из корзины
-         * @description Уменьшает количество товара на 1 или удаляет его полностью из корзины.
-         */
-        delete: operations["DelivestWeb.Client.Cart.CartController.remove_item"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/orders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Создать заказ
-         * @description Создаёт заказ по cart_id и branch_id из тела запроса.
-         */
-        post: operations["DelivestWeb.Client.Order.OrderController.create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/{branch_id}/stocks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Получить список активных акций филиала
-         * @description Возвращает список всех активных акций, привязанных к данному branch_id
-         */
-        get: operations["DelivestWeb.Client.Stock.StockController.index"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  '/client/branches': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Получить список филиалов
+     * @description Возвращает список всех активных филиалов.
+     */
+    get: operations['DelivestWeb.Client.Branch.BranchController.index']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/branches/active': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /**
+     * Очистить активный филиал
+     * @description Удаляет куку active_branch_id.
+     */
+    delete: operations['DelivestWeb.Client.Branch.BranchController.clear_active']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/branches/slug/{slug}/select': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Выбрать филиал по Slug
+     * @description Возвращает детальную информацию о филиале по его slug и устанавливает cookie.
+     */
+    post: operations['DelivestWeb.Client.Branch.BranchController.select_by_slug']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/branches/{branch_id}/menu': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Получить меню филиала
+     * @description Возвращает список категорий с предзагруженными товарами для филиала из кеша или БД.
+     */
+    get: operations['DelivestWeb.Client.Menu.MenuController.index']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/branches/{id}/select': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Выбрать филиал по ID
+     * @description Возвращает детальную информацию о филиале и устанавливает cookie.
+     */
+    post: operations['DelivestWeb.Client.Branch.BranchController.select']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/cart': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Получить корзину пользователя
+     * @description Извлекает branch_id из query или кук и возвращает состав текущей корзины.
+     */
+    get: operations['DelivestWeb.Client.Cart.CartController.show']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/cart/{cart_id}/clear': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /**
+     * Очистить корзину
+     * @description Удаляет все товары из указанной корзины.
+     */
+    delete: operations['DelivestWeb.Client.Cart.CartController.clear']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/cart/{cart_id}/items/{product_id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Добавить товар в корзину
+     * @description Добавляет товар в корзину по cart_id и product_id.
+     */
+    post: operations['DelivestWeb.Client.Cart.CartController.add_item']
+    /**
+     * Удалить товар из корзины
+     * @description Уменьшает количество товара на 1 или удаляет его полностью из корзины.
+     */
+    delete: operations['DelivestWeb.Client.Cart.CartController.remove_item']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/orders': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Создать заказ
+     * @description Создаёт заказ по cart_id и branch_id из тела запроса.
+     */
+    post: operations['DelivestWeb.Client.Order.OrderController.create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/{branch_id}/stocks': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Получить список активных акций филиала
+     * @description Возвращает список всех активных акций, привязанных к данному branch_id
+     */
+    get: operations['DelivestWeb.Client.Stock.StockController.index']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
-export type webhooks = Record<string, never>;
+export type webhooks = Record<string, never>
 export interface components {
-    schemas: {
-        /** AddressRequest */
-        AddressRequest: {
-            /** @example 12 */
-            apartment?: string | null;
-            /** @example Москва */
-            city?: string | null;
-            /** @example 2 */
-            entrance?: string | null;
-            /** @example 3 */
-            floor?: string | null;
-            /** @example 10 */
-            house?: string | null;
-            /** @example 42 */
-            intercom?: string | null;
-            /** @example Ленина */
-            street?: string | null;
-        };
-        /** Branch */
-        Branch: {
-            branch_info?: components["schemas"]["BranchInfoResponse"] | null;
-            /**
-             * Format: uuid
-             * @example c4a3b8e0-1234-5678-9abc-def012345678
-             */
-            id: string;
+  schemas: {
+    /** AddressRequest */
+    AddressRequest: {
+      /** @example 12 */
+      apartment?: string | null
+      /** @example Москва */
+      city?: string | null
+      /** @example 2 */
+      entrance?: string | null
+      /** @example 3 */
+      floor?: string | null
+      /** @example 10 */
+      house?: string | null
+      /** @example 42 */
+      intercom?: string | null
+      /** @example Ленина */
+      street?: string | null
+    }
+    /** Branch */
+    Branch: {
+      branch_info?: components['schemas']['BranchInfoResponse'] | null
+      /**
+       * Format: uuid
+       * @example c4a3b8e0-1234-5678-9abc-def012345678
+       */
+      id: string
+      /** @example true */
+      is_active: boolean
+      /** @example Центральный филиал */
+      name: string
+      /** @example central */
+      slug: string
+    }
+    /** BranchInfoResponse */
+    BranchInfoResponse: {
+      /** @example ул. Пушкина, д. 10 */
+      address?: string | null
+      /** @example 30 */
+      delivery_time?: number | null
+      /**
+       * Format: uuid
+       * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+       */
+      id: string
+      /** @example https://instagram.com/profile_name */
+      instagram_url?: string | null
+      /** @example +79990000000 */
+      phone_number?: string | null
+      /** @example https://vk.com/group_name */
+      vk_url?: string | null
+      /** @example https://wa.me/79990000000 */
+      whatsapp_url?: string | null
+      /**
+       * @example {
+       *       "monday": {
+       *         "close": "22:00",
+       *         "enabled": true,
+       *         "open": "09:00"
+       *       },
+       *       "sunday": {
+       *         "close": null,
+       *         "enabled": false,
+       *         "open": null
+       *       }
+       *     }
+       */
+      working_hours?: {
+        [key: string]: unknown
+      } | null
+      ycart_settings?:
+        | ({
+            /** @example Москва, Красная площадь */
+            address?: string | null
             /** @example true */
-            is_active: boolean;
-            /** @example Центральный филиал */
-            name: string;
-            /** @example central */
-            slug: string;
-        };
-        /** BranchInfoResponse */
-        BranchInfoResponse: {
-            /** @example ул. Пушкина, д. 10 */
-            address?: string | null;
-            /** @example 30 */
-            delivery_time?: number | null;
-            /**
-             * Format: uuid
-             * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
-             */
-            id: string;
-            /** @example https://instagram.com/profile_name */
-            instagram_url?: string | null;
-            /** @example +79990000000 */
-            phone_number?: string | null;
-            /** @example https://vk.com/group_name */
-            vk_url?: string | null;
-            /** @example https://wa.me/79990000000 */
-            whatsapp_url?: string | null;
-            /**
-             * @example {
-             *       "monday": {
-             *         "close": "22:00",
-             *         "enabled": true,
-             *         "open": "09:00"
-             *       },
-             *       "sunday": {
-             *         "close": null,
-             *         "enabled": false,
-             *         "open": null
-             *       }
-             *     }
-             */
-            working_hours?: {
-                [key: string]: unknown;
-            } | null;
-            ycart_settings?: ({
-                /** @example Москва, Красная площадь */
-                address?: string | null;
-                /** @example true */
-                enabled?: boolean | null;
-                /** @example 55.7558 */
-                latitude?: number | null;
-                /** @example 37.6173 */
-                longitude?: number | null;
-                /** @example 123456789 */
-                yandex_org_id?: string | null;
-            } & {
-                [key: string]: unknown;
-            }) | null;
-        };
-        /** BranchListResponse */
-        BranchListResponse: {
-            data: components["schemas"]["Branch"][];
-        };
-        /** BranchResponse */
-        BranchResponse: {
-            data: components["schemas"]["Branch"];
-        };
-        /** CartItemResponse */
-        CartItemResponse: {
-            /** @example https://example.com/images/pizza.jpg */
-            image_url?: string | null;
-            /** @example Пицца Маргарита */
-            name: string;
-            /**
-             * @description Цена за единицу в копейках/рублях
-             * @example 590
-             */
-            price: number;
-            /**
-             * Format: uuid
-             * @example c4a3b8e0-1234-5678-9abc-def012345678
-             */
-            product_id: string;
-            /** @example 2 */
-            quantity: number;
-            /**
-             * @description Итоговая стоимость позиций
-             * @example 1180
-             */
-            total_price: number;
-        };
-        /** CartResponse */
-        CartResponse: {
-            data: {
-                /**
-                 * Format: uuid
-                 * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
-                 */
-                branch_id?: string | null;
-                /**
-                 * Format: uuid
-                 * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
-                 */
-                id: string;
-                items: components["schemas"]["CartItemResponse"][];
-                /** @example eceaec3d-dd25-4e19-8afc-f1d0f1412c9c */
-                session_id?: string | null;
-                /** @example 1500 */
-                total_amount: number;
-                /** @example 3 */
-                total_quantity: number;
-            };
-        };
-        /** CategoryResponse */
-        CategoryResponse: {
-            /**
-             * Format: uuid
-             * @example a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
-             */
-            id?: string;
-            /** @example true */
-            is_active?: boolean;
-            /** @example Пиццы */
-            name?: string;
-            /**
-             * Format: float
-             * @example 1
-             */
-            order?: number;
-            products?: components["schemas"]["ProductResponse"][];
-        };
-        /** CreateOrderRequest */
-        CreateOrderRequest: {
-            address?: components["schemas"]["AddressRequest"];
-            /**
-             * Format: uuid
-             * @description UUID филиала
-             * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
-             */
-            branch_id: string;
-            /**
-             * Format: uuid
-             * @description UUID корзины
-             * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
-             */
-            cart_id: string;
-            /** @example Без лука */
-            comment?: string | null;
-            /**
-             * Format: date_time
-             * @description Желаемое время приготовления. Если пусто — как можно скорее. Не более 30 дней от текущей даты
-             * @example 2026-10-05T18:30:00
-             */
-            cook_by?: string | null;
-            /**
-             * @description Имя клиента
-             * @example Иван
-             */
-            customer_name?: string | null;
-            /**
-             * @description Телефон клиента для поиска/создания клиента
-             * @example +79990000000
-             */
-            customer_phone?: string | null;
-            /**
-             * @example delivery
-             * @enum {string|null}
-             */
-            fulfillment_type?: "dine_in" | "delivery" | "pickup" | null;
-            /**
-             * @example cash
-             * @enum {string|null}
-             */
-            payment_method?: "cash" | "card_offline" | null;
-        };
+            enabled?: boolean | null
+            /** @example 55.7558 */
+            latitude?: number | null
+            /** @example 37.6173 */
+            longitude?: number | null
+            /** @example 123456789 */
+            yandex_org_id?: string | null
+          } & {
+            [key: string]: unknown
+          })
+        | null
+    }
+    /** BranchListResponse */
+    BranchListResponse: {
+      data: components['schemas']['Branch'][]
+    }
+    /** BranchResponse */
+    BranchResponse: {
+      data: components['schemas']['Branch']
+    }
+    /** CartItemResponse */
+    CartItemResponse: {
+      /** @example https://example.com/images/pizza.jpg */
+      image_url?: string | null
+      /** @example Пицца Маргарита */
+      name: string
+      /**
+       * @description Цена за единицу в копейках/рублях
+       * @example 590
+       */
+      price: number
+      /**
+       * Format: uuid
+       * @example c4a3b8e0-1234-5678-9abc-def012345678
+       */
+      product_id: string
+      /** @example 2 */
+      quantity: number
+      /**
+       * @description Итоговая стоимость позиций
+       * @example 1180
+       */
+      total_price: number
+    }
+    /** CartResponse */
+    CartResponse: {
+      data: {
         /**
-         * ErrorResponse
-         * @description Ошибка API. `error` — стабильный машиночитаемый код, по нему клиент выбирает текст для пользователя.
+         * Format: uuid
+         * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
          */
-        ErrorResponse: {
-            /**
-             * @description Ошибки валидации по полям: {поле: [сообщения]}
-             * @example {
-             *       "customer_phone": [
-             *         "must be in format +7XXXXXXXXXX"
-             *       ]
-             *     }
-             */
-            details?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * @example validation_failed
-             * @enum {string}
-             */
-            error: "bad_request" | "branch_id_required" | "branch_not_found" | "cart_not_found" | "cart_is_empty" | "cart_already_ordered" | "cart_branch_mismatch" | "product_unavailable" | "quantity_limit_exceeded" | "item_not_found" | "validation_failed" | "order_failed" | "too_many_requests" | "internal_error";
-            /** @example Validation failed */
-            message: string;
-        };
-        /** MenuResponse */
-        MenuResponse: {
-            data?: components["schemas"]["CategoryResponse"][];
-        };
-        /** OrderItemResponse */
-        OrderItemResponse: {
-            /** @example 590 */
-            price: number;
-            /**
-             * Format: uuid
-             * @example c4a3b8e0-1234-5678-9abc-def012345678
-             */
-            product_id: string;
-            /** @example 2 */
-            quantity: number;
-            /** @example Пицца Маргарита */
-            title: string;
-        };
-        /** OrderResponse */
-        OrderResponse: {
-            data: {
-                address?: {
-                    [key: string]: unknown;
-                } | null;
-                /**
-                 * Format: uuid
-                 * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
-                 */
-                branch_id: string;
-                /**
-                 * Format: uuid
-                 * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
-                 */
-                cart_id: string;
-                /**
-                 * Format: uuid
-                 * @example c4a3b8e0-1234-5678-9abc-def012345678
-                 */
-                client_id?: string | null;
-                /** @example Без лука */
-                comment?: string | null;
-                /**
-                 * Format: date_time
-                 * @example 2026-10-05T18:30:00
-                 */
-                cook_by?: string | null;
-                /** @example Иван */
-                customer_name?: string | null;
-                /** @example +79990000000 */
-                customer_phone?: string | null;
-                /** @example delivery */
-                fulfillment_type?: string;
-                /**
-                 * Format: uuid
-                 * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
-                 */
-                id: string;
-                items: components["schemas"]["OrderItemResponse"][];
-                /** @example ORD-1001 */
-                number: string;
-                /** @example cash */
-                payment_method?: string;
-                /** @example created */
-                status: string;
-                /** @example 1180 */
-                total_amount: number;
-            };
-        };
-        /** ProductResponse */
-        ProductResponse: {
-            /** @example Сочная пицца с колбасками */
-            description?: string | null;
-            external_id?: string | null;
-            /**
-             * Format: uuid
-             * @example 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
-             */
-            id?: string;
-            /** @example true */
-            is_active?: boolean;
-            /** @example Пипперони */
-            name?: string;
-            /**
-             * @description Старая цена до скидки
-             * @example 690
-             */
-            old_price?: string | null;
-            /**
-             * Format: uri
-             * @description Ссылка на изображение товара
-             * @example https://storage.example.com/images/pepperoni.jpg
-             */
-            photo_url?: string | null;
-            /**
-             * @description Цена в копейках/минимальных единицах
-             * @example 590
-             */
-            price?: number;
-            /**
-             * @description Количество товара на складе (в шт)
-             * @example 10
-             */
-            quantity?: number | null;
-            /**
-             * @description Вес товара (в граммах)
-             * @example 450
-             */
-            weight?: number | null;
-        };
-        /** StockResponse */
-        StockResponse: {
-            /**
-             * Format: uuid
-             * @example 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
-             */
-            id?: string;
-            /**
-             * @description Флаг активности акции
-             * @example true
-             */
-            is_active?: boolean;
-            /**
-             * Format: float
-             * @example 1
-             */
-            order?: number;
-            /**
-             * Format: uri
-             * @description Ссылка на медиафайл акции
-             * @example https://storage.example.com/images/stock.jpg
-             */
-            photo_url?: string;
-            /**
-             * @description Текст или описание акции
-             * @example Скидка 20% на первую покупку
-             */
-            text?: string;
-        };
-        /** StocksListResponse */
-        StocksListResponse: {
-            data?: components["schemas"]["StockResponse"][];
-        };
-    };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+        branch_id?: string | null
+        /**
+         * Format: uuid
+         * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+         */
+        id: string
+        items: components['schemas']['CartItemResponse'][]
+        /** @example eceaec3d-dd25-4e19-8afc-f1d0f1412c9c */
+        session_id?: string | null
+        /** @example 1500 */
+        total_amount: number
+        /** @example 3 */
+        total_quantity: number
+      }
+    }
+    /** CategoryResponse */
+    CategoryResponse: {
+      /**
+       * Format: uuid
+       * @example a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+       */
+      id?: string
+      /** @example true */
+      is_active?: boolean
+      /** @example Пиццы */
+      name?: string
+      /**
+       * Format: float
+       * @example 1
+       */
+      order?: number
+      products?: components['schemas']['ProductResponse'][]
+    }
+    /** CreateOrderRequest */
+    CreateOrderRequest: {
+      address?: components['schemas']['AddressRequest']
+      /**
+       * Format: uuid
+       * @description UUID филиала
+       * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
+       */
+      branch_id: string
+      /**
+       * Format: uuid
+       * @description UUID корзины
+       * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+       */
+      cart_id: string
+      /** @example Без лука */
+      comment?: string | null
+      /**
+       * Format: date_time
+       * @description Желаемое время приготовления. Если пусто — как можно скорее. Не более 30 дней от текущей даты
+       * @example 2026-10-05T18:30:00
+       */
+      cook_by?: string | null
+      /**
+       * @description Имя клиента
+       * @example Иван
+       */
+      customer_name?: string | null
+      /**
+       * @description Телефон клиента для поиска/создания клиента
+       * @example +79990000000
+       */
+      customer_phone?: string | null
+      /**
+       * @example delivery
+       * @enum {string|null}
+       */
+      fulfillment_type?: 'dine_in' | 'delivery' | 'pickup' | null
+      /**
+       * @example cash
+       * @enum {string|null}
+       */
+      payment_method?: 'cash' | 'card_offline' | null
+    }
+    /**
+     * ErrorResponse
+     * @description Ошибка API. `error` — стабильный машиночитаемый код, по нему клиент выбирает текст для пользователя.
+     */
+    ErrorResponse: {
+      /**
+       * @description Ошибки валидации по полям: {поле: [сообщения]}
+       * @example {
+       *       "customer_phone": [
+       *         "must be in format +7XXXXXXXXXX"
+       *       ]
+       *     }
+       */
+      details?: {
+        [key: string]: unknown
+      } | null
+      /**
+       * @example validation_failed
+       * @enum {string}
+       */
+      error:
+        | 'bad_request'
+        | 'branch_id_required'
+        | 'branch_not_found'
+        | 'cart_not_found'
+        | 'cart_is_empty'
+        | 'cart_already_ordered'
+        | 'cart_branch_mismatch'
+        | 'product_unavailable'
+        | 'quantity_limit_exceeded'
+        | 'item_not_found'
+        | 'validation_failed'
+        | 'order_failed'
+        | 'too_many_requests'
+        | 'internal_error'
+      /** @example Validation failed */
+      message: string
+    }
+    /** MenuResponse */
+    MenuResponse: {
+      data?: components['schemas']['CategoryResponse'][]
+    }
+    /** OrderItemResponse */
+    OrderItemResponse: {
+      /** @example 590 */
+      price: number
+      /**
+       * Format: uuid
+       * @example c4a3b8e0-1234-5678-9abc-def012345678
+       */
+      product_id: string
+      /** @example 2 */
+      quantity: number
+      /** @example Пицца Маргарита */
+      title: string
+    }
+    /** OrderResponse */
+    OrderResponse: {
+      data: {
+        address?: {
+          [key: string]: unknown
+        } | null
+        /**
+         * Format: uuid
+         * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
+         */
+        branch_id: string
+        /**
+         * Format: uuid
+         * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+         */
+        cart_id: string
+        /**
+         * Format: uuid
+         * @example c4a3b8e0-1234-5678-9abc-def012345678
+         */
+        client_id?: string | null
+        /** @example Без лука */
+        comment?: string | null
+        /**
+         * Format: date_time
+         * @example 2026-10-05T18:30:00
+         */
+        cook_by?: string | null
+        /** @example Иван */
+        customer_name?: string | null
+        /** @example +79990000000 */
+        customer_phone?: string | null
+        /** @example delivery */
+        fulfillment_type?: string
+        /**
+         * Format: uuid
+         * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+         */
+        id: string
+        items: components['schemas']['OrderItemResponse'][]
+        /** @example ORD-1001 */
+        number: string
+        /** @example cash */
+        payment_method?: string
+        /** @example created */
+        status: string
+        /** @example 1180 */
+        total_amount: number
+      }
+    }
+    /** ProductResponse */
+    ProductResponse: {
+      /** @example Сочная пицца с колбасками */
+      description?: string | null
+      external_id?: string | null
+      /**
+       * Format: uuid
+       * @example 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+       */
+      id?: string
+      /** @example true */
+      is_active?: boolean
+      /** @example Пипперони */
+      name?: string
+      /**
+       * @description Старая цена до скидки
+       * @example 690
+       */
+      old_price?: string | null
+      /**
+       * Format: uri
+       * @description Ссылка на изображение товара
+       * @example https://storage.example.com/images/pepperoni.jpg
+       */
+      photo_url?: string | null
+      /**
+       * @description Цена в копейках/минимальных единицах
+       * @example 590
+       */
+      price?: number
+      /**
+       * @description Количество товара на складе (в шт)
+       * @example 10
+       */
+      quantity?: number | null
+      /**
+       * @description Человекочитаемый идентификатор товара для URL (?product=hinkali)
+       * @example hinkali
+       */
+      slug?: string | null
+      /**
+       * @description Вес товара (в граммах)
+       * @example 450
+       */
+      weight?: number | null
+    }
+    /** StockResponse */
+    StockResponse: {
+      /**
+       * Format: uuid
+       * @example 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+       */
+      id?: string
+      /**
+       * @description Флаг активности акции
+       * @example true
+       */
+      is_active?: boolean
+      /**
+       * Format: float
+       * @example 1
+       */
+      order?: number
+      /**
+       * Format: uri
+       * @description Ссылка на медиафайл акции
+       * @example https://storage.example.com/images/stock.jpg
+       */
+      photo_url?: string
+      /**
+       * @description Slug товара, к которому ведёт акция (null — акция без товара)
+       * @example hinkali
+       */
+      product_slug?: string | null
+      /**
+       * @description Текст или описание акции
+       * @example Скидка 20% на первую покупку
+       */
+      text?: string
+    }
+    /** StocksListResponse */
+    StocksListResponse: {
+      data?: components['schemas']['StockResponse'][]
+    }
+  }
+  responses: never
+  parameters: never
+  requestBodies: never
+  headers: never
+  pathItems: never
 }
-export type $defs = Record<string, never>;
+export type $defs = Record<string, never>
 export interface operations {
-    "DelivestWeb.Client.Branch.BranchController.index": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Список филиалов */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BranchListResponse"];
-                };
-            };
-            /** @description Ошибка получения списка */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Branch.BranchController.clear_active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Кука активного филиала удалена */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @example Active branch cleared */
-                        message?: string;
-                    };
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Branch.BranchController.select_by_slug": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Slug филиала
-                 * @example centralny-filial
-                 */
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Детальная информация о филиале */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BranchResponse"];
-                };
-            };
-            /** @description Филиал не найден */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Menu.MenuController.index": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description UUID филиала
-                 * @example c4a3b8e0-1234-5678-9abc-def012345678
-                 */
-                branch_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Меню филиала с категориями и товарами */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MenuResponse"];
-                };
-            };
-            /** @description Ошибка получения меню */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Branch.BranchController.select": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description UUID филиала
-                 * @example c4a3b8e0-1234-5678-9abc-def012345678
-                 */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Детальная информация о филиале */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BranchResponse"];
-                };
-            };
-            /** @description Филиал не найден */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Cart.CartController.show": {
-        parameters: {
-            query?: {
-                /** @description Принудительно пересчитать и обновить кэш корзины */
-                force?: boolean;
-                /** @description ID активного филиала */
-                branch_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Данные корзины */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CartResponse"];
-                };
-            };
-            /** @description Ошибка создания корзины */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Cart.CartController.clear": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description UUID корзины */
-                cart_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Очищенная корзина */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CartResponse"];
-                };
-            };
-            /** @description Корзина не найдена */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Cart.CartController.add_item": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description UUID корзины */
-                cart_id: string;
-                /** @description UUID товара */
-                product_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Обновленная корзина */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CartResponse"];
-                };
-            };
-            /** @description Корзина не найдена */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Ошибка добавления товара */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Cart.CartController.remove_item": {
-        parameters: {
-            query?: {
-                /** @description Удалить все единицы товара из корзины */
-                all?: boolean;
-            };
-            header?: never;
-            path: {
-                /** @description UUID корзины */
-                cart_id: string;
-                /** @description UUID товара */
-                product_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Обновленная корзина */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CartResponse"];
-                };
-            };
-            /** @description Корзина или товар не найдены */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Order.OrderController.create": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Создание заказа */
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["CreateOrderRequest"];
-            };
-        };
-        responses: {
-            /** @description Созданный заказ */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrderResponse"];
-                };
-            };
-            /** @description Ошибка создания заказа */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Слишком много запросов */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    "DelivestWeb.Client.Stock.StockController.index": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description UUID филиала
-                 * @example 123e4567-e89b-12d3-a456-426614174000
-                 */
-                branch_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Список акций */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StocksListResponse"];
-                };
-            };
-        };
-    };
+  'DelivestWeb.Client.Branch.BranchController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список филиалов */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['BranchListResponse']
+        }
+      }
+      /** @description Ошибка получения списка */
+      500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Branch.BranchController.clear_active': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Кука активного филиала удалена */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            /** @example Active branch cleared */
+            message?: string
+          }
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Branch.BranchController.select_by_slug': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /**
+         * @description Slug филиала
+         * @example centralny-filial
+         */
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Детальная информация о филиале */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['BranchResponse']
+        }
+      }
+      /** @description Филиал не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Menu.MenuController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /**
+         * @description UUID филиала
+         * @example c4a3b8e0-1234-5678-9abc-def012345678
+         */
+        branch_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Меню филиала с категориями и товарами */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['MenuResponse']
+        }
+      }
+      /** @description Ошибка получения меню */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Branch.BranchController.select': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /**
+         * @description UUID филиала
+         * @example c4a3b8e0-1234-5678-9abc-def012345678
+         */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Детальная информация о филиале */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['BranchResponse']
+        }
+      }
+      /** @description Филиал не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.show': {
+    parameters: {
+      query?: {
+        /** @description Принудительно пересчитать и обновить кэш корзины */
+        force?: boolean
+        /** @description ID активного филиала */
+        branch_id?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Данные корзины */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Ошибка создания корзины */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.clear': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description UUID корзины */
+        cart_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Очищенная корзина */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Корзина не найдена */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.add_item': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description UUID корзины */
+        cart_id: string
+        /** @description UUID товара */
+        product_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Обновленная корзина */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Корзина не найдена */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Ошибка добавления товара */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.remove_item': {
+    parameters: {
+      query?: {
+        /** @description Удалить все единицы товара из корзины */
+        all?: boolean
+      }
+      header?: never
+      path: {
+        /** @description UUID корзины */
+        cart_id: string
+        /** @description UUID товара */
+        product_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Обновленная корзина */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Корзина или товар не найдены */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Создание заказа */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CreateOrderRequest']
+      }
+    }
+    responses: {
+      /** @description Созданный заказ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['OrderResponse']
+        }
+      }
+      /** @description Ошибка создания заказа */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Слишком много запросов */
+      429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Stock.StockController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /**
+         * @description UUID филиала
+         * @example 123e4567-e89b-12d3-a456-426614174000
+         */
+        branch_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список акций */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['StocksListResponse']
+        }
+      }
+    }
+  }
 }

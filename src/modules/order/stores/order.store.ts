@@ -46,7 +46,6 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   async function createOrder(form: OrderFormValues): Promise<Order | void> {
-    // The server rejects a second order for the same cart; this just avoids the extra request.
     if (isLoading.value || createdOrderId.value) return
 
     errorMessage.value = null

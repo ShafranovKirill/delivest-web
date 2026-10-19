@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useMenuQuery } from '../composables/useMenuQuery'
+import { useProductRoute } from '../composables/useProductRoute'
 
 import CartButtonMobile from '@/modules/cart/components/CartButtonMobile.vue'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
@@ -23,6 +24,8 @@ const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
 const menu = computed(() => {
   return menuData.value?.filter((category) => category.products && category.products.length > 0)
 })
+
+useProductRoute(menuData)
 
 onMounted(() => {
   cartStore.initBranchSync()

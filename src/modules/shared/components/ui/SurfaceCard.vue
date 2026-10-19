@@ -1,8 +1,4 @@
 <script setup lang="ts">
-/**
- * Rounded content card. Optional header: an icon chip, a small uppercase label
- * and/or a title. Use `as` to render it as a link or button.
- */
 withDefaults(
   defineProps<{
     icon?: string

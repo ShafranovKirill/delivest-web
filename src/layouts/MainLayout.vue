@@ -18,7 +18,6 @@ const viewportStore = useViewportStore()
     <TopBar v-if="!viewportStore.isMobile" />
     <MainHeader />
 
-    <!-- flex-1: secondary pages stretch their white panel down to the footer -->
     <main class="w-full mx-auto flex-1">
       <router-view />
     </main>

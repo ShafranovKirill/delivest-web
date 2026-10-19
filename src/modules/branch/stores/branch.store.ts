@@ -6,8 +6,6 @@ import { useBranchSchedule } from '../composables/useBranchSchedule'
 
 const SAVED_BRANCH_KEY = 'delivest:active_branch_id'
 
-// The API sets the active_branch_id cookie on its own host, so the frontend can
-// read it only when both are served from the same host. Keep a local copy too.
 function readSavedBranchId(): string | undefined {
   try {
     return localStorage.getItem(SAVED_BRANCH_KEY) ?? undefined
@@ -20,9 +18,7 @@ function writeSavedBranchId(id: string | null) {
   try {
     if (id) localStorage.setItem(SAVED_BRANCH_KEY, id)
     else localStorage.removeItem(SAVED_BRANCH_KEY)
-  } catch {
-    // Storage may be unavailable (private mode); the cookie still works on same-host setups.
-  }
+  } catch {}
 }
 
 export const useBranchStore = defineStore('branch', () => {
