@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Dialog from 'primevue/dialog'
+import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import { useOrderTime } from '../composables/useOrderTime'
 
 const modelValue = defineModel<string | null>({ required: true })
@@ -37,21 +38,17 @@ function selectCustomTime(slot: string) {
 </script>
 
 <template>
-  <div
-    class="bg-card border border-border/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col gap-4"
-  >
-    <h2 class="text-base sm:text-lg font-semibold">Время приготовления</h2>
-
+  <SurfaceCard icon="pi-clock" title="Когда приготовить">
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
       <button
         v-for="option in presetOptions"
         :key="option.id"
         type="button"
-        class="rounded-xl border px-2 py-2 text-sm font-medium transition-colors"
+        class="rounded-2xl border px-3 py-3 text-sm font-semibold transition-colors cursor-pointer"
         :class="
           option.active
-            ? 'bg-(--p-primary-500) text-white border-(--p-primary-500)'
-            : 'bg-white text-foreground border-border hover:border-(--p-primary-500)'
+            ? 'bg-primary text-white border-primary shadow-sm'
+            : 'bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary'
         "
         @click="selectPreset(option.id, option.value)"
       >
@@ -63,10 +60,12 @@ function selectCustomTime(slot: string) {
       v-model:visible="isCustomTimeDialogOpen"
       modal
       :dismissableMask="true"
-      class="w-[min(90vw,420px)]"
+      :draggable="false"
+      class="w-[min(92vw,420px)]"
+      :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
     >
       <template #header>
-        <h3 class="text-base font-semibold">Выберите время</h3>
+        <h3 class="text-xl font-extrabold text-gray-950">Выберите время</h3>
       </template>
 
       <div v-if="customTimeOptions.length" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -74,18 +73,18 @@ function selectCustomTime(slot: string) {
           v-for="slot in customTimeOptions"
           :key="slot"
           type="button"
-          class="rounded-xl border px-2 py-2 text-sm transition-colors"
+          class="rounded-2xl border px-2 py-2.5 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
           :class="
             modelValue === slot
-              ? 'bg-(--p-primary-500) text-white border-(--p-primary-500)'
-              : 'bg-white text-foreground border-border hover:border-(--p-primary-500)'
+              ? 'bg-primary text-white border-primary'
+              : 'bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary'
           "
           @click="selectCustomTime(slot)"
         >
           {{ formatTimeLabel(new Date(slot)) }}
         </button>
       </div>
-      <p v-else class="text-sm text-muted-foreground">Сегодня рабочее время закончилось.</p>
+      <p v-else class="text-sm text-gray-500">Сегодня рабочее время закончилось.</p>
     </Dialog>
-  </div>
+  </SurfaceCard>
 </template>

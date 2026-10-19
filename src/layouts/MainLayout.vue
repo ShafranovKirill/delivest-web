@@ -13,12 +13,13 @@ const viewportStore = useViewportStore()
 </script>
 <template>
   <div
-    class="min-h-screen flex flex-col mx-auto items-center bg-white rounded-4xl lg:rounded-b-[70px]"
+    class="min-h-screen flex flex-col mx-auto items-center bg-white rounded-4xl lg:rounded-b-[70px] overflow-clip"
   >
     <TopBar v-if="!viewportStore.isMobile" />
     <MainHeader />
 
-    <main class="w-full mx-auto">
+    <!-- flex-1: secondary pages stretch their white panel down to the footer -->
+    <main class="w-full mx-auto flex-1">
       <router-view />
     </main>
   </div>

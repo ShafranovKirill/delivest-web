@@ -4,6 +4,27 @@ import Cookies from 'js-cookie'
 import { BranchService, type Branch } from '../api/branch.service'
 import { useBranchSchedule } from '../composables/useBranchSchedule'
 
+const SAVED_BRANCH_KEY = 'delivest:active_branch_id'
+
+// The API sets the active_branch_id cookie on its own host, so the frontend can
+// read it only when both are served from the same host. Keep a local copy too.
+function readSavedBranchId(): string | undefined {
+  try {
+    return localStorage.getItem(SAVED_BRANCH_KEY) ?? undefined
+  } catch {
+    return undefined
+  }
+}
+
+function writeSavedBranchId(id: string | null) {
+  try {
+    if (id) localStorage.setItem(SAVED_BRANCH_KEY, id)
+    else localStorage.removeItem(SAVED_BRANCH_KEY)
+  } catch {
+    // Storage may be unavailable (private mode); the cookie still works on same-host setups.
+  }
+}
+
 export const useBranchStore = defineStore('branch', () => {
   const branches = ref<Branch[]>([])
   const activeBranch = ref<Branch | null>(null)
@@ -39,6 +60,7 @@ export const useBranchStore = defineStore('branch', () => {
     try {
       const selected = await BranchService.selectBranch(branch.id)
       activeBranch.value = selected || branch
+      writeSavedBranchId(activeBranch.value.id)
       return activeBranch.value
     } catch (error) {
       activeBranch.value = previousBranch
@@ -52,6 +74,7 @@ export const useBranchStore = defineStore('branch', () => {
     try {
       const selected = await BranchService.selectBranchBySlug(slug)
       activeBranch.value = selected
+      writeSavedBranchId(selected.id)
       return selected
     } catch (error) {
       activeBranch.value = previousBranch
@@ -62,6 +85,7 @@ export const useBranchStore = defineStore('branch', () => {
   async function clearActiveBranch() {
     const previousBranch = activeBranch.value
     activeBranch.value = null
+    writeSavedBranchId(null)
     try {
       await BranchService.clearActive()
     } catch (error) {
@@ -71,7 +95,7 @@ export const useBranchStore = defineStore('branch', () => {
   }
 
   function getBranchIdFromCookie(): string | undefined {
-    return Cookies.get('active_branch_id')
+    return Cookies.get('active_branch_id') ?? readSavedBranchId()
   }
 
   return {

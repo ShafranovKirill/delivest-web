@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router'
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
 import { useOrderStore } from '../stores/order.store'
-import Button from 'primevue/button'
+import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 
 const router = useRouter()
 const contactsStore = useContactsStore()
@@ -15,42 +15,43 @@ function handleReturnHome() {
 </script>
 
 <template>
-  <div class="flex flex-col items-center text-center gap-6 px-2 py-4 max-w-md mx-auto">
-    <div
-      class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center text-3xl shadow-sm"
-    >
-      ✓
-    </div>
-
-    <div class="flex flex-col gap-1.5">
-      <h2 class="text-xl sm:text-2xl font-bold">Заказ успешно оформлен!</h2>
-      <p class="text-sm text-muted-foreground">Спасибо за ваш выбор. Мы уже начали подготовку.</p>
-    </div>
-
-    <div class="w-full flex flex-col gap-3 py-2 border-y border-border/40 text-sm">
-      <div class="flex items-center justify-center gap-2 text-foreground font-medium">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        Ожидайте звонок оператора
+  <div class="mx-auto flex max-w-lg flex-col gap-3 sm:gap-4">
+    <SurfaceCard class="text-center">
+      <div class="flex flex-col items-center gap-4 py-4">
+        <span class="grid place-items-center size-16 rounded-full bg-primary text-white shadow-md">
+          <i class="pi pi-check text-2xl" />
+        </span>
+        <div>
+          <h2 class="text-2xl font-extrabold text-gray-950">Заказ принят!</h2>
+          <p v-if="orderStore.lastCreatedOrder?.number" class="mt-1 text-gray-500">
+            Номер заказа
+            <span class="font-bold text-gray-900">{{ orderStore.lastCreatedOrder.number }}</span>
+          </p>
+        </div>
       </div>
-      <p class="text-xs text-muted-foreground leading-relaxed px-4">
-        Мы свяжемся с вами в течение <span class="font-semibold text-foreground">5 минут</span> для
-        подтверждения деталей. Если этого не случилось, пожалуйста, позвоните нам.
-      </p>
-    </div>
+    </SurfaceCard>
 
-    <div class="flex flex-col sm:flex-row gap-3 w-full mt-2">
+    <SurfaceCard icon="pi-phone" label="Что дальше">
+      <template #value>Оператор позвонит для подтверждения</template>
+      <p class="text-sm text-gray-500 leading-relaxed">
+        Обычно это занимает до <span class="font-semibold text-gray-900">5 минут</span>. Если звонка
+        нет — позвоните нам сами.
+      </p>
+    </SurfaceCard>
+
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
       <Button
         v-if="contactsStore.phone"
         as="a"
         :href="`tel:${contactsStore.phone}`"
         label="Позвонить нам"
+        icon="pi pi-phone"
         severity="secondary"
-        class="rounded-4xl! h-14 font-semibold w-full flex-1"
+        class="h-14 flex-1 rounded-full! font-semibold"
       />
-
       <Button
         label="Вернуться в меню"
-        class="rounded-4xl! h-14 font-semibold w-full flex-1"
+        class="h-14 flex-1 rounded-full! font-semibold"
         @click="handleReturnHome"
       />
     </div>

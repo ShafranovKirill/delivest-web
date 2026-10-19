@@ -71,6 +71,7 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
 
   interface FormattedScheduleItem {
     day: string
+    isToday: boolean
     enabled: boolean
     open: string
     close: string
@@ -90,10 +91,13 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
       { key: 'sunday', label: 'Воскресенье' },
     ]
 
+    const todayKey = dayKeysMap[new Date().getDay()]
+
     return daysOrder.map((item) => {
       const dayData = hours[item.key]
       return {
         day: item.label,
+        isToday: item.key === todayKey,
         enabled: Boolean(dayData?.enabled),
         open: dayData?.open || '',
         close: dayData?.close || '',

@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, type WatchStopHandle } from 'vue'
 import { CartService, type Cart, type CartItem } from '../api/cart.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { getApiErrorCode } from '@/api/errors'
 
 export const useCartStore = defineStore('cart', () => {
   const cart = ref<Cart | null>(null)
@@ -31,8 +32,14 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  let stopBranchSync: WatchStopHandle | null = null
+
+  // Called from MenuView.onMounted on every visit: keep a single watcher, otherwise
+  // each mount adds one more and a branch switch fires N parallel cart requests.
   function initBranchSync() {
-    return watch(
+    if (stopBranchSync) return stopBranchSync
+
+    stopBranchSync = watch(
       () => branchStore.activeBranch?.id,
       async (newBranchId, oldBranchId) => {
         if (newBranchId === oldBranchId) return
@@ -48,57 +55,62 @@ export const useCartStore = defineStore('cart', () => {
         }
       },
     )
+
+    return stopBranchSync
+  }
+
+  /**
+   * Runs a mutation against the current cart. If the server no longer recognises the
+   * cart for this session (ordered in another tab, cleaned up), reload it and retry once.
+   */
+  async function withCart(mutate: (cartId: string) => Promise<Cart>): Promise<Cart> {
+    if (!cart.value?.id) await fetchCart()
+
+    isLoading.value = true
+    try {
+      try {
+        cart.value = await mutate(cart.value!.id)
+      } catch (error) {
+        if (getApiErrorCode(error) !== 'cart_not_found') throw error
+
+        const fresh = await fetchCart(undefined, true)
+        isLoading.value = true
+        cart.value = await mutate(fresh.id)
+      }
+      return cart.value!
+    } finally {
+      isLoading.value = false
+    }
   }
 
   async function addItem(productId: string): Promise<Cart> {
-    if (!cart.value?.id) {
-      await fetchCart()
-    }
-
-    const currentCartId = cart.value!.id
-    isLoading.value = true
-
     try {
-      const updatedCart = await CartService.addItem(currentCartId, productId)
-      cart.value = updatedCart
-      return updatedCart
+      return await withCart((cartId) => CartService.addItem(cartId, productId))
     } catch (error) {
       console.error(`[CartStore] Failed to add product ${productId}:`, error)
       throw error
-    } finally {
-      isLoading.value = false
     }
   }
 
   async function removeItem(productId: string): Promise<Cart> {
     if (!cart.value?.id) return fetchCart()
 
-    isLoading.value = true
     try {
-      const updatedCart = await CartService.removeItem(cart.value.id, productId, false)
-      cart.value = updatedCart
-      return updatedCart
+      return await withCart((cartId) => CartService.removeItem(cartId, productId, false))
     } catch (error) {
       console.error(`[CartStore] Failed to remove product ${productId}:`, error)
       throw error
-    } finally {
-      isLoading.value = false
     }
   }
 
   async function removeAllOfItem(productId: string): Promise<Cart> {
     if (!cart.value?.id) return fetchCart()
 
-    isLoading.value = true
     try {
-      const updatedCart = await CartService.removeItem(cart.value.id, productId, true)
-      cart.value = updatedCart
-      return updatedCart
+      return await withCart((cartId) => CartService.removeItem(cartId, productId, true))
     } catch (error) {
       console.error(`[CartStore] Failed to remove all items for product ${productId}:`, error)
       throw error
-    } finally {
-      isLoading.value = false
     }
   }
 
@@ -110,15 +122,11 @@ export const useCartStore = defineStore('cart', () => {
   async function clearCart(): Promise<void> {
     if (!cart.value?.id) return
 
-    isLoading.value = true
     try {
-      const updatedCart = await CartService.clearCart(cart.value.id)
-      cart.value = updatedCart
+      await withCart((cartId) => CartService.clearCart(cartId))
     } catch (error) {
       console.error('[CartStore] Failed to clear cart:', error)
       throw error
-    } finally {
-      isLoading.value = false
     }
   }
 

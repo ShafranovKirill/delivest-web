@@ -1,47 +1,60 @@
 <script setup lang="ts">
 import { useCartStore } from '@/modules/cart/stores/cart.store'
-import { useOrderStore } from '../stores/order.store'
+import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
+
+withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
+const emit = defineEmits<{ (e: 'next'): void }>()
 
 const cartStore = useCartStore()
-const orderStore = useOrderStore()
 </script>
 
 <template>
-  <div
-    class="bg-muted/20 border border-border/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 static lg:sticky top-6 flex flex-col gap-4"
-  >
-    <h2 class="text-base sm:text-lg font-semibold">Ваш заказ</h2>
-
-    <div class="flex flex-col gap-3">
-      <div
+  <SurfaceCard icon="pi-shopping-cart" title="Ваш заказ">
+    <ul class="flex flex-col gap-2">
+      <li
         v-for="item in cartStore.items"
         :key="item.product_id"
-        class="flex items-center justify-between gap-3 bg-background p-3 rounded-2xl border border-border/30"
+        class="flex items-center gap-3 rounded-2xl bg-white border border-gray-100 p-2 pr-4"
       >
-        <div class="min-w-0">
-          <h4 class="text-sm font-medium truncate">{{ item.name }}</h4>
-          <span class="text-xs text-muted-foreground">
-            {{ item.quantity }} шт. × {{ item.price }} ₽
+        <span v-if="!compact" class="size-14 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+          <img
+            v-if="item.image_url"
+            :src="item.image_url"
+            :alt="item.name"
+            class="size-full object-cover"
+            loading="lazy"
+          />
+        </span>
+        <span class="min-w-0 flex-1" :class="{ 'pl-2': compact }">
+          <span class="block text-sm font-semibold text-gray-900 truncate">{{ item.name }}</span>
+          <span class="block text-xs text-gray-500 tabular-nums">
+            {{ item.quantity }} × {{ item.price }} ₽
           </span>
-        </div>
-        <span class="font-semibold text-sm shrink-0">{{ item.total_price }} ₽</span>
-      </div>
-    </div>
+        </span>
+        <span class="shrink-0 text-sm font-bold text-gray-900 tabular-nums">
+          {{ item.total_price }} ₽
+        </span>
+      </li>
+    </ul>
 
-    <div class="border-t border-border/40 pt-4 flex flex-col gap-2">
-      <div class="flex justify-between text-sm text-muted-foreground">
-        <span>Количество товаров:</span>
-        <span>{{ cartStore.totalQuantity }} шт.</span>
+    <div class="mt-4 flex flex-col gap-1.5 border-t border-gray-200 pt-4">
+      <div class="flex justify-between text-sm text-gray-500">
+        <span>Товаров</span>
+        <span class="tabular-nums">{{ cartStore.totalQuantity }} шт.</span>
       </div>
-      <div class="flex justify-between text-lg font-bold">
-        <span>Итого к оплате:</span>
-        <span>{{ cartStore.totalAmount }} ₽</span>
+      <div class="flex justify-between text-lg font-extrabold text-gray-950">
+        <span>Итого</span>
+        <span class="tabular-nums">{{ cartStore.totalAmount }} ₽</span>
       </div>
     </div>
-  </div>
+  </SurfaceCard>
+
   <Button
-    label="Далее"
-    class="w-full h-14 rounded-4xl! text-base font-semibold mt-4"
-    @click="orderStore.activeStep = 2"
+    v-if="!compact"
+    label="Перейти к оформлению"
+    icon="pi pi-arrow-right"
+    iconPos="right"
+    class="w-full h-14 rounded-full! text-base font-semibold mt-3 sm:mt-4"
+    @click="emit('next')"
   />
 </template>

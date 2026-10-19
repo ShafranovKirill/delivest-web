@@ -250,19 +250,6 @@ export interface components {
             address?: string | null;
             /** @example 30 */
             delivery_time?: number | null;
-            /** @example frontpad-secret-key */
-            frontpad_api_key?: string | null;
-            /** @example true */
-            frontpad_enabled?: boolean | null;
-            /**
-             * @example {
-             *       "mode": "live",
-             *       "webhook": "https://example.com/hook"
-             *     }
-             */
-            frontpad_settings?: {
-                [key: string]: unknown;
-            } | null;
             /**
              * Format: uuid
              * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
@@ -399,7 +386,7 @@ export interface components {
             comment?: string | null;
             /**
              * Format: date_time
-             * @description Желаемое время приготовления. Если пусто — как можно скорее
+             * @description Желаемое время приготовления. Если пусто — как можно скорее. Не более 30 дней от текущей даты
              * @example 2026-10-05T18:30:00
              */
             cook_by?: string | null;
@@ -423,6 +410,30 @@ export interface components {
              * @enum {string|null}
              */
             payment_method?: "cash" | "card_offline" | null;
+        };
+        /**
+         * ErrorResponse
+         * @description Ошибка API. `error` — стабильный машиночитаемый код, по нему клиент выбирает текст для пользователя.
+         */
+        ErrorResponse: {
+            /**
+             * @description Ошибки валидации по полям: {поле: [сообщения]}
+             * @example {
+             *       "customer_phone": [
+             *         "must be in format +7XXXXXXXXXX"
+             *       ]
+             *     }
+             */
+            details?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * @example validation_failed
+             * @enum {string}
+             */
+            error: "bad_request" | "branch_id_required" | "branch_not_found" | "cart_not_found" | "cart_is_empty" | "cart_already_ordered" | "cart_branch_mismatch" | "product_unavailable" | "quantity_limit_exceeded" | "item_not_found" | "validation_failed" | "order_failed" | "too_many_requests" | "internal_error";
+            /** @example Validation failed */
+            message: string;
         };
         /** MenuResponse */
         MenuResponse: {
@@ -599,10 +610,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @example Failed to fetch branches */
-                        error?: string;
-                    };
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -660,7 +668,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -695,10 +703,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @example Failed to fetch menu */
-                        error?: string;
-                    };
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -733,10 +738,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @example Branch not found */
-                        error: string;
-                    };
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -770,7 +772,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -802,7 +804,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -830,13 +832,22 @@ export interface operations {
                     "application/json": components["schemas"]["CartResponse"];
                 };
             };
+            /** @description Корзина не найдена */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Ошибка добавления товара */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -867,13 +878,13 @@ export interface operations {
                     "application/json": components["schemas"]["CartResponse"];
                 };
             };
-            /** @description Товар не найден в корзине */
+            /** @description Корзина или товар не найдены */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -907,13 +918,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        details?: {
-                            [key: string]: unknown;
-                        } | null;
-                        /** @example Failed to create order */
-                        error?: string;
-                    };
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

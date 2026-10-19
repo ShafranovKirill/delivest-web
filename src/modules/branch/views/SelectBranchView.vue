@@ -1,47 +1,58 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-50 text-gray-900 flex flex-col justify-center items-center px-4 py-12"
-  >
-    <div class="w-full max-w-md space-y-8 text-center">
-      <div class="space-y-2">
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Выберите филиал</h1>
-        <p class="text-sm text-gray-500">Укажите удобный филиал для оформления заказа</p>
+  <div class="min-h-screen bg-gray-200 flex flex-col items-center justify-center px-4 py-10">
+    <div
+      translate="no"
+      class="mb-6 text-4xl sm:text-5xl tracking-tighter text-primary select-none"
+      style="font-family: 'Unbounded', sans-serif; font-weight: 500"
+    >
+      {{ cafeName }}
+    </div>
+
+    <div class="w-full max-w-md rounded-4xl bg-white p-5 sm:p-8 shadow-sm">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-950">
+        Выберите филиал
+      </h1>
+      <p class="mt-1.5 text-sm text-gray-500">Меню и время доставки зависят от заведения</p>
+
+      <div v-if="loading" class="flex justify-center py-12">
+        <i class="pi pi-spin pi-spinner text-3xl text-primary" />
       </div>
 
-      <div v-if="loading" class="flex justify-center items-center py-12">
-        <i class="pi pi-spin pi-spinner text-3xl text-(--p-primary-500)"></i>
-      </div>
-
-      <div v-else class="space-y-3">
+      <div v-else class="mt-6 flex flex-col gap-2">
         <button
           v-for="branch in activeBranches"
           :key="branch.id"
           type="button"
           :disabled="selectingId === branch.id"
+          class="group flex items-center gap-3 rounded-3xl bg-gray-50 border border-gray-100 p-3 text-left cursor-pointer hover:border-primary transition-colors disabled:opacity-60 disabled:cursor-wait"
           @click="handleSelect(branch)"
-          class="w-full group relative flex items-center justify-between p-4 text-left rounded-2xl bg-white border border-gray-200 hover:border-(--p-primary-500) transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer shadow-xs hover:shadow-md"
         >
-          <div class="flex items-center space-x-2.5 min-w-0 pr-3">
-            <i
-              class="pi pi-map-marker text-gray-400 group-hover:text-(--p-primary-500) transition-colors"
-            ></i>
+          <span
+            class="grid place-items-center size-11 shrink-0 rounded-2xl bg-white text-primary shadow-xs"
+          >
+            <i class="pi pi-map-marker text-lg" />
+          </span>
+          <span class="min-w-0 flex-1">
             <span
-              class="text-base font-medium text-gray-800 group-hover:text-(--p-primary-500) transition-colors truncate"
+              class="block font-bold text-gray-900 truncate group-hover:text-primary transition-colors"
             >
               {{ branch.name }}
             </span>
-          </div>
-
-          <div
-            class="flex items-center text-gray-400 group-hover:text-(--p-primary-500) transition-colors shrink-0"
-          >
-            <i v-if="selectingId === branch.id" class="pi pi-spin pi-spinner text-lg"></i>
-            <i
-              v-else
-              class="pi pi-chevron-right text-sm transform group-hover:translate-x-0.5 transition-transform"
-            ></i>
-          </div>
+            <span v-if="branch.branch_info?.address" class="block text-sm text-gray-500 truncate">
+              {{ branch.branch_info.address }}
+            </span>
+          </span>
+          <i
+            :class="[
+              'pi text-gray-400 group-hover:text-primary transition-colors',
+              selectingId === branch.id ? 'pi-spin pi-spinner' : 'pi-chevron-right text-sm',
+            ]"
+          />
         </button>
+
+        <p v-if="!activeBranches.length" class="py-8 text-center text-gray-500">
+          Сейчас нет доступных филиалов
+        </p>
       </div>
     </div>
   </div>
@@ -53,10 +64,12 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
+import { getCafeName } from '@/utils/env'
 
 const router = useRouter()
 const toast = useToast()
 const branchStore = useBranchStore()
+const cafeName = getCafeName()
 
 const loading = ref(false)
 const selectingId = ref<string | null>(null)

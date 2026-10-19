@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
 
 const props = defineProps<{
@@ -11,11 +13,21 @@ const emit = defineEmits<{
 }>()
 
 const cartStore = useCartStore()
+const toast = useToast()
 
 const handleAddToCart = async () => {
   if (!props.product) return
-  await cartStore.addItem(props.product.id!)
-  emit('added')
+  try {
+    await cartStore.addItem(props.product.id!)
+    emit('added')
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Корзина',
+      detail: getApiErrorMessage(error),
+      life: 3000,
+    })
+  }
 }
 </script>
 

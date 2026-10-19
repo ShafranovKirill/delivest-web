@@ -4,10 +4,11 @@ import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
-import Select from 'primevue/select'
 import Checkbox from 'primevue/checkbox'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
+import OptionChips from '@/modules/order/components/OptionChips.vue'
+import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 
 interface AddressForm {
@@ -59,21 +60,25 @@ const form = reactive<OrderFormValues>({
   call_operator_for_address: false,
 })
 
-// Динамический лейбл для самовывоза с учетом адреса филиала
-const pickupLabel = computed(() => {
-  const address = branchStore.activeBranch?.branch_info?.address
-  return address ? `Самовывоз (откуда: ${address})` : 'Самовывоз'
-})
+const pickupAddress = computed(() => branchStore.activeBranch?.branch_info?.address || null)
 
-const fulfillmentOptions = computed(() => [
-  { label: 'Доставка', value: 'delivery' },
-  { label: pickupLabel.value, value: 'pickup' },
-  { label: 'В заведении', value: 'dine_in' },
-])
+const fulfillmentOptions: Array<{
+  value: OrderFormValues['fulfillment_type']
+  label: string
+  icon: string
+}> = [
+  { value: 'delivery', label: 'Доставка', icon: 'pi-car' },
+  { value: 'pickup', label: 'Самовывоз', icon: 'pi-shopping-bag' },
+  { value: 'dine_in', label: 'В зале', icon: 'pi-home' },
+]
 
-const paymentOptions = [
-  { label: 'Наличными', value: 'cash' },
-  { label: 'Картой при получении', value: 'card_offline' },
+const paymentOptions: Array<{
+  value: OrderFormValues['payment_method']
+  label: string
+  icon: string
+}> = [
+  { value: 'cash', label: 'Наличными', icon: 'pi-wallet' },
+  { value: 'card_offline', label: 'Картой', icon: 'pi-credit-card' },
 ]
 
 function handleSubmit() {
@@ -92,116 +97,97 @@ function handleSubmit() {
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit" class="flex flex-col gap-4 sm:gap-6">
-    <div
-      class="bg-card border border-border/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col gap-4"
-    >
-      <h2 class="text-base sm:text-lg font-semibold">Контактные данные</h2>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-muted-foreground">Ваше имя</label>
-        <InputText v-model="form.customer_name" placeholder="Иван" class="w-full" />
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-muted-foreground">
-          Номер телефона <span class="text-red-500">*</span>
+  <form class="flex flex-col gap-3 sm:gap-4" @submit.prevent="handleSubmit">
+    <SurfaceCard icon="pi-user" title="Контактные данные">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <label class="flex flex-col gap-1.5">
+          <span class="text-sm font-medium text-gray-600">Ваше имя</span>
+          <InputText v-model="form.customer_name" placeholder="Иван" class="w-full" />
         </label>
-        <PhoneInput v-model="form.customer_phone" required class="w-full" />
+        <label class="flex flex-col gap-1.5">
+          <span class="text-sm font-medium text-gray-600">
+            Телефон <span class="text-red-500">*</span>
+          </span>
+          <PhoneInput v-model="form.customer_phone" required class="w-full" />
+        </label>
       </div>
-    </div>
+    </SurfaceCard>
 
-    <div
-      class="bg-card border border-border/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col gap-4"
-    >
-      <h2 class="text-base sm:text-lg font-semibold">Способ получения</h2>
-      <Select
-        v-model="form.fulfillment_type"
-        :options="fulfillmentOptions"
-        optionLabel="label"
-        optionValue="value"
-        class="w-full"
-      />
+    <SurfaceCard icon="pi-send" title="Способ получения">
+      <OptionChips v-model="form.fulfillment_type" :options="fulfillmentOptions" :columns="3" />
 
-      <div v-if="form.fulfillment_type === 'delivery'" class="flex flex-col gap-3 sm:gap-4 mt-2">
-        <div class="flex items-center gap-2">
-          <Checkbox v-model="form.call_operator_for_address" inputId="call_operator" binary />
-          <label for="call_operator" class="text-sm cursor-pointer select-none">
-            Назвать адрес оператору по телефону
-          </label>
-        </div>
+      <p
+        v-if="form.fulfillment_type === 'pickup' && pickupAddress"
+        class="mt-3 flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm text-gray-600 border border-gray-100"
+      >
+        <i class="pi pi-map-marker text-primary" />
+        Забрать по адресу: <span class="font-semibold text-gray-900">{{ pickupAddress }}</span>
+      </p>
+
+      <div v-if="form.fulfillment_type === 'delivery'" class="mt-4 flex flex-col gap-3 sm:gap-4">
+        <label class="flex items-center gap-2 cursor-pointer select-none">
+          <Checkbox v-model="form.call_operator_for_address" binary />
+          <span class="text-sm text-gray-700">Назову адрес оператору по телефону</span>
+        </label>
 
         <template v-if="!form.call_operator_for_address">
-          <div class="grid grid-cols-1 gap-3">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground">Улица</label>
-              <InputText v-model="form.address.street" placeholder="Ленина" class="w-full" />
-            </div>
-          </div>
+          <label class="flex flex-col gap-1.5">
+            <span class="text-sm font-medium text-gray-600">Улица</span>
+            <InputText v-model="form.address.street" placeholder="Ленина" class="w-full" />
+          </label>
 
           <div class="grid grid-cols-3 gap-2 sm:gap-3">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground">Дом</label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-600">Дом</span>
               <InputText v-model="form.address.house" placeholder="10" class="w-full" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground">Кв / офис</label>
+            </label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-600">Кв / офис</span>
               <InputText v-model="form.address.apartment" placeholder="12" class="w-full" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground">Подъезд</label>
+            </label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-600">Подъезд</span>
               <InputText v-model="form.address.entrance" placeholder="2" class="w-full" />
-            </div>
+            </label>
           </div>
 
           <div class="grid grid-cols-3 gap-2 sm:gap-3">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground">Этаж</label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-gray-600">Этаж</span>
               <InputText v-model="form.address.floor" placeholder="3" class="w-full" />
-            </div>
-            <div class="flex flex-col gap-1.5 col-span-2">
-              <label class="text-xs text-muted-foreground">Домофон</label>
+            </label>
+            <label class="flex flex-col gap-1.5 col-span-2">
+              <span class="text-sm font-medium text-gray-600">Домофон</span>
               <InputText v-model="form.address.intercom" placeholder="42" class="w-full" />
-            </div>
+            </label>
           </div>
         </template>
       </div>
-    </div>
+    </SurfaceCard>
 
     <OrderTimeSelect v-model="form.cook_by" />
 
-    <div
-      class="bg-card border border-border/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col gap-4"
-    >
-      <h2 class="text-base sm:text-lg font-semibold">Оплата и комментарий</h2>
+    <SurfaceCard icon="pi-wallet" title="Оплата">
+      <OptionChips v-model="form.payment_method" :options="paymentOptions" :columns="2" />
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-muted-foreground">Способ оплаты</label>
-        <Select
-          v-model="form.payment_method"
-          :options="paymentOptions"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-        />
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-muted-foreground">Комментарий к заказу</label>
+      <label class="mt-4 flex flex-col gap-1.5">
+        <span class="text-sm font-medium text-gray-600">Комментарий к заказу</span>
         <Textarea
           v-model="form.comment"
           rows="3"
-          placeholder="Например: Без лука"
+          placeholder="Например: без лука"
           class="w-full resize-none"
         />
-      </div>
-    </div>
+      </label>
+    </SurfaceCard>
 
     <Button
       type="submit"
-      label="Подтвердить и оформить заказ"
+      label="Оформить заказ"
+      icon="pi pi-check"
+      iconPos="right"
       :loading="isLoading"
-      class="w-full h-14 rounded-4xl! text-base font-semibold"
+      class="w-full h-14 rounded-full! text-base font-semibold"
     />
   </form>
 </template>

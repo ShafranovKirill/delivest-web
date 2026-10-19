@@ -1,11 +1,23 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import ProgressSpinner from 'primevue/progressspinner'
+import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
 
 const props = defineProps<{ product: MenuProduct }>()
 const cartStore = useCartStore()
+const toast = useToast()
+
+function showError(error: unknown) {
+  toast.add({
+    severity: 'error',
+    summary: 'Корзина',
+    detail: getApiErrorMessage(error),
+    life: 3000,
+  })
+}
 
 const isPending = ref(false)
 
@@ -27,6 +39,7 @@ const handleAdd = async (event: Event) => {
     await cartStore.addItem(String(props.product.id))
   } catch (error) {
     console.error('[AddToCartSwitch] Failed to add item:', error)
+    showError(error)
   } finally {
     isPending.value = false
   }
@@ -41,6 +54,7 @@ const handleRemove = async (event: Event) => {
     await cartStore.removeItem(String(props.product.id))
   } catch (error) {
     console.error('[AddToCartSwitch] Failed to remove item:', error)
+    showError(error)
   } finally {
     isPending.value = false
   }

@@ -1,19 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { branchMiddleware } from './middleware/branch.middleware'
-import SelectBranchView from '@/modules/branch/views/SelectBranchView.vue'
 import MainLayout from '@/layouts/MainLayout.vue'
-import StockView from '@/modules/stock/views/StockView.vue'
-import BranchInfoView from '@/modules/branch/views/BranchInfoView.vue'
-import CheckoutView from '@/modules/order/views/CheckoutView.vue'
 import MenuView from '@/modules/menu/views/MenuView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  // New page opens at the top; Back/Forward restores the previous position.
+  scrollBehavior(_to, _from, savedPosition) {
+    return savedPosition ?? { top: 0, left: 0 }
+  },
   routes: [
     {
       path: '/select-branch',
       name: 'select-branch',
-      component: SelectBranchView,
+      component: () => import('@/modules/branch/views/SelectBranchView.vue'),
     },
     {
       path: '/:slug',
@@ -27,17 +27,17 @@ const router = createRouter({
         {
           path: 'promotions',
           name: 'promotions',
-          component: StockView,
+          component: () => import('@/modules/stock/views/StockView.vue'),
         },
         {
           path: 'branch-info',
           name: 'branch-info',
-          component: BranchInfoView,
+          component: () => import('@/modules/branch/views/BranchInfoView.vue'),
         },
         {
           path: 'checkout',
           name: 'checkout',
-          component: CheckoutView,
+          component: () => import('@/modules/order/views/CheckoutView.vue'),
         },
       ],
     },

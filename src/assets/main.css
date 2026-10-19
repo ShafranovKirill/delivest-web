@@ -15,6 +15,11 @@
   --color-brand: #f97316;
   --color-brand-dark: #ea580c;
   --font-sans: 'Inter', system-ui, sans-serif;
+
+  /* PrimeVue theme primary, exposed to Tailwind: text-primary, bg-primary/10, ... */
+  --color-primary: var(--p-primary-500);
+  --color-primary-soft: var(--p-primary-50);
+  --color-primary-strong: var(--p-primary-700);
 }
 
 body {

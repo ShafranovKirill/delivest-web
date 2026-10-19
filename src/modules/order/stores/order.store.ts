@@ -1,11 +1,10 @@
 // order.store.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import axios from 'axios'
-
 import { OrderService, type Order, type CreateOrderPayload } from '../api/order.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { getApiErrorMessage } from '@/api/errors'
 import type { OrderFormValues } from '../components/OrderForm.vue'
 
 export const useOrderStore = defineStore('order', () => {
@@ -47,6 +46,9 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   async function createOrder(form: OrderFormValues): Promise<Order | void> {
+    // The server rejects a second order for the same cart; this just avoids the extra request.
+    if (isLoading.value || createdOrderId.value) return
+
     errorMessage.value = null
 
     if (cartStore.isEmpty) {
@@ -106,13 +108,7 @@ export const useOrderStore = defineStore('order', () => {
 
       return order
     } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        errorMessage.value = error.response?.data?.error || 'Произошла ошибка при оформлении заказа'
-      } else if (error instanceof Error) {
-        errorMessage.value = error.message
-      } else {
-        errorMessage.value = 'Произошла ошибка при оформлении заказа'
-      }
+      errorMessage.value = getApiErrorMessage(error, 'Произошла ошибка при оформлении заказа')
       throw error
     } finally {
       isLoading.value = false

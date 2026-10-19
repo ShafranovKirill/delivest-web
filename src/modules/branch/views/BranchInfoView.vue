@@ -1,273 +1,178 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import type { Branch } from '../api/branch.service'
-import type { Ref } from 'vue'
 import { useMapStore } from '../stores/map.store'
 import BranchYandexMap from '../components/BranchYandexMap.vue'
 import { useBranchStore } from '../stores/branch.store.ts'
-import type { WorkingHoursMap } from '../composables/useBranchSchedule.ts'
+import PageShell from '@/modules/shared/components/ui/PageShell.vue'
+import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
+import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
+import { formatPhoneNumber } from '@/modules/widgets/contacts/utils/tel-format'
 
 const branchStore = useBranchStore()
 const mapStore = useMapStore()
 
 const { activeBranch, isOpenNow, closingTimeToday, formattedScheduleList, workingHours } =
-  storeToRefs(branchStore) as {
-    activeBranch: Ref<Branch | null>
-    isOpenNow: Ref<boolean>
-    closingTimeToday: Ref<string>
-    formattedScheduleList: Ref<
-      Array<{ day: string; enabled: boolean; open: string; close: string }>
-    >
-    workingHours: Ref<WorkingHoursMap | null>
-  }
+  storeToRefs(branchStore)
 const { isMapEnabled, coordinates, yandexOrgUrl } = storeToRefs(mapStore)
 
-const handleChangeBranch = () => {
-  branchStore.openModal()
-}
+const info = computed(() => activeBranch.value?.branch_info ?? null)
+const phoneLabel = computed(() =>
+  info.value?.phone_number ? formatPhoneNumber(info.value.phone_number) : null,
+)
+
+const socials = computed(() =>
+  [
+    { key: 'vk', url: info.value?.vk_url, label: 'ВКонтакте', icon: null },
+    { key: 'instagram', url: info.value?.instagram_url, label: 'Instagram', icon: 'pi-instagram' },
+    { key: 'whatsapp', url: info.value?.whatsapp_url, label: 'WhatsApp', icon: 'pi-whatsapp' },
+  ].filter((item) => Boolean(item.url)),
+)
 </script>
 
 <template>
-  <div class="bg-gray-200 w-full min-h-screen">
-    <div class="bg-white rounded-4xl w-full min-h-screen py-8 px-4 sm:px-6">
-      <div class="max-w-4xl mx-auto">
-        <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-gray-100 mb-8"
+  <PageShell title="О нас" subtitle="Адрес, контакты и режим работы заведения" width="default">
+    <template #actions>
+      <button
+        type="button"
+        class="group inline-flex items-center gap-3 rounded-full bg-gray-50 border border-gray-100 py-2 pl-2 pr-4 hover:border-primary transition-colors cursor-pointer"
+        @click="branchStore.openModal()"
+      >
+        <span class="grid place-items-center size-9 rounded-full bg-white text-primary shadow-xs">
+          <i class="pi pi-map-marker" />
+        </span>
+        <span class="flex flex-col items-start leading-tight">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+            Филиал
+          </span>
+          <span class="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">
+            {{ activeBranch?.name || 'Не выбран' }}
+          </span>
+        </span>
+        <i class="pi pi-chevron-right text-xs text-gray-400 group-hover:text-primary" />
+      </button>
+    </template>
+
+    <div v-if="activeBranch" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+      <SurfaceCard icon="pi-clock" label="Сейчас" class="md:col-span-2">
+        <template #value>
+          <span class="inline-flex items-center gap-2">
+            <span
+              class="size-2.5 rounded-full"
+              :class="isOpenNow ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'"
+            />
+            {{ isOpenNow ? 'Открыто, принимаем заказы' : 'Закрыто' }}
+          </span>
+        </template>
+        <template v-if="workingHours" #aside>
+          <span
+            class="hidden sm:inline-flex rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-600 shadow-xs"
+          >
+            Сегодня {{ closingTimeToday }}
+          </span>
+        </template>
+      </SurfaceCard>
+
+      <SurfaceCard icon="pi-map-marker" label="Адрес" class="md:col-span-2">
+        <template #value>{{ info?.address || 'Адрес не указан' }}</template>
+        <template v-if="yandexOrgUrl" #aside>
+          <a
+            :href="yandexOrgUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-primary shadow-xs hover:bg-primary-soft transition-colors"
+          >
+            <span class="hidden sm:inline">Яндекс Карты</span>
+            <i class="pi pi-external-link text-xs" />
+          </a>
+        </template>
+
+        <div v-if="isMapEnabled && coordinates" class="overflow-hidden rounded-2xl">
+          <BranchYandexMap
+            :coordinates="coordinates"
+            :branch-name="activeBranch.name"
+            :address="info?.address"
+          />
+        </div>
+      </SurfaceCard>
+
+      <SurfaceCard
+        icon="pi-phone"
+        label="Телефон"
+        :as="info?.phone_number ? 'a' : 'div'"
+        :href="info?.phone_number ? `tel:${info.phone_number}` : undefined"
+        :class="{ 'hover:border-primary transition-colors': info?.phone_number }"
+      >
+        <template #value>{{ phoneLabel || 'Не указан' }}</template>
+        <template v-if="info?.phone_number" #aside>
+          <i class="pi pi-arrow-up-right text-gray-400" />
+        </template>
+      </SurfaceCard>
+
+      <SurfaceCard icon="pi-car" label="Доставка">
+        <template #value>
+          {{ info?.delivery_time ? `около ${info.delivery_time} мин` : 'Время не указано' }}
+        </template>
+      </SurfaceCard>
+
+      <SurfaceCard icon="pi-calendar" label="Режим работы" class="md:col-span-2">
+        <template #value>Расписание по дням недели</template>
+
+        <ul
+          v-if="workingHours && formattedScheduleList.length"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-2"
         >
-          <div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-              Информация о филиале
-            </h1>
-            <p class="text-sm text-gray-500 mt-1">
-              Контакты, адрес и режим работы выбранного заведения
-            </p>
-          </div>
-
-          <button
-            @click="handleChangeBranch"
-            class="inline-flex items-center gap-2 self-start sm:self-center px-4 py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-2xl transition-all duration-200 cursor-pointer group shadow-sm"
+          <li
+            v-for="item in formattedScheduleList"
+            :key="item.day"
+            class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm border"
+            :class="item.isToday ? 'bg-primary-soft border-primary/20' : 'bg-white border-gray-100'"
           >
-            <i
-              class="pi pi-map-marker text-lg text-gray-700 group-hover:text-(--p-primary-500) transition-colors"
-            ></i>
-            <div class="flex flex-col items-start text-left">
-              <span class="text-xs text-gray-400 font-medium leading-none">Текущий филиал</span>
-              <span
-                class="text-sm font-bold text-gray-900 group-hover:text-(--p-primary-500) transition-colors mt-0.5"
-              >
-                {{ activeBranch?.name || 'Не выбран' }}
-              </span>
-            </div>
-            <i
-              class="pi pi-chevron-right text-xs text-gray-400 group-hover:text-(--p-primary-500) ml-1 transition-colors"
-            ></i>
-          </button>
-        </div>
+            <span class="font-medium" :class="item.isToday ? 'text-primary' : 'text-gray-700'">
+              {{ item.day }}
+              <span v-if="item.isToday" class="ml-1 text-xs font-semibold">· сегодня</span>
+            </span>
+            <span v-if="item.enabled" class="font-semibold text-gray-900 tabular-nums">
+              {{ item.open }} — {{ item.close }}
+            </span>
+            <span v-else class="font-medium text-gray-400">Выходной</span>
+          </li>
+        </ul>
+        <p v-else class="text-sm text-gray-500">Расписание не указано.</p>
+      </SurfaceCard>
 
-        <div v-if="activeBranch" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div
-              class="p-5 rounded-2xl bg-gray-50 border border-gray-100 md:col-span-2 overflow-hidden"
-            >
-              <div class="flex items-start gap-4">
-                <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500) shrink-0">
-                  <i class="pi pi-building text-xl"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
-                    >Адрес и расположение</span
-                  >
-                  <p class="text-base font-semibold text-gray-900 mt-1 mb-3 wrap-break-word">
-                    {{ activeBranch.branch_info?.address || 'Адрес не указан' }}
-                  </p>
-                </div>
-              </div>
+      <SurfaceCard
+        v-if="socials.length"
+        icon="pi-heart"
+        label="Мы в соцсетях"
+        class="md:col-span-2"
+      >
+        <template #value>Подписывайтесь, там акции и новинки</template>
 
-              <div v-if="isMapEnabled && coordinates" class="mt-4 space-y-3 w-full">
-                <BranchYandexMap
-                  :coordinates="coordinates"
-                  :branch-name="activeBranch?.name"
-                  :address="activeBranch?.branch_info?.address"
-                />
-
-                <div v-if="yandexOrgUrl" class="flex justify-end">
-                  <a
-                    :href="yandexOrgUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center gap-1.5 text-sm font-semibold text-(--p-primary-500) hover:underline"
-                  >
-                    <i class="pi pi-external-link text-xs"></i>
-                    <span>Открыть на Яндекс Картах / Отзывы</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-4">
-              <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500)">
-                <i class="pi pi-clock text-xl"></i>
-              </div>
-              <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
-                  >Среднее время доставки</span
-                >
-                <p class="text-base font-semibold text-gray-900 mt-1">
-                  <template v-if="activeBranch.branch_info?.delivery_time">
-                    ~ {{ activeBranch.branch_info.delivery_time }} мин.
-                  </template>
-                  <template v-else> Не указано </template>
-                </p>
-              </div>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-4">
-              <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500)">
-                <i class="pi pi-phone text-xl"></i>
-              </div>
-              <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
-                  >Телефон для связи</span
-                >
-                <p class="text-base font-semibold text-gray-900 mt-1">
-                  <a
-                    v-if="activeBranch.branch_info?.phone_number"
-                    :href="`tel:${activeBranch.branch_info.phone_number}`"
-                    class="hover:underline hover:text-(--p-primary-500) transition-colors"
-                  >
-                    {{ activeBranch.branch_info.phone_number }}
-                  </a>
-                  <span v-else>Не указан</span>
-                </p>
-              </div>
-            </div>
-
-            <!-- Блок статуса и работы сегодня -->
-            <div
-              class="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-4 md:col-span-2"
-            >
-              <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500)">
-                <i class="pi pi-info-circle text-xl"></i>
-              </div>
-              <div class="flex-1">
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
-                  >Статус филиала</span
-                >
-                <div class="mt-1 flex flex-wrap items-center justify-between gap-2">
-                  <div class="flex items-center gap-2">
-                    <span
-                      class="w-2.5 h-2.5 rounded-full"
-                      :class="isOpenNow ? 'bg-green-500' : 'bg-red-500'"
-                    ></span>
-                    <span class="text-base font-semibold text-gray-900">
-                      {{ isOpenNow ? 'Открыто / Принимает заказы' : 'Закрыто' }}
-                    </span>
-                  </div>
-                  <span v-if="workingHours" class="text-sm text-gray-500 font-medium">
-                    Сегодня работает {{ closingTimeToday }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Полное расписание на странице «О нас» -->
-            <div class="p-5 rounded-2xl bg-gray-50 border border-gray-100 md:col-span-2">
-              <div class="flex items-center gap-3 mb-4">
-                <div class="p-3 bg-white rounded-xl shadow-xs text-(--p-primary-500)">
-                  <i class="pi pi-calendar text-xl"></i>
-                </div>
-                <div>
-                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
-                    >Режим работы</span
-                  >
-                  <h3 class="text-base font-semibold text-gray-900">Расписание по дням недели</h3>
-                </div>
-              </div>
-
-              <div
-                v-if="workingHours && formattedScheduleList.length > 0"
-                class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3"
-              >
-                <div
-                  v-for="item in formattedScheduleList"
-                  :key="item.day"
-                  class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100 text-sm"
-                >
-                  <span class="font-medium text-gray-700">{{ item.day }}</span>
-                  <span v-if="item.enabled" class="font-semibold text-gray-900">
-                    {{ item.open }} — {{ item.close }}
-                  </span>
-                  <span v-else class="text-gray-400 font-medium">Выходной</span>
-                </div>
-              </div>
-              <div v-else class="text-sm text-gray-500 italic py-2">
-                Расписание филиала не указано.
-              </div>
-            </div>
-          </div>
-
-          <div
-            v-if="
-              activeBranch.branch_info?.vk_url ||
-              activeBranch.branch_info?.instagram_url ||
-              activeBranch.branch_info?.whatsapp_url
-            "
-            class="p-6 rounded-2xl bg-gray-50 border border-gray-100"
+        <div class="flex flex-wrap gap-2">
+          <a
+            v-for="social in socials"
+            :key="social.key"
+            :href="social.url!"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 rounded-full bg-white border border-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-800 shadow-xs hover:border-primary hover:text-primary transition-colors"
           >
-            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
-              Мы в социальных сетях
-            </h3>
-
-            <div class="flex flex-wrap gap-3">
-              <a
-                v-if="activeBranch.branch_info?.vk_url"
-                :href="activeBranch.branch_info.vk_url"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-200 text-gray-700 font-medium hover:border-(--p-primary-500) hover:text-(--p-primary-500) transition-all shadow-xs"
-              >
-                <i-vk-logo-black class="w-4 h-4" /> <span>ВКонтакте</span>
-              </a>
-
-              <a
-                v-if="activeBranch.branch_info?.instagram_url"
-                :href="activeBranch.branch_info.instagram_url"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-200 text-gray-700 font-medium hover:border-(--p-primary-500) hover:text-(--p-primary-500) transition-all shadow-xs"
-              >
-                <i class="pi pi-instagram text-lg"></i>
-                <span>Instagram</span>
-              </a>
-
-              <a
-                v-if="activeBranch.branch_info?.whatsapp_url"
-                :href="activeBranch.branch_info.whatsapp_url"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-200 text-gray-700 font-medium hover:border-(--p-primary-500) hover:text-(--p-primary-500) transition-all shadow-xs"
-              >
-                <i class="pi pi-whatsapp text-lg"></i>
-                <span>WhatsApp</span>
-              </a>
-            </div>
-          </div>
+            <i-vk-logo-black v-if="social.key === 'vk'" class="size-4" />
+            <i v-else :class="['pi', social.icon]" />
+            {{ social.label }}
+          </a>
         </div>
-
-        <div
-          v-else
-          class="flex flex-col items-center justify-center py-16 text-center bg-white rounded-2xl shadow-sm border border-gray-100"
-        >
-          <i class="pi pi-map-marker text-4xl text-gray-300 mb-3"></i>
-          <p class="text-gray-500 font-medium mb-4">Филиал не выбран</p>
-          <button
-            @click="handleChangeBranch"
-            class="px-5 py-2.5 bg-(--p-primary-500) text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
-          >
-            Выбрать филиал
-          </button>
-        </div>
-      </div>
+      </SurfaceCard>
     </div>
-  </div>
+
+    <EmptyState
+      v-else
+      icon="pi-map-marker"
+      title="Филиал не выбран"
+      text="Выберите заведение, чтобы увидеть адрес и режим работы"
+    >
+      <Button label="Выбрать филиал" rounded @click="branchStore.openModal()" />
+    </EmptyState>
+  </PageShell>
 </template>

@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import Button from 'primevue/button'
 import Message from 'primevue/message'
-import Stepper from 'primevue/stepper'
-import StepList from 'primevue/steplist'
-import StepPanels from 'primevue/steppanels'
-import Step from 'primevue/step'
-import StepPanel from 'primevue/steppanel'
 
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
@@ -15,14 +9,39 @@ import { useOrderStore } from '../stores/order.store'
 import OrderForm from '../components/OrderForm.vue'
 import OrderSummary from '../components/OrderSummary.vue'
 import OrderSuccess from '../components/OrderSuccess.vue'
+import PageShell from '@/modules/shared/components/ui/PageShell.vue'
+import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
 
 const router = useRouter()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
 const orderStore = useOrderStore()
 
+const steps = [
+  { value: 1, label: 'Корзина', icon: 'pi-shopping-cart' },
+  { value: 2, label: 'Данные', icon: 'pi-user' },
+  { value: 3, label: 'Готово', icon: 'pi-check' },
+]
+
+const step = computed(() => Number(orderStore.activeStep))
+
+function canOpen(value: number) {
+  if (orderStore.createdOrderId) return value === 3
+  if (value === 2) return !cartStore.isEmpty
+  return value === 1
+}
+
+function goTo(value: number) {
+  if (canOpen(value)) orderStore.handleStepChange(value)
+}
+
+// Jump (not smooth-scroll) to the top so each step opens from its beginning.
+function jumpToTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+}
+
 onMounted(async () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  jumpToTop()
   try {
     await cartStore.fetchCart(branchStore.activeBranch?.id, true)
   } catch (e) {
@@ -30,106 +49,82 @@ onMounted(async () => {
   }
 })
 
-watch(
-  () => orderStore.activeStep,
-  () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  },
-)
+watch(() => orderStore.activeStep, jumpToTop, { flush: 'post' })
 
-onBeforeRouteLeave((to, from, next) => {
-  if (orderStore.createdOrderId) {
-    orderStore.clearCreatedOrder()
-  }
-  next()
+onBeforeRouteLeave(() => {
+  if (orderStore.createdOrderId) orderStore.clearCreatedOrder()
 })
 
 onUnmounted(() => {
-  if (orderStore.createdOrderId) {
-    orderStore.clearCreatedOrder()
-  }
+  if (orderStore.createdOrderId) orderStore.clearCreatedOrder()
 })
 </script>
 
 <template>
-  <div class="bg-gray-200 w-full min-h-screen flex flex-col justify-start">
-    <div class="bg-white rounded-4xl sm:rounded-[4rem] w-full py-8 px-4 sm:px-8 flex flex-col">
-      <div class="max-w-5xl mx-auto w-full flex-1 flex flex-col">
-        <Message v-if="orderStore.errorMessage" severity="error" class="mb-6">{{
-          orderStore.errorMessage
-        }}</Message>
-
-        <div
-          v-if="cartStore.isLoading && !cartStore.isInitialized"
-          class="text-center py-12 text-muted-foreground"
+  <PageShell title="Оформление заказа" width="default">
+    <ol
+      class="mb-6 sm:mb-8 grid grid-cols-3 gap-2 rounded-full bg-gray-50 border border-gray-100 p-1.5"
+    >
+      <li v-for="item in steps" :key="item.value">
+        <button
+          type="button"
+          class="flex w-full items-center justify-center gap-2 rounded-full px-2 py-2.5 text-sm font-semibold transition-colors"
+          :class="[
+            step === item.value
+              ? 'bg-primary text-white shadow-sm'
+              : step > item.value
+                ? 'text-primary'
+                : 'text-gray-400',
+            canOpen(item.value) && step !== item.value
+              ? 'cursor-pointer hover:bg-white'
+              : 'cursor-default',
+          ]"
+          :disabled="!canOpen(item.value)"
+          :aria-current="step === item.value ? 'step' : undefined"
+          @click="goTo(item.value)"
         >
-          Проверяем корзину...
-        </div>
+          <i :class="['pi', step > item.value ? 'pi-check-circle' : item.icon, 'text-sm']" />
+          <span>{{ item.label }}</span>
+        </button>
+      </li>
+    </ol>
 
-        <div
-          v-else-if="cartStore.isEmpty && Number(orderStore.activeStep) !== 3"
-          class="text-center py-12 bg-muted/20 rounded-3xl p-6 sm:p-8"
-        >
-          <p class="text-lg font-medium mb-4">Ваша корзина пуста или устарела</p>
-          <Button label="Вернуться к меню" @click="router.push('/')" />
-        </div>
+    <Message
+      v-if="orderStore.errorMessage"
+      severity="error"
+      class="mb-4 rounded-2xl!"
+      :closable="false"
+    >
+      {{ orderStore.errorMessage }}
+    </Message>
 
-        <Stepper
-          v-else
-          :value="orderStore.activeStep"
-          @update:value="orderStore.handleStepChange"
-          class="w-full flex-1 flex flex-col"
-          :pt="{
-            separator: 'translate-y-[-14px]',
-          }"
-        >
-          <StepList>
-            <Step
-              :value="1"
-              :disabled="Boolean(orderStore.createdOrderId)"
-              :pt="{ header: 'flex-col items-center gap-2' }"
-            >
-              Корзина
-            </Step>
-
-            <Step
-              :value="2"
-              :disabled="cartStore.isEmpty || Boolean(orderStore.createdOrderId)"
-              :pt="{ header: 'flex-col items-center gap-2' }"
-            >
-              Данные
-            </Step>
-
-            <Step
-              :value="3"
-              :disabled="!orderStore.createdOrderId"
-              :pt="{ header: 'flex-col items-center gap-2' }"
-            >
-              Заказ принят
-            </Step>
-          </StepList>
-
-          <StepPanels class="mt-4 sm:mt-6 flex-1">
-            <StepPanel :value="1">
-              <div class="w-full">
-                <OrderSummary />
-              </div>
-            </StepPanel>
-
-            <StepPanel :value="2">
-              <div class="w-full">
-                <OrderForm :isLoading="orderStore.isLoading" @submit="orderStore.createOrder" />
-              </div>
-            </StepPanel>
-
-            <StepPanel :value="3">
-              <div class="w-full">
-                <OrderSuccess />
-              </div>
-            </StepPanel>
-          </StepPanels>
-        </Stepper>
-      </div>
+    <div v-if="cartStore.isLoading && !cartStore.isInitialized" class="py-16 text-center">
+      <i class="pi pi-spin pi-spinner text-3xl text-primary" />
     </div>
-  </div>
+
+    <EmptyState
+      v-else-if="cartStore.isEmpty && step !== 3"
+      icon="pi-shopping-cart"
+      title="Корзина пуста"
+      text="Добавьте что-нибудь вкусное из меню"
+    >
+      <Button label="Перейти в меню" rounded @click="router.push('/')" />
+    </EmptyState>
+
+    <div v-else-if="step === 1" class="mx-auto max-w-2xl">
+      <OrderSummary @next="orderStore.handleStepChange(2)" />
+    </div>
+
+    <div
+      v-else-if="step === 2"
+      class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-3 sm:gap-4 items-start"
+    >
+      <OrderForm :isLoading="orderStore.isLoading" @submit="orderStore.createOrder" />
+      <aside class="hidden lg:block sticky top-28">
+        <OrderSummary compact />
+      </aside>
+    </div>
+
+    <OrderSuccess v-else />
+  </PageShell>
 </template>
