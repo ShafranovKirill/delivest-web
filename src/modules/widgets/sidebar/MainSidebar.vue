@@ -4,12 +4,10 @@ import { useSidebarStore } from './sidebar.store'
 import BranchInfoBarMobile from '@/modules/branch/components/BranchInfoBarMobile.vue'
 import { useRouter } from 'vue-router'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
-import { useContactsStore } from '../contacts/stores/constacts.store'
 
 const sidebarStore = useSidebarStore()
 const router = useRouter()
 const branchStore = useBranchStore()
-const contactStore = useContactsStore()
 
 const navigateTo = (routeName: string) => {
   sidebarStore.isSidebarVisible = false
@@ -40,10 +38,7 @@ const items = ref([
   {
     label: 'Контакты',
     icon: 'pi pi-phone',
-    command: () => {
-      contactStore.openModal()
-      sidebarStore.isSidebarVisible = false
-    },
+    command: () => navigateTo('contacts'),
   },
 ])
 </script>
