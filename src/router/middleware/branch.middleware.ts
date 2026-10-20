@@ -18,9 +18,13 @@ export async function branchMiddleware(to: RouteLocationNormalized) {
   const urlSlug = to.params.slug as string | undefined
   const cookieBranchId = branchStore.getBranchIdFromCookie()
 
+  const activeBranches = branchStore.branches.filter((b) => b.is_active)
+
   const branchByCookie = cookieBranchId
-    ? branchStore.branches.find((b) => b.id === cookieBranchId && b.is_active)
-    : null
+    ? activeBranches.find((b) => b.id === cookieBranchId)
+    : undefined
+
+  const preferredBranch = branchByCookie ?? (activeBranches.length === 1 ? activeBranches[0] : null)
 
   if (urlSlug) {
     try {
@@ -33,14 +37,14 @@ export async function branchMiddleware(to: RouteLocationNormalized) {
     }
   }
 
-  if (branchByCookie) {
+  if (preferredBranch) {
     try {
-      if (branchStore.activeBranch?.id !== branchByCookie.id) {
-        await branchStore.selectBranch(branchByCookie)
+      if (branchStore.activeBranch?.id !== preferredBranch.id) {
+        await branchStore.selectBranch(preferredBranch)
       }
 
       if (to.name === 'select-branch' || to.path === '/') {
-        return `/${branchByCookie.slug}`
+        return `/${preferredBranch.slug}`
       }
       return true
     } catch {
