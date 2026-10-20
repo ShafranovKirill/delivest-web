@@ -6,13 +6,12 @@ import ThemeSwitch from '@/modules/settings/components/ThemeSwitch.vue'
 import LocaleSwitch from '@/modules/settings/components/LocaleSwitch.vue'
 import { useRouter } from 'vue-router'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
-import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import SidebarUserPanel from '@/modules/auth/components/SidebarUserPanel.vue'
 import { useI18n } from 'vue-i18n'
 
 const sidebarStore = useSidebarStore()
 const router = useRouter()
 const branchStore = useBranchStore()
-const authStore = useAuthStore()
 const { t } = useI18n()
 
 const navigateTo = (routeName: string) => {
@@ -46,40 +45,17 @@ const items = computed(() => [
     icon: 'pi pi-phone',
     command: () => navigateTo('contacts'),
   },
-  {
-    label: t('nav.myOrders'),
-    icon: 'pi pi-receipt',
-    command: () => navigateTo('my-orders'),
-  },
-  {
-    label: t('nav.myAddresses'),
-    icon: 'pi pi-map-marker',
-    command: () => navigateTo('my-addresses'),
-  },
 ])
-
-const authItem = computed(() =>
-  authStore.isAuthenticated
-    ? { label: t('auth.signOut'), icon: 'pi pi-sign-out', command: authStore.logout }
-    : {
-        label: t('auth.signIn'),
-        icon: 'pi pi-sign-in',
-        command: () => {
-          sidebarStore.isSidebarVisible = false
-          authStore.openModal()
-        },
-      },
-)
-
-const menuItems = computed(() => [...items.value, authItem.value])
 </script>
 
 <template>
   <Drawer v-model:visible="sidebarStore.isSidebarVisible">
+    <SidebarUserPanel class="mb-5" />
+
     <BranchInfoBarMobile />
 
     <Menu
-      :model="menuItems"
+      :model="items"
       unstyled
       class="mt-6 flex flex-col gap-1 w-full"
       :pt="{

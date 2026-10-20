@@ -81,7 +81,7 @@ const navigateToMenu = () => {
             @click="contactStore.openModal"
           />
 
-          <UserButton />
+          <UserButton v-if="!viewportStore.isMobile" />
 
           <CartButtonDesktop v-if="!viewportStore.isMobile" />
 

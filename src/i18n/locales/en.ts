@@ -76,6 +76,8 @@ export const en: typeof ru = {
     },
   },
   auth: {
+    guestTitle: 'Not signed in',
+    guestName: 'No name',
     signIn: 'Sign in',
     signOut: 'Sign out',
     profile: 'Profile',

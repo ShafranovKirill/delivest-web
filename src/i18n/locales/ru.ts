@@ -74,6 +74,8 @@ export const ru = {
     },
   },
   auth: {
+    guestTitle: 'Вы не вошли',
+    guestName: 'Без имени',
     signIn: 'Войти',
     signOut: 'Выйти',
     profile: 'Профиль',
