@@ -13,6 +13,7 @@ const MESSAGES: Record<ApiErrorCode, string> = {
   cart_already_ordered: 'Этот заказ уже оформлен',
   cart_branch_mismatch: 'Корзина относится к другому филиалу. Обновите страницу',
   product_unavailable: 'Товар сейчас недоступен',
+  client_blocked: 'Не удалось оформить заказ. Свяжитесь с нами по телефону',
   quantity_limit_exceeded: 'Достигнуто максимальное количество товара',
   item_not_found: 'Товар не найден в корзине',
   validation_failed: 'Проверьте правильность заполнения полей',
