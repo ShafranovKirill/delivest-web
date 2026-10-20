@@ -50,7 +50,9 @@ const items = computed(() => [
 
 <template>
   <Drawer v-model:visible="sidebarStore.isSidebarVisible">
-    <SidebarUserPanel class="mb-5" />
+    <SidebarUserPanel />
+
+    <div class="border-b border-gray-200 my-5"></div>
 
     <BranchInfoBarMobile />
 
