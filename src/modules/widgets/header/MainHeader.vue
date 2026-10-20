@@ -11,6 +11,7 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
 import MobileBranchHeaderInfo from '@/modules/branch/components/MobileBranchHeaderInfo.vue'
 import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
+import UserButton from '@/modules/auth/components/UserButton.vue'
 
 const router = useRouter()
 const sidebarStore = useSidebarStore()
@@ -70,7 +71,14 @@ const navigateToMenu = () => {
 
       <template #end>
         <div class="flex items-center sm:gap-2 shrink-0">
-          <Button icon="pi pi-phone text-xl!" variant="text" @click="contactStore.openModal" />
+          <Button
+            v-if="!viewportStore.isMobile"
+            icon="pi pi-phone text-xl!"
+            variant="text"
+            @click="contactStore.openModal"
+          />
+
+          <UserButton />
 
           <CartButtonDesktop v-if="!viewportStore.isMobile" />
 

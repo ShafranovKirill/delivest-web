@@ -7,7 +7,8 @@ import './assets/main.css'
 import 'primeicons/primeicons.css'
 import PrimeVue from 'primevue/config'
 import { VueQueryPlugin } from '@tanstack/vue-query'
-import { queryClient } from './api/client.ts'
+import { api, queryClient } from './api/client.ts'
+import { installAuthInterceptor } from './modules/auth/api/auth.interceptor.ts'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import ToastService from 'primevue/toastservice'
 import { MyPreset } from './assets/colorPreset.ts'
@@ -33,5 +34,6 @@ app.use(VueQueryPlugin, { queryClient })
 pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(ToastService)
+installAuthInterceptor(api)
 
 app.mount('#app')

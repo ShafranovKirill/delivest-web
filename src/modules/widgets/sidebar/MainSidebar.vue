@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useSidebarStore } from './sidebar.store'
 import BranchInfoBarMobile from '@/modules/branch/components/BranchInfoBarMobile.vue'
 import { useRouter } from 'vue-router'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
 
 const sidebarStore = useSidebarStore()
 const router = useRouter()
 const branchStore = useBranchStore()
+const authStore = useAuthStore()
 
 const navigateTo = (routeName: string) => {
   sidebarStore.isSidebarVisible = false
@@ -40,7 +42,32 @@ const items = ref([
     icon: 'pi pi-phone',
     command: () => navigateTo('contacts'),
   },
+  {
+    label: 'Мои заказы',
+    icon: 'pi pi-receipt',
+    command: () => navigateTo('my-orders'),
+  },
+  {
+    label: 'Мои адреса',
+    icon: 'pi pi-map-marker',
+    command: () => navigateTo('my-addresses'),
+  },
 ])
+
+const authItem = computed(() =>
+  authStore.isAuthenticated
+    ? { label: 'Выйти', icon: 'pi pi-sign-out', command: authStore.logout }
+    : {
+        label: 'Войти',
+        icon: 'pi pi-sign-in',
+        command: () => {
+          sidebarStore.isSidebarVisible = false
+          authStore.openModal()
+        },
+      },
+)
+
+const menuItems = computed(() => [...items.value, authItem.value])
 </script>
 
 <template>
@@ -48,7 +75,7 @@ const items = ref([
     <BranchInfoBarMobile />
 
     <Menu
-      :model="items"
+      :model="menuItems"
       unstyled
       class="mt-6 flex flex-col gap-1 w-full"
       :pt="{

@@ -520,6 +520,185 @@
         "x-struct": "Elixir.DelivestWeb.Schemas.MenuSchemas.CategoryResponse",
         "x-validate": null
       },
+      "ClientAddress": {
+        "properties": {
+          "apartment": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "city": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "entrance": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "floor": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "house": {
+            "example": "10",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "intercom": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "street": {
+            "example": "Ленина",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["id", "street"],
+        "title": "ClientAddress",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.ClientAddress",
+        "x-validate": null
+      },
+      "ClientAddressListResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ClientAddress"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "ClientAddressListResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.AddressListResponse",
+        "x-validate": null
+      },
+      "ClientAddressResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClientAddress"
+          }
+        },
+        "required": ["data"],
+        "title": "ClientAddressResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.AddressResponse",
+        "x-validate": null
+      },
+      "ClientOrdersResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ActiveOrder"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "ClientOrdersResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.ClientOrdersResponse",
+        "x-validate": null
+      },
+      "ClientProfile": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Иван",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "phone": {
+            "example": "+79990000000",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["id", "phone"],
+        "title": "ClientProfile",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.ClientProfile",
+        "x-validate": null
+      },
+      "ClientSession": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "client": {
+            "$ref": "#/components/schemas/ClientProfile"
+          },
+          "expires_in": {
+            "description": "Секунды",
+            "example": 900,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "refresh_token": {
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "enum": ["pending", "confirmed"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["status"],
+        "title": "ClientSession",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.Session",
+        "x-validate": null
+      },
+      "ClientSessionResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClientSession"
+          }
+        },
+        "required": ["data"],
+        "title": "ClientSessionResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.SessionResponse",
+        "x-validate": null
+      },
       "CreateOrderRequest": {
         "properties": {
           "address": {
@@ -626,6 +805,12 @@
               "validation_failed",
               "order_failed",
               "too_many_requests",
+              "unauthorized",
+              "invalid_phone",
+              "call_failed",
+              "confirmation_not_found",
+              "invalid_refresh_token",
+              "address_not_found",
               "internal_error"
             ],
             "example": "validation_failed",
@@ -904,6 +1089,84 @@
         "x-struct": "Elixir.DelivestWeb.Schemas.MenuSchemas.ProductResponse",
         "x-validate": null
       },
+      "ProfileResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClientProfile"
+          }
+        },
+        "required": ["data"],
+        "title": "ProfileResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.ProfileResponse",
+        "x-validate": null
+      },
+      "RefreshRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["refresh_token"],
+        "title": "RefreshRequest",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.RefreshRequest",
+        "x-validate": null
+      },
+      "StartCallRequest": {
+        "properties": {
+          "phone": {
+            "example": "+79990000000",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["phone"],
+        "title": "StartCallRequest",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.StartCallRequest",
+        "x-validate": null
+      },
+      "StartCallResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "call_number": {
+                "description": "Номер, на который нужно позвонить для подтверждения",
+                "example": "+78000000000",
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "confirmation_id": {
+                "format": "uuid",
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "expires_in": {
+                "description": "Секунды",
+                "example": 600,
+                "type": "integer",
+                "x-struct": null,
+                "x-validate": null
+              }
+            },
+            "required": ["confirmation_id", "call_number", "expires_in"],
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "StartCallResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.StartCallResponse",
+        "x-validate": null
+      },
       "StockResponse": {
         "properties": {
           "id": {
@@ -980,6 +1243,374 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/client/addresses": {
+      "get": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientAddressListResponse"
+                }
+              }
+            },
+            "description": "Адреса"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Нужна авторизация"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Адреса доставки клиента",
+        "tags": ["Addresses"]
+      },
+      "post": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressRequest"
+              }
+            }
+          },
+          "description": "Адрес",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientAddressResponse"
+                }
+              }
+            },
+            "description": "Адрес"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Ошибка валидации"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Добавить адрес",
+        "tags": ["Addresses"]
+      }
+    },
+    "/client/addresses/{id}": {
+      "delete": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.delete",
+        "parameters": [
+          {
+            "description": "UUID адреса",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Удалён"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Адрес не найден"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Удалить адрес",
+        "tags": ["Addresses"]
+      },
+      "put": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.update",
+        "parameters": [
+          {
+            "description": "UUID адреса",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressRequest"
+              }
+            }
+          },
+          "description": "Адрес",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientAddressResponse"
+                }
+              }
+            },
+            "description": "Адрес"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Адрес не найден"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Ошибка валидации"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Изменить адрес",
+        "tags": ["Addresses"]
+      }
+    },
+    "/client/auth/call": {
+      "post": {
+        "callbacks": {},
+        "description": "Клиент должен позвонить с указанного номера на `call_number`.",
+        "operationId": "DelivestWeb.Client.Auth.AuthController.start",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartCallRequest"
+              }
+            }
+          },
+          "description": "Номер телефона",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartCallResponse"
+                }
+              }
+            },
+            "description": "Ожидается звонок"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Некорректный номер"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Слишком много запросов"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Сервис звонков недоступен"
+          }
+        },
+        "summary": "Запросить подтверждение номера звонком",
+        "tags": ["Auth"]
+      }
+    },
+    "/client/auth/call/{id}/complete": {
+      "post": {
+        "callbacks": {},
+        "description": "Пока звонка не было — 202 и `status: pending`. После звонка — токены.",
+        "operationId": "DelivestWeb.Client.Auth.AuthController.complete",
+        "parameters": [
+          {
+            "description": "confirmation_id",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientSessionResponse"
+                }
+              }
+            },
+            "description": "Номер подтверждён"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientSessionResponse"
+                }
+              }
+            },
+            "description": "Ожидается звонок"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Клиент заблокирован"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Подтверждение не найдено или истекло"
+          }
+        },
+        "summary": "Проверить подтверждение и войти",
+        "tags": ["Auth"]
+      }
+    },
+    "/client/auth/refresh": {
+      "post": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Auth.AuthController.refresh",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "description": "Refresh-токен",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientSessionResponse"
+                }
+              }
+            },
+            "description": "Новые токены"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Токен недействителен"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Клиент заблокирован"
+          }
+        },
+        "summary": "Обновить токены",
+        "tags": ["Auth"]
+      }
+    },
     "/client/branches": {
       "get": {
         "callbacks": {},
@@ -1417,7 +2048,78 @@
         "tags": ["Cart"]
       }
     },
+    "/client/me": {
+      "get": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Profile.ProfileController.show",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            },
+            "description": "Профиль"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Нужна авторизация"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Текущий клиент",
+        "tags": ["Auth"]
+      }
+    },
     "/client/orders": {
+      "get": {
+        "callbacks": {},
+        "description": "Все заказы авторизованного клиента, новые сначала.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientOrdersResponse"
+                }
+              }
+            },
+            "description": "Заказы клиента"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Нужна авторизация"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Мои заказы",
+        "tags": ["Orders"]
+      },
       "post": {
         "callbacks": {},
         "description": "Создаёт заказ по cart_id и branch_id из тела запроса.",

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { reactive, computed, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -9,16 +9,12 @@ import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 import OptionChips from '@/modules/order/components/OptionChips.vue'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
+import AddressFields, { type AddressForm } from '@/modules/shared/components/AddressFields.vue'
+import SavedAddressPicker from '@/modules/order/components/SavedAddressPicker.vue'
+import { emptyAddressForm, toAddressForm } from '@/modules/shared/utils/addressForm'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
-
-interface AddressForm {
-  street: string
-  house: string
-  apartment: string
-  entrance: string
-  floor: string
-  intercom: string
-}
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import type { ClientAddress } from '@/modules/account/api/account.service'
 
 export interface OrderFormValues {
   customer_name: string
@@ -41,24 +37,27 @@ const emit = defineEmits<{
 
 const toast = useToast()
 const branchStore = useBranchStore()
+const authStore = useAuthStore()
 
 const form = reactive<OrderFormValues>({
-  customer_name: '',
-  customer_phone: '+7',
+  customer_name: authStore.client?.name ?? '',
+  customer_phone: authStore.client?.phone ?? '+7',
   fulfillment_type: 'pickup', // По умолчанию самовывоз
   payment_method: 'cash',
   comment: '',
   cook_by: null,
-  address: {
-    street: '',
-    house: '',
-    apartment: '',
-    entrance: '',
-    floor: '',
-    intercom: '',
-  },
+  address: emptyAddressForm(),
   call_operator_for_address: false,
 })
+
+function selectAddress(address: ClientAddress) {
+  form.address = toAddressForm(address)
+}
+
+watch(
+  () => authStore.client?.phone,
+  (phone) => phone && (form.customer_phone = phone),
+)
 
 const pickupAddress = computed(() => branchStore.activeBranch?.branch_info?.address || null)
 
@@ -108,7 +107,12 @@ function handleSubmit() {
           <span class="text-sm font-medium text-gray-600">
             Телефон <span class="text-red-500">*</span>
           </span>
-          <PhoneInput v-model="form.customer_phone" required class="w-full" />
+          <PhoneInput
+            v-model="form.customer_phone"
+            required
+            :disabled="authStore.isAuthenticated"
+            class="w-full"
+          />
         </label>
       </div>
     </SurfaceCard>
@@ -131,36 +135,12 @@ function handleSubmit() {
         </label>
 
         <template v-if="!form.call_operator_for_address">
-          <label class="flex flex-col gap-1.5">
-            <span class="text-sm font-medium text-gray-600">Улица</span>
-            <InputText v-model="form.address.street" placeholder="Ленина" class="w-full" />
-          </label>
-
-          <div class="grid grid-cols-3 gap-2 sm:gap-3">
-            <label class="flex flex-col gap-1.5">
-              <span class="text-sm font-medium text-gray-600">Дом</span>
-              <InputText v-model="form.address.house" placeholder="10" class="w-full" />
-            </label>
-            <label class="flex flex-col gap-1.5">
-              <span class="text-sm font-medium text-gray-600">Кв / офис</span>
-              <InputText v-model="form.address.apartment" placeholder="12" class="w-full" />
-            </label>
-            <label class="flex flex-col gap-1.5">
-              <span class="text-sm font-medium text-gray-600">Подъезд</span>
-              <InputText v-model="form.address.entrance" placeholder="2" class="w-full" />
-            </label>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2 sm:gap-3">
-            <label class="flex flex-col gap-1.5">
-              <span class="text-sm font-medium text-gray-600">Этаж</span>
-              <InputText v-model="form.address.floor" placeholder="3" class="w-full" />
-            </label>
-            <label class="flex flex-col gap-1.5 col-span-2">
-              <span class="text-sm font-medium text-gray-600">Домофон</span>
-              <InputText v-model="form.address.intercom" placeholder="42" class="w-full" />
-            </label>
-          </div>
+          <SavedAddressPicker
+            v-if="authStore.isAuthenticated"
+            :current="form.address"
+            @select="selectAddress"
+          />
+          <AddressFields v-model="form.address" />
         </template>
       </div>
     </SurfaceCard>

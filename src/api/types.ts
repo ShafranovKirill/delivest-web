@@ -4,6 +4,99 @@
  */
 
 export interface paths {
+  '/client/addresses': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Адреса доставки клиента */
+    get: operations['DelivestWeb.Client.Address.AddressController.index']
+    put?: never
+    /** Добавить адрес */
+    post: operations['DelivestWeb.Client.Address.AddressController.create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/addresses/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** Изменить адрес */
+    put: operations['DelivestWeb.Client.Address.AddressController.update']
+    post?: never
+    /** Удалить адрес */
+    delete: operations['DelivestWeb.Client.Address.AddressController.delete']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/auth/call': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Запросить подтверждение номера звонком
+     * @description Клиент должен позвонить с указанного номера на `call_number`.
+     */
+    post: operations['DelivestWeb.Client.Auth.AuthController.start']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/auth/call/{id}/complete': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Проверить подтверждение и войти
+     * @description Пока звонка не было — 202 и `status: pending`. После звонка — токены.
+     */
+    post: operations['DelivestWeb.Client.Auth.AuthController.complete']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/auth/refresh': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Обновить токены */
+    post: operations['DelivestWeb.Client.Auth.AuthController.refresh']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/branches': {
     parameters: {
       query?: never
@@ -168,6 +261,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/me': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Текущий клиент */
+    get: operations['DelivestWeb.Client.Profile.ProfileController.show']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/orders': {
     parameters: {
       query?: never
@@ -175,7 +285,11 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get?: never
+    /**
+     * Мои заказы
+     * @description Все заказы авторизованного клиента, новые сначала.
+     */
+    get: operations['DelivestWeb.Client.Order.OrderController.index']
     put?: never
     /**
      * Создать заказ
@@ -422,6 +536,58 @@ export interface components {
       order?: number
       products?: components['schemas']['ProductResponse'][]
     }
+    /** ClientAddress */
+    ClientAddress: {
+      apartment?: string | null
+      city?: string | null
+      entrance?: string | null
+      floor?: string | null
+      /** @example 10 */
+      house?: string | null
+      /** Format: uuid */
+      id: string
+      intercom?: string | null
+      /** @example Ленина */
+      street: string
+    }
+    /** ClientAddressListResponse */
+    ClientAddressListResponse: {
+      data: components['schemas']['ClientAddress'][]
+    }
+    /** ClientAddressResponse */
+    ClientAddressResponse: {
+      data: components['schemas']['ClientAddress']
+    }
+    /** ClientOrdersResponse */
+    ClientOrdersResponse: {
+      data: components['schemas']['ActiveOrder'][]
+    }
+    /** ClientProfile */
+    ClientProfile: {
+      /** Format: uuid */
+      id: string
+      /** @example Иван */
+      name?: string | null
+      /** @example +79990000000 */
+      phone: string
+    }
+    /** ClientSession */
+    ClientSession: {
+      access_token?: string
+      client?: components['schemas']['ClientProfile']
+      /**
+       * @description Секунды
+       * @example 900
+       */
+      expires_in?: number
+      refresh_token?: string
+      /** @enum {string} */
+      status: 'pending' | 'confirmed'
+    }
+    /** ClientSessionResponse */
+    ClientSessionResponse: {
+      data: components['schemas']['ClientSession']
+    }
     /** CreateOrderRequest */
     CreateOrderRequest: {
       address?: components['schemas']['AddressRequest']
@@ -501,6 +667,12 @@ export interface components {
         | 'validation_failed'
         | 'order_failed'
         | 'too_many_requests'
+        | 'unauthorized'
+        | 'invalid_phone'
+        | 'call_failed'
+        | 'confirmation_not_found'
+        | 'invalid_refresh_token'
+        | 'address_not_found'
         | 'internal_error'
       /** @example Validation failed */
       message: string
@@ -619,6 +791,36 @@ export interface components {
        */
       weight?: number | null
     }
+    /** ProfileResponse */
+    ProfileResponse: {
+      data: components['schemas']['ClientProfile']
+    }
+    /** RefreshRequest */
+    RefreshRequest: {
+      refresh_token: string
+    }
+    /** StartCallRequest */
+    StartCallRequest: {
+      /** @example +79990000000 */
+      phone: string
+    }
+    /** StartCallResponse */
+    StartCallResponse: {
+      data: {
+        /**
+         * @description Номер, на который нужно позвонить для подтверждения
+         * @example +78000000000
+         */
+        call_number: string
+        /** Format: uuid */
+        confirmation_id: string
+        /**
+         * @description Секунды
+         * @example 600
+         */
+        expires_in: number
+      }
+    }
     /** StockResponse */
     StockResponse: {
       /**
@@ -666,6 +868,290 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  'DelivestWeb.Client.Address.AddressController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Адреса */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientAddressListResponse']
+        }
+      }
+      /** @description Нужна авторизация */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Address.AddressController.create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Адрес */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['AddressRequest']
+      }
+    }
+    responses: {
+      /** @description Адрес */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientAddressResponse']
+        }
+      }
+      /** @description Ошибка валидации */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Address.AddressController.update': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description UUID адреса */
+        id: string
+      }
+      cookie?: never
+    }
+    /** @description Адрес */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['AddressRequest']
+      }
+    }
+    responses: {
+      /** @description Адрес */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientAddressResponse']
+        }
+      }
+      /** @description Адрес не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Ошибка валидации */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Address.AddressController.delete': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description UUID адреса */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Удалён */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Адрес не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Auth.AuthController.start': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Номер телефона */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['StartCallRequest']
+      }
+    }
+    responses: {
+      /** @description Ожидается звонок */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['StartCallResponse']
+        }
+      }
+      /** @description Некорректный номер */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Слишком много запросов */
+      429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Сервис звонков недоступен */
+      503: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Auth.AuthController.complete': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description confirmation_id */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Номер подтверждён */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientSessionResponse']
+        }
+      }
+      /** @description Ожидается звонок */
+      202: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientSessionResponse']
+        }
+      }
+      /** @description Клиент заблокирован */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Подтверждение не найдено или истекло */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Auth.AuthController.refresh': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Refresh-токен */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['RefreshRequest']
+      }
+    }
+    responses: {
+      /** @description Новые токены */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientSessionResponse']
+        }
+      }
+      /** @description Токен недействителен */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Клиент заблокирован */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   'DelivestWeb.Client.Branch.BranchController.index': {
     parameters: {
       query?: never
@@ -960,6 +1446,64 @@ export interface operations {
       }
       /** @description Корзина или товар не найдены */
       404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Profile.ProfileController.show': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Профиль */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ProfileResponse']
+        }
+      }
+      /** @description Нужна авторизация */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Заказы клиента */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientOrdersResponse']
+        }
+      }
+      /** @description Нужна авторизация */
+      401: {
         headers: {
           [name: string]: unknown
         }

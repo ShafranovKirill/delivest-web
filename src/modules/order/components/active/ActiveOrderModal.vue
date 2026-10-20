@@ -12,6 +12,7 @@ import {
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import OrderStatusSteps from './OrderStatusSteps.vue'
+import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
 
 const props = defineProps<{ order: ActiveOrder | null }>()
 const emit = defineEmits<{ close: [] }>()
@@ -23,20 +24,7 @@ const visible = computed({
   set: (value) => !value && emit('close'),
 })
 
-const address = computed(() => {
-  const address = props.order?.address as Record<string, string | null> | null | undefined
-  if (!address) return null
-
-  return [
-    address.street,
-    address.house && `д. ${address.house}`,
-    address.apartment && `кв. ${address.apartment}`,
-    address.entrance && `подъезд ${address.entrance}`,
-    address.floor && `этаж ${address.floor}`,
-  ]
-    .filter(Boolean)
-    .join(', ')
-})
+const address = computed(() => formatAddress(props.order?.address as AddressParts | null))
 </script>
 
 <template>

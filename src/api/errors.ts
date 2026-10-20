@@ -19,6 +19,12 @@ const MESSAGES: Record<ApiErrorCode, string> = {
   validation_failed: 'Проверьте правильность заполнения полей',
   order_failed: 'Не удалось оформить заказ. Попробуйте ещё раз',
   too_many_requests: 'Слишком много запросов. Подождите минуту и попробуйте снова',
+  unauthorized: 'Войдите в аккаунт',
+  invalid_phone: 'Проверьте номер телефона',
+  call_failed: 'Не удалось начать подтверждение. Попробуйте позже',
+  confirmation_not_found: 'Время подтверждения истекло. Попробуйте ещё раз',
+  invalid_refresh_token: 'Сессия истекла. Войдите снова',
+  address_not_found: 'Адрес не найден',
   internal_error: 'Ошибка сервера. Попробуйте позже',
 }
 

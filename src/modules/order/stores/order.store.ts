@@ -8,6 +8,8 @@ import { getApiErrorMessage } from '@/api/errors'
 import { queryClient } from '@/api/client'
 import type { OrderFormValues } from '../components/OrderForm.vue'
 import { ACTIVE_ORDERS_KEY } from '../composables/useActiveOrdersQuery'
+import { MY_ORDERS_KEY } from '@/modules/account/composables/useMyOrdersQuery'
+import { ADDRESSES_KEY } from '@/modules/account/composables/useAddressesQuery'
 
 export const useOrderStore = defineStore('order', () => {
   const branchStore = useBranchStore()
@@ -107,6 +109,8 @@ export const useOrderStore = defineStore('order', () => {
 
       await cartStore.fetchCart(branchId, true)
       queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
+      queryClient.invalidateQueries({ queryKey: MY_ORDERS_KEY })
+      queryClient.invalidateQueries({ queryKey: ADDRESSES_KEY })
 
       return order
     } catch (error: unknown) {
