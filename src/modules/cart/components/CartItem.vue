@@ -27,7 +27,10 @@ function handleDecrease() {
 </script>
 
 <template>
-  <div class="border border-border/40 rounded-2xl overflow-hidden bg-background">
+  <div
+    class="border rounded-2xl overflow-hidden"
+    :class="item.gift ? 'border-green-200 bg-green-50/60' : 'border-border/40 bg-background'"
+  >
     <div class="p-3 flex items-center gap-3">
       <img
         :src="getImageUrl(item.image_url)"
@@ -39,8 +42,15 @@ function handleDecrease() {
         <h4 class="text-sm font-medium leading-tight truncate">
           {{ item.name }}
         </h4>
+        <span
+          v-if="item.gift"
+          class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-green-700"
+        >
+          <i class="pi pi-gift text-xs" /> Подарок по акции
+        </span>
       </div>
       <button
+        v-if="!item.gift"
         type="button"
         @click="cartStore.removeAllOfItem(item.product_id)"
         class="text-muted-foreground hover:text-destructive p-1 transition-colors shrink-0"
@@ -55,10 +65,23 @@ function handleDecrease() {
     <div class="p-3 flex items-center justify-between gap-2">
       <div class="flex flex-col">
         <span class="text-xs text-muted-foreground">Итого</span>
-        <span class="text-sm font-semibold leading-none"> {{ item.total_price }} ₽ </span>
+        <span class="text-sm font-semibold leading-none">
+          <span
+            v-if="item.base_total > item.total_price"
+            class="mr-1 text-xs font-normal text-muted-foreground line-through"
+          >
+            {{ item.base_total }} ₽
+          </span>
+          {{ item.gift ? 'Бесплатно' : `${item.total_price} ₽` }}
+        </span>
       </div>
 
-      <div class="flex items-center gap-2 border border-border/40 rounded-xl p-1 bg-muted/40">
+      <span v-if="item.gift" class="text-sm font-medium text-green-700">× {{ item.quantity }}</span>
+
+      <div
+        v-else
+        class="flex items-center gap-2 border border-border/40 rounded-xl p-1 bg-muted/40"
+      >
         <button
           type="button"
           @click="handleDecrease"

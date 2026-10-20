@@ -78,16 +78,41 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
       <SurfaceCard label="Состав заказа">
         <ul class="flex flex-col gap-2">
           <li
-            v-for="item in order.items"
-            :key="item.product_id"
+            v-for="(item, index) in order.items"
+            :key="`${item.product_id}-${index}`"
             class="flex items-baseline justify-between gap-3 text-sm"
           >
-            <span class="text-gray-800">{{ item.title }}</span>
-            <span class="shrink-0 text-gray-500 tabular-nums">
+            <span class="text-gray-800">
+              <i v-if="item.gift" class="pi pi-gift text-xs text-green-700" />
+              {{ item.title }}
+            </span>
+            <span v-if="item.gift" class="shrink-0 text-green-700">
+              подарок × {{ item.quantity }}
+            </span>
+            <span v-else class="shrink-0 text-gray-500 tabular-nums">
               {{ item.quantity }} × {{ formatPrice(item.price) }}
             </span>
           </li>
         </ul>
+        <div
+          v-if="order.discount_amount > 0 || order.promotions.length"
+          class="mt-3 flex flex-col gap-1 border-t border-gray-200 pt-3 text-sm"
+        >
+          <div class="flex justify-between text-gray-500">
+            <span>Без скидки</span>
+            <span class="tabular-nums">{{ formatPrice(order.subtotal_amount) }}</span>
+          </div>
+          <div
+            v-for="promotion in order.promotions"
+            :key="promotion.name"
+            class="flex justify-between text-green-700"
+          >
+            <span>{{ promotion.code ? `Промокод ${promotion.code}` : promotion.name }}</span>
+            <span v-if="promotion.discount > 0" class="tabular-nums">
+              −{{ formatPrice(promotion.discount) }}
+            </span>
+          </div>
+        </div>
         <div
           class="mt-3 flex justify-between border-t border-gray-200 pt-3 font-extrabold text-gray-950"
         >

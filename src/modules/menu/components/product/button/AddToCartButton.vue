@@ -41,7 +41,7 @@ const handleAddToCart = async () => {
     <span>В корзину за {{ product?.price }} ₽</span>
 
     <span
-      v-if="product?.old_price && product.old_price !== '0.00'"
+      v-if="product?.old_price && product.old_price > (product.price ?? 0)"
       class="line-through text-xs opacity-70 font-normal"
     >
       {{ product.old_price }} ₽

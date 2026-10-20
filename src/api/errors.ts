@@ -26,6 +26,18 @@ const MESSAGES: Record<ApiErrorCode, string> = {
   invalid_refresh_token: 'Сессия истекла. Войдите снова',
   address_not_found: 'Адрес не найден',
   internal_error: 'Ошибка сервера. Попробуйте позже',
+  price_changed: 'Сумма заказа изменилась. Проверьте корзину и оформите заказ снова',
+  promo_unavailable: 'Акция только что закончилась. Корзина пересчитана',
+  promo_not_found: 'Промокод не найден',
+  promo_inactive: 'Промокод сейчас не действует',
+  promo_not_started: 'Акция ещё не началась',
+  promo_expired: 'Срок действия промокода истёк',
+  promo_exhausted: 'Промокоды по этой акции закончились',
+  promo_requires_client: 'Войдите в аккаунт, чтобы применить промокод',
+  promo_client_limit: 'Вы уже использовали этот промокод',
+  promo_not_owner: 'Этот промокод выдан другому клиенту',
+  promo_code_used: 'Промокод уже использован',
+  promo_code_required: 'Нужен промокод',
 }
 
 const FALLBACK = 'Произошла ошибка. Попробуйте ещё раз'

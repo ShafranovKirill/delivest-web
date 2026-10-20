@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import CartItemCard from './CartItem.vue'
+import CartPromotions from './CartPromotions.vue'
+import CartTotals from './CartTotals.vue'
+import PromoCodeInput from './PromoCodeInput.vue'
 import { useCartStore } from '../stores/cart.store.ts'
 import { useRoute, useRouter } from 'vue-router'
 import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store.ts'
@@ -81,19 +84,13 @@ function goToCatalog() {
     <template v-else>
       <div class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 pr-1">
         <div class="flex flex-col gap-3">
-          <CartItemCard v-for="item in cartStore.items" :key="item.product_id" :item="item" />
+          <CartItemCard v-for="item in cartStore.items" :key="item.key" :item="item" />
         </div>
 
         <div class="pt-4 pb-2 mt-auto border-t flex flex-col gap-3">
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-muted-foreground">Товаров в корзине:</span>
-            <span class="font-medium">{{ cartStore.totalQuantity }} шт.</span>
-          </div>
-
-          <div class="flex items-center justify-between text-base font-semibold">
-            <span>Сумма:</span>
-            <span>{{ cartStore.totalAmount }} ₽</span>
-          </div>
+          <CartPromotions />
+          <PromoCodeInput />
+          <CartTotals />
         </div>
       </div>
 

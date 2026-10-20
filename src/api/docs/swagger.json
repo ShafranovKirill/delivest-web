@@ -30,6 +30,12 @@
             "x-struct": null,
             "x-validate": null
           },
+          "discount_amount": {
+            "example": 150,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
           "fulfillment_type": {
             "enum": ["dine_in", "delivery", "pickup"],
             "type": "string",
@@ -68,10 +74,25 @@
             "x-struct": null,
             "x-validate": null
           },
+          "promotions": {
+            "items": {
+              "$ref": "#/components/schemas/OrderPromotion"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
           "status": {
             "enum": ["created", "preparing", "ready", "delivering", "completed", "cancelled"],
             "example": "preparing",
             "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "subtotal_amount": {
+            "description": "Сумма без скидок",
+            "example": 1330,
+            "type": "integer",
             "x-struct": null,
             "x-validate": null
           },
@@ -89,6 +110,9 @@
           "fulfillment_type",
           "payment_method",
           "total_amount",
+          "subtotal_amount",
+          "discount_amount",
+          "promotions",
           "branch_id",
           "inserted_at",
           "items"
@@ -170,6 +194,55 @@
         "title": "AddressRequest",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.AddressRequest",
+        "x-validate": null
+      },
+      "AppliedPromotion": {
+        "properties": {
+          "code": {
+            "example": "SUMMER2025",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "description": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "discount": {
+            "description": "Скидка в рублях",
+            "example": 150,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "gifts": {
+            "items": {
+              "$ref": "#/components/schemas/PromoGift"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Летняя скидка",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "promotion_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["promotion_id", "name", "discount", "gifts"],
+        "title": "AppliedPromotion",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.AppliedPromotion",
         "x-validate": null
       },
       "Branch": {
@@ -370,11 +443,48 @@
         "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.BranchResponse",
         "x-validate": null
       },
+      "CartContextRequest": {
+        "description": "Контекст корзины, от которого зависят условия акций.",
+        "properties": {
+          "fulfillment_type": {
+            "enum": ["dine_in", "delivery", "pickup"],
+            "example": "delivery",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "title": "CartContextRequest",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.CartContextRequest",
+        "x-validate": null
+      },
       "CartItemResponse": {
         "properties": {
+          "base_total": {
+            "description": "Итог по строке без скидок",
+            "example": 1180,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "gift": {
+            "description": "Подарок по акции: количество менять нельзя",
+            "example": false,
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
           "image_url": {
             "example": "https://example.com/images/pizza.jpg",
             "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "key": {
+            "description": "Уникальный ключ строки: подарок и платный товар — разные строки",
             "type": "string",
             "x-struct": null,
             "x-validate": null
@@ -386,7 +496,7 @@
             "x-validate": null
           },
           "price": {
-            "description": "Цена за единицу в копейках/рублях",
+            "description": "Цена за единицу по меню",
             "example": 590,
             "type": "integer",
             "x-struct": null,
@@ -399,6 +509,17 @@
             "x-struct": null,
             "x-validate": null
           },
+          "promotion_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
           "quantity": {
             "example": 2,
             "type": "integer",
@@ -406,14 +527,24 @@
             "x-validate": null
           },
           "total_price": {
-            "description": "Итоговая стоимость позиций",
-            "example": 1180,
+            "description": "Итог по строке с учётом скидок",
+            "example": 1062,
             "type": "integer",
             "x-struct": null,
             "x-validate": null
           }
         },
-        "required": ["product_id", "name", "price", "quantity", "total_price"],
+        "required": [
+          "key",
+          "product_id",
+          "name",
+          "price",
+          "quantity",
+          "total_price",
+          "base_total",
+          "gift",
+          "promotion_ids"
+        ],
         "title": "CartItemResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.CartItemResponse",
@@ -428,6 +559,27 @@
                 "format": "uuid",
                 "nullable": true,
                 "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "discount_amount": {
+                "example": 200,
+                "type": "integer",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "fulfillment_type": {
+                "enum": ["dine_in", "delivery", "pickup"],
+                "nullable": true,
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "hints": {
+                "items": {
+                  "$ref": "#/components/schemas/PromoHint"
+                },
+                "type": "array",
                 "x-struct": null,
                 "x-validate": null
               },
@@ -446,6 +598,17 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "promo_code": {
+                "$ref": "#/components/schemas/PromoCodeState"
+              },
+              "promotions": {
+                "items": {
+                  "$ref": "#/components/schemas/AppliedPromotion"
+                },
+                "type": "array",
+                "x-struct": null,
+                "x-validate": null
+              },
               "session_id": {
                 "example": "eceaec3d-dd25-4e19-8afc-f1d0f1412c9c",
                 "nullable": true,
@@ -453,7 +616,15 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "subtotal_amount": {
+                "description": "Сумма без скидок",
+                "example": 1700,
+                "type": "integer",
+                "x-struct": null,
+                "x-validate": null
+              },
               "total_amount": {
+                "description": "К оплате",
                 "example": 1500,
                 "type": "integer",
                 "x-struct": null,
@@ -466,7 +637,16 @@
                 "x-validate": null
               }
             },
-            "required": ["id", "items", "total_quantity", "total_amount"],
+            "required": [
+              "id",
+              "items",
+              "total_quantity",
+              "subtotal_amount",
+              "discount_amount",
+              "total_amount",
+              "promotions",
+              "hints"
+            ],
             "type": "object",
             "x-struct": null,
             "x-validate": null
@@ -752,6 +932,14 @@
             "x-struct": null,
             "x-validate": null
           },
+          "expected_total": {
+            "description": "Сумма, которую видел клиент. Если итог после пересчёта акций окажется больше — вернётся `price_changed`",
+            "example": 1500,
+            "nullable": true,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
           "fulfillment_type": {
             "enum": ["dine_in", "delivery", "pickup"],
             "example": "delivery",
@@ -811,7 +999,19 @@
               "confirmation_not_found",
               "invalid_refresh_token",
               "address_not_found",
-              "internal_error"
+              "internal_error",
+              "price_changed",
+              "promo_unavailable",
+              "promo_not_found",
+              "promo_inactive",
+              "promo_not_started",
+              "promo_expired",
+              "promo_exhausted",
+              "promo_requires_client",
+              "promo_client_limit",
+              "promo_not_owner",
+              "promo_code_used",
+              "promo_code_required"
             ],
             "example": "validation_failed",
             "type": "string",
@@ -849,8 +1049,22 @@
       },
       "OrderItemResponse": {
         "properties": {
-          "price": {
+          "base_price": {
+            "description": "Цена за единицу по меню",
             "example": 590,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "gift": {
+            "example": false,
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "price": {
+            "description": "Цена за единицу с учётом скидок",
+            "example": 531,
             "type": "integer",
             "x-struct": null,
             "x-validate": null
@@ -875,10 +1089,38 @@
             "x-validate": null
           }
         },
-        "required": ["product_id", "title", "price", "quantity"],
+        "required": ["product_id", "title", "price", "base_price", "gift", "quantity"],
         "title": "OrderItemResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.OrderItemResponse",
+        "x-validate": null
+      },
+      "OrderPromotion": {
+        "properties": {
+          "code": {
+            "example": "SUMMER2025",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "discount": {
+            "example": 150,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Летняя скидка",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["name", "discount"],
+        "title": "OrderPromotion",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.OrderPromotion",
         "x-validate": null
       },
       "OrderResponse": {
@@ -943,6 +1185,12 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "discount_amount": {
+                "example": 150,
+                "type": "integer",
+                "x-struct": null,
+                "x-validate": null
+              },
               "fulfillment_type": {
                 "example": "delivery",
                 "type": "string",
@@ -976,9 +1224,24 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "promotions": {
+                "items": {
+                  "$ref": "#/components/schemas/OrderPromotion"
+                },
+                "type": "array",
+                "x-struct": null,
+                "x-validate": null
+              },
               "status": {
                 "example": "created",
                 "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "subtotal_amount": {
+                "description": "Сумма без скидок",
+                "example": 1330,
+                "type": "integer",
                 "x-struct": null,
                 "x-validate": null
               },
@@ -1036,10 +1299,10 @@
             "x-validate": null
           },
           "old_price": {
-            "description": "Старая цена до скидки",
-            "example": "690",
+            "description": "Цена без скидки, если на товар действует акция; `price` — цена со скидкой",
+            "example": 690,
             "nullable": true,
-            "type": "string",
+            "type": "integer",
             "x-struct": null,
             "x-validate": null
           },
@@ -1099,6 +1362,224 @@
         "title": "ProfileResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.ProfileResponse",
+        "x-validate": null
+      },
+      "PromoCodeRequest": {
+        "properties": {
+          "code": {
+            "example": "SUMMER2025",
+            "maxLength": 32,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["code"],
+        "title": "PromoCodeRequest",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoCodeRequest",
+        "x-validate": null
+      },
+      "PromoCodeState": {
+        "description": "Введённый промокод: `applied` — применён, `pending` — условия пока не выполнены (см. `reasons`), `rejected` — не может быть применён (см. `reason`).",
+        "nullable": true,
+        "properties": {
+          "code": {
+            "example": "SUMMER2025",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Летняя скидка",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reason": {
+            "enum": [
+              "not_found",
+              "inactive",
+              "not_started",
+              "expired",
+              "exhausted",
+              "requires_client",
+              "client_limit",
+              "not_owner",
+              "code_used",
+              "code_required"
+            ],
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/PromoReason"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "enum": ["applied", "pending", "rejected"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["code", "status", "reasons"],
+        "title": "PromoCodeState",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoCodeState",
+        "x-validate": null
+      },
+      "PromoGift": {
+        "properties": {
+          "name": {
+            "example": "Кола 0.5",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "product_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "quantity": {
+            "example": 1,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["product_id", "name", "quantity"],
+        "title": "PromoGift",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoGift",
+        "x-validate": null
+      },
+      "PromoHint": {
+        "description": "Автоматическая акция, которая сработает при выполнении условий.",
+        "properties": {
+          "description": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Кола в подарок",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "promotion_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/PromoReason"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["promotion_id", "name", "reasons"],
+        "title": "PromoHint",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoHint",
+        "x-validate": null
+      },
+      "PromoReason": {
+        "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.",
+        "properties": {
+          "allowed": {
+            "items": {
+              "enum": ["dine_in", "delivery", "pickup"],
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            },
+            "nullable": true,
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "days": {
+            "example": [1, 2],
+            "items": {
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            },
+            "nullable": true,
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "from": {
+            "example": "11:00",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "missing": {
+            "example": 300,
+            "nullable": true,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Кола 0.5",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "product_id": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "to": {
+            "example": "16:00",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "type": {
+            "enum": [
+              "subtotal",
+              "quantity",
+              "product",
+              "fulfillment",
+              "time",
+              "weekday",
+              "requires_client"
+            ],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["type"],
+        "title": "PromoReason",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoReason",
         "x-validate": null
       },
       "RefreshRequest": {
@@ -1914,6 +2395,72 @@
         "tags": ["Cart"]
       }
     },
+    "/client/cart/{cart_id}/context": {
+      "put": {
+        "callbacks": {},
+        "description": "Способ получения влияет на условия акций, поэтому корзина пересчитывается.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.update_context",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartContextRequest"
+              }
+            }
+          },
+          "description": "Контекст корзины",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponse"
+                }
+              }
+            },
+            "description": "Обновлённая корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Корзина не найдена"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Некорректный способ получения"
+          }
+        },
+        "summary": "Обновить способ получения",
+        "tags": ["Cart"]
+      }
+    },
     "/client/cart/{cart_id}/items/{product_id}": {
       "delete": {
         "callbacks": {},
@@ -2045,6 +2592,124 @@
           }
         },
         "summary": "Добавить товар в корзину",
+        "tags": ["Cart"]
+      }
+    },
+    "/client/cart/{cart_id}/promo_code": {
+      "delete": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Cart.CartController.remove_promo_code",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponse"
+                }
+              }
+            },
+            "description": "Обновлённая корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Корзина не найдена"
+          }
+        },
+        "summary": "Убрать промокод",
+        "tags": ["Cart"]
+      },
+      "post": {
+        "callbacks": {},
+        "description": "Проверяет промокод и прикрепляет его к корзине. Если условия акции ещё не выполнены, код сохраняется со статусом `pending` и применится автоматически, когда условия выполнятся.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.apply_promo_code",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromoCodeRequest"
+              }
+            }
+          },
+          "description": "Промокод",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponse"
+                }
+              }
+            },
+            "description": "Обновлённая корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Корзина не найдена"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Промокод не может быть применён"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Слишком много попыток"
+          }
+        },
+        "summary": "Применить промокод",
         "tags": ["Cart"]
       }
     },

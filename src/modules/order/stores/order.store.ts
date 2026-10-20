@@ -4,12 +4,14 @@ import { ref } from 'vue'
 import { OrderService, type Order, type CreateOrderPayload } from '../api/order.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
-import { getApiErrorMessage } from '@/api/errors'
+import { getApiErrorCode, getApiErrorMessage } from '@/api/errors'
 import { queryClient } from '@/api/client'
 import type { OrderFormValues } from '../components/OrderForm.vue'
 import { ACTIVE_ORDERS_KEY } from '../composables/useActiveOrdersQuery'
 import { MY_ORDERS_KEY } from '@/modules/account/composables/useMyOrdersQuery'
 import { ADDRESSES_KEY } from '@/modules/account/composables/useAddressesQuery'
+
+const PRICE_ERRORS = ['price_changed', 'promo_unavailable']
 
 export const useOrderStore = defineStore('order', () => {
   const branchStore = useBranchStore()
@@ -99,6 +101,7 @@ export const useOrderStore = defineStore('order', () => {
       },
       branch_id: branchId,
       cart_id: cartId,
+      expected_total: cartStore.totalAmount,
     }
 
     try {
@@ -115,6 +118,9 @@ export const useOrderStore = defineStore('order', () => {
       return order
     } catch (error: unknown) {
       errorMessage.value = getApiErrorMessage(error, 'Произошла ошибка при оформлении заказа')
+      if (PRICE_ERRORS.includes(getApiErrorCode(error) ?? '')) {
+        await cartStore.fetchCart(branchId, true).catch(() => null)
+      }
       throw error
     } finally {
       isLoading.value = false

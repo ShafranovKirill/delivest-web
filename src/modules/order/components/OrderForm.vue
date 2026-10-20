@@ -14,6 +14,7 @@ import SavedAddressPicker from '@/modules/order/components/SavedAddressPicker.vu
 import { emptyAddressForm, toAddressForm } from '@/modules/shared/utils/addressForm'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { useCartStore } from '@/modules/cart/stores/cart.store'
 import type { ClientAddress } from '@/modules/account/api/account.service'
 
 export interface OrderFormValues {
@@ -38,6 +39,7 @@ const emit = defineEmits<{
 const toast = useToast()
 const branchStore = useBranchStore()
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 
 const form = reactive<OrderFormValues>({
   customer_name: authStore.client?.name ?? '',
@@ -57,6 +59,12 @@ function selectAddress(address: ClientAddress) {
 watch(
   () => authStore.client?.phone,
   (phone) => phone && (form.customer_phone = phone),
+)
+
+watch(
+  () => form.fulfillment_type,
+  (type) => cartStore.setFulfillment(type).catch((e) => console.error(e)),
+  { immediate: true },
 )
 
 const pickupAddress = computed(() => branchStore.activeBranch?.branch_info?.address || null)
