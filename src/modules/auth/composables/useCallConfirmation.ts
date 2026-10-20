@@ -1,9 +1,11 @@
 import { computed, onScopeDispose, ref } from 'vue'
+import type { Channel } from 'phoenix'
 import { getApiErrorMessage } from '@/api/errors'
+import { getSocket } from '@/api/socket'
 import { t } from '@/i18n'
 import { AuthService, type CallConfirmation, type ClientSession } from '../api/auth.service'
 
-const POLL_INTERVAL = 2500
+type Failure = { code?: string }
 
 export function useCallConfirmation(onConfirmed: (session: ClientSession) => void) {
   const confirmation = ref<CallConfirmation | null>(null)
@@ -11,14 +13,15 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   const errorMessage = ref<string | null>(null)
   const secondsLeft = ref(0)
 
-  let pollTimer: ReturnType<typeof setTimeout> | undefined
+  let channel: Channel | null = null
   let countdownTimer: ReturnType<typeof setInterval> | undefined
 
   const isWaiting = computed(() => confirmation.value !== null)
 
   function stop() {
-    clearTimeout(pollTimer)
     clearInterval(countdownTimer)
+    channel?.leave()
+    channel = null
   }
 
   function reset(message: string | null = null) {
@@ -27,32 +30,29 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     errorMessage.value = message
   }
 
+  function fail({ code }: Failure = {}) {
+    reset(t(`errors.codes.${code ?? 'confirmation_not_found'}`))
+  }
+
   function startCountdown(seconds: number) {
     secondsLeft.value = seconds
     countdownTimer = setInterval(() => {
       secondsLeft.value -= 1
-      if (secondsLeft.value <= 0) reset(t('errors.codes.confirmation_not_found'))
+      if (secondsLeft.value <= 0) fail()
     }, 1000)
   }
 
-  async function poll(confirmationId: string) {
-    try {
-      const session = await AuthService.completeCall(confirmationId)
-      if (session.status === 'confirmed') {
-        reset()
-        onConfirmed(session)
-        return
-      }
-    } catch (error) {
-      reset(getApiErrorMessage(error))
-      return
-    }
+  async function listen(confirmationId: string) {
+    const socket = await getSocket()
+    if (confirmation.value?.confirmation_id !== confirmationId) return
 
-    if (confirmation.value?.confirmation_id === confirmationId) schedulePoll(confirmationId)
-  }
-
-  function schedulePoll(confirmationId: string) {
-    pollTimer = setTimeout(() => poll(confirmationId), POLL_INTERVAL)
+    channel = socket.channel(`auth:${confirmationId}`)
+    channel.on('confirmed', (session: ClientSession) => {
+      reset()
+      onConfirmed(session)
+    })
+    channel.on('failed', fail)
+    channel.join().receive('error', fail)
   }
 
   async function start(phone: string) {
@@ -63,9 +63,9 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     try {
       confirmation.value = await AuthService.startCall(phone)
       startCountdown(confirmation.value.expires_in)
-      schedulePoll(confirmation.value.confirmation_id)
+      await listen(confirmation.value.confirmation_id)
     } catch (error) {
-      errorMessage.value = getApiErrorMessage(error)
+      reset(getApiErrorMessage(error))
     } finally {
       isStarting.value = false
     }

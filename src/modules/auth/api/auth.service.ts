@@ -13,13 +13,6 @@ export const AuthService = {
     return data.data
   },
 
-  async completeCall(confirmationId: string): Promise<ClientSession> {
-    const { data } = await api.post<Envelope<ClientSession>>(
-      `/client/auth/call/${confirmationId}/complete`,
-    )
-    return data.data
-  },
-
   async refresh(refreshToken: string): Promise<ClientSession> {
     const { data } = await api.post<Envelope<ClientSession>>('/client/auth/refresh', {
       refresh_token: refreshToken,

@@ -12,7 +12,6 @@ export const useMyOrdersQuery = () => {
     queryKey: MY_ORDERS_KEY,
     queryFn: AccountService.getOrders,
     enabled: computed(() => authStore.isAuthenticated),
-    staleTime: 30_000,
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000,
   })
 }
