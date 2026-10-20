@@ -88,6 +88,7 @@ export const en: typeof ru = {
     signedIn: 'Signed in',
     phoneConfirmed: 'Phone number confirmed',
     phone: {
+      useLast: 'Sign in with {phone}',
       hint: 'Enter your phone number. To confirm it, you will make a free call — no SMS or codes.',
     },
     call: {

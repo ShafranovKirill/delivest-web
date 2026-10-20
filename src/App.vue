@@ -4,6 +4,7 @@ import { useHead } from '@vueuse/head'
 import { getCafeName, getSiteDescription } from '@/utils/env'
 import { useThemeStore } from '@/modules/settings/stores/theme.store'
 import { useLocaleStore } from '@/modules/settings/stores/locale.store'
+import AppToast from '@/modules/shared/components/ui/AppToast.vue'
 
 useThemeStore()
 const localeStore = useLocaleStore()
@@ -26,6 +27,6 @@ useHead({
 </script>
 
 <template>
-  <Toast />
+  <AppToast />
   <RouterView />
 </template>

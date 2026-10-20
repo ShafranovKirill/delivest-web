@@ -40,10 +40,7 @@ function signIn() {
 </script>
 
 <template>
-  <div
-    v-if="authStore.isAuthenticated"
-    class="rounded-3xl bg-gray-100 p-4 flex flex-col gap-3"
-  >
+  <div v-if="authStore.isAuthenticated" class="rounded-3xl bg-gray-100 p-4 flex flex-col gap-3">
     <div class="flex items-center gap-3">
       <div
         class="size-12 shrink-0 rounded-full bg-primary text-white flex items-center justify-center text-lg font-bold"

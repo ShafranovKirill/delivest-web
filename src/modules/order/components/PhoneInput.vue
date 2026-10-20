@@ -65,6 +65,11 @@ function handleInput(e: Event) {
 <template>
   <InputText
     :value="displayValue"
+    :class="props.class"
+    type="tel"
+    name="phone"
+    autocomplete="tel"
+    inputmode="tel"
     @input="handleInput"
     :placeholder="placeholder || '+7 (999) 000-00-00'"
     :required="required"

@@ -45,7 +45,7 @@ const cartStore = useCartStore()
 
 const form = reactive<OrderFormValues>({
   customer_name: authStore.client?.name ?? '',
-  customer_phone: authStore.client?.phone ?? '+7',
+  customer_phone: authStore.client?.phone ?? authStore.lastPhone ?? '+7',
   fulfillment_type: 'pickup',
   payment_method: 'cash',
   comment: '',

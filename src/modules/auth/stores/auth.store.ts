@@ -9,6 +9,7 @@ export const useAuthStore = defineStore(
     const accessToken = ref<string | null>(null)
     const refreshToken = ref<string | null>(null)
     const client = ref<ClientProfile | null>(null)
+    const lastPhone = ref<string | null>(null)
     const isModalOpen = ref(false)
 
     const isAuthenticated = computed(() => Boolean(refreshToken.value && client.value))
@@ -17,6 +18,7 @@ export const useAuthStore = defineStore(
       accessToken.value = session.access_token ?? null
       refreshToken.value = session.refresh_token ?? null
       client.value = session.client ?? null
+      if (session.client?.phone) lastPhone.value = session.client.phone
     }
 
     function signIn(session: ClientSession) {
@@ -43,6 +45,7 @@ export const useAuthStore = defineStore(
       accessToken,
       refreshToken,
       client,
+      lastPhone,
       isModalOpen,
       isAuthenticated,
       setSession,
@@ -52,5 +55,5 @@ export const useAuthStore = defineStore(
       closeModal,
     }
   },
-  { persist: { pick: ['accessToken', 'refreshToken', 'client'] } },
+  { persist: { pick: ['accessToken', 'refreshToken', 'client', 'lastPhone'] } },
 )
