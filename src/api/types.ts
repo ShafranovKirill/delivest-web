@@ -188,6 +188,26 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/orders/active': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Активные заказы
+     * @description Заказы текущей сессии, которые ещё не завершены и созданы не раньше нескольких часов назад. Статус берётся из CRM, если заказ обрабатывается в ней.
+     */
+    get: operations['DelivestWeb.Client.Order.OrderController.active']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/{branch_id}/stocks': {
     parameters: {
       query?: never
@@ -212,6 +232,39 @@ export interface paths {
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
+    /** ActiveOrder */
+    ActiveOrder: {
+      address?: {
+        [key: string]: unknown
+      } | null
+      /** Format: uuid */
+      branch_id: string
+      comment?: string | null
+      /** Format: date_time */
+      cook_by?: string | null
+      /** @enum {string} */
+      fulfillment_type: 'dine_in' | 'delivery' | 'pickup'
+      /** Format: uuid */
+      id: string
+      /** Format: date_time */
+      inserted_at: string
+      items: components['schemas']['OrderItemResponse'][]
+      /** @example A042 */
+      number: string
+      /** @enum {string} */
+      payment_method: 'cash' | 'card_offline'
+      /**
+       * @example preparing
+       * @enum {string}
+       */
+      status: 'created' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
+      /** @example 1180 */
+      total_amount: number
+    }
+    /** ActiveOrdersResponse */
+    ActiveOrdersResponse: {
+      data: components['schemas']['ActiveOrder'][]
+    }
     /** AddressRequest */
     AddressRequest: {
       /** @example 12 */
@@ -954,6 +1007,26 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.active': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Активные заказы */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ActiveOrdersResponse']
         }
       }
     }

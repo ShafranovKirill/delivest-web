@@ -5,7 +5,9 @@ import { OrderService, type Order, type CreateOrderPayload } from '../api/order.
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { getApiErrorMessage } from '@/api/errors'
+import { queryClient } from '@/api/client'
 import type { OrderFormValues } from '../components/OrderForm.vue'
+import { ACTIVE_ORDERS_KEY } from '../composables/useActiveOrdersQuery'
 
 export const useOrderStore = defineStore('order', () => {
   const branchStore = useBranchStore()
@@ -104,6 +106,7 @@ export const useOrderStore = defineStore('order', () => {
       activeStep.value = 3
 
       await cartStore.fetchCart(branchId, true)
+      queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
 
       return order
     } catch (error: unknown) {

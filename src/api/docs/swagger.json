@@ -2,6 +2,119 @@
   "components": {
     "responses": {},
     "schemas": {
+      "ActiveOrder": {
+        "properties": {
+          "address": {
+            "additionalProperties": true,
+            "nullable": true,
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "branch_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "comment": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "cook_by": {
+            "format": "date_time",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "fulfillment_type": {
+            "enum": ["dine_in", "delivery", "pickup"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "inserted_at": {
+            "format": "date_time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderItemResponse"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "number": {
+            "example": "A042",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "payment_method": {
+            "enum": ["cash", "card_offline"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "enum": ["created", "preparing", "ready", "delivering", "completed", "cancelled"],
+            "example": "preparing",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "total_amount": {
+            "example": 1180,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "status",
+          "fulfillment_type",
+          "payment_method",
+          "total_amount",
+          "branch_id",
+          "inserted_at",
+          "items"
+        ],
+        "title": "ActiveOrder",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.ActiveOrder",
+        "x-validate": null
+      },
+      "ActiveOrdersResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ActiveOrder"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "ActiveOrdersResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.ActiveOrdersResponse",
+        "x-validate": null
+      },
       "AddressRequest": {
         "properties": {
           "apartment": {
@@ -1353,6 +1466,28 @@
           }
         },
         "summary": "Создать заказ",
+        "tags": ["Orders"]
+      }
+    },
+    "/client/orders/active": {
+      "get": {
+        "callbacks": {},
+        "description": "Заказы текущей сессии, которые ещё не завершены и созданы не раньше нескольких часов назад. Статус берётся из CRM, если заказ обрабатывается в ней.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.active",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiveOrdersResponse"
+                }
+              }
+            },
+            "description": "Активные заказы"
+          }
+        },
+        "summary": "Активные заказы",
         "tags": ["Orders"]
       }
     },
