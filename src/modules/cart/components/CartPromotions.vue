@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useCartStore } from '../stores/cart.store'
 import { reasonsText } from '../utils/promoText'
+import { useI18n } from 'vue-i18n'
 
 const cartStore = useCartStore()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -19,7 +21,7 @@ const cartStore = useCartStore()
       <span class="min-w-0 flex-1">
         <span class="font-medium">{{ promotion.name }}</span>
         <span v-for="gift in promotion.gifts" :key="gift.product_id" class="block text-xs">
-          В подарок: {{ gift.name
+          {{ t('cart.gift', { name: gift.name })
           }}<template v-if="gift.quantity > 1"> × {{ gift.quantity }}</template>
         </span>
       </span>

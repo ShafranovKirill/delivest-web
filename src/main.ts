@@ -12,6 +12,7 @@ import { installAuthInterceptor } from './modules/auth/api/auth.interceptor.ts'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import ToastService from 'primevue/toastservice'
 import { MyPreset } from './assets/colorPreset.ts'
+import { i18n } from './i18n'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -28,6 +29,7 @@ app.use(PrimeVue, {
   },
 })
 
+app.use(i18n)
 app.use(router)
 app.use(head)
 app.use(VueQueryPlugin, { queryClient })

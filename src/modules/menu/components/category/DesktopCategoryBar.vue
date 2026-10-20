@@ -3,9 +3,11 @@ import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useMenuQuery } from '../../composables/useMenuQuery'
 import { storeToRefs } from 'pinia'
 import { useMenuStore } from '../../stores/menu.store'
+import { useI18n } from 'vue-i18n'
 
 const { data: menu } = useMenuQuery()
 const menuStore = useMenuStore()
+const { t } = useI18n()
 const { activeCategoryId } = storeToRefs(menuStore)
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -89,7 +91,7 @@ watch(categories, updateVisibleCount, { deep: true })
               :severity="isHiddenActive ? 'primary' : 'secondary'"
               :outlined="!isHiddenActive"
             >
-              <p class="font-bold!">{{ isHiddenActive ? activeCategoryName : 'Ещё' }}</p>
+              <p class="font-bold!">{{ isHiddenActive ? activeCategoryName : t('menu.more') }}</p>
 
               <i class="pi pi-chevron-down text-sm pt-1"></i>
             </Button>

@@ -8,15 +8,22 @@ import { useCallConfirmation } from '../composables/useCallConfirmation'
 import type { ClientSession } from '../api/auth.service'
 import AuthPhoneStep from './AuthPhoneStep.vue'
 import AuthCallStep from './AuthCallStep.vue'
+import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
 const toast = useToast()
+const { t } = useI18n()
 const phone = ref('')
 
 function onConfirmed(session: ClientSession) {
   authStore.signIn(session)
   authStore.closeModal()
-  toast.add({ severity: 'success', summary: 'Вы вошли', detail: 'Номер подтверждён', life: 3000 })
+  toast.add({
+    severity: 'success',
+    summary: t('auth.signedIn'),
+    detail: t('auth.phoneConfirmed'),
+    life: 3000,
+  })
 }
 
 const { confirmation, isStarting, errorMessage, secondsLeft, start, reset } =
@@ -45,9 +52,9 @@ watch(
     <template #header>
       <div>
         <h2 class="text-xl font-extrabold text-gray-950">
-          {{ confirmation ? 'Подтвердите номер' : 'Вход' }}
+          {{ confirmation ? t('auth.confirmTitle') : t('auth.signInTitle') }}
         </h2>
-        <p class="text-sm text-gray-500">Чтобы видеть свои заказы и адреса</p>
+        <p class="text-sm text-gray-500">{{ t('auth.subtitle') }}</p>
       </div>
     </template>
 

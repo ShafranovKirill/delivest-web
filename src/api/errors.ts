@@ -1,46 +1,9 @@
 import axios from 'axios'
 import type { components } from '@/api/types'
+import { i18n, t } from '@/i18n'
 
 export type ApiErrorResponse = components['schemas']['ErrorResponse']
 export type ApiErrorCode = ApiErrorResponse['error']
-
-const MESSAGES: Record<ApiErrorCode, string> = {
-  bad_request: 'Некорректный запрос',
-  branch_id_required: 'Не выбран филиал',
-  branch_not_found: 'Филиал недоступен',
-  cart_not_found: 'Корзина не найдена. Обновите страницу',
-  cart_is_empty: 'Ваша корзина пуста',
-  cart_already_ordered: 'Этот заказ уже оформлен',
-  cart_branch_mismatch: 'Корзина относится к другому филиалу. Обновите страницу',
-  product_unavailable: 'Товар сейчас недоступен',
-  client_blocked: 'Не удалось оформить заказ. Свяжитесь с нами по телефону',
-  quantity_limit_exceeded: 'Достигнуто максимальное количество товара',
-  item_not_found: 'Товар не найден в корзине',
-  validation_failed: 'Проверьте правильность заполнения полей',
-  order_failed: 'Не удалось оформить заказ. Попробуйте ещё раз',
-  too_many_requests: 'Слишком много запросов. Подождите минуту и попробуйте снова',
-  unauthorized: 'Войдите в аккаунт',
-  invalid_phone: 'Проверьте номер телефона',
-  call_failed: 'Не удалось начать подтверждение. Попробуйте позже',
-  confirmation_not_found: 'Время подтверждения истекло. Попробуйте ещё раз',
-  invalid_refresh_token: 'Сессия истекла. Войдите снова',
-  address_not_found: 'Адрес не найден',
-  internal_error: 'Ошибка сервера. Попробуйте позже',
-  price_changed: 'Сумма заказа изменилась. Проверьте корзину и оформите заказ снова',
-  promo_unavailable: 'Акция только что закончилась. Корзина пересчитана',
-  promo_not_found: 'Промокод не найден',
-  promo_inactive: 'Промокод сейчас не действует',
-  promo_not_started: 'Акция ещё не началась',
-  promo_expired: 'Срок действия промокода истёк',
-  promo_exhausted: 'Промокоды по этой акции закончились',
-  promo_requires_client: 'Войдите в аккаунт, чтобы применить промокод',
-  promo_client_limit: 'Вы уже использовали этот промокод',
-  promo_not_owner: 'Этот промокод выдан другому клиенту',
-  promo_code_used: 'Промокод уже использован',
-  promo_code_required: 'Нужен промокод',
-}
-
-const FALLBACK = 'Произошла ошибка. Попробуйте ещё раз'
 
 function isApiErrorResponse(data: unknown): data is ApiErrorResponse {
   return (
@@ -57,14 +20,16 @@ export function getApiErrorCode(error: unknown): ApiErrorCode | null {
   return null
 }
 
-export function getApiErrorMessage(error: unknown, fallback: string = FALLBACK): string {
+export function getApiErrorMessage(error: unknown, fallback?: string): string {
+  const fallbackText = fallback ?? t('errors.fallback')
+
   if (axios.isAxiosError(error)) {
-    if (!error.response) return 'Нет связи с сервером. Проверьте интернет'
+    if (!error.response) return t('errors.offline')
 
     const code = getApiErrorCode(error)
-    if (code && code in MESSAGES) return MESSAGES[code]
-    return fallback
+    if (code && i18n.global.te(`errors.codes.${code}`)) return t(`errors.codes.${code}`)
+    return fallbackText
   }
 
-  return error instanceof Error && error.message ? error.message : fallback
+  return error instanceof Error && error.message ? error.message : fallbackText
 }

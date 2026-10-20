@@ -6,9 +6,11 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import StockModal from '../components/StockModal.vue'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
+import { useI18n } from 'vue-i18n'
 
 const stockStore = useStockStore()
 const branchStore = useBranchStore()
+const { t } = useI18n()
 
 const { stocks } = storeToRefs(stockStore)
 const { activeBranch } = storeToRefs(branchStore)
@@ -25,7 +27,7 @@ watch(
 </script>
 
 <template>
-  <PageShell title="Акции" subtitle="Нажмите на акцию, чтобы узнать подробности" width="wide">
+  <PageShell :title="t('stock.title')" :subtitle="t('stock.subtitle')" width="wide">
     <div
       v-if="stocks.length"
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4"
@@ -40,7 +42,7 @@ watch(
         <span class="block aspect-4/5 w-full overflow-hidden bg-gray-100">
           <img
             :src="stock.photo_url"
-            :alt="stock.text || 'Акция'"
+            :alt="stock.text || t('stock.single')"
             class="size-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
           />
@@ -57,8 +59,8 @@ watch(
     <EmptyState
       v-else
       icon="pi-percentage"
-      title="Сейчас акций нет"
-      text="Загляните позже — новые предложения появляются регулярно"
+      :title="t('stock.emptyTitle')"
+      :text="t('stock.emptyText')"
     />
 
     <StockModal />

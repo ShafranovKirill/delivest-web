@@ -12,6 +12,9 @@ import AddressFormDialog from '../components/AddressFormDialog.vue'
 import type { ClientAddress } from '../api/account.service'
 import { useAddressesQuery } from '../composables/useAddressesQuery'
 import { useAddressMutations } from '../composables/useAddressMutations'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const authStore = useAuthStore()
 const toast = useToast()
@@ -35,12 +38,16 @@ function removeAddress(address: ClientAddress) {
 </script>
 
 <template>
-  <PageShell title="Мои адреса" subtitle="Нажмите на адрес, чтобы изменить его" width="narrow">
+  <PageShell
+    :title="t('account.addresses.title')"
+    :subtitle="t('account.addresses.subtitle')"
+    width="narrow"
+  >
     <template v-if="authStore.isAuthenticated" #actions>
-      <Button label="Добавить" icon="pi pi-plus" rounded @click="openDialog(null)" />
+      <Button :label="t('common.add')" icon="pi pi-plus" rounded @click="openDialog(null)" />
     </template>
 
-    <AuthRequired text="Сохранённые адреса доставки появятся после входа">
+    <AuthRequired :text="t('account.addresses.authText')">
       <div v-if="isLoading" class="py-16 text-center">
         <i class="pi pi-spin pi-spinner text-3xl text-primary" />
       </div>
@@ -58,8 +65,8 @@ function removeAddress(address: ClientAddress) {
       <EmptyState
         v-else
         icon="pi-map-marker"
-        title="Адресов пока нет"
-        text="Адрес сохранится автоматически после заказа с доставкой"
+        :title="t('account.addresses.emptyTitle')"
+        :text="t('account.addresses.emptyText')"
       />
 
       <AddressFormDialog :visible="isDialogOpen" :address="editing" @close="isDialogOpen = false" />

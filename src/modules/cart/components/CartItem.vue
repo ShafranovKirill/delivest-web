@@ -3,12 +3,14 @@ import type { CartItem } from '@/modules/cart/api/cart.service.ts'
 import { ref } from 'vue'
 import { useCartStore } from '../stores/cart.store.ts'
 import { useImagePlaceholder } from '@/modules/menu/composables/useImagePlaceholder.ts'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   item: CartItem
 }>()
 
 const cartStore = useCartStore()
+const { t } = useI18n()
 const imageError = ref(false)
 
 const { getImageUrl } = useImagePlaceholder()
@@ -46,7 +48,7 @@ function handleDecrease() {
           v-if="item.gift"
           class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-green-700"
         >
-          <i class="pi pi-gift text-xs" /> Подарок по акции
+          <i class="pi pi-gift text-xs" /> {{ t('cart.promoGift') }}
         </span>
       </div>
       <button
@@ -54,7 +56,7 @@ function handleDecrease() {
         type="button"
         @click="cartStore.removeAllOfItem(item.product_id)"
         class="text-muted-foreground hover:text-destructive p-1 transition-colors shrink-0"
-        title="Удалить из корзины"
+        :title="t('cart.remove')"
       >
         <i class="pi pi-trash text-base"></i>
       </button>
@@ -64,7 +66,7 @@ function handleDecrease() {
 
     <div class="p-3 flex items-center justify-between gap-2">
       <div class="flex flex-col">
-        <span class="text-xs text-muted-foreground">Итого</span>
+        <span class="text-xs text-muted-foreground">{{ t('common.total') }}</span>
         <span class="text-sm font-semibold leading-none">
           <span
             v-if="item.base_total > item.total_price"
@@ -72,7 +74,7 @@ function handleDecrease() {
           >
             {{ item.base_total }} ₽
           </span>
-          {{ item.gift ? 'Бесплатно' : `${item.total_price} ₽` }}
+          {{ item.gift ? t('common.free') : `${item.total_price} ₽` }}
         </span>
       </div>
 

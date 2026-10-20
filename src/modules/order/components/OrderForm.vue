@@ -16,6 +16,7 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import type { ClientAddress } from '@/modules/account/api/account.service'
+import { useI18n } from 'vue-i18n'
 
 export interface OrderFormValues {
   customer_name: string
@@ -37,6 +38,7 @@ const emit = defineEmits<{
 }>()
 
 const toast = useToast()
+const { t } = useI18n()
 const branchStore = useBranchStore()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
@@ -44,7 +46,7 @@ const cartStore = useCartStore()
 const form = reactive<OrderFormValues>({
   customer_name: authStore.client?.name ?? '',
   customer_phone: authStore.client?.phone ?? '+7',
-  fulfillment_type: 'pickup', // По умолчанию самовывоз
+  fulfillment_type: 'pickup',
   payment_method: 'cash',
   comment: '',
   cook_by: null,
@@ -69,31 +71,27 @@ watch(
 
 const pickupAddress = computed(() => branchStore.activeBranch?.branch_info?.address || null)
 
-const fulfillmentOptions: Array<{
-  value: OrderFormValues['fulfillment_type']
-  label: string
-  icon: string
-}> = [
-  { value: 'delivery', label: 'Доставка', icon: 'pi-car' },
-  { value: 'pickup', label: 'Самовывоз', icon: 'pi-shopping-bag' },
-  { value: 'dine_in', label: 'В зале', icon: 'pi-home' },
-]
+const fulfillmentOptions = computed<
+  Array<{ value: OrderFormValues['fulfillment_type']; label: string; icon: string }>
+>(() => [
+  { value: 'delivery', label: t('order.form.delivery'), icon: 'pi-car' },
+  { value: 'pickup', label: t('order.form.pickup'), icon: 'pi-shopping-bag' },
+  { value: 'dine_in', label: t('order.form.dineIn'), icon: 'pi-home' },
+])
 
-const paymentOptions: Array<{
-  value: OrderFormValues['payment_method']
-  label: string
-  icon: string
-}> = [
-  { value: 'cash', label: 'Наличными', icon: 'pi-wallet' },
-  { value: 'card_offline', label: 'Картой', icon: 'pi-credit-card' },
-]
+const paymentOptions = computed<
+  Array<{ value: OrderFormValues['payment_method']; label: string; icon: string }>
+>(() => [
+  { value: 'cash', label: t('order.form.cash'), icon: 'pi-wallet' },
+  { value: 'card_offline', label: t('order.form.card'), icon: 'pi-credit-card' },
+])
 
 function handleSubmit() {
   if (!form.customer_phone || form.customer_phone.length < 12) {
     toast.add({
       severity: 'error',
-      summary: 'Ошибка',
-      detail: 'Заполните обязательные поля',
+      summary: t('common.error'),
+      detail: t('order.form.required'),
       life: 3000,
     })
     return
@@ -105,15 +103,19 @@ function handleSubmit() {
 
 <template>
   <form class="flex flex-col gap-3 sm:gap-4" @submit.prevent="handleSubmit">
-    <SurfaceCard icon="pi-user" title="Контактные данные">
+    <SurfaceCard icon="pi-user" :title="t('order.form.contacts')">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <label class="flex flex-col gap-1.5">
-          <span class="text-sm font-medium text-gray-600">Ваше имя</span>
-          <InputText v-model="form.customer_name" placeholder="Иван" class="w-full" />
+          <span class="text-sm font-medium text-gray-600">{{ t('order.form.name') }}</span>
+          <InputText
+            v-model="form.customer_name"
+            :placeholder="t('order.form.namePlaceholder')"
+            class="w-full"
+          />
         </label>
         <label class="flex flex-col gap-1.5">
           <span class="text-sm font-medium text-gray-600">
-            Телефон <span class="text-red-500">*</span>
+            {{ t('common.phone') }} <span class="text-red-500">*</span>
           </span>
           <PhoneInput
             v-model="form.customer_phone"
@@ -125,7 +127,7 @@ function handleSubmit() {
       </div>
     </SurfaceCard>
 
-    <SurfaceCard icon="pi-send" title="Способ получения">
+    <SurfaceCard icon="pi-send" :title="t('order.form.fulfillment')">
       <OptionChips v-model="form.fulfillment_type" :options="fulfillmentOptions" :columns="3" />
 
       <p
@@ -133,13 +135,14 @@ function handleSubmit() {
         class="mt-3 flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm text-gray-600 border border-gray-100"
       >
         <i class="pi pi-map-marker text-primary" />
-        Забрать по адресу: <span class="font-semibold text-gray-900">{{ pickupAddress }}</span>
+        {{ t('order.form.pickupAt') }}
+        <span class="font-semibold text-gray-900">{{ pickupAddress }}</span>
       </p>
 
       <div v-if="form.fulfillment_type === 'delivery'" class="mt-4 flex flex-col gap-3 sm:gap-4">
         <label class="flex items-center gap-2 cursor-pointer select-none">
           <Checkbox v-model="form.call_operator_for_address" binary />
-          <span class="text-sm text-gray-700">Назову адрес оператору по телефону</span>
+          <span class="text-sm text-gray-700">{{ t('order.form.callOperator') }}</span>
         </label>
 
         <template v-if="!form.call_operator_for_address">
@@ -155,15 +158,15 @@ function handleSubmit() {
 
     <OrderTimeSelect v-model="form.cook_by" />
 
-    <SurfaceCard icon="pi-wallet" title="Оплата">
+    <SurfaceCard icon="pi-wallet" :title="t('order.payment.title')">
       <OptionChips v-model="form.payment_method" :options="paymentOptions" :columns="2" />
 
       <label class="mt-4 flex flex-col gap-1.5">
-        <span class="text-sm font-medium text-gray-600">Комментарий к заказу</span>
+        <span class="text-sm font-medium text-gray-600">{{ t('order.form.comment') }}</span>
         <Textarea
           v-model="form.comment"
           rows="3"
-          placeholder="Например: без лука"
+          :placeholder="t('order.form.commentPlaceholder')"
           class="w-full resize-none"
         />
       </label>
@@ -171,7 +174,7 @@ function handleSubmit() {
 
     <Button
       type="submit"
-      label="Оформить заказ"
+      :label="t('order.form.submit')"
       icon="pi pi-check"
       iconPos="right"
       :loading="isLoading"

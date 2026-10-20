@@ -5,15 +5,17 @@ import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ product: MenuProduct }>()
 const cartStore = useCartStore()
 const toast = useToast()
+const { t } = useI18n()
 
 function showError(error: unknown) {
   toast.add({
     severity: 'error',
-    summary: 'Корзина',
+    summary: t('cart.title'),
     detail: getApiErrorMessage(error),
     life: 3000,
   })

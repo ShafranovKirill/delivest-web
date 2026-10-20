@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { openLink } from '@/utils/browser'
 import { useContactsStore } from '../contacts/stores/constacts.store'
+import { useI18n } from 'vue-i18n'
 
 const contactsStore = useContactsStore()
+const { t } = useI18n()
 const currentYear = new Date().getFullYear()
 </script>
 
@@ -14,7 +16,7 @@ const currentYear = new Date().getFullYear()
         @click="contactsStore.openModal()"
       >
         <i class="pi pi-phone text-xl" style="-webkit-text-stroke: 0.5px"></i>
-        <span class="text-base font-bold ml-3">Возникли вопросы? Нажмите, чтобы связаться!</span>
+        <span class="text-base font-bold ml-3">{{ t('footer.contactUs') }}</span>
       </Button>
     </div>
 
@@ -23,14 +25,13 @@ const currentYear = new Date().getFullYear()
     >
       <div class="text-center md:text-left flex-1 max-w-md">
         <h3 class="text-2xl font-bold mb-4">
-          {{ contactsStore.cafeName || 'Наше заведение' }}
+          {{ contactsStore.cafeName || t('footer.ourPlace') }}
         </h3>
         <p class="text-slate-600 leading-relaxed">
-          Самая домашняя, уютная и по-настоящему душевная еда. Готовим с любовью для каждого из вас!
+          {{ t('footer.tagline') }}
         </p>
       </div>
 
-      <!-- Соцсети -->
       <div
         v-if="
           contactsStore.social.vk || contactsStore.social.instagram || contactsStore.social.whatsapp
@@ -45,7 +46,7 @@ const currentYear = new Date().getFullYear()
           @click="openLink(contactsStore.social.vk)"
         >
           <i-vk-logo-black class="w-6 h-6 mr-3" />
-          <span class="font-medium">Мы ВКонтакте</span>
+          <span class="font-medium">{{ t('footer.vk') }}</span>
         </Button>
 
         <Button
@@ -56,7 +57,7 @@ const currentYear = new Date().getFullYear()
           @click="openLink(contactsStore.social.instagram)"
         >
           <i class="pi pi-instagram text-2xl! mr-3"></i>
-          <span class="font-medium">Мы в Instagram</span>
+          <span class="font-medium">{{ t('footer.instagram') }}</span>
         </Button>
 
         <Button
@@ -67,14 +68,13 @@ const currentYear = new Date().getFullYear()
           @click="openLink(contactsStore.social.whatsapp)"
         >
           <i class="pi pi-whatsapp text-2xl! mr-3"></i>
-          <span class="font-medium">Написать в WhatsApp</span>
+          <span class="font-medium">{{ t('footer.whatsapp') }}</span>
         </Button>
       </div>
     </div>
 
-    <!-- Копирайт -->
     <div class="text-center text-sm text-slate-400 mt-12 pt-8 border-t border-slate-100">
-      © {{ currentYear }} {{ contactsStore.cafeName }}. Все права защищены.
+      © {{ currentYear }} {{ contactsStore.cafeName }}. {{ t('footer.rights') }}
     </div>
   </footer>
 </template>

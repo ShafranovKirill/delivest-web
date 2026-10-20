@@ -1,25 +1,31 @@
 import type { ActiveOrder, OrderStatus } from '../api/order.service'
+import { intlLocale, t } from '@/i18n'
 
 type FulfillmentType = ActiveOrder['fulfillment_type']
 
-export const STATUS_INFO: Record<OrderStatus, { label: string; icon: string }> = {
-  created: { label: 'Принят', icon: 'pi-check-circle' },
-  preparing: { label: 'Готовится', icon: 'pi-hourglass' },
-  ready: { label: 'Готов', icon: 'pi-shopping-bag' },
-  delivering: { label: 'В пути', icon: 'pi-truck' },
-  completed: { label: 'Выполнен', icon: 'pi-verified' },
-  cancelled: { label: 'Отменён', icon: 'pi-times-circle' },
+const STATUS_ICONS: Record<OrderStatus, string> = {
+  created: 'pi-check-circle',
+  preparing: 'pi-hourglass',
+  ready: 'pi-shopping-bag',
+  delivering: 'pi-truck',
+  completed: 'pi-verified',
+  cancelled: 'pi-times-circle',
 }
 
-export const FULFILLMENT_LABELS: Record<FulfillmentType, string> = {
-  delivery: 'Доставка',
-  pickup: 'Самовывоз',
-  dine_in: 'В заведении',
+export function statusIcon(status: OrderStatus): string {
+  return STATUS_ICONS[status]
 }
 
-export const PAYMENT_LABELS: Record<ActiveOrder['payment_method'], string> = {
-  cash: 'Наличными',
-  card_offline: 'Картой при получении',
+export function statusLabel(status: OrderStatus): string {
+  return t(`order.status.${status}`)
+}
+
+export function fulfillmentLabel(type: FulfillmentType): string {
+  return t(`order.fulfillment.${type}`)
+}
+
+export function paymentLabel(method: ActiveOrder['payment_method']): string {
+  return t(`order.payment.${method}`)
 }
 
 const STEPS: Record<FulfillmentType, OrderStatus[]> = {
@@ -50,9 +56,9 @@ export function currentStep(order: ActiveOrder): number {
 
 export function formatTime(value?: string | null): string | null {
   if (!value) return null
-  return new Date(value).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+  return new Date(value).toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' })
 }
 
 export function formatPrice(value: number): string {
-  return `${value.toLocaleString('ru-RU')} ₽`
+  return `${value.toLocaleString(intlLocale())} ₽`
 }

@@ -1,42 +1,34 @@
-import type { PromoCodeState, PromoReason, PromoRejection } from '../api/cart.service'
+import type { PromoCodeState, PromoReason } from '../api/cart.service'
+import { t } from '@/i18n'
 
-const FULFILLMENT: Record<string, string> = {
-  delivery: 'доставка',
-  pickup: 'самовывоз',
-  dine_in: 'в зале',
+const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+
+function fulfillments(reason: PromoReason): string {
+  return (reason.allowed ?? []).map((type) => t(`promo.fulfillment.${type}`)).join(t('promo.or'))
 }
 
-const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
-
-const REJECTED: Record<PromoRejection, string> = {
-  not_found: 'Промокод не найден',
-  inactive: 'Промокод сейчас не действует',
-  not_started: 'Акция ещё не началась',
-  expired: 'Срок действия промокода истёк',
-  exhausted: 'Промокоды по этой акции закончились',
-  requires_client: 'Войдите в аккаунт, чтобы применить промокод',
-  client_limit: 'Вы уже использовали этот промокод',
-  not_owner: 'Этот промокод выдан другому клиенту',
-  code_used: 'Промокод уже использован',
-  code_required: 'Нужен промокод',
+function weekdays(reason: PromoReason): string {
+  return (reason.days ?? []).map((day) => t(`promo.weekday.${WEEKDAYS[day - 1]}`)).join(', ')
 }
 
 export function reasonText(reason: PromoReason): string {
   switch (reason.type) {
     case 'subtotal':
-      return `добавьте товаров ещё на ${reason.missing} ₽`
+      return t('promo.reason.subtotal', { amount: reason.missing })
     case 'quantity':
-      return `добавьте ещё ${reason.missing} шт.`
+      return t('promo.reason.quantity', { count: reason.missing })
     case 'product':
-      return `добавьте «${reason.name}»${(reason.missing ?? 1) > 1 ? ` × ${reason.missing}` : ''}`
+      return (reason.missing ?? 1) > 1
+        ? t('promo.reason.productMany', { name: reason.name, count: reason.missing })
+        : t('promo.reason.product', { name: reason.name })
     case 'fulfillment':
-      return `только ${(reason.allowed ?? []).map((type) => FULFILLMENT[type]).join(' или ')}`
+      return t('promo.reason.fulfillment', { types: fulfillments(reason) })
     case 'time':
-      return `действует с ${reason.from} до ${reason.to}`
+      return t('promo.reason.time', { from: reason.from, to: reason.to })
     case 'weekday':
-      return `действует: ${(reason.days ?? []).map((day) => WEEKDAYS[day - 1]).join(', ')}`
+      return t('promo.reason.weekday', { days: weekdays(reason) })
     case 'requires_client':
-      return 'войдите в аккаунт'
+      return t('promo.reason.requiresClient')
   }
 }
 
@@ -45,5 +37,5 @@ export function reasonsText(reasons: PromoReason[]): string {
 }
 
 export function rejectedText(state: PromoCodeState): string {
-  return state.reason ? REJECTED[state.reason] : 'Промокод нельзя применить'
+  return state.reason ? t(`promo.rejected.${state.reason}`) : t('promo.rejected.fallback')
 }

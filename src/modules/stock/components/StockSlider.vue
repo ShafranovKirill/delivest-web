@@ -6,9 +6,11 @@ import type { Stock } from '../api/stock.service'
 import { useStockStore } from '../stores/stock.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import StockModal from './StockModal.vue'
+import { useI18n } from 'vue-i18n'
 
 const stockStore = useStockStore()
 const branchStore = useBranchStore()
+const { t } = useI18n()
 
 const { stocks } = storeToRefs(stockStore)
 const { activeBranch } = storeToRefs(branchStore)
@@ -77,7 +79,7 @@ const responsiveOptions = ref([
           >
             <img
               :src="data.photo_url"
-              :alt="data.text || 'Акция'"
+              :alt="data.text || t('stock.single')"
               class="w-full h-full object-cover object-center block"
               loading="lazy"
             />

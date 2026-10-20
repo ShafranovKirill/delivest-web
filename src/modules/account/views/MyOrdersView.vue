@@ -7,6 +7,9 @@ import ActiveOrderCard from '@/modules/order/components/active/ActiveOrderCard.v
 import ActiveOrderModal from '@/modules/order/components/active/ActiveOrderModal.vue'
 import type { ActiveOrder } from '@/modules/order/api/order.service'
 import { useMyOrdersQuery } from '../composables/useMyOrdersQuery'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const { data: orders, isLoading } = useMyOrdersQuery()
 
@@ -18,8 +21,8 @@ const selected = computed<ActiveOrder | null>(
 </script>
 
 <template>
-  <PageShell title="Мои заказы" width="wide">
-    <AuthRequired text="Здесь появится история ваших заказов">
+  <PageShell :title="t('account.orders.title')" width="wide">
+    <AuthRequired :text="t('account.orders.authText')">
       <div v-if="isLoading" class="py-16 text-center">
         <i class="pi pi-spin pi-spinner text-3xl text-primary" />
       </div>
@@ -37,8 +40,8 @@ const selected = computed<ActiveOrder | null>(
       <EmptyState
         v-else
         icon="pi-receipt"
-        title="Заказов пока нет"
-        text="Оформите первый заказ — он появится здесь"
+        :title="t('account.orders.emptyTitle')"
+        :text="t('account.orders.emptyText')"
       />
 
       <ActiveOrderModal :order="selected" @close="selectedId = null" />

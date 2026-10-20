@@ -1,7 +1,7 @@
-// src/modules/order/composables/useOrderTime.ts
 import { ref, computed, type Ref } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { DaySchedule } from '@/modules/branch/composables/useBranchSchedule'
+import { intlLocale, t } from '@/i18n'
 
 export function useOrderTime(modelValue: Ref<string | null> | string | null) {
   const branchStore = useBranchStore()
@@ -30,7 +30,7 @@ export function useOrderTime(modelValue: Ref<string | null> | string | null) {
   }
 
   function formatTimeLabel(date: Date): string {
-    return date.toLocaleTimeString('ru-RU', {
+    return date.toLocaleTimeString(intlLocale(), {
       hour: '2-digit',
       minute: '2-digit',
     })
@@ -62,7 +62,6 @@ export function useOrderTime(modelValue: Ref<string | null> | string | null) {
       const minutes = parts[1]
 
       const endDate = new Date(date)
-      // Безопасная проверка, что числа распарсились корректно
       if (
         typeof hours === 'number' &&
         !isNaN(hours) &&
@@ -180,7 +179,7 @@ export function useOrderTime(modelValue: Ref<string | null> | string | null) {
   const presetOptions = computed(() => [
     {
       id: 'asap',
-      label: 'Побыстрее',
+      label: t('order.timeSelect.asap'),
       value: null,
       active: selectedPreset.value === 'asap',
     },
@@ -199,7 +198,7 @@ export function useOrderTime(modelValue: Ref<string | null> | string | null) {
     ...customPresetOptions.value,
     {
       id: 'custom',
-      label: 'Другое время',
+      label: t('order.timeSelect.custom'),
       value: null,
       active: selectedPreset.value === 'custom',
     },

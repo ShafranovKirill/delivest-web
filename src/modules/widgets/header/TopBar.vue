@@ -2,10 +2,15 @@
 import { useRouter } from 'vue-router'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useContactsStore } from '../contacts/stores/constacts.store'
+import { useLocaleStore } from '@/modules/settings/stores/locale.store'
+import { LOCALE_NAMES } from '@/i18n'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const branchStore = useBranchStore()
 const contactStore = useContactsStore()
+const localeStore = useLocaleStore()
+const { t } = useI18n()
 
 const navigateTo = (routeName: string) => {
   if (branchStore.activeBranch?.slug) {
@@ -32,7 +37,7 @@ const openContacts = () => {
           @click="navigateTo('menu')"
           class="hover:underline hover:text-gray-900 transition-colors cursor-pointer"
         >
-          Меню
+          {{ t('nav.menu') }}
         </button>
 
         <button
@@ -40,7 +45,7 @@ const openContacts = () => {
           @click="navigateTo('promotions')"
           class="hover:underline hover:text-gray-900 transition-colors cursor-pointer"
         >
-          Акции
+          {{ t('nav.promotions') }}
         </button>
 
         <button
@@ -48,7 +53,7 @@ const openContacts = () => {
           @click="navigateTo('branch-info')"
           class="hover:underline hover:text-gray-900 transition-colors cursor-pointer"
         >
-          О нас
+          {{ t('nav.about') }}
         </button>
 
         <button
@@ -56,14 +61,18 @@ const openContacts = () => {
           @click="openContacts"
           class="hover:underline hover:text-gray-900 transition-colors cursor-pointer"
         >
-          Контакты
+          {{ t('nav.contacts') }}
         </button>
       </div>
 
-      <div class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+      <button
+        type="button"
+        class="flex items-center gap-1.5 cursor-pointer hover:opacity-80"
+        @click="localeStore.toggle"
+      >
         <i class="pi pi-globe text-base"></i>
-        <span>Русский</span>
-      </div>
+        <span>{{ LOCALE_NAMES[localeStore.locale] }}</span>
+      </button>
     </div>
   </div>
 </template>

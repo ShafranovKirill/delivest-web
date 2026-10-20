@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const branchStore = useBranchStore()
 
@@ -14,10 +17,9 @@ const deliveryTime = computed(() => {
     class="flex flex-col text-xs cursor-pointer select-none py-1 min-w-0 w-fit items-start mx-auto"
     @click="branchStore.openModal()"
   >
-    <!-- Верхняя строка: Название филиала (обрезается, если длиннее низа) -->
     <div class="flex items-center gap-1 font-medium leading-tight mb-0.5 min-w-0 w-full">
       <span class="text-(--p-primary-500) font-bold truncate min-w-0 w-full text-center">
-        {{ branchStore.activeBranch?.name || 'Выберите филиал' }}
+        {{ branchStore.activeBranch?.name || t('branch.select.title') }}
       </span>
     </div>
 
@@ -25,7 +27,7 @@ const deliveryTime = computed(() => {
       class="flex items-center justify-start gap-1.5 text-[11px] text-gray-700 font-medium leading-tight min-w-0 w-full"
     >
       <template v-if="deliveryTime">
-        <span class="shrink-0">~{{ deliveryTime }} мин</span>
+        <span class="shrink-0">~{{ t('branch.minutes', { minutes: deliveryTime }) }}</span>
         <span class="shrink-0">•</span>
       </template>
 

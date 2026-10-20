@@ -2,6 +2,9 @@
 import { ref, computed } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useSidebarStore } from '@/modules/widgets/sidebar/sidebar.store'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const branchStore = useBranchStore()
 const sidebarStore = useSidebarStore()
@@ -31,14 +34,14 @@ const toggleInfo = () => {
         <span
           class="text-xl font-bold text-gray-900 leading-tight group-hover:text-(--p-primary-500) transition-colors"
         >
-          {{ branchStore.activeBranch?.name || 'Не выбран' }}
+          {{ branchStore.activeBranch?.name || t('branch.notSelected') }}
         </span>
       </div>
 
       <span
         class="pl-6.5 text-(--p-primary-500) font-semibold text-xs group-hover:text-(--p-primary-800) transition-colors mt-1"
       >
-        Изменить
+        {{ t('branch.change') }}
       </span>
     </div>
 
@@ -47,7 +50,7 @@ const toggleInfo = () => {
     <div class="flex items-center justify-between pt-1">
       <div class="flex items-center gap-2 font-medium text-gray-600">
         <template v-if="deliveryTime">
-          <span>~{{ deliveryTime }} мин</span>
+          <span>~{{ t('branch.minutes', { minutes: deliveryTime }) }}</span>
           <span>•</span>
         </template>
 
@@ -61,7 +64,7 @@ const toggleInfo = () => {
         type="button"
         @click="toggleInfo"
         class="text-gray-400 hover:text-gray-600 focus:outline-none p-1 transition-colors"
-        aria-label="Информация о заведении"
+        :aria-label="t('branch.aboutAria')"
       >
         <i class="pi pi-info-circle text-base"></i>
       </button>
@@ -79,8 +82,14 @@ const toggleInfo = () => {
         v-if="showInfo"
         class="mt-2 p-2.5 bg-gray-50 rounded-lg text-xs text-gray-600 border border-gray-200/60 leading-relaxed"
       >
-        Среднее время доставки — {{ deliveryTime ? `${deliveryTime} минут` : 'уточняется' }}.
-        Рейтинг заведения сформирован на основе отзывов наших гостей.
+        {{
+          t('branch.deliveryNote', {
+            time: deliveryTime
+              ? t('branch.minutes', { minutes: deliveryTime })
+              : t('branch.unknownTime'),
+          })
+        }}
+        {{ t('branch.ratingNote') }}
       </div>
     </transition>
   </div>

@@ -4,9 +4,11 @@ import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
 import { storeToRefs } from 'pinia'
 import Drawer from 'primevue/drawer'
 import AddToCartButton from '../button/AddToCartButton.vue'
+import { useI18n } from 'vue-i18n'
 
 const { getImageUrl, handleImageError } = useImagePlaceholder()
 const menuStore = useMenuStore()
+const { t } = useI18n()
 const { activeProduct } = storeToRefs(menuStore)
 </script>
 
@@ -40,10 +42,10 @@ const { activeProduct } = storeToRefs(menuStore)
               class="flex items-center gap-3 text-sm text-gray-500 font-medium"
             >
               <span v-if="activeProduct?.weight" class="bg-gray-100 px-2.5 py-1 rounded-md">
-                {{ activeProduct.weight }} г
+                {{ t('common.grams', { value: activeProduct.weight }) }}
               </span>
               <span v-if="activeProduct?.quantity" class="bg-gray-100 px-2.5 py-1 rounded-md">
-                {{ activeProduct.quantity }} шт.
+                {{ t('common.pieces', { count: activeProduct.quantity }) }}
               </span>
             </div>
 
@@ -55,7 +57,6 @@ const { activeProduct } = storeToRefs(menuStore)
             </p>
           </div>
 
-          <!-- Прижимаем кнопку заказа к низу, если контента мало, или оставляем после описания -->
           <div class="pt-4 mt-auto sticky bottom-0 bg-white/80 backdrop-blur-md pb-4">
             <AddToCartButton :product="activeProduct" @added="menuStore.closeProductModal()" />
           </div>

@@ -4,15 +4,17 @@ import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
 import CartTotals from '@/modules/cart/components/CartTotals.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
+import { useI18n } from 'vue-i18n'
 
 withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
 const emit = defineEmits<{ (e: 'next'): void }>()
 
 const cartStore = useCartStore()
+const { t } = useI18n()
 </script>
 
 <template>
-  <SurfaceCard icon="pi-shopping-cart" title="Ваш заказ">
+  <SurfaceCard icon="pi-shopping-cart" :title="t('order.summary')">
     <ul class="flex flex-col gap-2">
       <li
         v-for="item in cartStore.items"
@@ -32,7 +34,7 @@ const cartStore = useCartStore()
         <span class="min-w-0 flex-1" :class="{ 'pl-2': compact }">
           <span class="block text-sm font-semibold text-gray-900 truncate">{{ item.name }}</span>
           <span v-if="item.gift" class="block text-xs font-medium text-green-700">
-            <i class="pi pi-gift text-xs" /> Подарок × {{ item.quantity }}
+            <i class="pi pi-gift text-xs" /> {{ t('order.giftCount', { count: item.quantity }) }}
           </span>
           <span v-else class="block text-xs text-gray-500 tabular-nums">
             {{ item.quantity }} × {{ item.price }} ₽
@@ -45,7 +47,7 @@ const cartStore = useCartStore()
           >
             {{ item.base_total }} ₽
           </span>
-          {{ item.gift ? 'Бесплатно' : `${item.total_price} ₽` }}
+          {{ item.gift ? t('common.free') : `${item.total_price} ₽` }}
         </span>
       </li>
     </ul>
@@ -59,7 +61,7 @@ const cartStore = useCartStore()
 
   <Button
     v-if="!compact"
-    label="Перейти к оформлению"
+    :label="t('order.toCheckout')"
     icon="pi pi-arrow-right"
     iconPos="right"
     class="w-full h-14 rounded-full! text-base font-semibold mt-3 sm:mt-4"

@@ -3,14 +3,16 @@ import { computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { openLink } from '@/utils/browser'
 import { useContactsStore } from '../stores/constacts.store'
+import { useI18n } from 'vue-i18n'
 
 const contactsStore = useContactsStore()
 const toast = useToast()
+const { t } = useI18n()
 
 const socials = computed(() =>
   [
     { key: 'whatsapp', url: contactsStore.social.whatsapp, label: 'WhatsApp', icon: 'pi-whatsapp' },
-    { key: 'vk', url: contactsStore.social.vk, label: 'ВКонтакте', icon: null },
+    { key: 'vk', url: contactsStore.social.vk, label: t('branch.info.vk'), icon: null },
     {
       key: 'instagram',
       url: contactsStore.social.instagram,
@@ -23,12 +25,11 @@ const socials = computed(() =>
 const hasContacts = computed(() => Boolean(contactsStore.phone) || socials.value.length > 0)
 
 const handleCopy = async () => {
-  const result = await contactsStore.copyPhoneNumber()
-  if (result.success) {
+  if (await contactsStore.copyPhoneNumber()) {
     toast.add({
       severity: 'success',
-      summary: 'Скопировано',
-      detail: 'Номер телефона скопирован',
+      summary: t('contacts.copied'),
+      detail: t('contacts.phoneCopied'),
       life: 3000,
     })
   }
@@ -51,7 +52,7 @@ const handleCopy = async () => {
         </span>
         <span class="min-w-0">
           <span class="block text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-            Позвонить
+            {{ t('common.call') }}
           </span>
           <span
             class="block font-bold text-gray-900 group-hover:text-primary transition-colors truncate"
@@ -63,7 +64,7 @@ const handleCopy = async () => {
       <button
         type="button"
         class="grid place-items-center size-10 shrink-0 rounded-full bg-white text-gray-500 shadow-xs hover:text-primary transition-colors cursor-pointer"
-        aria-label="Скопировать номер"
+        :aria-label="t('contacts.copyPhone')"
         @click="handleCopy"
       >
         <i class="pi pi-clone" />
@@ -90,5 +91,5 @@ const handleCopy = async () => {
     </button>
   </div>
 
-  <p v-else class="py-6 text-center text-gray-500">У этого филиала пока нет контактов</p>
+  <p v-else class="py-6 text-center text-gray-500">{{ t('contacts.empty') }}</p>
 </template>

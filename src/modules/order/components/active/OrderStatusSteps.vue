@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ActiveOrder } from '../../api/order.service'
-import { STATUS_INFO, currentStep, orderSteps } from '../../utils/orderStatus'
+import { currentStep, orderSteps, statusIcon, statusLabel } from '../../utils/orderStatus'
 
 const props = withDefaults(defineProps<{ order: ActiveOrder; detailed?: boolean }>(), {
   detailed: false,
@@ -33,7 +33,7 @@ const current = computed(() => currentStep(props.order))
               : 'bg-gray-100 text-gray-400'
         "
       >
-        <i :class="['pi', index < current ? 'pi-check' : STATUS_INFO[step].icon]" />
+        <i :class="['pi', index < current ? 'pi-check' : statusIcon(step)]" />
       </span>
       <span
         class="font-semibold"
@@ -41,7 +41,7 @@ const current = computed(() => currentStep(props.order))
           index === current ? 'text-gray-950' : index < current ? 'text-gray-500' : 'text-gray-400'
         "
       >
-        {{ STATUS_INFO[step].label }}
+        {{ statusLabel(step) }}
       </span>
       <span
         v-if="index === current"

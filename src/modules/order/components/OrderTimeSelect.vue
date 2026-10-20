@@ -2,8 +2,10 @@
 import Dialog from 'primevue/dialog'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import { useOrderTime } from '../composables/useOrderTime'
+import { useI18n } from 'vue-i18n'
 
 const modelValue = defineModel<string | null>({ required: true })
+const { t } = useI18n()
 
 const {
   isCustomTimeDialogOpen,
@@ -38,7 +40,7 @@ function selectCustomTime(slot: string) {
 </script>
 
 <template>
-  <SurfaceCard icon="pi-clock" title="Когда приготовить">
+  <SurfaceCard icon="pi-clock" :title="t('order.timeSelect.title')">
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
       <button
         v-for="option in presetOptions"
@@ -65,7 +67,7 @@ function selectCustomTime(slot: string) {
       :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
     >
       <template #header>
-        <h3 class="text-xl font-extrabold text-gray-950">Выберите время</h3>
+        <h3 class="text-xl font-extrabold text-gray-950">{{ t('order.timeSelect.pick') }}</h3>
       </template>
 
       <div v-if="customTimeOptions.length" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -84,7 +86,7 @@ function selectCustomTime(slot: string) {
           {{ formatTimeLabel(new Date(slot)) }}
         </button>
       </div>
-      <p v-else class="text-sm text-gray-500">Сегодня рабочее время закончилось.</p>
+      <p v-else class="text-sm text-gray-500">{{ t('order.timeSelect.closed') }}</p>
     </Dialog>
   </SurfaceCard>
 </template>

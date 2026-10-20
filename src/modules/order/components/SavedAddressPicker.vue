@@ -4,11 +4,13 @@ import type { ClientAddress } from '@/modules/account/api/account.service'
 import { formatAddress } from '@/modules/shared/utils/address'
 import type { AddressForm } from '@/modules/shared/components/AddressFields.vue'
 import { toAddressForm } from '@/modules/shared/utils/addressForm'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ current: AddressForm }>()
 defineEmits<{ select: [address: ClientAddress] }>()
 
 const { data: addresses } = useAddressesQuery()
+const { t } = useI18n()
 
 function isSelected(address: ClientAddress) {
   const form = toAddressForm(address)
@@ -20,7 +22,7 @@ function isSelected(address: ClientAddress) {
 
 <template>
   <div v-if="addresses?.length" class="flex flex-col gap-1.5">
-    <span class="text-sm font-medium text-gray-600">Мои адреса</span>
+    <span class="text-sm font-medium text-gray-600">{{ t('nav.myAddresses') }}</span>
     <div class="flex gap-2 overflow-x-auto pb-1">
       <button
         v-for="address in addresses"

@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import type { ActiveOrder } from '../../api/order.service'
-import { FULFILLMENT_LABELS, STATUS_INFO, formatPrice, formatTime } from '../../utils/orderStatus'
+import {
+  formatPrice,
+  formatTime,
+  fulfillmentLabel,
+  statusIcon,
+  statusLabel,
+} from '../../utils/orderStatus'
 import OrderStatusSteps from './OrderStatusSteps.vue'
+import { useI18n } from 'vue-i18n'
 
 defineProps<{ order: ActiveOrder }>()
 defineEmits<{ open: [order: ActiveOrder] }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -17,13 +26,14 @@ defineEmits<{ open: [order: ActiveOrder] }>()
       <span
         class="grid place-items-center size-11 shrink-0 rounded-2xl bg-primary-soft text-primary"
       >
-        <i :class="['pi', STATUS_INFO[order.status].icon, 'text-lg']" />
+        <i :class="['pi', statusIcon(order.status), 'text-lg']" />
       </span>
       <div class="min-w-0 flex-1">
         <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-          Заказ {{ order.number }} · {{ FULFILLMENT_LABELS[order.fulfillment_type] }}
+          {{ t('order.number', { number: order.number }) }} ·
+          {{ fulfillmentLabel(order.fulfillment_type) }}
         </p>
-        <p class="font-extrabold text-gray-950">{{ STATUS_INFO[order.status].label }}</p>
+        <p class="font-extrabold text-gray-950">{{ statusLabel(order.status) }}</p>
       </div>
       <i class="pi pi-chevron-right text-sm text-gray-400 group-hover:text-primary" />
     </div>
@@ -34,8 +44,8 @@ defineEmits<{ open: [order: ActiveOrder] }>()
       <span class="text-gray-500">
         {{
           order.cook_by
-            ? `К ${formatTime(order.cook_by)}`
-            : `Оформлен в ${formatTime(order.inserted_at)}`
+            ? t('order.cookBy', { time: formatTime(order.cook_by) })
+            : t('order.placedAt', { time: formatTime(order.inserted_at) })
         }}
       </span>
       <span class="font-bold text-gray-900 tabular-nums">{{

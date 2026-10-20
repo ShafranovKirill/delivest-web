@@ -47,7 +47,7 @@ const initMap = async () => {
 
     mapInstance.geoObjects.add(placemark)
   } catch (error) {
-    console.error('Ошибка инициализации карты:', error)
+    console.error('Map init failed:', error)
   }
 }
 
@@ -65,7 +65,6 @@ watch(
 </script>
 
 <template>
-  <!-- Добавили mx-auto, box-border и гарантировали 100% ширину -->
   <div
     ref="mapContainer"
     class="w-full max-w-full h-87.5 rounded-xl overflow-hidden border border-gray-200 mx-auto box-border"

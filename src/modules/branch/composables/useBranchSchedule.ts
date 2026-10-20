@@ -1,5 +1,6 @@
 import { computed, type Ref } from 'vue'
 import type { Branch } from '../api/branch.service'
+import { t } from '@/i18n'
 
 export interface DaySchedule {
   enabled: boolean
@@ -60,13 +61,15 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
 
   const closingTimeToday = computed<string>(() => {
     const hours = workingHours.value
-    if (!hours) return 'Расписание не указано'
+    if (!hours) return t('branch.schedule.notSet')
 
     const schedule = todaySchedule.value
     if (!schedule || !schedule.enabled) {
-      return 'Выходной'
+      return t('branch.schedule.dayOff')
     }
-    return schedule.close ? `до ${schedule.close}` : 'Круглосуточно / Без точного времени'
+    return schedule.close
+      ? t('branch.schedule.until', { time: schedule.close })
+      : t('branch.schedule.allDay')
   })
 
   interface FormattedScheduleItem {
@@ -81,23 +84,15 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
     const hours = workingHours.value
     if (!hours) return []
 
-    const daysOrder: Array<{ key: string; label: string }> = [
-      { key: 'monday', label: 'Понедельник' },
-      { key: 'tuesday', label: 'Вторник' },
-      { key: 'wednesday', label: 'Среда' },
-      { key: 'thursday', label: 'Четверг' },
-      { key: 'friday', label: 'Пятница' },
-      { key: 'saturday', label: 'Суббота' },
-      { key: 'sunday', label: 'Воскресенье' },
-    ]
+    const daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
     const todayKey = dayKeysMap[new Date().getDay()]
 
-    return daysOrder.map((item) => {
-      const dayData = hours[item.key]
+    return daysOrder.map((key) => {
+      const dayData = hours[key]
       return {
-        day: item.label,
-        isToday: item.key === todayKey,
+        day: t(`branch.days.${key}`),
+        isToday: key === todayKey,
         enabled: Boolean(dayData?.enabled),
         open: dayData?.open || '',
         close: dayData?.close || '',

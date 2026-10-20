@@ -10,9 +10,9 @@
 
     <div class="w-full max-w-md rounded-4xl bg-white p-5 sm:p-8 shadow-sm">
       <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-950">
-        Выберите филиал
+        {{ t('branch.select.title') }}
       </h1>
-      <p class="mt-1.5 text-sm text-gray-500">Меню и время доставки зависят от заведения</p>
+      <p class="mt-1.5 text-sm text-gray-500">{{ t('branch.select.subtitle') }}</p>
 
       <div v-if="loading" class="flex justify-center py-12">
         <i class="pi pi-spin pi-spinner text-3xl text-primary" />
@@ -51,7 +51,7 @@
         </button>
 
         <p v-if="!activeBranches.length" class="py-8 text-center text-gray-500">
-          Сейчас нет доступных филиалов
+          {{ t('branch.select.empty') }}
         </p>
       </div>
     </div>
@@ -65,6 +65,9 @@ import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
 import { getCafeName } from '@/utils/env'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const toast = useToast()
@@ -86,8 +89,8 @@ onMounted(async () => {
     } catch {
       toast.add({
         severity: 'error',
-        summary: 'Ошибка',
-        detail: 'Не удалось загрузить список филиалов',
+        summary: t('common.error'),
+        detail: t('branch.select.loadFailed'),
         life: 3000,
       })
     } finally {
@@ -105,8 +108,8 @@ async function handleSelect(branch: Branch) {
   } catch {
     toast.add({
       severity: 'error',
-      summary: 'Ошибка',
-      detail: 'Ошибка при выборе филиала. Попробуйте еще раз.',
+      summary: t('common.error'),
+      detail: t('branch.select.selectFailed'),
       life: 3000,
     })
   } finally {

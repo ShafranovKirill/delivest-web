@@ -3,21 +3,18 @@ import { computed } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import type { ActiveOrder } from '../../api/order.service'
-import {
-  FULFILLMENT_LABELS,
-  PAYMENT_LABELS,
-  formatPrice,
-  formatTime,
-} from '../../utils/orderStatus'
+import { formatPrice, formatTime, fulfillmentLabel, paymentLabel } from '../../utils/orderStatus'
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import OrderStatusSteps from './OrderStatusSteps.vue'
 import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ order: ActiveOrder | null }>()
 const emit = defineEmits<{ close: [] }>()
 
 const contactsStore = useContactsStore()
+const { t } = useI18n()
 
 const visible = computed({
   get: () => props.order !== null,
@@ -38,8 +35,12 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
   >
     <template #header>
       <div v-if="order">
-        <h2 class="text-xl font-extrabold text-gray-950">Заказ {{ order.number }}</h2>
-        <p class="text-sm text-gray-500">Оформлен в {{ formatTime(order.inserted_at) }}</p>
+        <h2 class="text-xl font-extrabold text-gray-950">
+          {{ t('order.number', { number: order.number }) }}
+        </h2>
+        <p class="text-sm text-gray-500">
+          {{ t('order.placedAt', { time: formatTime(order.inserted_at) }) }}
+        </p>
       </div>
     </template>
 
@@ -50,32 +51,38 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
 
       <SurfaceCard
         :icon="order.fulfillment_type === 'delivery' ? 'pi-map-marker' : 'pi-shopping-bag'"
-        :label="FULFILLMENT_LABELS[order.fulfillment_type]"
+        :label="fulfillmentLabel(order.fulfillment_type)"
       >
         <template #value>
           {{
             address ||
-            (order.fulfillment_type === 'delivery' ? 'Адрес уточнит оператор' : 'В филиале')
+            (order.fulfillment_type === 'delivery'
+              ? t('order.addressByOperator')
+              : t('order.atBranch'))
           }}
         </template>
       </SurfaceCard>
 
       <div class="grid grid-cols-2 gap-3">
-        <SurfaceCard icon="pi-clock" label="Время">
+        <SurfaceCard icon="pi-clock" :label="t('order.time')">
           <template #value>
-            {{ order.cook_by ? `К ${formatTime(order.cook_by)}` : 'Как можно скорее' }}
+            {{
+              order.cook_by
+                ? t('order.cookBy', { time: formatTime(order.cook_by) })
+                : t('order.asap')
+            }}
           </template>
         </SurfaceCard>
-        <SurfaceCard icon="pi-wallet" label="Оплата">
-          <template #value>{{ PAYMENT_LABELS[order.payment_method] }}</template>
+        <SurfaceCard icon="pi-wallet" :label="t('order.payment.title')">
+          <template #value>{{ paymentLabel(order.payment_method) }}</template>
         </SurfaceCard>
       </div>
 
-      <SurfaceCard v-if="order.comment" icon="pi-comment" label="Комментарий">
+      <SurfaceCard v-if="order.comment" icon="pi-comment" :label="t('order.comment')">
         <template #value>{{ order.comment }}</template>
       </SurfaceCard>
 
-      <SurfaceCard label="Состав заказа">
+      <SurfaceCard :label="t('order.items')">
         <ul class="flex flex-col gap-2">
           <li
             v-for="(item, index) in order.items"
@@ -87,7 +94,7 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
               {{ item.title }}
             </span>
             <span v-if="item.gift" class="shrink-0 text-green-700">
-              подарок × {{ item.quantity }}
+              {{ t('order.giftCount', { count: item.quantity }) }}
             </span>
             <span v-else class="shrink-0 text-gray-500 tabular-nums">
               {{ item.quantity }} × {{ formatPrice(item.price) }}
@@ -99,7 +106,7 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
           class="mt-3 flex flex-col gap-1 border-t border-gray-200 pt-3 text-sm"
         >
           <div class="flex justify-between text-gray-500">
-            <span>Без скидки</span>
+            <span>{{ t('common.withoutDiscount') }}</span>
             <span class="tabular-nums">{{ formatPrice(order.subtotal_amount) }}</span>
           </div>
           <div
@@ -107,7 +114,9 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
             :key="promotion.name"
             class="flex justify-between text-green-700"
           >
-            <span>{{ promotion.code ? `Промокод ${promotion.code}` : promotion.name }}</span>
+            <span>{{
+              promotion.code ? t('order.promoCode', { code: promotion.code }) : promotion.name
+            }}</span>
             <span v-if="promotion.discount > 0" class="tabular-nums">
               −{{ formatPrice(promotion.discount) }}
             </span>
@@ -116,7 +125,7 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
         <div
           class="mt-3 flex justify-between border-t border-gray-200 pt-3 font-extrabold text-gray-950"
         >
-          <span>Итого</span>
+          <span>{{ t('common.total') }}</span>
           <span class="tabular-nums">{{ formatPrice(order.total_amount) }}</span>
         </div>
       </SurfaceCard>
@@ -128,13 +137,13 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
           v-if="contactsStore.phone"
           as="a"
           :href="`tel:${contactsStore.phone}`"
-          label="Позвонить нам"
+          :label="t('common.callUs')"
           icon="pi pi-phone"
           severity="secondary"
           class="h-12 w-full rounded-full! font-semibold"
         />
         <Button
-          label="Закрыть"
+          :label="t('common.close')"
           class="h-12 w-full rounded-full! font-semibold"
           @click="emit('close')"
         />

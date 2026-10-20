@@ -8,10 +8,12 @@ import { useCartStore } from '../stores/cart.store.ts'
 import { useRoute, useRouter } from 'vue-router'
 import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store.ts'
 import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store.ts'
+import { useI18n } from 'vue-i18n'
 
 const cartStore = useCartStore()
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 const desktopModalStore = useDesktopModalStore()
 const mobileModalStore = useMobileModalStore()
@@ -53,7 +55,7 @@ function goToCatalog() {
       v-if="cartStore.isLoading && !cartStore.isInitialized"
       class="p-6 text-center text-sm text-muted-foreground my-auto"
     >
-      Загрузка корзины...
+      {{ t('cart.loading') }}
     </div>
 
     <div
@@ -66,10 +68,12 @@ function goToCatalog() {
         <i class="pi pi-shopping-cart text-2xl"></i>
       </div>
 
-      <h3 class="text-base font-semibold text-foreground mb-1">Ваша корзина пуста</h3>
+      <h3 class="text-base font-semibold text-foreground mb-1">
+        {{ t('errors.codes.cart_is_empty') }}
+      </h3>
 
       <p class="text-sm text-muted-foreground max-w-xs mb-6">
-        Самое время добавить сюда что-нибудь интересное из каталога.
+        {{ t('cart.emptyText') }}
       </p>
 
       <button
@@ -77,7 +81,7 @@ function goToCatalog() {
         @click="goToCatalog"
         class="py-2.5 px-5 rounded-xl bg-(--p-primary-500) text-white font-medium text-sm transition-opacity hover:opacity-90"
       >
-        Перейти в каталог
+        {{ t('cart.toCatalog') }}
       </button>
     </div>
 
@@ -101,7 +105,7 @@ function goToCatalog() {
           :disabled="cartStore.isLoading"
           class="w-full py-3.5 px-4 rounded-2xl bg-(--p-primary-500) text-white font-medium text-base transition-opacity hover:opacity-90 disabled:opacity-50 shadow-sm"
         >
-          К оформлению заказа
+          {{ t('cart.checkout') }}
         </button>
       </div>
     </template>

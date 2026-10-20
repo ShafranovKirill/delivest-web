@@ -4,6 +4,9 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const toast = useToast()
@@ -30,8 +33,8 @@ watch(
       } catch {
         toast.add({
           severity: 'error',
-          summary: 'Ошибка',
-          detail: 'Не удалось загрузить список филиалов',
+          summary: t('common.error'),
+          detail: t('branch.select.loadFailed'),
           life: 3000,
         })
       } finally {
@@ -56,8 +59,8 @@ async function handleSelect(branch: Branch) {
   } catch {
     toast.add({
       severity: 'error',
-      summary: 'Ошибка',
-      detail: 'Не удалось сменить филиал. Попробуйте еще раз.',
+      summary: t('common.error'),
+      detail: t('branch.select.selectFailed'),
       life: 3000,
     })
   } finally {
@@ -71,7 +74,7 @@ async function handleSelect(branch: Branch) {
     v-model:visible="branchStore.isModalOpen"
     :dismissable-mask="true"
     modal
-    header="Выберите филиал"
+    :header="t('branch.select.title')"
     class="w-[90vw] max-w-lg"
   >
     <div class="space-y-2 pt-2">
@@ -119,7 +122,9 @@ async function handleSelect(branch: Branch) {
         </button>
       </template>
 
-      <div v-else class="text-center py-6 text-gray-500 text-sm">Список филиалов пуст</div>
+      <div v-else class="text-center py-6 text-gray-500 text-sm">
+        {{ t('branch.select.empty') }}
+      </div>
     </div>
   </Dialog>
 </template>

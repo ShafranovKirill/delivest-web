@@ -12,6 +12,9 @@ import {
 } from '@/modules/shared/utils/addressForm'
 import type { ClientAddress } from '../api/account.service'
 import { useAddressMutations } from '../composables/useAddressMutations'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{ address: ClientAddress | null; visible: boolean }>()
 const emit = defineEmits<{ close: [] }>()
@@ -50,7 +53,7 @@ async function submit() {
   >
     <template #header>
       <h2 class="text-xl font-extrabold text-gray-950">
-        {{ address ? 'Изменить адрес' : 'Новый адрес' }}
+        {{ address ? t('account.address.editTitle') : t('account.address.newTitle') }}
       </h2>
     </template>
 
@@ -63,7 +66,7 @@ async function submit() {
 
       <Button
         type="submit"
-        label="Сохранить"
+        :label="t('common.save')"
         icon="pi pi-check"
         :loading="save.isPending.value"
         :disabled="!form.street.trim()"

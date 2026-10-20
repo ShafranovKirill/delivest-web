@@ -12,6 +12,7 @@ import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
 import MobileBranchHeaderInfo from '@/modules/branch/components/MobileBranchHeaderInfo.vue'
 import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
 import UserButton from '@/modules/auth/components/UserButton.vue'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const sidebarStore = useSidebarStore()
@@ -20,6 +21,7 @@ const viewportStore = useViewportStore()
 const branchStore = useBranchStore()
 const modalStore = useMobileModalStore()
 const cafeName = getCafeName()
+const { t } = useI18n()
 
 const navigateToMenu = () => {
   sidebarStore.isSidebarVisible = false
@@ -45,7 +47,7 @@ const navigateToMenu = () => {
               icon="pi pi-times text-3xl!"
               variant="text"
               class="p-1! text-gray-700 hover:text-black shrink-0"
-              aria-label="Закрыть"
+              :aria-label="t('common.close')"
               @click="modalStore.closeModal"
             />
 

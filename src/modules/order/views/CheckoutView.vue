@@ -11,17 +11,19 @@ import OrderSummary from '../components/OrderSummary.vue'
 import OrderSuccess from '../components/OrderSuccess.vue'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
 const orderStore = useOrderStore()
+const { t } = useI18n()
 
-const steps = [
-  { value: 1, label: 'Корзина', icon: 'pi-shopping-cart' },
-  { value: 2, label: 'Данные', icon: 'pi-user' },
-  { value: 3, label: 'Готово', icon: 'pi-check' },
-]
+const steps = computed(() => [
+  { value: 1, label: t('cart.title'), icon: 'pi-shopping-cart' },
+  { value: 2, label: t('order.steps.details'), icon: 'pi-user' },
+  { value: 3, label: t('order.steps.done'), icon: 'pi-check' },
+])
 
 const step = computed(() => Number(orderStore.activeStep))
 
@@ -60,7 +62,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <PageShell title="Оформление заказа" width="default">
+  <PageShell :title="t('order.checkout')" width="default">
     <ol
       class="mb-6 sm:mb-8 grid grid-cols-3 gap-2 rounded-full bg-gray-50 border border-gray-100 p-1.5"
     >
@@ -104,10 +106,10 @@ onUnmounted(() => {
     <EmptyState
       v-else-if="cartStore.isEmpty && step !== 3"
       icon="pi-shopping-cart"
-      title="Корзина пуста"
-      text="Добавьте что-нибудь вкусное из меню"
+      :title="t('cart.empty')"
+      :text="t('cart.emptyHint')"
     >
-      <Button label="Перейти в меню" rounded @click="router.push('/')" />
+      <Button :label="t('cart.toMenu')" rounded @click="router.push('/')" />
     </EmptyState>
 
     <div v-else-if="step === 1" class="mx-auto max-w-2xl">

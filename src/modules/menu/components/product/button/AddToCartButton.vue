@@ -3,6 +3,7 @@ import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   product?: MenuProduct | null
@@ -14,6 +15,7 @@ const emit = defineEmits<{
 
 const cartStore = useCartStore()
 const toast = useToast()
+const { t } = useI18n()
 
 const handleAddToCart = async () => {
   if (!props.product) return
@@ -23,7 +25,7 @@ const handleAddToCart = async () => {
   } catch (error) {
     toast.add({
       severity: 'error',
-      summary: 'Корзина',
+      summary: t('cart.title'),
       detail: getApiErrorMessage(error),
       life: 3000,
     })
@@ -38,7 +40,7 @@ const handleAddToCart = async () => {
     :disabled="!product || cartStore.isLoading"
     class="whitespace-nowrap rounded-3xl! w-full! flex items-center justify-center gap-2 py-3.5! px-6 font-semibold transition-all hover:opacity-95"
   >
-    <span>В корзину за {{ product?.price }} ₽</span>
+    <span>{{ t('menu.addToCart', { price: product?.price }) }}</span>
 
     <span
       v-if="product?.old_price && product.old_price > (product.price ?? 0)"

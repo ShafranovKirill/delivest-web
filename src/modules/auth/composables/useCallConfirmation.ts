@@ -1,5 +1,6 @@
 import { computed, onScopeDispose, ref } from 'vue'
 import { getApiErrorMessage } from '@/api/errors'
+import { t } from '@/i18n'
 import { AuthService, type CallConfirmation, type ClientSession } from '../api/auth.service'
 
 const POLL_INTERVAL = 2500
@@ -30,7 +31,7 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     secondsLeft.value = seconds
     countdownTimer = setInterval(() => {
       secondsLeft.value -= 1
-      if (secondsLeft.value <= 0) reset('Время подтверждения истекло. Попробуйте ещё раз')
+      if (secondsLeft.value <= 0) reset(t('errors.codes.confirmation_not_found'))
     }, 1000)
   }
 

@@ -10,6 +10,7 @@ import type { OrderFormValues } from '../components/OrderForm.vue'
 import { ACTIVE_ORDERS_KEY } from '../composables/useActiveOrdersQuery'
 import { MY_ORDERS_KEY } from '@/modules/account/composables/useMyOrdersQuery'
 import { ADDRESSES_KEY } from '@/modules/account/composables/useAddressesQuery'
+import { t } from '@/i18n'
 
 const PRICE_ERRORS = ['price_changed', 'promo_unavailable']
 
@@ -57,7 +58,7 @@ export const useOrderStore = defineStore('order', () => {
     errorMessage.value = null
 
     if (cartStore.isEmpty) {
-      errorMessage.value = 'Ваша корзина пуста'
+      errorMessage.value = t('errors.codes.cart_is_empty')
       activeStep.value = 1
       return
     }
@@ -66,11 +67,11 @@ export const useOrderStore = defineStore('order', () => {
     const cartId = cartStore.cart?.id
 
     if (!branchId) {
-      throw new Error('[OrderStore] Не выбран филиал (branch_id отсутствует)')
+      throw new Error('[OrderStore] branch_id is missing')
     }
 
     if (!cartId) {
-      throw new Error('[OrderStore] Корзина пуста или не инициализирована (cart_id отсутствует)')
+      throw new Error('[OrderStore] cart_id is missing')
     }
 
     isLoading.value = true
@@ -117,7 +118,7 @@ export const useOrderStore = defineStore('order', () => {
 
       return order
     } catch (error: unknown) {
-      errorMessage.value = getApiErrorMessage(error, 'Произошла ошибка при оформлении заказа')
+      errorMessage.value = getApiErrorMessage(error, t('order.failed'))
       if (PRICE_ERRORS.includes(getApiErrorCode(error) ?? '')) {
         await cartStore.fetchCart(branchId, true).catch(() => null)
       }

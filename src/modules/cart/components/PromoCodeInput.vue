@@ -3,8 +3,10 @@ import { computed, ref } from 'vue'
 import { useCartStore } from '../stores/cart.store'
 import { getApiErrorMessage } from '@/api/errors'
 import { reasonsText, rejectedText } from '../utils/promoText'
+import { useI18n } from 'vue-i18n'
 
 const cartStore = useCartStore()
+const { t } = useI18n()
 
 const code = ref('')
 const error = ref<string | null>(null)
@@ -15,9 +17,9 @@ const state = computed(() => cartStore.promoCode)
 const statusText = computed(() => {
   const current = state.value
   if (!current) return null
-  if (current.status === 'applied') return current.name ?? 'Промокод применён'
+  if (current.status === 'applied') return current.name ?? t('promo.applied')
   if (current.status === 'pending')
-    return `Чтобы промокод сработал: ${reasonsText(current.reasons)}`
+    return t('promo.pending', { reasons: reasonsText(current.reasons) })
   return rejectedText(current)
 })
 
@@ -70,7 +72,7 @@ async function remove() {
       <button
         type="button"
         class="shrink-0 rounded-lg p-1 opacity-70 transition-opacity hover:opacity-100"
-        title="Убрать промокод"
+        :title="t('promo.remove')"
         :disabled="isPending"
         @click="remove"
       >
@@ -84,7 +86,7 @@ async function remove() {
         type="text"
         maxlength="32"
         autocomplete="off"
-        placeholder="Промокод"
+        :placeholder="t('promo.placeholder')"
         class="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2.5 font-mono text-sm uppercase outline-none transition-colors focus:border-(--p-primary-500)"
       />
       <button
@@ -93,7 +95,7 @@ async function remove() {
         class="shrink-0 rounded-xl bg-(--p-primary-500) px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
       >
         <i v-if="isPending" class="pi pi-spin pi-spinner" />
-        <span v-else>Применить</span>
+        <span v-else>{{ t('promo.apply') }}</span>
       </button>
     </form>
 

@@ -1,3 +1,5 @@
+import { t } from '@/i18n'
+
 export interface AddressParts {
   street?: string | null
   house?: string | null
@@ -11,10 +13,10 @@ export function formatAddress(address: AddressParts | null | undefined): string 
 
   return [
     address.street,
-    address.house && `д. ${address.house}`,
-    address.apartment && `кв. ${address.apartment}`,
-    address.entrance && `подъезд ${address.entrance}`,
-    address.floor && `этаж ${address.floor}`,
+    address.house && t('address.short.house', { value: address.house }),
+    address.apartment && t('address.short.apartment', { value: address.apartment }),
+    address.entrance && t('address.short.entrance', { value: address.entrance }),
+    address.floor && t('address.short.floor', { value: address.floor }),
   ]
     .filter(Boolean)
     .join(', ')

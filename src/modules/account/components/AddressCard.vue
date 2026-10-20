@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { formatAddress } from '@/modules/shared/utils/address'
 import type { ClientAddress } from '../api/account.service'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 defineProps<{ address: ClientAddress }>()
 defineEmits<{ edit: [address: ClientAddress]; remove: [address: ClientAddress] }>()
@@ -23,14 +26,14 @@ defineEmits<{ edit: [address: ClientAddress]; remove: [address: ClientAddress] }
       <span class="min-w-0">
         <span class="block font-bold text-gray-900 truncate">{{ formatAddress(address) }}</span>
         <span v-if="address.intercom" class="block text-sm text-gray-500">
-          Домофон {{ address.intercom }}
+          {{ t('account.address.intercom', { value: address.intercom }) }}
         </span>
       </span>
     </button>
     <button
       type="button"
       class="grid place-items-center size-10 shrink-0 rounded-full bg-white text-gray-400 shadow-xs hover:text-red-500 transition-colors cursor-pointer"
-      aria-label="Удалить адрес"
+      :aria-label="t('account.address.remove')"
       @click="$emit('remove', address)"
     >
       <i class="pi pi-trash" />

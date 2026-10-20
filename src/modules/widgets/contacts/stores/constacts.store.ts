@@ -34,10 +34,10 @@ export const useContactsStore = defineStore('contacts', () => {
   }
 
   const copyPhoneNumber = async () => {
-    if (!phone.value) return { success: false, message: 'Номер отсутствует' }
+    if (!phone.value) return false
 
     await copyText(phone.value)
-    return { success: true, message: 'Номер скопирован!' }
+    return true
   }
 
   const makeCall = () => {
