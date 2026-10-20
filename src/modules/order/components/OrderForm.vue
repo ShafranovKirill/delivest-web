@@ -156,7 +156,7 @@ function handleSubmit() {
       </div>
     </SurfaceCard>
 
-    <OrderTimeSelect v-model="form.cook_by" />
+    <OrderTimeSelect v-model="form.cook_by" :fulfillment="form.fulfillment_type" />
 
     <SurfaceCard icon="pi-wallet" :title="t('order.payment.title')">
       <OptionChips v-model="form.payment_method" :options="paymentOptions" :columns="2" />
