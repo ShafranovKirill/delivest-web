@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useHead } from '@vueuse/head'
 import { getCafeName, getSiteDescription } from '@/utils/env'
+import { useThemeStore } from '@/modules/settings/stores/theme.store'
+
+useThemeStore()
 
 const cafeName = getCafeName()
 const siteDescription = getSiteDescription()

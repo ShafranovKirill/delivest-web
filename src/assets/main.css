@@ -21,8 +21,63 @@
   --color-primary-strong: var(--p-primary-700);
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 body {
   @apply bg-gray-200 text-slate-900 antialiased font-sans;
+}
+
+html.dark {
+  --p-primary-500: #8d6bc7;
+  --p-primary-600: #7e5bb9;
+  --p-primary-700: #a487d6;
+  --p-primary-800: #bea6e4;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --color-primary: var(--p-primary-400);
+  --color-primary-soft: color-mix(in srgb, var(--p-primary-400) 18%, transparent);
+  --color-primary-strong: var(--p-primary-300);
+
+  --surface-page: #0c0c0f;
+  --surface-card: #17171b;
+
+  --color-gray-50: #1f1f24;
+  --color-gray-100: #26262c;
+  --color-gray-200: #303037;
+  --color-gray-300: #3f3f47;
+  --color-gray-400: #6c6c76;
+  --color-gray-500: #94949e;
+  --color-gray-600: #b2b2bb;
+  --color-gray-700: #cdcdd5;
+  --color-gray-800: #e2e2e8;
+  --color-gray-900: #efeff3;
+  --color-gray-950: #f8f8fa;
+
+  --color-slate-50: var(--color-gray-50);
+  --color-slate-100: var(--color-gray-100);
+  --color-slate-400: var(--color-gray-400);
+  --color-slate-600: var(--color-gray-600);
+  --color-slate-900: var(--color-gray-900);
+  --color-slate-950: var(--color-gray-950);
+}
+
+.dark body {
+  background-color: var(--surface-page);
+}
+
+.dark .bg-white {
+  background-color: var(--surface-card);
+}
+
+.dark .bg-white\/80 {
+  background-color: color-mix(in srgb, var(--surface-card) 80%, transparent);
+}
+
+.dark .text-black {
+  color: var(--color-gray-950);
 }
 
 h1,
@@ -30,4 +85,21 @@ h2,
 h3,
 h4 {
   @apply font-bold tracking-tight text-slate-950;
+}
+
+.dark {
+  --color-green-50: color-mix(in srgb, #22c55e 14%, transparent);
+  --color-green-100: color-mix(in srgb, #22c55e 22%, transparent);
+  --color-green-200: color-mix(in srgb, #22c55e 32%, transparent);
+  --color-green-700: #4ade80;
+  --color-green-800: #86efac;
+
+  --color-amber-50: color-mix(in srgb, #f59e0b 14%, transparent);
+  --color-amber-200: color-mix(in srgb, #f59e0b 32%, transparent);
+  --color-amber-800: #fcd34d;
+
+  --color-red-50: color-mix(in srgb, #ef4444 14%, transparent);
+  --color-red-200: color-mix(in srgb, #ef4444 32%, transparent);
+  --color-red-600: #f87171;
+  --color-red-700: #fca5a5;
 }

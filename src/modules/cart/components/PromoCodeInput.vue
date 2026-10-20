@@ -90,7 +90,7 @@ async function remove() {
       <button
         type="submit"
         :disabled="!code.trim() || isPending"
-        class="shrink-0 rounded-xl bg-gray-900 px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+        class="shrink-0 rounded-xl bg-(--p-primary-500) px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
       >
         <i v-if="isPending" class="pi pi-spin pi-spinner" />
         <span v-else>Применить</span>

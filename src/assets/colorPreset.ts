@@ -16,5 +16,15 @@ export const MyPreset = definePreset(Lara, {
       900: '#220d43',
       950: '#140529',
     },
+    colorScheme: {
+      dark: {
+        primary: {
+          color: '{primary.400}',
+          contrastColor: '#ffffff',
+          hoverColor: '{primary.300}',
+          activeColor: '{primary.200}',
+        },
+      },
+    },
   },
 })

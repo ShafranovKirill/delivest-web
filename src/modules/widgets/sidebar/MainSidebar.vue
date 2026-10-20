@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useSidebarStore } from './sidebar.store'
 import BranchInfoBarMobile from '@/modules/branch/components/BranchInfoBarMobile.vue'
+import ThemeSwitch from '@/modules/settings/components/ThemeSwitch.vue'
 import { useRouter } from 'vue-router'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
@@ -85,5 +86,9 @@ const menuItems = computed(() => [...items.value, authItem.value])
         },
       }"
     />
+
+    <div class="mt-6 flex flex-col gap-4 border-t border-gray-100 pt-6">
+      <ThemeSwitch />
+    </div>
   </Drawer>
 </template>
