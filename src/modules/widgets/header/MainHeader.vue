@@ -35,7 +35,8 @@ const navigateToMenu = () => {
 <template>
   <header class="w-full bg-gray-200 h-15 sticky top-0 z-50">
     <Toolbar
-      class="rounded-none! max-w-7xl mx-auto px-3! lg:px-4! py-0! h-full bg-gray-200! border-0!"
+      class="rounded-none! max-w-7xl mx-auto px-3! lg:px-4! py-0! h-full bg-gray-200! border-0! flex-nowrap! gap-2"
+      :pt="{ center: { class: 'min-w-0 flex-1 flex justify-center' } }"
     >
       <template #start>
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -53,7 +54,7 @@ const navigateToMenu = () => {
 
           <div
             translate="no"
-            class="text-3xl sm:text-4xl px-0.5 tracking-tighter text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity shrink-0"
+            class="text-2xl sm:text-4xl px-0.5 tracking-tighter text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity shrink-0"
             style="font-family: 'Unbounded', sans-serif; font-weight: 500"
             @click="navigateToMenu"
           >
