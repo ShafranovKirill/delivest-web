@@ -4,7 +4,7 @@ import { intlLocale, t } from '@/i18n'
 type FulfillmentType = ActiveOrder['fulfillment_type']
 
 const STATUS_ICONS: Record<OrderStatus, string> = {
-  created: 'pi-check-circle',
+  created: 'pi-clock',
   preparing: 'pi-hourglass',
   ready: 'pi-shopping-bag',
   delivering: 'pi-truck',

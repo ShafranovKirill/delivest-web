@@ -278,7 +278,7 @@ export const en: typeof ru = {
       done: 'Done',
     },
     status: {
-      created: 'Accepted',
+      created: 'Awaiting confirmation',
       preparing: 'Preparing',
       ready: 'Ready',
       delivering: 'On the way',
@@ -330,7 +330,7 @@ export const en: typeof ru = {
       noSlots: 'No free time in the coming days.',
     },
     success: {
-      title: 'Order accepted!',
+      title: 'Order placed!',
       number: 'Order number',
       next: 'What’s next',
       operatorCall: 'The operator will call to confirm',

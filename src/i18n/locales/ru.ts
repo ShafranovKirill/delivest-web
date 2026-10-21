@@ -276,7 +276,7 @@ export const ru = {
       done: 'Готово',
     },
     status: {
-      created: 'Принят',
+      created: 'Ждёт подтверждения',
       preparing: 'Готовится',
       ready: 'Готов',
       delivering: 'В пути',
@@ -328,7 +328,7 @@ export const ru = {
       noSlots: 'В ближайшие дни нет свободного времени.',
     },
     success: {
-      title: 'Заказ принят!',
+      title: 'Заказ оформлен!',
       number: 'Номер заказа',
       next: 'Что дальше',
       operatorCall: 'Оператор позвонит для подтверждения',
