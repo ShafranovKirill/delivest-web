@@ -33,7 +33,6 @@ export const en: typeof ru = {
     themes: {
       light: 'Light',
       dark: 'Dark',
-      auto: 'Auto',
     },
     language: 'Language',
   },
@@ -143,10 +142,6 @@ export const en: typeof ru = {
     change: 'Change',
     choose: 'Choose a branch',
     minutes: '{minutes} min',
-    unknownTime: 'to be confirmed',
-    aboutAria: 'About the restaurant',
-    deliveryNote: 'Average delivery time — {time}.',
-    ratingNote: 'The rating is based on reviews from our guests.',
     select: {
       title: 'Choose a branch',
       subtitle: 'The menu and delivery time depend on the restaurant',

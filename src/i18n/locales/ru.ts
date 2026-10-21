@@ -31,7 +31,6 @@ export const ru = {
     themes: {
       light: 'Светлая',
       dark: 'Тёмная',
-      auto: 'Авто',
     },
     language: 'Язык',
   },
@@ -141,10 +140,6 @@ export const ru = {
     change: 'Изменить',
     choose: 'Выбрать филиал',
     minutes: '{minutes} мин',
-    unknownTime: 'уточняется',
-    aboutAria: 'Информация о заведении',
-    deliveryNote: 'Среднее время доставки — {time}.',
-    ratingNote: 'Рейтинг заведения сформирован на основе отзывов наших гостей.',
     select: {
       title: 'Выберите филиал',
       subtitle: 'Меню и время доставки зависят от заведения',

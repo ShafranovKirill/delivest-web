@@ -1,76 +1,60 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useSidebarStore } from './sidebar.store'
+import SidebarNav from './SidebarNav.vue'
 import BranchInfoBarMobile from '@/modules/branch/components/BranchInfoBarMobile.vue'
-import ThemeSwitch from '@/modules/settings/components/ThemeSwitch.vue'
-import LocaleSwitch from '@/modules/settings/components/LocaleSwitch.vue'
-import { useRouter } from 'vue-router'
-import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import SidebarUserPanel from '@/modules/auth/components/SidebarUserPanel.vue'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { useAccountLinks } from '@/modules/auth/composables/useAccountLinks'
+import ThemeToggle from '@/modules/settings/components/ThemeToggle.vue'
+import LocaleToggle from '@/modules/settings/components/LocaleToggle.vue'
+import { getCafeName } from '@/utils/env'
 import { useI18n } from 'vue-i18n'
 
 const sidebarStore = useSidebarStore()
-const router = useRouter()
-const branchStore = useBranchStore()
+const authStore = useAuthStore()
+const accountLinks = useAccountLinks()
+const cafeName = getCafeName()
 const { t } = useI18n()
 
-const navigateTo = (routeName: string) => {
-  sidebarStore.isSidebarVisible = false
-  if (branchStore.activeBranch?.slug) {
-    router.push({
-      name: routeName,
-      params: { slug: branchStore.activeBranch.slug },
-    })
-  }
-}
-
-const items = computed(() => [
-  {
-    label: t('nav.menu'),
-    icon: 'pi pi-list',
-    command: () => navigateTo('menu'),
-  },
-  {
-    label: t('nav.promotions'),
-    icon: 'pi pi-percentage',
-    command: () => navigateTo('promotions'),
-  },
-  {
-    label: t('nav.about'),
-    icon: 'pi pi-info-circle',
-    command: () => navigateTo('branch-info'),
-  },
-  {
-    label: t('nav.contacts'),
-    icon: 'pi pi-phone',
-    command: () => navigateTo('contacts'),
-  },
+const mainLinks = computed(() => [
+  { route: 'menu', label: t('nav.menu'), icon: 'pi pi-list' },
+  { route: 'promotions', label: t('nav.promotions'), icon: 'pi pi-percentage' },
+  { route: 'branch-info', label: t('nav.about'), icon: 'pi pi-info-circle' },
+  { route: 'contacts', label: t('nav.contacts'), icon: 'pi pi-phone' },
 ])
+
+const settingClass =
+  'flex-1 justify-center rounded-xl bg-gray-100 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-200/60'
 </script>
 
 <template>
-  <Drawer v-model:visible="sidebarStore.isSidebarVisible">
-    <SidebarUserPanel />
+  <Drawer
+    v-model:visible="sidebarStore.isSidebarVisible"
+    :pt="{ content: { class: 'flex flex-col gap-6 pb-5' } }"
+  >
+    <template #header>
+      <span
+        translate="no"
+        class="text-2xl tracking-tighter text-(--p-primary-500)"
+        style="font-family: 'Unbounded', sans-serif; font-weight: 500"
+      >
+        {{ cafeName }}
+      </span>
+    </template>
 
-    <div class="border-b border-gray-200 my-5"></div>
+    <div class="flex flex-col gap-2">
+      <SidebarUserPanel />
+      <BranchInfoBarMobile />
+    </div>
 
-    <BranchInfoBarMobile />
+    <SidebarNav :items="mainLinks" />
 
-    <Menu
-      :model="items"
-      unstyled
-      class="mt-6 flex flex-col gap-1 w-full"
-      :pt="{
-        itemLink: {
-          class:
-            'flex items-center gap-3 py-2.5 text-base font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer',
-        },
-      }"
-    />
+    <SidebarNav v-if="authStore.isAuthenticated" :title="t('nav.account')" :items="accountLinks" />
 
-    <div class="mt-6 flex flex-col gap-4 border-t border-gray-100 pt-6">
-      <ThemeSwitch />
-      <LocaleSwitch />
+    <div class="mt-auto flex gap-2">
+      <ThemeToggle labeled :class="settingClass" />
+      <LocaleToggle :class="settingClass" />
     </div>
   </Drawer>
 </template>
