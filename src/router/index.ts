@@ -51,6 +51,11 @@ const router = createRouter({
           component: () => import('@/modules/account/views/AddressesView.vue'),
         },
         {
+          path: 'legal/:kind(offer|terms|privacy|consent)',
+          name: 'legal',
+          component: () => import('@/modules/franchise/views/LegalDocumentView.vue'),
+        },
+        {
           path: 'checkout',
           name: 'checkout',
           component: () => import('@/modules/order/views/CheckoutView.vue'),

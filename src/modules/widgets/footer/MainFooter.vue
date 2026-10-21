@@ -1,80 +1,36 @@
 <script setup lang="ts">
-import { openLink } from '@/utils/browser'
+import { computed } from 'vue'
+import FooterBrand from './FooterBrand.vue'
+import FooterLinks from './FooterLinks.vue'
+import FooterLegal from './FooterLegal.vue'
 import { useContactsStore } from '../contacts/stores/constacts.store'
+import { useBranchNavigation } from '@/modules/branch/composables/useBranchNavigation'
+import { useLegalLinks } from '@/modules/franchise/composables/useLegalLinks'
 import { useI18n } from 'vue-i18n'
 
 const contactsStore = useContactsStore()
+const navigateTo = useBranchNavigation()
+const legalLinks = useLegalLinks()
 const { t } = useI18n()
-const currentYear = new Date().getFullYear()
+
+const customerLinks = computed(() => [
+  { label: t('nav.menu'), action: () => navigateTo('menu') },
+  { label: t('nav.promotions'), action: () => navigateTo('promotions') },
+  { label: t('nav.about'), action: () => navigateTo('branch-info') },
+  { label: t('nav.contacts'), action: contactsStore.openModal },
+])
 </script>
 
 <template>
-  <footer class="w-full py-12 px-6">
-    <div class="mb-12 w-full max-w-5xl mx-auto">
-      <Button
-        class="w-full! rounded-full! h-14! shadow-sm justify-center"
-        @click="contactsStore.openModal()"
-      >
-        <i class="pi pi-phone text-xl" style="-webkit-text-stroke: 0.5px"></i>
-        <span class="text-base font-bold ml-3">{{ t('footer.contactUs') }}</span>
-      </Button>
+  <footer class="w-full px-6 py-12">
+    <div class="max-w-5xl mx-auto grid gap-10 sm:grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr]">
+      <FooterBrand class="sm:col-span-2 md:col-span-1" />
+      <FooterLinks :title="t('footer.customers')" :links="customerLinks" />
+      <FooterLinks :title="t('footer.documents')" :links="legalLinks" />
     </div>
 
-    <div
-      class="flex flex-col md:flex-row gap-12 max-w-5xl mx-auto items-center md:items-start justify-between"
-    >
-      <div class="text-center md:text-left flex-1 max-w-md">
-        <h3 class="text-2xl font-bold mb-4">
-          {{ contactsStore.cafeName || t('footer.ourPlace') }}
-        </h3>
-        <p class="text-slate-600 leading-relaxed">
-          {{ t('footer.tagline') }}
-        </p>
-      </div>
-
-      <div
-        v-if="
-          contactsStore.social.vk || contactsStore.social.instagram || contactsStore.social.whatsapp
-        "
-        class="flex flex-col gap-2 w-full md:w-auto min-w-60"
-      >
-        <Button
-          v-if="contactsStore.social.vk"
-          variant="text"
-          severity="secondary"
-          class="justify-center md:justify-start! h-12!"
-          @click="openLink(contactsStore.social.vk)"
-        >
-          <i-vk-logo-black class="w-6 h-6 mr-3" />
-          <span class="font-medium">{{ t('footer.vk') }}</span>
-        </Button>
-
-        <Button
-          v-if="contactsStore.social.instagram"
-          variant="text"
-          severity="secondary"
-          class="justify-center md:justify-start! h-12!"
-          @click="openLink(contactsStore.social.instagram)"
-        >
-          <i class="pi pi-instagram text-2xl! mr-3"></i>
-          <span class="font-medium">{{ t('footer.instagram') }}</span>
-        </Button>
-
-        <Button
-          v-if="contactsStore.social.whatsapp"
-          variant="text"
-          severity="secondary"
-          class="justify-center md:justify-start! h-12!"
-          @click="openLink(contactsStore.social.whatsapp)"
-        >
-          <i class="pi pi-whatsapp text-2xl! mr-3"></i>
-          <span class="font-medium">{{ t('footer.whatsapp') }}</span>
-        </Button>
-      </div>
-    </div>
-
-    <div class="text-center text-sm text-slate-400 mt-12 pt-8 border-t border-slate-100">
-      © {{ currentYear }} {{ contactsStore.cafeName }}. {{ t('footer.rights') }}
+    <div class="max-w-5xl mx-auto mt-10 pt-6 border-t border-gray-300">
+      <FooterLegal />
     </div>
   </footer>
 </template>

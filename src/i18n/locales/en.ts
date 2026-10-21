@@ -351,12 +351,24 @@ export const en: typeof ru = {
     empty: 'This branch has no contacts yet',
   },
   footer: {
-    contactUs: 'Have questions? Tap to get in touch!',
     ourPlace: 'Our restaurant',
     tagline: 'The most homely, cozy and truly soulful food. Cooked with love for each of you!',
+    questions: 'Questions? Give us a call',
+    customers: 'For customers',
+    documents: 'Documents',
     vk: 'Follow us on VK',
     instagram: 'Follow us on Instagram',
     whatsapp: 'Message us on WhatsApp',
-    rights: 'All rights reserved.',
+    inn: 'INN {value}',
+    ogrn: 'OGRN {value}',
+  },
+  legal: {
+    titles: {
+      offer: 'Public offer',
+      terms: 'Terms of use',
+      privacy: 'Personal data policy',
+      consent: 'Consent to personal data processing',
+    },
+    updatedAt: 'Version of {date}',
   },
 }
