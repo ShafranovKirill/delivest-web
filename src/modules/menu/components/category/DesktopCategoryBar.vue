@@ -3,9 +3,10 @@ import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useMenuQuery } from '../../composables/useMenuQuery'
 import { storeToRefs } from 'pinia'
 import { useMenuStore } from '../../stores/menu.store'
+import SkeletonCategoryBar from './SkeletonCategoryBar.vue'
 import { useI18n } from 'vue-i18n'
 
-const { data: menu } = useMenuQuery()
+const { data: menu, isLoading } = useMenuQuery()
 const menuStore = useMenuStore()
 const { t } = useI18n()
 const { activeCategoryId } = storeToRefs(menuStore)
@@ -70,6 +71,7 @@ watch(categories, updateVisibleCount, { deep: true })
         ref="containerRef"
         class="whitespace-nowrap flex gap-4 max-w-7xl mx-auto py-6 px-12 2xl:px-2 items-center"
       >
+        <SkeletonCategoryBar v-if="isLoading" />
         <Button
           v-for="(category, index) in categories.slice(0, visibleCount)"
           :key="category.id"

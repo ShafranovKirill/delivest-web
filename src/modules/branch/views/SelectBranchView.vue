@@ -14,9 +14,11 @@
       </h1>
       <p class="mt-1.5 text-sm text-gray-500">{{ t('branch.select.subtitle') }}</p>
 
-      <div v-if="loading" class="flex justify-center py-12">
-        <i class="pi pi-spin pi-spinner text-3xl text-primary" />
-      </div>
+      <SkeletonList
+        v-if="loading"
+        class="mt-6 flex flex-col gap-2"
+        item-class="h-17 rounded-3xl!"
+      />
 
       <div v-else class="mt-6 flex flex-col gap-2">
         <button
@@ -64,6 +66,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
+import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useI18n } from 'vue-i18n'
 

@@ -4,8 +4,9 @@ import { useMenuQuery } from '../../composables/useMenuQuery'
 import { useMobCatBarScroll } from '../../composables/useMobCatBarScroll'
 import { storeToRefs } from 'pinia'
 import { useMenuStore } from '../../stores/menu.store'
+import SkeletonCategoryBar from './SkeletonCategoryBar.vue'
 
-const { data: menu } = useMenuQuery()
+const { data: menu, isLoading } = useMenuQuery()
 const menuStore = useMenuStore()
 const categories = computed(() => {
   if (!menu.value) return []
@@ -19,7 +20,8 @@ useMobCatBarScroll(activeCategoryId, containerRef)
 <template>
   <div class="bg-gray-200 w-full sticky top-15 z-50">
     <div class="py-4 bg-white rounded-t-4xl w-full overflow-hidden">
-      <div ref="containerRef" class="flex overflow-x-auto scrollbar-none max-w-7xl mx-auto">
+      <SkeletonCategoryBar v-if="isLoading" class="px-4" />
+      <div v-else ref="containerRef" class="flex overflow-x-auto scrollbar-none max-w-7xl mx-auto">
         <Button
           v-for="category in categories"
           :key="category.id"

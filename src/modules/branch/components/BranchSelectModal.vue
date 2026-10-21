@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
+import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -78,9 +79,7 @@ async function handleSelect(branch: Branch) {
     class="w-[90vw] max-w-lg"
   >
     <div class="space-y-2 pt-2">
-      <div v-if="loading" class="flex justify-center items-center py-8">
-        <i class="pi pi-spin pi-spinner text-2xl text-(--p-primary-500)"></i>
-      </div>
+      <SkeletonList v-if="loading" class="flex flex-col gap-2" item-class="h-16 rounded-2xl!" />
 
       <template v-else-if="activeBranches.length > 0">
         <button

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
+import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import AuthRequired from '@/modules/auth/components/AuthRequired.vue'
 import ActiveOrderCard from '@/modules/order/components/active/ActiveOrderCard.vue'
 import ActiveOrderModal from '@/modules/order/components/active/ActiveOrderModal.vue'
@@ -23,9 +24,12 @@ const selected = computed<ActiveOrder | null>(
 <template>
   <PageShell :title="t('account.orders.title')" width="wide">
     <AuthRequired :text="t('account.orders.authText')">
-      <div v-if="isLoading" class="py-16 text-center">
-        <i class="pi pi-spin pi-spinner text-3xl text-primary" />
-      </div>
+      <SkeletonList
+        v-if="isLoading"
+        :count="3"
+        class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+        item-class="h-44 rounded-3xl!"
+      />
 
       <div v-else-if="orders?.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <ActiveOrderCard

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
+import SkeletonText from '@/modules/shared/components/ui/SkeletonText.vue'
 import ErrorComponent from '@/modules/shared/components/ErrorComponent.vue'
 import LegalText from '../components/LegalText.vue'
 import { FranchiseService, type LegalKind } from '../api/franchise.service'
@@ -36,9 +37,7 @@ const updatedAt = computed(() =>
 
 <template>
   <PageShell :title="t(`legal.titles.${kind}`)" :subtitle="updatedAt" width="narrow">
-    <div v-if="isLoading" class="py-16 text-center">
-      <i class="pi pi-spin pi-spinner text-3xl text-primary" />
-    </div>
+    <SkeletonText v-if="isLoading" />
     <ErrorComponent v-else-if="isError" @retry="refetch" />
     <LegalText v-else-if="document" :body="document.body" />
   </PageShell>

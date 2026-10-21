@@ -11,6 +11,7 @@ import OrderSummary from '../components/OrderSummary.vue'
 import OrderSuccess from '../components/OrderSuccess.vue'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
+import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
@@ -99,9 +100,11 @@ onUnmounted(() => {
       {{ orderStore.errorMessage }}
     </Message>
 
-    <div v-if="cartStore.isLoading && !cartStore.isInitialized" class="py-16 text-center">
-      <i class="pi pi-spin pi-spinner text-3xl text-primary" />
-    </div>
+    <SkeletonList
+      v-if="cartStore.isLoading && !cartStore.isInitialized"
+      class="flex flex-col gap-3 sm:gap-4"
+      item-class="h-40 rounded-3xl!"
+    />
 
     <EmptyState
       v-else-if="cartStore.isEmpty && step !== 3"

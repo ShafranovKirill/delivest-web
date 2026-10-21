@@ -5,6 +5,7 @@ import { useToast } from 'primevue/usetoast'
 import { getApiErrorMessage } from '@/api/errors'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
+import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import AuthRequired from '@/modules/auth/components/AuthRequired.vue'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import AddressCard from '../components/AddressCard.vue'
@@ -48,9 +49,7 @@ function removeAddress(address: ClientAddress) {
     </template>
 
     <AuthRequired :text="t('account.addresses.authText')">
-      <div v-if="isLoading" class="py-16 text-center">
-        <i class="pi pi-spin pi-spinner text-3xl text-primary" />
-      </div>
+      <SkeletonList v-if="isLoading" class="flex flex-col gap-2" />
 
       <div v-else-if="addresses?.length" class="flex flex-col gap-2">
         <AddressCard
