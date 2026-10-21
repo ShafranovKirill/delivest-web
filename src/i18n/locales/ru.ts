@@ -24,6 +24,7 @@ export const ru = {
     contacts: 'Контакты',
     myOrders: 'Мои заказы',
     myAddresses: 'Мои адреса',
+    account: 'Аккаунт',
   },
   settings: {
     theme: 'Тема',

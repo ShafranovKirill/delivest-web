@@ -1,29 +1,24 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { computed } from 'vue'
+import { useBranchNavigation } from '@/modules/branch/composables/useBranchNavigation'
 import { useContactsStore } from '../contacts/stores/constacts.store'
-import { useLocaleStore } from '@/modules/settings/stores/locale.store'
-import { LOCALE_NAMES } from '@/i18n'
+import AccountMenu from '@/modules/auth/components/AccountMenu.vue'
+import ThemeToggle from '@/modules/settings/components/ThemeToggle.vue'
+import LocaleToggle from '@/modules/settings/components/LocaleToggle.vue'
 import { useI18n } from 'vue-i18n'
 
-const router = useRouter()
-const branchStore = useBranchStore()
+const navigateTo = useBranchNavigation()
 const contactStore = useContactsStore()
-const localeStore = useLocaleStore()
 const { t } = useI18n()
 
-const navigateTo = (routeName: string) => {
-  if (branchStore.activeBranch?.slug) {
-    router.push({
-      name: routeName,
-      params: { slug: branchStore.activeBranch.slug },
-    })
-  }
-}
+const links = computed(() => [
+  { label: t('nav.menu'), action: () => navigateTo('menu') },
+  { label: t('nav.promotions'), action: () => navigateTo('promotions') },
+  { label: t('nav.about'), action: () => navigateTo('branch-info') },
+  { label: t('nav.contacts'), action: contactStore.openModal },
+])
 
-const openContacts = () => {
-  contactStore.openModal()
-}
+const linkClass = 'hover:text-gray-900 transition-colors cursor-pointer'
 </script>
 
 <template>
@@ -31,48 +26,35 @@ const openContacts = () => {
     <div
       class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center text-sm text-gray-600"
     >
-      <div class="flex gap-4">
+      <nav class="flex gap-5">
         <button
+          v-for="link in links"
+          :key="link.label"
           type="button"
-          @click="navigateTo('menu')"
-          class="hover:underline hover:text-gray-900 transition-colors cursor-pointer"
+          :class="linkClass"
+          @click="link.action"
         >
-          {{ t('nav.menu') }}
+          {{ link.label }}
         </button>
 
-        <button
-          type="button"
-          @click="navigateTo('promotions')"
-          class="hover:underline hover:text-gray-900 transition-colors cursor-pointer"
-        >
-          {{ t('nav.promotions') }}
-        </button>
+        <AccountMenu v-slot="{ open, signedIn }">
+          <button
+            type="button"
+            class="flex items-center gap-1"
+            :class="[linkClass, { 'text-primary': signedIn }]"
+            @click="open"
+          >
+            {{ t('nav.account') }}
+            <i v-if="signedIn" class="pi pi-angle-down text-xs" />
+          </button>
+        </AccountMenu>
+      </nav>
 
-        <button
-          type="button"
-          @click="navigateTo('branch-info')"
-          class="hover:underline hover:text-gray-900 transition-colors cursor-pointer"
-        >
-          {{ t('nav.about') }}
-        </button>
-
-        <button
-          type="button"
-          @click="openContacts"
-          class="hover:underline hover:text-gray-900 transition-colors cursor-pointer"
-        >
-          {{ t('nav.contacts') }}
-        </button>
+      <div class="flex items-center gap-3">
+        <ThemeToggle :class="linkClass" />
+        <span class="h-4 w-px bg-gray-300" />
+        <LocaleToggle :class="linkClass" />
       </div>
-
-      <button
-        type="button"
-        class="flex items-center gap-1.5 cursor-pointer hover:opacity-80"
-        @click="localeStore.toggle"
-      >
-        <i class="pi pi-globe text-base"></i>
-        <span>{{ LOCALE_NAMES[localeStore.locale] }}</span>
-      </button>
     </div>
   </div>
 </template>

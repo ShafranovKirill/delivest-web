@@ -26,6 +26,7 @@ export const en: typeof ru = {
     contacts: 'Contacts',
     myOrders: 'My orders',
     myAddresses: 'My addresses',
+    account: 'Account',
   },
   settings: {
     theme: 'Theme',

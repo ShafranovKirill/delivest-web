@@ -20,5 +20,9 @@ export const useThemeStore = defineStore('theme', () => {
 
   const isDark = computed(() => colorMode.state.value === 'dark')
 
-  return { mode, isDark }
+  function toggle() {
+    mode.value = isDark.value ? 'light' : 'dark'
+  }
+
+  return { mode, isDark, toggle }
 })
