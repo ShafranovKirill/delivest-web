@@ -7,17 +7,149 @@
     <script src="/env-config.js"></script>
     <script>
       ;(function () {
-        var mode = localStorage.getItem('delivest-theme') || 'light'
-        var dark =
-          mode === 'dark' ||
-          (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        document.documentElement.classList.toggle('dark', dark)
+        var root = document.documentElement
+        try {
+          var mode = localStorage.getItem('delivest-theme') || 'light'
+          var dark =
+            mode === 'dark' ||
+            (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+          root.classList.toggle('dark', dark)
+
+          var cached = JSON.parse(localStorage.getItem('franchise') || 'null')
+          var color = cached && cached.franchise && cached.franchise.primary_color
+          if (color) root.style.setProperty('--boot-color', color)
+        } catch (e) {}
       })()
     </script>
-    <title>delivest-web</title>
+    <style>
+      .boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: #e5e7eb;
+        color: var(--boot-color, #462094);
+      }
+      html.dark .boot {
+        background: #0c0c0f;
+      }
+      html.dark .boot-scene {
+        filter: brightness(1.6);
+      }
+      .boot-scene {
+        position: relative;
+        width: 160px;
+        height: 112px;
+        overflow: hidden;
+      }
+      .boot-scooter {
+        position: absolute;
+        left: 30px;
+        bottom: 14px;
+        width: 100px;
+        animation: boot-bob 0.6s ease-in-out infinite;
+      }
+      .boot-wheel {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: boot-spin 0.5s linear infinite;
+      }
+      .boot-road {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 8px;
+        height: 4px;
+        border-radius: 3px;
+        opacity: 0.35;
+        background: repeating-linear-gradient(90deg, currentColor 0 18px, transparent 18px 34px);
+        background-size: 34px 4px;
+        animation: boot-road 0.45s linear infinite;
+      }
+      .boot-wind {
+        position: absolute;
+        left: 6px;
+        height: 3px;
+        border-radius: 2px;
+        background: currentColor;
+        opacity: 0;
+        animation: boot-wind 0.9s ease-out infinite;
+      }
+      .boot-wind-top {
+        top: 48px;
+        width: 20px;
+      }
+      .boot-wind-bottom {
+        top: 64px;
+        width: 14px;
+        animation-delay: 0.3s;
+      }
+      @keyframes boot-bob {
+        50% {
+          transform: translateY(-2px);
+        }
+      }
+      @keyframes boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes boot-road {
+        to {
+          background-position: -34px 0;
+        }
+      }
+      @keyframes boot-wind {
+        0% {
+          opacity: 0;
+          transform: translateX(14px);
+        }
+        40% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-6px);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot * {
+          animation: none !important;
+        }
+      }
+    </style>
+    <title></title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div class="boot" role="status" aria-label="Загрузка">
+        <div class="boot-scene">
+          <span class="boot-wind boot-wind-top"></span>
+          <span class="boot-wind boot-wind-bottom"></span>
+          <svg class="boot-scooter" viewBox="0 0 72 52" fill="none" aria-hidden="true">
+            <rect x="4" y="6" width="24" height="20" rx="4" fill="currentColor" />
+            <path d="M10 16h12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" />
+            <path
+              d="M8 30h26l8-14h8l6 18"
+              stroke="currentColor"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path d="M48 16l-4-8h8" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+            <g class="boot-wheel">
+              <circle cx="14" cy="40" r="8" stroke="currentColor" stroke-width="4" />
+              <path d="M14 34v12M8 40h12" stroke="currentColor" stroke-width="1.5" />
+            </g>
+            <g class="boot-wheel">
+              <circle cx="58" cy="40" r="8" stroke="currentColor" stroke-width="4" />
+              <path d="M58 34v12M52 40h12" stroke="currentColor" stroke-width="1.5" />
+            </g>
+          </svg>
+          <span class="boot-road"></span>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

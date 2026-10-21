@@ -39,6 +39,6 @@ app.use(pinia)
 app.use(ToastService)
 installAuthInterceptor(api)
 
-useFranchiseStore(pinia)
-  .init()
-  .finally(() => app.mount('#app'))
+Promise.allSettled([useFranchiseStore(pinia).init(), router.isReady()]).then(() =>
+  app.mount('#app'),
+)
