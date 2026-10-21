@@ -8,12 +8,15 @@ import TopBar from '@/modules/widgets/header/TopBar.vue'
 import UniversalMobileModal from '@/modules/widgets/modal/mobile-modal/components/UniversalMobileModal.vue'
 import UniversalDesktopModal from '@/modules/widgets/modal/desktop-modal/components/UniversalDesktopModal.vue'
 import MainSidebar from '@/modules/widgets/sidebar/MainSidebar.vue'
+import AuthModal from '@/modules/auth/components/AuthModal.vue'
+import { useLiveOrders } from '@/modules/order/composables/useLiveOrders'
 
 const viewportStore = useViewportStore()
+useLiveOrders()
 </script>
 <template>
   <div
-    class="min-h-screen flex flex-col mx-auto items-center bg-white rounded-4xl lg:rounded-b-[70px] overflow-clip"
+    class="min-h-screen flex flex-col mx-auto items-center bg-white rounded-b-4xl lg:rounded-t-4xl lg:rounded-b-[70px] overflow-clip"
   >
     <TopBar v-if="!viewportStore.isMobile" />
     <MainHeader />
@@ -28,6 +31,7 @@ const viewportStore = useViewportStore()
   <MainSidebar />
   <ContactModal />
   <BranchSelectModal />
+  <AuthModal />
   <UniversalMobileModal v-if="viewportStore.isMobile" />
   <UniversalDesktopModal v-if="!viewportStore.isMobile" />
 </template>

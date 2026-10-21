@@ -2,6 +2,143 @@
   "components": {
     "responses": {},
     "schemas": {
+      "ActiveOrder": {
+        "properties": {
+          "address": {
+            "additionalProperties": true,
+            "nullable": true,
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "branch_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "comment": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "cook_by": {
+            "format": "date_time",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "discount_amount": {
+            "example": 150,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "fulfillment_type": {
+            "enum": ["dine_in", "delivery", "pickup"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "inserted_at": {
+            "format": "date_time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderItemResponse"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "number": {
+            "example": "A042",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "payment_method": {
+            "enum": ["cash", "card_offline"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "promotions": {
+            "items": {
+              "$ref": "#/components/schemas/OrderPromotion"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "enum": ["created", "preparing", "ready", "delivering", "completed", "cancelled"],
+            "example": "preparing",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "subtotal_amount": {
+            "description": "Сумма без скидок",
+            "example": 1330,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "total_amount": {
+            "example": 1180,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "status",
+          "fulfillment_type",
+          "payment_method",
+          "total_amount",
+          "subtotal_amount",
+          "discount_amount",
+          "promotions",
+          "branch_id",
+          "inserted_at",
+          "items"
+        ],
+        "title": "ActiveOrder",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.ActiveOrder",
+        "x-validate": null
+      },
+      "ActiveOrdersResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ActiveOrder"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "ActiveOrdersResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.ActiveOrdersResponse",
+        "x-validate": null
+      },
       "AddressRequest": {
         "properties": {
           "apartment": {
@@ -57,6 +194,55 @@
         "title": "AddressRequest",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.AddressRequest",
+        "x-validate": null
+      },
+      "AppliedPromotion": {
+        "properties": {
+          "code": {
+            "example": "SUMMER2025",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "description": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "discount": {
+            "description": "Скидка в рублях",
+            "example": 150,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "gifts": {
+            "items": {
+              "$ref": "#/components/schemas/PromoGift"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Летняя скидка",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "promotion_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["promotion_id", "name", "discount", "gifts"],
+        "title": "AppliedPromotion",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.AppliedPromotion",
         "x-validate": null
       },
       "Branch": {
@@ -257,11 +443,48 @@
         "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.BranchResponse",
         "x-validate": null
       },
+      "CartContextRequest": {
+        "description": "Контекст корзины, от которого зависят условия акций.",
+        "properties": {
+          "fulfillment_type": {
+            "enum": ["dine_in", "delivery", "pickup"],
+            "example": "delivery",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "title": "CartContextRequest",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.CartContextRequest",
+        "x-validate": null
+      },
       "CartItemResponse": {
         "properties": {
+          "base_total": {
+            "description": "Итог по строке без скидок",
+            "example": 1180,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "gift": {
+            "description": "Подарок по акции: количество менять нельзя",
+            "example": false,
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
           "image_url": {
             "example": "https://example.com/images/pizza.jpg",
             "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "key": {
+            "description": "Уникальный ключ строки: подарок и платный товар — разные строки",
             "type": "string",
             "x-struct": null,
             "x-validate": null
@@ -273,7 +496,7 @@
             "x-validate": null
           },
           "price": {
-            "description": "Цена за единицу в копейках/рублях",
+            "description": "Цена за единицу по меню",
             "example": 590,
             "type": "integer",
             "x-struct": null,
@@ -286,6 +509,17 @@
             "x-struct": null,
             "x-validate": null
           },
+          "promotion_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
           "quantity": {
             "example": 2,
             "type": "integer",
@@ -293,14 +527,24 @@
             "x-validate": null
           },
           "total_price": {
-            "description": "Итоговая стоимость позиций",
-            "example": 1180,
+            "description": "Итог по строке с учётом скидок",
+            "example": 1062,
             "type": "integer",
             "x-struct": null,
             "x-validate": null
           }
         },
-        "required": ["product_id", "name", "price", "quantity", "total_price"],
+        "required": [
+          "key",
+          "product_id",
+          "name",
+          "price",
+          "quantity",
+          "total_price",
+          "base_total",
+          "gift",
+          "promotion_ids"
+        ],
         "title": "CartItemResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.CartItemResponse",
@@ -315,6 +559,27 @@
                 "format": "uuid",
                 "nullable": true,
                 "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "discount_amount": {
+                "example": 200,
+                "type": "integer",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "fulfillment_type": {
+                "enum": ["dine_in", "delivery", "pickup"],
+                "nullable": true,
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "hints": {
+                "items": {
+                  "$ref": "#/components/schemas/PromoHint"
+                },
+                "type": "array",
                 "x-struct": null,
                 "x-validate": null
               },
@@ -333,6 +598,17 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "promo_code": {
+                "$ref": "#/components/schemas/PromoCodeState"
+              },
+              "promotions": {
+                "items": {
+                  "$ref": "#/components/schemas/AppliedPromotion"
+                },
+                "type": "array",
+                "x-struct": null,
+                "x-validate": null
+              },
               "session_id": {
                 "example": "eceaec3d-dd25-4e19-8afc-f1d0f1412c9c",
                 "nullable": true,
@@ -340,7 +616,15 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "subtotal_amount": {
+                "description": "Сумма без скидок",
+                "example": 1700,
+                "type": "integer",
+                "x-struct": null,
+                "x-validate": null
+              },
               "total_amount": {
+                "description": "К оплате",
                 "example": 1500,
                 "type": "integer",
                 "x-struct": null,
@@ -353,7 +637,16 @@
                 "x-validate": null
               }
             },
-            "required": ["id", "items", "total_quantity", "total_amount"],
+            "required": [
+              "id",
+              "items",
+              "total_quantity",
+              "subtotal_amount",
+              "discount_amount",
+              "total_amount",
+              "promotions",
+              "hints"
+            ],
             "type": "object",
             "x-struct": null,
             "x-validate": null
@@ -405,6 +698,185 @@
         "title": "CategoryResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.MenuSchemas.CategoryResponse",
+        "x-validate": null
+      },
+      "ClientAddress": {
+        "properties": {
+          "apartment": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "city": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "entrance": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "floor": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "house": {
+            "example": "10",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "intercom": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "street": {
+            "example": "Ленина",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["id", "street"],
+        "title": "ClientAddress",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.ClientAddress",
+        "x-validate": null
+      },
+      "ClientAddressListResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ClientAddress"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "ClientAddressListResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.AddressListResponse",
+        "x-validate": null
+      },
+      "ClientAddressResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClientAddress"
+          }
+        },
+        "required": ["data"],
+        "title": "ClientAddressResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.AddressResponse",
+        "x-validate": null
+      },
+      "ClientOrdersResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ActiveOrder"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "ClientOrdersResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.ClientOrdersResponse",
+        "x-validate": null
+      },
+      "ClientProfile": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Иван",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "phone": {
+            "example": "+79990000000",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["id", "phone"],
+        "title": "ClientProfile",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.ClientProfile",
+        "x-validate": null
+      },
+      "ClientSession": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "client": {
+            "$ref": "#/components/schemas/ClientProfile"
+          },
+          "expires_in": {
+            "description": "Секунды",
+            "example": 900,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "refresh_token": {
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "enum": ["pending", "confirmed"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["status"],
+        "title": "ClientSession",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.Session",
+        "x-validate": null
+      },
+      "ClientSessionResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClientSession"
+          }
+        },
+        "required": ["data"],
+        "title": "ClientSessionResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.SessionResponse",
         "x-validate": null
       },
       "CreateOrderRequest": {
@@ -460,6 +932,14 @@
             "x-struct": null,
             "x-validate": null
           },
+          "expected_total": {
+            "description": "Сумма, которую видел клиент. Если итог после пересчёта акций окажется больше — вернётся `price_changed`",
+            "example": 1500,
+            "nullable": true,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
           "fulfillment_type": {
             "enum": ["dine_in", "delivery", "pickup"],
             "example": "delivery",
@@ -502,17 +982,37 @@
               "bad_request",
               "branch_id_required",
               "branch_not_found",
+              "document_not_found",
               "cart_not_found",
               "cart_is_empty",
               "cart_already_ordered",
               "cart_branch_mismatch",
               "product_unavailable",
+              "client_blocked",
               "quantity_limit_exceeded",
               "item_not_found",
               "validation_failed",
               "order_failed",
               "too_many_requests",
-              "internal_error"
+              "unauthorized",
+              "invalid_phone",
+              "call_failed",
+              "confirmation_not_found",
+              "invalid_refresh_token",
+              "address_not_found",
+              "internal_error",
+              "price_changed",
+              "promo_unavailable",
+              "promo_not_found",
+              "promo_inactive",
+              "promo_not_started",
+              "promo_expired",
+              "promo_exhausted",
+              "promo_requires_client",
+              "promo_client_limit",
+              "promo_not_owner",
+              "promo_code_used",
+              "promo_code_required"
             ],
             "example": "validation_failed",
             "type": "string",
@@ -530,6 +1030,167 @@
         "title": "ErrorResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.ErrorSchemas.ErrorResponse",
+        "x-validate": null
+      },
+      "FranchiseLegal": {
+        "properties": {
+          "address": {
+            "example": "г. Москва, ул. Пушкина, д. 10",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "email": {
+            "example": "info@example.com",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "form": {
+            "example": "ООО",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "inn": {
+            "example": "7700000000",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Вкусная еда",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "ogrn": {
+            "example": "1027700000000",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "phone": {
+            "example": "+79990000000",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["form", "name", "inn", "ogrn", "address", "email", "phone"],
+        "title": "FranchiseLegal",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.Legal",
+        "x-validate": null
+      },
+      "FranchiseResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "description": {
+                "nullable": true,
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "documents": {
+                "items": {
+                  "$ref": "#/components/schemas/LegalDocumentSummary"
+                },
+                "type": "array",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "legal": {
+                "$ref": "#/components/schemas/FranchiseLegal"
+              },
+              "name": {
+                "example": "Sushi Like",
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "primary_color": {
+                "example": "#462094",
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              }
+            },
+            "required": ["name", "description", "primary_color", "legal", "documents"],
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "FranchiseResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.FranchiseResponse",
+        "x-validate": null
+      },
+      "LegalDocumentResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "body": {
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "kind": {
+                "enum": ["privacy", "consent", "offer", "terms"],
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "updated_at": {
+                "format": "date-time",
+                "nullable": true,
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              }
+            },
+            "required": ["kind", "body", "updated_at"],
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "LegalDocumentResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.DocumentResponse",
+        "x-validate": null
+      },
+      "LegalDocumentSummary": {
+        "properties": {
+          "kind": {
+            "enum": ["privacy", "consent", "offer", "terms"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "updated_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["kind", "updated_at"],
+        "title": "LegalDocumentSummary",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.DocumentSummary",
         "x-validate": null
       },
       "MenuResponse": {
@@ -550,8 +1211,22 @@
       },
       "OrderItemResponse": {
         "properties": {
-          "price": {
+          "base_price": {
+            "description": "Цена за единицу по меню",
             "example": 590,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "gift": {
+            "example": false,
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "price": {
+            "description": "Цена за единицу с учётом скидок",
+            "example": 531,
             "type": "integer",
             "x-struct": null,
             "x-validate": null
@@ -576,10 +1251,38 @@
             "x-validate": null
           }
         },
-        "required": ["product_id", "title", "price", "quantity"],
+        "required": ["product_id", "title", "price", "base_price", "gift", "quantity"],
         "title": "OrderItemResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.OrderItemResponse",
+        "x-validate": null
+      },
+      "OrderPromotion": {
+        "properties": {
+          "code": {
+            "example": "SUMMER2025",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "discount": {
+            "example": 150,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Летняя скидка",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["name", "discount"],
+        "title": "OrderPromotion",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.OrderPromotion",
         "x-validate": null
       },
       "OrderResponse": {
@@ -644,6 +1347,12 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "discount_amount": {
+                "example": 150,
+                "type": "integer",
+                "x-struct": null,
+                "x-validate": null
+              },
               "fulfillment_type": {
                 "example": "delivery",
                 "type": "string",
@@ -677,9 +1386,24 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "promotions": {
+                "items": {
+                  "$ref": "#/components/schemas/OrderPromotion"
+                },
+                "type": "array",
+                "x-struct": null,
+                "x-validate": null
+              },
               "status": {
                 "example": "created",
                 "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "subtotal_amount": {
+                "description": "Сумма без скидок",
+                "example": 1330,
+                "type": "integer",
                 "x-struct": null,
                 "x-validate": null
               },
@@ -737,10 +1461,10 @@
             "x-validate": null
           },
           "old_price": {
-            "description": "Старая цена до скидки",
-            "example": "690",
+            "description": "Цена без скидки, если на товар действует акция; `price` — цена со скидкой",
+            "example": 690,
             "nullable": true,
-            "type": "string",
+            "type": "integer",
             "x-struct": null,
             "x-validate": null
           },
@@ -788,6 +1512,324 @@
         "title": "ProductResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.MenuSchemas.ProductResponse",
+        "x-validate": null
+      },
+      "ProfileResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClientProfile"
+          }
+        },
+        "required": ["data"],
+        "title": "ProfileResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.ProfileResponse",
+        "x-validate": null
+      },
+      "PromoCodeRequest": {
+        "properties": {
+          "code": {
+            "example": "SUMMER2025",
+            "maxLength": 32,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["code"],
+        "title": "PromoCodeRequest",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoCodeRequest",
+        "x-validate": null
+      },
+      "PromoCodeState": {
+        "description": "Введённый промокод: `applied` — применён, `pending` — условия пока не выполнены (см. `reasons`), `rejected` — не может быть применён (см. `reason`).",
+        "nullable": true,
+        "properties": {
+          "code": {
+            "example": "SUMMER2025",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Летняя скидка",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reason": {
+            "enum": [
+              "not_found",
+              "inactive",
+              "not_started",
+              "expired",
+              "exhausted",
+              "requires_client",
+              "client_limit",
+              "not_owner",
+              "code_used",
+              "code_required"
+            ],
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/PromoReason"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "enum": ["applied", "pending", "rejected"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["code", "status", "reasons"],
+        "title": "PromoCodeState",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoCodeState",
+        "x-validate": null
+      },
+      "PromoGift": {
+        "properties": {
+          "name": {
+            "example": "Кола 0.5",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "product_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "quantity": {
+            "example": 1,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["product_id", "name", "quantity"],
+        "title": "PromoGift",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoGift",
+        "x-validate": null
+      },
+      "PromoHint": {
+        "description": "Автоматическая акция, которая сработает при выполнении условий.",
+        "properties": {
+          "description": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Кола в подарок",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "promotion_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/PromoReason"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["promotion_id", "name", "reasons"],
+        "title": "PromoHint",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoHint",
+        "x-validate": null
+      },
+      "PromoReason": {
+        "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.",
+        "properties": {
+          "allowed": {
+            "items": {
+              "enum": ["dine_in", "delivery", "pickup"],
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            },
+            "nullable": true,
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "days": {
+            "example": [1, 2],
+            "items": {
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            },
+            "nullable": true,
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "from": {
+            "example": "11:00",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "missing": {
+            "example": 300,
+            "nullable": true,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Кола 0.5",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "product_id": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "to": {
+            "example": "16:00",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "type": {
+            "enum": [
+              "subtotal",
+              "quantity",
+              "product",
+              "fulfillment",
+              "time",
+              "weekday",
+              "requires_client"
+            ],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["type"],
+        "title": "PromoReason",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoReason",
+        "x-validate": null
+      },
+      "RefreshRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["refresh_token"],
+        "title": "RefreshRequest",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.RefreshRequest",
+        "x-validate": null
+      },
+      "SocketTokenResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "token": {
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              }
+            },
+            "required": ["token"],
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "SocketTokenResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.SocketSchemas.SocketTokenResponse",
+        "x-validate": null
+      },
+      "StartCallRequest": {
+        "properties": {
+          "phone": {
+            "example": "+79990000000",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["phone"],
+        "title": "StartCallRequest",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.StartCallRequest",
+        "x-validate": null
+      },
+      "StartCallResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "call_number": {
+                "description": "Номер, на который нужно позвонить для подтверждения",
+                "example": "+78000000000",
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "confirmation_id": {
+                "format": "uuid",
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "expires_in": {
+                "description": "Секунды",
+                "example": 600,
+                "type": "integer",
+                "x-struct": null,
+                "x-validate": null
+              }
+            },
+            "required": ["confirmation_id", "call_number", "expires_in"],
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "StartCallResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.StartCallResponse",
         "x-validate": null
       },
       "StockResponse": {
@@ -866,6 +1908,374 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/client/addresses": {
+      "get": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientAddressListResponse"
+                }
+              }
+            },
+            "description": "Адреса"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Нужна авторизация"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Адреса доставки клиента",
+        "tags": ["Addresses"]
+      },
+      "post": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressRequest"
+              }
+            }
+          },
+          "description": "Адрес",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientAddressResponse"
+                }
+              }
+            },
+            "description": "Адрес"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Ошибка валидации"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Добавить адрес",
+        "tags": ["Addresses"]
+      }
+    },
+    "/client/addresses/{id}": {
+      "delete": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.delete",
+        "parameters": [
+          {
+            "description": "UUID адреса",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Удалён"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Адрес не найден"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Удалить адрес",
+        "tags": ["Addresses"]
+      },
+      "put": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.update",
+        "parameters": [
+          {
+            "description": "UUID адреса",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressRequest"
+              }
+            }
+          },
+          "description": "Адрес",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientAddressResponse"
+                }
+              }
+            },
+            "description": "Адрес"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Адрес не найден"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Ошибка валидации"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Изменить адрес",
+        "tags": ["Addresses"]
+      }
+    },
+    "/client/auth/call": {
+      "post": {
+        "callbacks": {},
+        "description": "Клиент должен позвонить с указанного номера на `call_number`.",
+        "operationId": "DelivestWeb.Client.Auth.AuthController.start",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartCallRequest"
+              }
+            }
+          },
+          "description": "Номер телефона",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartCallResponse"
+                }
+              }
+            },
+            "description": "Ожидается звонок"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Некорректный номер"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Слишком много запросов"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Сервис звонков недоступен"
+          }
+        },
+        "summary": "Запросить подтверждение номера звонком",
+        "tags": ["Auth"]
+      }
+    },
+    "/client/auth/call/{id}/complete": {
+      "post": {
+        "callbacks": {},
+        "description": "Пока звонка не было — 202 и `status: pending`. После звонка — токены.",
+        "operationId": "DelivestWeb.Client.Auth.AuthController.complete",
+        "parameters": [
+          {
+            "description": "confirmation_id",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientSessionResponse"
+                }
+              }
+            },
+            "description": "Номер подтверждён"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientSessionResponse"
+                }
+              }
+            },
+            "description": "Ожидается звонок"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Клиент заблокирован"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Подтверждение не найдено или истекло"
+          }
+        },
+        "summary": "Проверить подтверждение и войти",
+        "tags": ["Auth"]
+      }
+    },
+    "/client/auth/refresh": {
+      "post": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Auth.AuthController.refresh",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "description": "Refresh-токен",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientSessionResponse"
+                }
+              }
+            },
+            "description": "Новые токены"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Токен недействителен"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Клиент заблокирован"
+          }
+        },
+        "summary": "Обновить токены",
+        "tags": ["Auth"]
+      }
+    },
     "/client/branches": {
       "get": {
         "callbacks": {},
@@ -1169,6 +2579,72 @@
         "tags": ["Cart"]
       }
     },
+    "/client/cart/{cart_id}/context": {
+      "put": {
+        "callbacks": {},
+        "description": "Способ получения влияет на условия акций, поэтому корзина пересчитывается.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.update_context",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartContextRequest"
+              }
+            }
+          },
+          "description": "Контекст корзины",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponse"
+                }
+              }
+            },
+            "description": "Обновлённая корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Корзина не найдена"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Некорректный способ получения"
+          }
+        },
+        "summary": "Обновить способ получения",
+        "tags": ["Cart"]
+      }
+    },
     "/client/cart/{cart_id}/items/{product_id}": {
       "delete": {
         "callbacks": {},
@@ -1303,7 +2779,263 @@
         "tags": ["Cart"]
       }
     },
+    "/client/cart/{cart_id}/promo_code": {
+      "delete": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Cart.CartController.remove_promo_code",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponse"
+                }
+              }
+            },
+            "description": "Обновлённая корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Корзина не найдена"
+          }
+        },
+        "summary": "Убрать промокод",
+        "tags": ["Cart"]
+      },
+      "post": {
+        "callbacks": {},
+        "description": "Проверяет промокод и прикрепляет его к корзине. Если условия акции ещё не выполнены, код сохраняется со статусом `pending` и применится автоматически, когда условия выполнятся.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.apply_promo_code",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromoCodeRequest"
+              }
+            }
+          },
+          "description": "Промокод",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponse"
+                }
+              }
+            },
+            "description": "Обновлённая корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Корзина не найдена"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Промокод не может быть применён"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Слишком много попыток"
+          }
+        },
+        "summary": "Применить промокод",
+        "tags": ["Cart"]
+      }
+    },
+    "/client/franchise": {
+      "get": {
+        "callbacks": {},
+        "description": "Название, описание, основной цвет, реквизиты продавца и список документов.",
+        "operationId": "DelivestWeb.Client.Franchise.FranchiseController.show",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FranchiseResponse"
+                }
+              }
+            },
+            "description": "Настройки франшизы"
+          }
+        },
+        "summary": "Настройки франшизы",
+        "tags": ["Franchise"]
+      }
+    },
+    "/client/franchise/documents/{kind}": {
+      "get": {
+        "callbacks": {},
+        "description": "Текст документа с подставленными реквизитами.",
+        "operationId": "DelivestWeb.Client.Franchise.FranchiseController.document",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "enum": ["privacy", "consent", "offer", "terms"],
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalDocumentResponse"
+                }
+              }
+            },
+            "description": "Документ"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Документ не найден"
+          }
+        },
+        "summary": "Юридический документ",
+        "tags": ["Franchise"]
+      }
+    },
+    "/client/me": {
+      "get": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Profile.ProfileController.show",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            },
+            "description": "Профиль"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Нужна авторизация"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Текущий клиент",
+        "tags": ["Auth"]
+      }
+    },
     "/client/orders": {
+      "get": {
+        "callbacks": {},
+        "description": "Все заказы авторизованного клиента, новые сначала.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientOrdersResponse"
+                }
+              }
+            },
+            "description": "Заказы клиента"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Нужна авторизация"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Мои заказы",
+        "tags": ["Orders"]
+      },
       "post": {
         "callbacks": {},
         "description": "Создаёт заказ по cart_id и branch_id из тела запроса.",
@@ -1354,6 +3086,50 @@
         },
         "summary": "Создать заказ",
         "tags": ["Orders"]
+      }
+    },
+    "/client/orders/active": {
+      "get": {
+        "callbacks": {},
+        "description": "Заказы текущей сессии, которые ещё не завершены и созданы не раньше нескольких часов назад. Статус берётся из CRM, если заказ обрабатывается в ней.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.active",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiveOrdersResponse"
+                }
+              }
+            },
+            "description": "Активные заказы"
+          }
+        },
+        "summary": "Активные заказы",
+        "tags": ["Orders"]
+      }
+    },
+    "/client/socket_token": {
+      "get": {
+        "callbacks": {},
+        "description": "Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (события `confirmed`, `failed`).",
+        "operationId": "DelivestWeb.Client.Socket.SocketController.token",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocketTokenResponse"
+                }
+              }
+            },
+            "description": "Токен"
+          }
+        },
+        "summary": "Токен для подключения к сокету",
+        "tags": ["Socket"]
       }
     },
     "/client/{branch_id}/stocks": {

@@ -4,18 +4,21 @@ import Button from 'primevue/button'
 import CartComponent from '@/modules/cart/components/CartComponent.vue'
 import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { intlLocale } from '@/i18n'
+import { useI18n } from 'vue-i18n'
 
 const modalStore = useMobileModalStore()
 const cartStore = useCartStore()
+const { t } = useI18n()
 
 const formattedTotal = computed(() => {
-  return `${cartStore.totalAmount.toLocaleString('ru-RU')} ₽`
+  return `${cartStore.totalAmount.toLocaleString(intlLocale())} ₽`
 })
 
 const openCartModal = () => {
   modalStore.openModal({
     component: CartComponent,
-    headerTitle: 'Корзина',
+    headerTitle: t('cart.title'),
   })
 }
 </script>

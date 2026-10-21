@@ -1,6 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch, type WatchStopHandle } from 'vue'
-import { CartService, type Cart, type CartItem } from '../api/cart.service'
+import {
+  CartService,
+  type AppliedPromotion,
+  type Cart,
+  type CartItem,
+  type FulfillmentType,
+  type PromoHint,
+} from '../api/cart.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { getApiErrorCode } from '@/api/errors'
 
@@ -12,6 +19,11 @@ export const useCartStore = defineStore('cart', () => {
   const items = computed<CartItem[]>(() => cart.value?.items ?? [])
   const totalQuantity = computed<number>(() => cart.value?.total_quantity ?? 0)
   const totalAmount = computed<number>(() => cart.value?.total_amount ?? 0)
+  const subtotalAmount = computed<number>(() => cart.value?.subtotal_amount ?? 0)
+  const discountAmount = computed<number>(() => cart.value?.discount_amount ?? 0)
+  const promotions = computed<AppliedPromotion[]>(() => cart.value?.promotions ?? [])
+  const hints = computed<PromoHint[]>(() => cart.value?.hints ?? [])
+  const promoCode = computed(() => cart.value?.promo_code ?? null)
   const isEmpty = computed<boolean>(() => items.value.length === 0)
 
   const branchStore = useBranchStore()
@@ -109,8 +121,21 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   function getItemQuantity(productId: string): number {
-    const item = items.value.find((i) => i.product_id === productId)
+    const item = items.value.find((i) => i.product_id === productId && !i.gift)
     return item?.quantity ?? 0
+  }
+
+  async function applyPromoCode(code: string): Promise<Cart> {
+    return withCart((cartId) => CartService.applyPromoCode(cartId, code))
+  }
+
+  async function removePromoCode(): Promise<Cart> {
+    return withCart((cartId) => CartService.removePromoCode(cartId))
+  }
+
+  async function setFulfillment(fulfillmentType: FulfillmentType): Promise<Cart | null> {
+    if (cart.value?.fulfillment_type === fulfillmentType) return cart.value
+    return withCart((cartId) => CartService.setFulfillment(cartId, fulfillmentType))
   }
 
   async function clearCart(): Promise<void> {
@@ -129,6 +154,11 @@ export const useCartStore = defineStore('cart', () => {
     items,
     totalQuantity,
     totalAmount,
+    subtotalAmount,
+    discountAmount,
+    promotions,
+    hints,
+    promoCode,
     isEmpty,
     isLoading,
     isInitialized,
@@ -140,5 +170,8 @@ export const useCartStore = defineStore('cart', () => {
     removeAllOfItem,
     clearCart,
     getItemQuantity,
+    applyPromoCode,
+    removePromoCode,
+    setFulfillment,
   }
 })

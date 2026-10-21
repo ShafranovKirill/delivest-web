@@ -4,6 +4,10 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
+import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const toast = useToast()
@@ -30,8 +34,8 @@ watch(
       } catch {
         toast.add({
           severity: 'error',
-          summary: 'Ошибка',
-          detail: 'Не удалось загрузить список филиалов',
+          summary: t('common.error'),
+          detail: t('branch.select.loadFailed'),
           life: 3000,
         })
       } finally {
@@ -56,8 +60,8 @@ async function handleSelect(branch: Branch) {
   } catch {
     toast.add({
       severity: 'error',
-      summary: 'Ошибка',
-      detail: 'Не удалось сменить филиал. Попробуйте еще раз.',
+      summary: t('common.error'),
+      detail: t('branch.select.selectFailed'),
       life: 3000,
     })
   } finally {
@@ -71,13 +75,11 @@ async function handleSelect(branch: Branch) {
     v-model:visible="branchStore.isModalOpen"
     :dismissable-mask="true"
     modal
-    header="Выберите филиал"
+    :header="t('branch.select.title')"
     class="w-[90vw] max-w-lg"
   >
     <div class="space-y-2 pt-2">
-      <div v-if="loading" class="flex justify-center items-center py-8">
-        <i class="pi pi-spin pi-spinner text-2xl text-(--p-primary-500)"></i>
-      </div>
+      <SkeletonList v-if="loading" class="flex flex-col gap-2" item-class="h-16 rounded-2xl!" />
 
       <template v-else-if="activeBranches.length > 0">
         <button
@@ -119,7 +121,9 @@ async function handleSelect(branch: Branch) {
         </button>
       </template>
 
-      <div v-else class="text-center py-6 text-gray-500 text-sm">Список филиалов пуст</div>
+      <div v-else class="text-center py-6 text-gray-500 text-sm">
+        {{ t('branch.select.empty') }}
+      </div>
     </div>
   </Dialog>
 </template>

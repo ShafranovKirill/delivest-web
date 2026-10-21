@@ -7,10 +7,13 @@ import './assets/main.css'
 import 'primeicons/primeicons.css'
 import PrimeVue from 'primevue/config'
 import { VueQueryPlugin } from '@tanstack/vue-query'
-import { queryClient } from './api/client.ts'
+import { api, queryClient } from './api/client.ts'
+import { installAuthInterceptor } from './modules/auth/api/auth.interceptor.ts'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import ToastService from 'primevue/toastservice'
 import { MyPreset } from './assets/colorPreset.ts'
+import { i18n } from './i18n'
+import { useFranchiseStore } from './modules/franchise/stores/franchise.store'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -21,17 +24,21 @@ app.use(PrimeVue, {
     preset: MyPreset,
     options: {
       prefix: 'p',
-      darkModeSelector: 'light',
+      darkModeSelector: '.dark',
       cssLayer: false,
     },
   },
 })
 
+app.use(i18n)
 app.use(router)
 app.use(head)
 app.use(VueQueryPlugin, { queryClient })
 pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(ToastService)
+installAuthInterceptor(api)
 
-app.mount('#app')
+Promise.allSettled([useFranchiseStore(pinia).init(), router.isReady()]).then(() =>
+  app.mount('#app'),
+)

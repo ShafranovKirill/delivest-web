@@ -3,10 +3,12 @@ import { useRouter } from 'vue-router'
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
 import { useOrderStore } from '../stores/order.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const contactsStore = useContactsStore()
 const orderStore = useOrderStore()
+const { t } = useI18n()
 
 function handleReturnHome() {
   orderStore.resetOrderState()
@@ -22,21 +24,22 @@ function handleReturnHome() {
           <i class="pi pi-check text-2xl" />
         </span>
         <div>
-          <h2 class="text-2xl font-extrabold text-gray-950">Заказ принят!</h2>
+          <h2 class="text-2xl font-extrabold text-gray-950">{{ t('order.success.title') }}</h2>
           <p v-if="orderStore.lastCreatedOrder?.number" class="mt-1 text-gray-500">
-            Номер заказа
+            {{ t('order.success.number') }}
             <span class="font-bold text-gray-900">{{ orderStore.lastCreatedOrder.number }}</span>
           </p>
         </div>
       </div>
     </SurfaceCard>
 
-    <SurfaceCard icon="pi-phone" label="Что дальше">
-      <template #value>Оператор позвонит для подтверждения</template>
-      <p class="text-sm text-gray-500 leading-relaxed">
-        Обычно это занимает до <span class="font-semibold text-gray-900">5 минут</span>. Если звонка
-        нет — позвоните нам сами.
-      </p>
+    <SurfaceCard icon="pi-phone" :label="t('order.success.next')">
+      <template #value>{{ t('order.success.operatorCall') }}</template>
+      <i18n-t keypath="order.success.hint" tag="p" class="text-sm text-gray-500 leading-relaxed">
+        <template #time>
+          <span class="font-semibold text-gray-900">{{ t('order.success.hintTime') }}</span>
+        </template>
+      </i18n-t>
     </SurfaceCard>
 
     <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
@@ -44,13 +47,13 @@ function handleReturnHome() {
         v-if="contactsStore.phone"
         as="a"
         :href="`tel:${contactsStore.phone}`"
-        label="Позвонить нам"
+        :label="t('common.callUs')"
         icon="pi pi-phone"
         severity="secondary"
         class="h-14 flex-1 rounded-full! font-semibold"
       />
       <Button
-        label="Вернуться в меню"
+        :label="t('order.success.backToMenu')"
         class="h-14 flex-1 rounded-full! font-semibold"
         @click="handleReturnHome"
       />

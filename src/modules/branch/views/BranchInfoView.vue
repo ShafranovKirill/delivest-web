@@ -8,6 +8,9 @@ import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
 import { formatPhoneNumber } from '@/modules/widgets/contacts/utils/tel-format'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const branchStore = useBranchStore()
 const mapStore = useMapStore()
@@ -23,7 +26,7 @@ const phoneLabel = computed(() =>
 
 const socials = computed(() =>
   [
-    { key: 'vk', url: info.value?.vk_url, label: 'ВКонтакте', icon: null },
+    { key: 'vk', url: info.value?.vk_url, label: t('branch.info.vk'), icon: null },
     { key: 'instagram', url: info.value?.instagram_url, label: 'Instagram', icon: 'pi-instagram' },
     { key: 'whatsapp', url: info.value?.whatsapp_url, label: 'WhatsApp', icon: 'pi-whatsapp' },
   ].filter((item) => Boolean(item.url)),
@@ -31,7 +34,7 @@ const socials = computed(() =>
 </script>
 
 <template>
-  <PageShell title="О нас" subtitle="Адрес, контакты и режим работы заведения" width="default">
+  <PageShell :title="t('branch.info.title')" :subtitle="t('branch.info.subtitle')" width="default">
     <template #actions>
       <button
         type="button"
@@ -43,10 +46,10 @@ const socials = computed(() =>
         </span>
         <span class="flex flex-col items-start leading-tight">
           <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-            Филиал
+            {{ t('branch.info.branch') }}
           </span>
           <span class="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">
-            {{ activeBranch?.name || 'Не выбран' }}
+            {{ activeBranch?.name || t('branch.notSelected') }}
           </span>
         </span>
         <i class="pi pi-chevron-right text-xs text-gray-400 group-hover:text-primary" />
@@ -54,27 +57,27 @@ const socials = computed(() =>
     </template>
 
     <div v-if="activeBranch" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-      <SurfaceCard icon="pi-clock" label="Сейчас" class="md:col-span-2">
+      <SurfaceCard icon="pi-clock" :label="t('branch.info.now')" class="md:col-span-2">
         <template #value>
           <span class="inline-flex items-center gap-2">
             <span
               class="size-2.5 rounded-full"
               :class="isOpenNow ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'"
             />
-            {{ isOpenNow ? 'Открыто, принимаем заказы' : 'Закрыто' }}
+            {{ isOpenNow ? t('branch.info.open') : t('branch.info.closed') }}
           </span>
         </template>
         <template v-if="workingHours" #aside>
           <span
             class="hidden sm:inline-flex rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-600 shadow-xs"
           >
-            Сегодня {{ closingTimeToday }}
+            {{ t('branch.info.today', { time: closingTimeToday }) }}
           </span>
         </template>
       </SurfaceCard>
 
-      <SurfaceCard icon="pi-map-marker" label="Адрес" class="md:col-span-2">
-        <template #value>{{ info?.address || 'Адрес не указан' }}</template>
+      <SurfaceCard icon="pi-map-marker" :label="t('branch.info.address')" class="md:col-span-2">
+        <template #value>{{ info?.address || t('branch.info.noAddress') }}</template>
         <template v-if="yandexOrgUrl" #aside>
           <a
             :href="yandexOrgUrl"
@@ -82,7 +85,7 @@ const socials = computed(() =>
             rel="noopener noreferrer"
             class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-primary shadow-xs hover:bg-primary-soft transition-colors"
           >
-            <span class="hidden sm:inline">Яндекс Карты</span>
+            <span class="hidden sm:inline">{{ t('branch.info.yandexMaps') }}</span>
             <i class="pi pi-external-link text-xs" />
           </a>
         </template>
@@ -98,25 +101,29 @@ const socials = computed(() =>
 
       <SurfaceCard
         icon="pi-phone"
-        label="Телефон"
+        :label="t('branch.info.phone')"
         :as="info?.phone_number ? 'a' : 'div'"
         :href="info?.phone_number ? `tel:${info.phone_number}` : undefined"
         :class="{ 'hover:border-primary transition-colors': info?.phone_number }"
       >
-        <template #value>{{ phoneLabel || 'Не указан' }}</template>
+        <template #value>{{ phoneLabel || t('branch.info.notSet') }}</template>
         <template v-if="info?.phone_number" #aside>
           <i class="pi pi-arrow-up-right text-gray-400" />
         </template>
       </SurfaceCard>
 
-      <SurfaceCard icon="pi-car" label="Доставка">
+      <SurfaceCard icon="pi-car" :label="t('branch.info.delivery')">
         <template #value>
-          {{ info?.delivery_time ? `около ${info.delivery_time} мин` : 'Время не указано' }}
+          {{
+            info?.delivery_time
+              ? t('branch.info.deliveryTime', { minutes: info.delivery_time })
+              : t('branch.info.noDeliveryTime')
+          }}
         </template>
       </SurfaceCard>
 
-      <SurfaceCard icon="pi-calendar" label="Режим работы" class="md:col-span-2">
-        <template #value>Расписание по дням недели</template>
+      <SurfaceCard icon="pi-calendar" :label="t('branch.info.hours')" class="md:col-span-2">
+        <template #value>{{ t('branch.info.hoursHint') }}</template>
 
         <ul
           v-if="workingHours && formattedScheduleList.length"
@@ -130,24 +137,26 @@ const socials = computed(() =>
           >
             <span class="font-medium" :class="item.isToday ? 'text-primary' : 'text-gray-700'">
               {{ item.day }}
-              <span v-if="item.isToday" class="ml-1 text-xs font-semibold">· сегодня</span>
+              <span v-if="item.isToday" class="ml-1 text-xs font-semibold"
+                >· {{ t('branch.info.todayMark') }}</span
+              >
             </span>
             <span v-if="item.enabled" class="font-semibold text-gray-900 tabular-nums">
               {{ item.open }} — {{ item.close }}
             </span>
-            <span v-else class="font-medium text-gray-400">Выходной</span>
+            <span v-else class="font-medium text-gray-400">{{ t('branch.schedule.dayOff') }}</span>
           </li>
         </ul>
-        <p v-else class="text-sm text-gray-500">Расписание не указано.</p>
+        <p v-else class="text-sm text-gray-500">{{ t('branch.schedule.notSet') }}</p>
       </SurfaceCard>
 
       <SurfaceCard
         v-if="socials.length"
         icon="pi-heart"
-        label="Мы в соцсетях"
+        :label="t('branch.info.socials')"
         class="md:col-span-2"
       >
-        <template #value>Подписывайтесь, там акции и новинки</template>
+        <template #value>{{ t('branch.info.socialsHint') }}</template>
 
         <div class="flex flex-wrap gap-2">
           <a
@@ -169,10 +178,10 @@ const socials = computed(() =>
     <EmptyState
       v-else
       icon="pi-map-marker"
-      title="Филиал не выбран"
-      text="Выберите заведение, чтобы увидеть адрес и режим работы"
+      :title="t('branch.info.emptyTitle')"
+      :text="t('branch.info.emptyText')"
     >
-      <Button label="Выбрать филиал" rounded @click="branchStore.openModal()" />
+      <Button :label="t('branch.choose')" rounded @click="branchStore.openModal()" />
     </EmptyState>
   </PageShell>
 </template>

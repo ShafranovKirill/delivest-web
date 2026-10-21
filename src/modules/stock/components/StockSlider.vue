@@ -6,11 +6,14 @@ import type { Stock } from '../api/stock.service'
 import { useStockStore } from '../stores/stock.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import StockModal from './StockModal.vue'
+import SkeletonStocks from './SkeletonStocks.vue'
+import { useI18n } from 'vue-i18n'
 
 const stockStore = useStockStore()
 const branchStore = useBranchStore()
+const { t } = useI18n()
 
-const { stocks } = storeToRefs(stockStore)
+const { stocks, isLoadingStocks } = storeToRefs(stockStore)
 const { activeBranch } = storeToRefs(branchStore)
 
 watch(
@@ -55,7 +58,13 @@ const responsiveOptions = ref([
 </script>
 
 <template>
-  <div v-if="stocks.length" class="w-full pb-4 bg-gray-200 max-w-7xl mx-auto px-4">
+  <div
+    v-if="isLoadingStocks && !stocks.length"
+    class="w-full pb-4 bg-gray-200 max-w-7xl mx-auto px-4"
+  >
+    <SkeletonStocks />
+  </div>
+  <div v-else-if="stocks.length" class="w-full pb-4 bg-gray-200 max-w-7xl mx-auto px-4">
     <Carousel
       :value="stocks"
       :num-visible="5"
@@ -77,7 +86,7 @@ const responsiveOptions = ref([
           >
             <img
               :src="data.photo_url"
-              :alt="data.text || 'Акция'"
+              :alt="data.text || t('stock.single')"
               class="w-full h-full object-cover object-center block"
               loading="lazy"
             />

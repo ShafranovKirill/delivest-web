@@ -5,15 +5,17 @@ import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ product: MenuProduct }>()
 const cartStore = useCartStore()
 const toast = useToast()
+const { t } = useI18n()
 
 function showError(error: unknown) {
   toast.add({
     severity: 'error',
-    summary: 'Корзина',
+    summary: t('cart.title'),
     detail: getApiErrorMessage(error),
     life: 3000,
   })
@@ -25,7 +27,7 @@ const quantity = computed(() => {
   const productId = props.product?.id
   if (!productId || !cartStore.items) return 0
 
-  const item = cartStore.items.find((i) => String(i.product_id) === String(productId))
+  const item = cartStore.items.find((i) => String(i.product_id) === String(productId) && !i.gift)
 
   return item?.quantity ?? 0
 })
@@ -116,7 +118,7 @@ const handleRemove = async (event: Event) => {
         <template v-else>
           <span>{{ `${product.price} ₽` }}</span>
           <span
-            v-if="product.old_price && product.old_price !== '0.00'"
+            v-if="product.old_price && product.old_price > (product.price ?? 0)"
             class="text-sm opacity-70 line-through"
           >
             {{ product.old_price }} ₽

@@ -8,9 +8,21 @@ export type Order = OrderResponse['data']
 
 export type CreateOrderPayload = components['schemas']['CreateOrderRequest']
 
+type ActiveOrdersResponse =
+  paths['/client/orders/active']['get']['responses']['200']['content']['application/json']
+
+export type ActiveOrder = components['schemas']['ActiveOrder']
+
+export type OrderStatus = ActiveOrder['status']
+
 export const OrderService = {
   async createOrder(payload: CreateOrderPayload): Promise<Order> {
     const { data } = await api.post<OrderResponse>('/client/orders', payload)
+    return data.data
+  },
+
+  async getActiveOrders(): Promise<ActiveOrder[]> {
+    const { data } = await api.get<ActiveOrdersResponse>('/client/orders/active')
     return data.data
   },
 }

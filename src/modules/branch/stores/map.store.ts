@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useBranchStore } from './branch.store'
-import { getYandexMapsApiKey } from '@/utils/env' // Путь к вашему файлу с env-утилитами
+import { getYandexMapsApiKey } from '@/utils/env'
 
 type YmapsInstance = typeof window.ymaps
 
@@ -68,14 +68,14 @@ export const useMapStore = defineStore('yandexMap', () => {
           })
         } else {
           isLoading.value = false
-          loadError.value = 'Объект ymaps не найден после загрузки скрипта'
+          loadError.value = 'ymaps object is missing after script load'
           reject(new Error(loadError.value))
         }
       }
 
       script.onerror = (err) => {
         isLoading.value = false
-        loadError.value = 'Не удалось загрузить скрипт Яндекс Карт'
+        loadError.value = 'Yandex Maps script failed to load'
         reject(err)
       }
 

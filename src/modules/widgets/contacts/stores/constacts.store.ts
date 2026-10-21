@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { formatPhoneNumber } from '../utils/tel-format'
+import { copyText } from '@/utils/clipboard'
 
 export const useContactsStore = defineStore('contacts', () => {
   const branchStore = useBranchStore()
@@ -33,21 +34,10 @@ export const useContactsStore = defineStore('contacts', () => {
   }
 
   const copyPhoneNumber = async () => {
-    if (!phone.value) return { success: false, message: 'Номер отсутствует' }
+    if (!phone.value) return false
 
-    try {
-      await navigator.clipboard.writeText(phone.value)
-      return { success: true, message: 'Номер скопирован!' }
-    } catch (error) {
-      console.error('Ошибка копирования:', error)
-      const textArea = document.createElement('textarea')
-      textArea.value = phone.value
-      document.body.appendChild(textArea)
-      textArea.select()
-      document.execCommand('copy')
-      document.body.removeChild(textArea)
-      return { success: true, message: 'Номер скопирован!' }
-    }
+    await copyText(phone.value)
+    return true
   }
 
   const makeCall = () => {
