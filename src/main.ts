@@ -13,6 +13,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import ToastService from 'primevue/toastservice'
 import { MyPreset } from './assets/colorPreset.ts'
 import { i18n } from './i18n'
+import { useFranchiseStore } from './modules/franchise/stores/franchise.store'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -38,4 +39,6 @@ app.use(pinia)
 app.use(ToastService)
 installAuthInterceptor(api)
 
-app.mount('#app')
+useFranchiseStore(pinia)
+  .init()
+  .finally(() => app.mount('#app'))

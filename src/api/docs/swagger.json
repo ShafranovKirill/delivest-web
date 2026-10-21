@@ -982,6 +982,7 @@
               "bad_request",
               "branch_id_required",
               "branch_not_found",
+              "document_not_found",
               "cart_not_found",
               "cart_is_empty",
               "cart_already_ordered",
@@ -1029,6 +1030,167 @@
         "title": "ErrorResponse",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.ErrorSchemas.ErrorResponse",
+        "x-validate": null
+      },
+      "FranchiseLegal": {
+        "properties": {
+          "address": {
+            "example": "г. Москва, ул. Пушкина, д. 10",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "email": {
+            "example": "info@example.com",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "form": {
+            "example": "ООО",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "inn": {
+            "example": "7700000000",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "example": "Вкусная еда",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "ogrn": {
+            "example": "1027700000000",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "phone": {
+            "example": "+79990000000",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["form", "name", "inn", "ogrn", "address", "email", "phone"],
+        "title": "FranchiseLegal",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.Legal",
+        "x-validate": null
+      },
+      "FranchiseResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "description": {
+                "nullable": true,
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "documents": {
+                "items": {
+                  "$ref": "#/components/schemas/LegalDocumentSummary"
+                },
+                "type": "array",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "legal": {
+                "$ref": "#/components/schemas/FranchiseLegal"
+              },
+              "name": {
+                "example": "Sushi Like",
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "primary_color": {
+                "example": "#462094",
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              }
+            },
+            "required": ["name", "description", "primary_color", "legal", "documents"],
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "FranchiseResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.FranchiseResponse",
+        "x-validate": null
+      },
+      "LegalDocumentResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "body": {
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "kind": {
+                "enum": ["privacy", "consent", "offer", "terms"],
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "updated_at": {
+                "format": "date-time",
+                "nullable": true,
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              }
+            },
+            "required": ["kind", "body", "updated_at"],
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "LegalDocumentResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.DocumentResponse",
+        "x-validate": null
+      },
+      "LegalDocumentSummary": {
+        "properties": {
+          "kind": {
+            "enum": ["privacy", "consent", "offer", "terms"],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "updated_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["kind", "updated_at"],
+        "title": "LegalDocumentSummary",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.DocumentSummary",
         "x-validate": null
       },
       "MenuResponse": {
@@ -1594,6 +1756,28 @@
         "title": "RefreshRequest",
         "type": "object",
         "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.RefreshRequest",
+        "x-validate": null
+      },
+      "SocketTokenResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "token": {
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              }
+            },
+            "required": ["token"],
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": ["data"],
+        "title": "SocketTokenResponse",
+        "type": "object",
+        "x-struct": "Elixir.DelivestWeb.Schemas.SocketSchemas.SocketTokenResponse",
         "x-validate": null
       },
       "StartCallRequest": {
@@ -2713,6 +2897,73 @@
         "tags": ["Cart"]
       }
     },
+    "/client/franchise": {
+      "get": {
+        "callbacks": {},
+        "description": "Название, описание, основной цвет, реквизиты продавца и список документов.",
+        "operationId": "DelivestWeb.Client.Franchise.FranchiseController.show",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FranchiseResponse"
+                }
+              }
+            },
+            "description": "Настройки франшизы"
+          }
+        },
+        "summary": "Настройки франшизы",
+        "tags": ["Franchise"]
+      }
+    },
+    "/client/franchise/documents/{kind}": {
+      "get": {
+        "callbacks": {},
+        "description": "Текст документа с подставленными реквизитами.",
+        "operationId": "DelivestWeb.Client.Franchise.FranchiseController.document",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "enum": ["privacy", "consent", "offer", "terms"],
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalDocumentResponse"
+                }
+              }
+            },
+            "description": "Документ"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Документ не найден"
+          }
+        },
+        "summary": "Юридический документ",
+        "tags": ["Franchise"]
+      }
+    },
     "/client/me": {
       "get": {
         "callbacks": {},
@@ -2857,6 +3108,28 @@
         },
         "summary": "Активные заказы",
         "tags": ["Orders"]
+      }
+    },
+    "/client/socket_token": {
+      "get": {
+        "callbacks": {},
+        "description": "Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (события `confirmed`, `failed`).",
+        "operationId": "DelivestWeb.Client.Socket.SocketController.token",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocketTokenResponse"
+                }
+              }
+            },
+            "description": "Токен"
+          }
+        },
+        "summary": "Токен для подключения к сокету",
+        "tags": ["Socket"]
       }
     },
     "/client/{branch_id}/stocks": {

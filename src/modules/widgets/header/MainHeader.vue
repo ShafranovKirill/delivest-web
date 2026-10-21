@@ -5,7 +5,7 @@ import Toolbar from 'primevue/toolbar'
 import CartButtonDesktop from '@/modules/cart/components/CartButtonDesktop.vue'
 import { useContactsStore } from '../contacts/stores/constacts.store'
 import { useSidebarStore } from '../sidebar/sidebar.store'
-import { getCafeName } from '@/utils/env'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
@@ -20,7 +20,7 @@ const contactStore = useContactsStore()
 const viewportStore = useViewportStore()
 const branchStore = useBranchStore()
 const modalStore = useMobileModalStore()
-const cafeName = getCafeName()
+const franchiseStore = useFranchiseStore()
 const { t } = useI18n()
 
 const navigateToMenu = () => {
@@ -60,7 +60,7 @@ const navigateToMenu = () => {
             style="font-family: 'Unbounded', sans-serif; font-weight: 500"
             @click="navigateToMenu"
           >
-            {{ cafeName }}
+            {{ franchiseStore.name }}
           </div>
           <BranchInfoBar v-if="branchStore.activeBranch && !viewportStore.isMobile" />
         </div>

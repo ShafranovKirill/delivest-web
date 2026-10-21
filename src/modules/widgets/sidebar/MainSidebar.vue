@@ -8,13 +8,13 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useAccountLinks } from '@/modules/auth/composables/useAccountLinks'
 import ThemeToggle from '@/modules/settings/components/ThemeToggle.vue'
 import LocaleToggle from '@/modules/settings/components/LocaleToggle.vue'
-import { getCafeName } from '@/utils/env'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useI18n } from 'vue-i18n'
 
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
 const accountLinks = useAccountLinks()
-const cafeName = getCafeName()
+const franchiseStore = useFranchiseStore()
 const { t } = useI18n()
 
 const mainLinks = computed(() => [
@@ -39,7 +39,7 @@ const settingClass =
         class="text-2xl tracking-tighter text-(--p-primary-500)"
         style="font-family: 'Unbounded', sans-serif; font-weight: 500"
       >
-        {{ cafeName }}
+        {{ franchiseStore.name }}
       </span>
     </template>
 

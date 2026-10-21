@@ -5,7 +5,7 @@
       class="mb-6 text-4xl sm:text-5xl tracking-tighter text-primary select-none"
       style="font-family: 'Unbounded', sans-serif; font-weight: 500"
     >
-      {{ cafeName }}
+      {{ franchiseStore.name }}
     </div>
 
     <div class="w-full max-w-md rounded-4xl bg-white p-5 sm:p-8 shadow-sm">
@@ -64,7 +64,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
-import { getCafeName } from '@/utils/env'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -72,7 +72,7 @@ const { t } = useI18n()
 const router = useRouter()
 const toast = useToast()
 const branchStore = useBranchStore()
-const cafeName = getCafeName()
+const franchiseStore = useFranchiseStore()
 
 const loading = ref(false)
 const selectingId = ref<string | null>(null)

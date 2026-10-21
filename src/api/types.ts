@@ -302,6 +302,46 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/franchise': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Настройки франшизы
+     * @description Название, описание, основной цвет, реквизиты продавца и список документов.
+     */
+    get: operations['DelivestWeb.Client.Franchise.FranchiseController.show']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/franchise/documents/{kind}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Юридический документ
+     * @description Текст документа с подставленными реквизитами.
+     */
+    get: operations['DelivestWeb.Client.Franchise.FranchiseController.document']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/me': {
     parameters: {
       query?: never
@@ -355,6 +395,26 @@ export interface paths {
      * @description Заказы текущей сессии, которые ещё не завершены и созданы не раньше нескольких часов назад. Статус берётся из CRM, если заказ обрабатывается в ней.
      */
     get: operations['DelivestWeb.Client.Order.OrderController.active']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/socket_token': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Токен для подключения к сокету
+     * @description Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (события `confirmed`, `failed`).
+     */
+    get: operations['DelivestWeb.Client.Socket.SocketController.token']
     put?: never
     post?: never
     delete?: never
@@ -765,6 +825,7 @@ export interface components {
         | 'bad_request'
         | 'branch_id_required'
         | 'branch_not_found'
+        | 'document_not_found'
         | 'cart_not_found'
         | 'cart_is_empty'
         | 'cart_already_ordered'
@@ -797,6 +858,52 @@ export interface components {
         | 'promo_code_required'
       /** @example Validation failed */
       message: string
+    }
+    /** FranchiseLegal */
+    FranchiseLegal: {
+      /** @example г. Москва, ул. Пушкина, д. 10 */
+      address: string | null
+      /** @example info@example.com */
+      email: string | null
+      /** @example ООО */
+      form: string | null
+      /** @example 7700000000 */
+      inn: string | null
+      /** @example Вкусная еда */
+      name: string | null
+      /** @example 1027700000000 */
+      ogrn: string | null
+      /** @example +79990000000 */
+      phone: string | null
+    }
+    /** FranchiseResponse */
+    FranchiseResponse: {
+      data: {
+        description: string | null
+        documents: components['schemas']['LegalDocumentSummary'][]
+        legal: components['schemas']['FranchiseLegal']
+        /** @example Sushi Like */
+        name: string
+        /** @example #462094 */
+        primary_color: string
+      }
+    }
+    /** LegalDocumentResponse */
+    LegalDocumentResponse: {
+      data: {
+        body: string
+        /** @enum {string} */
+        kind: 'privacy' | 'consent' | 'offer' | 'terms'
+        /** Format: date-time */
+        updated_at: string | null
+      }
+    }
+    /** LegalDocumentSummary */
+    LegalDocumentSummary: {
+      /** @enum {string} */
+      kind: 'privacy' | 'consent' | 'offer' | 'terms'
+      /** Format: date-time */
+      updated_at: string | null
     }
     /** MenuResponse */
     MenuResponse: {
@@ -1025,6 +1132,12 @@ export interface components {
     /** RefreshRequest */
     RefreshRequest: {
       refresh_token: string
+    }
+    /** SocketTokenResponse */
+    SocketTokenResponse: {
+      data: {
+        token: string
+      }
     }
     /** StartCallRequest */
     StartCallRequest: {
@@ -1812,6 +1925,57 @@ export interface operations {
       }
     }
   }
+  'DelivestWeb.Client.Franchise.FranchiseController.show': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Настройки франшизы */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['FranchiseResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Franchise.FranchiseController.document': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        kind: 'privacy' | 'consent' | 'offer' | 'terms'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Документ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['LegalDocumentResponse']
+        }
+      }
+      /** @description Документ не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   'DelivestWeb.Client.Profile.ProfileController.show': {
     parameters: {
       query?: never
@@ -1929,6 +2093,26 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['ActiveOrdersResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Socket.SocketController.token': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Токен */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['SocketTokenResponse']
         }
       }
     }
