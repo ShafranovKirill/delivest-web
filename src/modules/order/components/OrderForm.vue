@@ -2,6 +2,7 @@
 import { reactive, computed, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
+import OrderConsent from './OrderConsent.vue'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
@@ -180,5 +181,7 @@ function handleSubmit() {
       :loading="isLoading"
       class="w-full h-14 rounded-full! text-base font-semibold"
     />
+
+    <OrderConsent />
   </form>
 </template>

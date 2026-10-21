@@ -310,6 +310,9 @@ export const en: typeof ru = {
       comment: 'Order comment',
       commentPlaceholder: 'For example: no onions',
       submit: 'Place order',
+      consent: 'By placing an order, you accept the {offer} and confirm your {consent}',
+      consentOffer: 'public offer',
+      consentData: 'consent to personal data processing',
       required: 'Fill in the required fields',
     },
     timeSelect: {

@@ -308,6 +308,9 @@ export const ru = {
       comment: 'Комментарий к заказу',
       commentPlaceholder: 'Например: без лука',
       submit: 'Оформить заказ',
+      consent: 'Оформляя заказ, вы принимаете условия {offer} и подтверждаете {consent}',
+      consentOffer: 'публичной оферты',
+      consentData: 'согласие на обработку персональных данных',
       required: 'Заполните обязательные поля',
     },
     timeSelect: {
