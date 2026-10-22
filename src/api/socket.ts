@@ -4,6 +4,8 @@ import { getApiBaseUrl } from '@/utils/env'
 
 type TokenResponse = { data: { token: string } }
 
+const LONG_POLL_FALLBACK_MS = 2500
+
 let socket: Socket | null = null
 let token: string | null = null
 let pending: Promise<Socket> | null = null
@@ -21,7 +23,10 @@ export function getSocket(): Promise<Socket> {
   if (socket) return Promise.resolve(socket)
 
   pending ??= fetchToken().then(() => {
-    const instance = new Socket(socketUrl(), { params: () => ({ token }) })
+    const instance = new Socket(socketUrl(), {
+      params: () => ({ token }),
+      longPollFallbackMs: LONG_POLL_FALLBACK_MS,
+    })
     instance.onError(() => {
       fetchToken().catch(() => undefined)
     })
