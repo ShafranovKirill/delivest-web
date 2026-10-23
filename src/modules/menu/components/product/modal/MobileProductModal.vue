@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { useImagePlaceholder } from '@/modules/menu/composables/useImagePlaceholder'
+import ProductImage from '../ProductImage.vue'
 import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
 import { storeToRefs } from 'pinia'
 import Drawer from 'primevue/drawer'
 import AddToCartButton from '../button/AddToCartButton.vue'
 import { useI18n } from 'vue-i18n'
 
-const { getImageUrl, handleImageError } = useImagePlaceholder()
 const menuStore = useMenuStore()
 const { t } = useI18n()
 const { activeProduct } = storeToRefs(menuStore)
@@ -24,10 +23,10 @@ const { activeProduct } = storeToRefs(menuStore)
 
       <div class="flex flex-col p-4 pt-16 h-full overflow-y-auto">
         <div class="w-full flex justify-center items-center shrink-0">
-          <img
-            :src="getImageUrl(activeProduct?.photo_url)"
-            @error="handleImageError"
-            class="w-full max-w-70 sm:max-w-xs aspect-square object-cover rounded-4xl"
+          <ProductImage
+            :src="activeProduct?.photo_url"
+            :alt="activeProduct?.name"
+            class="w-full max-w-70 sm:max-w-xs aspect-square rounded-4xl"
           />
         </div>
 

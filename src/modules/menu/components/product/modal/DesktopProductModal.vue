@@ -2,7 +2,7 @@
 import { storeToRefs } from 'pinia'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
-import { useImagePlaceholder } from '../../../composables/useImagePlaceholder'
+import ProductImage from '../ProductImage.vue'
 import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
 import AddToCartButton from '../button/AddToCartButton.vue'
 import { useI18n } from 'vue-i18n'
@@ -10,7 +10,6 @@ import { useI18n } from 'vue-i18n'
 const menuStore = useMenuStore()
 const { t } = useI18n()
 const { activeProduct } = storeToRefs(menuStore)
-const { getImageUrl, handleImageError } = useImagePlaceholder()
 </script>
 
 <template>
@@ -33,10 +32,11 @@ const { getImageUrl, handleImageError } = useImagePlaceholder()
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div class="flex justify-center items-center rounded-2xl p-6 aspect-square max-h-87.5">
-            <img
-              :src="getImageUrl(activeProduct?.photo_url)"
-              @error="handleImageError"
-              class="max-h-[35vh] object-contain rounded-3xl"
+            <ProductImage
+              :src="activeProduct?.photo_url"
+              :alt="activeProduct?.name"
+              fit="contain"
+              class="w-full max-h-[35vh] aspect-square rounded-3xl"
             />
           </div>
 

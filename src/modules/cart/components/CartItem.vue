@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { CartItem } from '@/modules/cart/api/cart.service.ts'
-import { ref } from 'vue'
 import { useCartStore } from '../stores/cart.store.ts'
-import { useImagePlaceholder } from '@/modules/menu/composables/useImagePlaceholder.ts'
+import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
@@ -11,13 +10,6 @@ const props = defineProps<{
 
 const cartStore = useCartStore()
 const { t } = useI18n()
-const imageError = ref(false)
-
-const { getImageUrl } = useImagePlaceholder()
-
-function handleImageError() {
-  imageError.value = true
-}
 
 function handleDecrease() {
   if (props.item.quantity > 1) {
@@ -34,12 +26,7 @@ function handleDecrease() {
     :class="item.gift ? 'border-green-200 bg-green-50/60' : 'border-border/40 bg-background'"
   >
     <div class="p-3 flex items-center gap-3">
-      <img
-        :src="getImageUrl(item.image_url)"
-        :alt="item.name"
-        @error="handleImageError"
-        class="w-14 h-14 object-cover rounded-2xl shrink-0 block"
-      />
+      <ProductImage :src="item.image_url" :alt="item.name" class="w-14 h-14 rounded-2xl shrink-0" />
       <div class="grow min-w-0">
         <h4 class="text-sm font-medium leading-tight truncate">
           {{ item.name }}

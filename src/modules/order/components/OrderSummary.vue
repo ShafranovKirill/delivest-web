@@ -3,6 +3,7 @@ import { useCartStore } from '@/modules/cart/stores/cart.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
 import CartTotals from '@/modules/cart/components/CartTotals.vue'
+import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
 import { useI18n } from 'vue-i18n'
 
@@ -22,15 +23,12 @@ const { t } = useI18n()
         class="flex items-center gap-3 rounded-2xl border p-2 pr-4"
         :class="item.gift ? 'bg-green-50 border-green-100' : 'bg-white border-gray-100'"
       >
-        <span v-if="!compact" class="size-14 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-          <img
-            v-if="item.image_url"
-            :src="item.image_url"
-            :alt="item.name"
-            class="size-full object-cover"
-            loading="lazy"
-          />
-        </span>
+        <ProductImage
+          v-if="!compact"
+          :src="item.image_url"
+          :alt="item.name"
+          class="size-14 shrink-0 rounded-xl"
+        />
         <span class="min-w-0 flex-1" :class="{ 'pl-2': compact }">
           <span class="block text-sm font-semibold text-gray-900 truncate">{{ item.name }}</span>
           <span v-if="item.gift" class="block text-xs font-medium text-green-700">
