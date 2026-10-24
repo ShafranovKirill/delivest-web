@@ -1,29 +1,17 @@
 <script setup lang="ts">
-import { watch } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useStockStore } from '../stores/stock.store'
-import { useBranchStore } from '@/modules/branch/stores/branch.store'
-import StockModal from '../components/StockModal.vue'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStocksQuery } from '../composables/useStocksQuery'
+import { useStoryRoute } from '../composables/useStoryRoute'
+import StoryViewer from '../components/StoryViewer.vue'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
-import { useI18n } from 'vue-i18n'
 
-const stockStore = useStockStore()
-const branchStore = useBranchStore()
 const { t } = useI18n()
+const { data } = useStocksQuery()
+const { open } = useStoryRoute()
 
-const { stocks } = storeToRefs(stockStore)
-const { activeBranch } = storeToRefs(branchStore)
-
-watch(
-  () => activeBranch.value?.id,
-  (newBranchId) => {
-    if (newBranchId) {
-      stockStore.fetchStocks(newBranchId)
-    }
-  },
-  { immediate: true },
-)
+const stocks = computed(() => data.value ?? [])
 </script>
 
 <template>
@@ -37,7 +25,7 @@ watch(
         :key="stock.id"
         type="button"
         class="group flex flex-col overflow-hidden rounded-3xl bg-gray-50 border border-gray-100 text-left cursor-pointer hover:border-primary transition-colors"
-        @click="stockStore.openProductModal(stock)"
+        @click="open(stock.id!)"
       >
         <span class="block aspect-4/5 w-full overflow-hidden bg-gray-100">
           <img
@@ -63,6 +51,6 @@ watch(
       :text="t('stock.emptyText')"
     />
 
-    <StockModal />
+    <StoryViewer />
   </PageShell>
 </template>

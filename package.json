@@ -36,6 +36,7 @@
     "vue-yandex-maps": "^3.0.4"
   },
   "devDependencies": {
+    "@iconify-json/tabler": "^1.2.42",
     "@primevue/auto-import-resolver": "^4.5.5",
     "@tailwindcss/vite": "^4.3.3",
     "@tsconfig/node24": "^24.0.5",

@@ -5,7 +5,8 @@ import { useProductRoute } from '../composables/useProductRoute'
 
 import CartButtonMobile from '@/modules/cart/components/CartButtonMobile.vue'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
-import StockSlider from '@/modules/stock/components/StockSlider.vue'
+import StoryStrip from '@/modules/stock/components/StoryStrip.vue'
+import StoryViewer from '@/modules/stock/components/StoryViewer.vue'
 import ActiveOrders from '@/modules/order/components/active/ActiveOrders.vue'
 import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
@@ -39,7 +40,7 @@ onMounted(() => {
 
 <template>
   <div class="bg-gray-200">
-    <StockSlider />
+    <StoryStrip />
     <ActiveOrders />
   </div>
   <MobileCategoryBar v-if="viewportStore.isMobile" />
@@ -54,5 +55,6 @@ onMounted(() => {
     <CategoryComponent v-for="category in menu" :key="category.id" :category="category" />
   </div>
   <ProductModal />
+  <StoryViewer />
   <CartButtonMobile v-if="viewportStore.isMobile" />
 </template>
