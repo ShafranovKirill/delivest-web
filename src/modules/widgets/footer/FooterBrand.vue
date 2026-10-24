@@ -2,11 +2,10 @@
 import { computed } from 'vue'
 import { openLink } from '@/utils/browser'
 import { useContactsStore } from '../contacts/stores/constacts.store'
-import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
+import BrandLogo from '@/modules/franchise/components/BrandLogo.vue'
 import { useI18n } from 'vue-i18n'
 
 const contactsStore = useContactsStore()
-const franchiseStore = useFranchiseStore()
 const { t } = useI18n()
 
 const socials = computed(() =>
@@ -20,13 +19,7 @@ const socials = computed(() =>
 
 <template>
   <div class="flex flex-col gap-4 max-w-sm">
-    <span
-      translate="no"
-      class="text-2xl tracking-tighter text-primary"
-      style="font-family: 'Unbounded', sans-serif; font-weight: 500"
-    >
-      {{ franchiseStore.name || t('footer.ourPlace') }}
-    </span>
+    <BrandLogo :fallback="t('footer.ourPlace')" class="h-8 max-w-48 text-2xl" />
     <p class="text-sm text-gray-600 leading-relaxed">{{ t('footer.tagline') }}</p>
 
     <a

@@ -11,6 +11,8 @@ export const useFranchiseStore = defineStore(
     const description = computed(() => franchise.value?.description ?? '')
     const primaryColor = computed(() => franchise.value?.primary_color ?? null)
     const legal = computed(() => franchise.value?.legal ?? null)
+    const logoUrl = computed(() => franchise.value?.logo_url ?? null)
+    const logoDarkUrl = computed(() => franchise.value?.logo_dark_url ?? null)
 
     async function load() {
       try {
@@ -25,7 +27,16 @@ export const useFranchiseStore = defineStore(
       if (!franchise.value) await request
     }
 
-    return { franchise, name, description, primaryColor, legal, init }
+    return {
+      franchise,
+      name,
+      description,
+      primaryColor,
+      legal,
+      logoUrl,
+      logoDarkUrl,
+      init,
+    }
   },
   { persist: { pick: ['franchise'] } },
 )

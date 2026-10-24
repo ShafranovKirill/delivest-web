@@ -15,6 +15,7 @@
   --color-brand: #f97316;
   --color-brand-dark: #ea580c;
   --font-sans: 'Inter', system-ui, sans-serif;
+  --font-brand: 'Unbounded', sans-serif;
 
   --color-primary: var(--p-primary-500);
   --color-primary-soft: var(--p-primary-50);

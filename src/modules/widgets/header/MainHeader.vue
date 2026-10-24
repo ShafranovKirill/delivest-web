@@ -12,6 +12,7 @@ import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
 import MobileBranchHeaderInfo from '@/modules/branch/components/MobileBranchHeaderInfo.vue'
 import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
 import UserButton from '@/modules/auth/components/UserButton.vue'
+import BrandLogo from '@/modules/franchise/components/BrandLogo.vue'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
@@ -54,14 +55,14 @@ const navigateToMenu = () => {
             <div class="h-6 w-px bg-gray-400 shrink-0" />
           </template>
 
-          <div
-            translate="no"
-            class="text-2xl sm:text-4xl px-0.5 tracking-tighter text-(--p-primary-500) cursor-pointer select-none hover:opacity-80 transition-opacity shrink-0"
-            style="font-family: 'Unbounded', sans-serif; font-weight: 500"
+          <button
+            type="button"
+            class="flex h-8 sm:h-10 max-w-40 sm:max-w-56 px-0.5 text-2xl sm:text-4xl cursor-pointer hover:opacity-80 transition-opacity shrink-0"
+            :aria-label="franchiseStore.name"
             @click="navigateToMenu"
           >
-            {{ franchiseStore.name }}
-          </div>
+            <BrandLogo class="h-full" />
+          </button>
           <BranchInfoBar v-if="branchStore.activeBranch && !viewportStore.isMobile" />
         </div>
       </template>

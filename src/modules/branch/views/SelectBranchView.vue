@@ -1,12 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-200 flex flex-col items-center justify-center px-4 py-10">
-    <div
-      translate="no"
-      class="mb-6 text-4xl sm:text-5xl tracking-tighter text-primary select-none"
-      style="font-family: 'Unbounded', sans-serif; font-weight: 500"
-    >
-      {{ franchiseStore.name }}
-    </div>
+    <BrandLogo class="mb-6 h-10 sm:h-12 max-w-64 text-4xl sm:text-5xl" />
 
     <div class="w-full max-w-md rounded-4xl bg-white p-5 sm:p-8 shadow-sm">
       <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-950">
@@ -67,7 +61,7 @@ import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
 import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
-import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
+import BrandLogo from '@/modules/franchise/components/BrandLogo.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -75,7 +69,6 @@ const { t } = useI18n()
 const router = useRouter()
 const toast = useToast()
 const branchStore = useBranchStore()
-const franchiseStore = useFranchiseStore()
 
 const loading = ref(false)
 const selectingId = ref<string | null>(null)

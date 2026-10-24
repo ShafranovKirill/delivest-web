@@ -8,13 +8,12 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useAccountLinks } from '@/modules/auth/composables/useAccountLinks'
 import ThemeToggle from '@/modules/settings/components/ThemeToggle.vue'
 import LocaleToggle from '@/modules/settings/components/LocaleToggle.vue'
-import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
+import BrandLogo from '@/modules/franchise/components/BrandLogo.vue'
 import { useI18n } from 'vue-i18n'
 
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
 const accountLinks = useAccountLinks()
-const franchiseStore = useFranchiseStore()
 const { t } = useI18n()
 
 const mainLinks = computed(() => [
@@ -34,13 +33,7 @@ const settingClass =
     :pt="{ content: { class: 'flex flex-col gap-6 pb-5' } }"
   >
     <template #header>
-      <span
-        translate="no"
-        class="text-2xl tracking-tighter text-(--p-primary-500)"
-        style="font-family: 'Unbounded', sans-serif; font-weight: 500"
-      >
-        {{ franchiseStore.name }}
-      </span>
+      <BrandLogo class="h-8 max-w-48 text-2xl" />
     </template>
 
     <div class="flex flex-col gap-2">
