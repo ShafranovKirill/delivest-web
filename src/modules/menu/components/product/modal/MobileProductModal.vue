@@ -4,6 +4,7 @@ import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
 import { storeToRefs } from 'pinia'
 import Drawer from 'primevue/drawer'
 import AddToCartButton from '../button/AddToCartButton.vue'
+import ProductTagPills from '../tags/ProductTagPills.vue'
 import { useI18n } from 'vue-i18n'
 
 const menuStore = useMenuStore()
@@ -32,6 +33,7 @@ const { activeProduct } = storeToRefs(menuStore)
 
         <div class="flex flex-col justify-between grow mt-4">
           <div class="flex flex-col gap-3">
+            <ProductTagPills :tags="activeProduct?.tags ?? []" />
             <h2 class="text-3xl font-normal! text-gray-900 tracking-tight">
               {{ activeProduct?.name }}
             </h2>

@@ -5,6 +5,7 @@ import Button from 'primevue/button'
 import ProductImage from '../ProductImage.vue'
 import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
 import AddToCartButton from '../button/AddToCartButton.vue'
+import ProductTagPills from '../tags/ProductTagPills.vue'
 import { useI18n } from 'vue-i18n'
 
 const menuStore = useMenuStore()
@@ -43,6 +44,7 @@ const { activeProduct } = storeToRefs(menuStore)
           <div class="flex flex-col justify-between h-full min-h-75">
             <div class="space-y-4">
               <div>
+                <ProductTagPills :tags="activeProduct?.tags ?? []" class="mb-3" />
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
                   {{ activeProduct?.name }}
                 </h2>

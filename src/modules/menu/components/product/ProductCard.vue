@@ -3,6 +3,7 @@ import type { MenuProduct } from '../../api/menu.service'
 import ProductImage from './ProductImage.vue'
 import { useMenuStore } from '../../stores/menu.store'
 import AddToCartSwitch from './button/AddToCartSwitch.vue'
+import ProductTagBadges from './tags/ProductTagBadges.vue'
 
 const props = defineProps<{ product: MenuProduct }>()
 const menuStore = useMenuStore()
@@ -15,7 +16,8 @@ const menuStore = useMenuStore()
   >
     <template #content>
       <div class="flex flex-col h-full items-center justify-between">
-        <div class="flex flex-col items-center w-full">
+        <div class="relative flex flex-col items-center w-full">
+          <ProductTagBadges :tags="product.tags ?? []" class="absolute left-2 top-2 z-10" />
           <ProductImage
             :src="product.photo_url"
             :alt="product.name"
