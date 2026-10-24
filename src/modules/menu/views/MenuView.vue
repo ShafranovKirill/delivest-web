@@ -6,6 +6,7 @@ import { useProductRoute } from '../composables/useProductRoute'
 import CartButtonMobile from '@/modules/cart/components/CartButtonMobile.vue'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
 import StoryStrip from '@/modules/stock/components/StoryStrip.vue'
+import ClosedBanner from '@/modules/branch/components/ClosedBanner.vue'
 import StoryViewer from '@/modules/stock/components/StoryViewer.vue'
 import ActiveOrders from '@/modules/order/components/active/ActiveOrders.vue'
 import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
@@ -40,6 +41,7 @@ onMounted(() => {
 
 <template>
   <div class="bg-gray-200">
+    <ClosedBanner />
     <StoryStrip />
     <ActiveOrders />
   </div>

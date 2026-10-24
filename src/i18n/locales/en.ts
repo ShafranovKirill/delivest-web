@@ -149,6 +149,14 @@ export const en: typeof ru = {
       loadFailed: 'Failed to load the list of branches',
       selectFailed: 'Failed to change the branch. Please try again',
     },
+    closed: {
+      title: 'Closed now',
+      today: 'We open today at {time}',
+      tomorrow: 'We open tomorrow at {time}',
+      later: 'We open on {day} at {time}',
+      hint: 'You can order ahead for when we open',
+      noOpening: 'Orders are paused for now',
+    },
     schedule: {
       notSet: 'Schedule not specified',
       dayOff: 'Closed',
