@@ -443,6 +443,86 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/cart/{cart_id}/repeat/{order_id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Повторить заказ
+     * @description Добавляет в корзину позиции прошлого заказа клиента. Недоступные сейчас товары пропускаются.
+     */
+    post: operations['DelivestWeb.Client.Cart.CartController.repeat']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/orders/{order_id}/push': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Подписаться на статус заказа
+     * @description Сохраняет push-подписку браузера для активного заказа текущей сессии или клиента.
+     */
+    post: operations['DelivestWeb.Client.Push.PushController.subscribe']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/push/key': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Ключ для push-уведомлений
+     * @description Публичный VAPID-ключ для подписки браузера на уведомления.
+     */
+    get: operations['DelivestWeb.Client.Push.PushController.key']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/{branch_id}/promotions': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Действующие акции филиала
+     * @description Автоматические акции, которые сейчас применяются к корзине без промокода.
+     */
+    get: operations['DelivestWeb.Client.Promotion.PromotionController.index']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
@@ -1044,6 +1124,10 @@ export interface components {
        * @example hinkali
        */
       slug?: string | null
+      /** @description Предлагать в корзине в блоке «Добавить к заказу» */
+      suggested?: boolean
+      /** @description Метки товара: хит, новинка, острое, вегетарианское */
+      tags?: ('hit' | 'new' | 'spicy' | 'vegetarian')[]
       /**
        * @description Вес товара (в граммах)
        * @example 450
@@ -1202,6 +1286,38 @@ export interface components {
     /** StocksListResponse */
     StocksListResponse: {
       data?: components['schemas']['StockResponse'][]
+    }
+    /** PushSubscriptionRequest */
+    PushSubscriptionRequest: {
+      /** Format: uri */
+      endpoint: string
+      keys: {
+        auth: string
+        p256dh: string
+      }
+      /** @enum {string|null} */
+      locale?: 'ru' | 'en' | null
+    }
+    /** RunningPromotionsResponse */
+    RunningPromotionsResponse: {
+      data: components['schemas']['RunningPromotion'][]
+    }
+    /** RunningPromotion */
+    RunningPromotion: {
+      description: string | null
+      /** Format: date-time */
+      ends_at: string | null
+      /** Format: uuid */
+      id: string
+      /** @example Скидка 10% на самовывоз */
+      name: string
+    }
+    /** PushKeyResponse */
+    PushKeyResponse: {
+      data: {
+        /** @description VAPID public key, base64url */
+        public_key: string
+      }
     }
   }
   responses: never
@@ -2143,6 +2259,123 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['StocksListResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.repeat': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        cart_id: string
+        order_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Обновленная корзина */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Корзина или заказ не найдены */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Push.PushController.subscribe': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        order_id: string
+      }
+      cookie?: never
+    }
+    /** @description Подписка браузера */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PushSubscriptionRequest']
+      }
+    }
+    responses: {
+      /** @description Подписка сохранена */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Заказ не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверная подписка */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Push.PushController.key': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Ключ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PushKeyResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Promotion.PromotionController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        branch_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список акций */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['RunningPromotionsResponse']
         }
       }
     }
