@@ -1122,9 +1122,31 @@
                 "type": "string",
                 "x-struct": null,
                 "x-validate": null
+              },
+              "logo_url": {
+                "format": "uri",
+                "nullable": true,
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "logo_dark_url": {
+                "format": "uri",
+                "nullable": true,
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
               }
             },
-            "required": ["name", "description", "primary_color", "legal", "documents"],
+            "required": [
+              "name",
+              "description",
+              "primary_color",
+              "logo_url",
+              "logo_dark_url",
+              "legal",
+              "documents"
+            ],
             "type": "object",
             "x-struct": null,
             "x-validate": null
@@ -2900,7 +2922,7 @@
     "/client/franchise": {
       "get": {
         "callbacks": {},
-        "description": "Название, описание, основной цвет, реквизиты продавца и список документов.",
+        "description": "Название, описание, основной цвет, логотипы, реквизиты продавца и список документов.",
         "operationId": "DelivestWeb.Client.Franchise.FranchiseController.show",
         "parameters": [],
         "responses": {

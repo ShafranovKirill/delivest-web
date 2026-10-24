@@ -311,7 +311,7 @@ export interface paths {
     }
     /**
      * Настройки франшизы
-     * @description Название, описание, основной цвет, реквизиты продавца и список документов.
+     * @description Название, описание, основной цвет, логотипы, реквизиты продавца и список документов.
      */
     get: operations['DelivestWeb.Client.Franchise.FranchiseController.show']
     put?: never
@@ -886,6 +886,10 @@ export interface components {
         name: string
         /** @example #462094 */
         primary_color: string
+        /** Format: uri */
+        logo_url: string | null
+        /** Format: uri */
+        logo_dark_url: string | null
       }
     }
     /** LegalDocumentResponse */
