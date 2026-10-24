@@ -1,6 +1,7 @@
 import { ref, computed, onMounted, onUnmounted, type Ref } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
-import type { DaySchedule } from '@/modules/branch/composables/useBranchSchedule'
+import type { WorkingHoursMap } from '@/modules/branch/composables/useBranchSchedule'
+import { addDays, isOpenAt, workWindow } from '@/modules/branch/utils/workWindow'
 import { intlLocale, t } from '@/i18n'
 
 export type Fulfillment = 'delivery' | 'pickup' | 'dine_in'
@@ -22,8 +23,7 @@ const MIN_PICKUP_MINUTES = 20
 const DAYS_AHEAD = 7
 const MAX_DAYS = 3
 const SUGGESTION_OFFSETS = [30, 60, 120]
-
-const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+const LAST_SLOT_MINUTE = 24 * 60 - STEP_MINUTES
 
 function pad(value: number) {
   return String(value).padStart(2, '0')
@@ -31,19 +31,6 @@ function pad(value: number) {
 
 function formatDateTime(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`
-}
-
-function parseClock(value: string | null | undefined): number | null {
-  const match = value?.match(/^(\d{1,2}):(\d{2})/)
-  if (!match) return null
-  return Number(match[1]) * 60 + Number(match[2])
-}
-
-function atMinutes(day: Date, minutes: number): Date {
-  const date = new Date(day)
-  date.setHours(0, 0, 0, 0)
-  date.setMinutes(minutes)
-  return date
 }
 
 function addMinutes(date: Date, minutes: number): Date {
@@ -83,29 +70,17 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
   const workingHours = computed(() => {
     const hours = branchStore.activeBranch?.branch_info?.working_hours
     if (!hours || typeof hours !== 'object' || Object.keys(hours).length === 0) return null
-    return hours as unknown as Record<string, DaySchedule>
+    return hours as unknown as WorkingHoursMap
   })
 
-  function workWindow(day: Date): { open: Date; close: Date } | null {
-    const hours = workingHours.value
-    if (!hours) return { open: atMinutes(day, 0), close: atMinutes(day, 24 * 60 - STEP_MINUTES) }
-
-    const schedule = hours[dayKeys[day.getDay()]!]
-    if (!schedule?.enabled) return null
-
-    const open = parseClock(schedule.open) ?? 0
-    const close = parseClock(schedule.close) ?? 24 * 60 - STEP_MINUTES
-    return {
-      open: atMinutes(day, open),
-      close: atMinutes(day, close <= open ? close + 24 * 60 : close),
-    }
+  function dayWindow(day: Date) {
+    return workWindow(workingHours.value, day, LAST_SLOT_MINUTE)
   }
 
   function dayLabel(day: Date): string {
     const today = now.value
     if (sameDay(day, today)) return t('order.timeSelect.today')
-    if (sameDay(day, addMinutes(atMinutes(today, 0), 24 * 60)))
-      return t('order.timeSelect.tomorrow')
+    if (sameDay(day, addDays(today, 1))) return t('order.timeSelect.tomorrow')
     return day.toLocaleDateString(intlLocale(), {
       weekday: 'short',
       day: 'numeric',
@@ -113,22 +88,15 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
     })
   }
 
-  const openNow = computed(() => {
-    const current = now.value
-    const yesterday = addMinutes(atMinutes(current, 0), -24 * 60)
-    return [yesterday, current].some((day) => {
-      const window = workWindow(day)
-      return !!window && current >= window.open && current < window.close
-    })
-  })
+  const openNow = computed(() => isOpenAt(workingHours.value, now.value))
 
   const days = computed<SlotDay[]>(() => {
     const earliest = roundUp(addMinutes(now.value, leadMinutes.value))
     const result: SlotDay[] = []
 
     for (let offset = -1; offset < DAYS_AHEAD && result.length < MAX_DAYS; offset++) {
-      const day = addMinutes(atMinutes(now.value, 0), offset * 24 * 60)
-      const window = workWindow(day)
+      const day = addDays(now.value, offset)
+      const window = dayWindow(day)
       if (!window) continue
 
       const first = roundUp(addMinutes(window.open, leadMinutes.value))
@@ -180,7 +148,7 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
 
   const workingUntil = computed(() => {
     const current = now.value
-    const window = workWindow(current)
+    const window = dayWindow(current)
     return openNow.value && window ? formatTimeLabel(window.close) : null
   })
 
