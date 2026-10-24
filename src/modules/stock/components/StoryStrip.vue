@@ -13,7 +13,7 @@ const stories = computed(() => data.value ?? [])
 <template>
   <section v-if="isLoading || stories.length" class="w-full max-w-7xl mx-auto pb-4">
     <div
-      class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-px-4 px-4 py-1.5 [scrollbar-width:none]"
+      class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-px-4 px-4 py-2 [scrollbar-width:none]"
     >
       <template v-if="isLoading">
         <Skeleton

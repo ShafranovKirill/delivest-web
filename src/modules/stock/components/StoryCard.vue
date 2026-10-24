@@ -14,7 +14,7 @@ const { isSeen } = useSeenStories()
   <button
     type="button"
     class="group relative aspect-3/4 overflow-hidden rounded-3xl bg-gray-300 text-left cursor-pointer"
-    :class="{ 'ring-[3px] ring-primary ring-offset-2 ring-offset-gray-200': !isSeen(story.id!) }"
+    :class="{ 'outline-3 outline-offset-2 outline-primary': !isSeen(story.id!) }"
     @click="$emit('open')"
   >
     <img

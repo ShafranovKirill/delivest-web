@@ -53,7 +53,7 @@ const isEmpty = computed(() => !stocks.value.length && !promotions.value.length)
 
       <section v-if="stocks.length">
         <h2 class="text-xl sm:text-2xl font-extrabold text-gray-950">{{ t('stock.specials') }}</h2>
-        <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-1">
           <StoryCard
             v-for="stock in stocks"
             :key="stock.id"
