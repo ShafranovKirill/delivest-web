@@ -4,6 +4,7 @@ import { useSidebarStore } from './sidebar.store'
 import SidebarNav from './SidebarNav.vue'
 import BranchInfoBarMobile from '@/modules/branch/components/BranchInfoBarMobile.vue'
 import SidebarUserPanel from '@/modules/auth/components/SidebarUserPanel.vue'
+import InstallAppTile from '@/modules/pwa/components/InstallAppTile.vue'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useAccountLinks } from '@/modules/auth/composables/useAccountLinks'
 import ThemeToggle from '@/modules/settings/components/ThemeToggle.vue'
@@ -39,6 +40,7 @@ const settingClass =
     <div class="flex flex-col gap-2">
       <SidebarUserPanel />
       <BranchInfoBarMobile />
+      <InstallAppTile />
     </div>
 
     <SidebarNav :items="mainLinks" />

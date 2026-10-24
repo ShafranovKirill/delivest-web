@@ -14,6 +14,8 @@ import ToastService from 'primevue/toastservice'
 import { MyPreset } from './assets/colorPreset.ts'
 import { i18n } from './i18n'
 import { useFranchiseStore } from './modules/franchise/stores/franchise.store'
+import { registerServiceWorker } from './modules/pwa/registerServiceWorker'
+import { listenForInstallPrompt } from './modules/pwa/composables/useInstallPrompt'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -38,6 +40,8 @@ pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(ToastService)
 installAuthInterceptor(api)
+registerServiceWorker()
+listenForInstallPrompt()
 
 Promise.allSettled([useFranchiseStore(pinia).init(), router.isReady()]).then(() =>
   app.mount('#app'),

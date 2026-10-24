@@ -398,4 +398,23 @@ export const en: typeof ru = {
     },
     updatedAt: 'Version of {date}',
   },
+  pwa: {
+    push: {
+      title: 'Get order updates',
+      text: 'We will notify you when your order is being prepared and when it is ready',
+      enable: 'Turn on notifications',
+      enabled: 'Order notifications are on',
+      denied: 'Notifications are blocked in your browser settings',
+      failed: 'Could not turn on notifications',
+      iosHint: 'To get notifications on iPhone, add the site to your Home Screen',
+    },
+    install: {
+      title: 'Install the app',
+      subtitle: 'Menu and orders in one tap',
+      iosTitle: 'Install on iPhone',
+      iosStep1: 'Tap Share at the bottom of the screen',
+      iosStep2: 'Choose Add to Home Screen',
+      iosStep3: 'Tap Add in the top right corner',
+    },
+  },
 }

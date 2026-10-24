@@ -15,6 +15,8 @@ declare module 'vue' {
     Card: typeof import('primevue/card')['default']
     Dialog: typeof import('primevue/dialog')['default']
     Drawer: typeof import('primevue/drawer')['default']
+    ITablerBell: typeof import('~icons/tabler/bell')['default']
+    ITablerBellRinging: typeof import('~icons/tabler/bell-ringing')['default']
     ITablerFlame: typeof import('~icons/tabler/flame')['default']
     ITablerLeaf: typeof import('~icons/tabler/leaf')['default']
     ITablerMoon: typeof import('~icons/tabler/moon')['default']

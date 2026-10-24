@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router'
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
 import { useOrderStore } from '../stores/order.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
+import OrderPushPrompt from '@/modules/pwa/components/OrderPushPrompt.vue'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
@@ -32,6 +33,8 @@ function handleReturnHome() {
         </div>
       </div>
     </SurfaceCard>
+
+    <OrderPushPrompt :order-id="orderStore.lastCreatedOrder?.id" />
 
     <SurfaceCard icon="pi-phone" :label="t('order.success.next')">
       <template #value>{{ t('order.success.operatorCall') }}</template>
