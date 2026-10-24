@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Button from 'primevue/button'
-import CartComponent from '@/modules/cart/components/CartComponent.vue'
-import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { useOpenCart } from '@/modules/cart/composables/useOpenCart'
 import { intlLocale } from '@/i18n'
 import { useI18n } from 'vue-i18n'
 
-const desktopModalStore = useDesktopModalStore()
+const openCartModal = useOpenCart()
 const cartStore = useCartStore()
 const { t } = useI18n()
 
@@ -17,13 +16,6 @@ const buttonLabel = computed(() => {
   }
   return t('cart.title')
 })
-
-const openCartModal = () => {
-  desktopModalStore.openModal({
-    component: CartComponent,
-    headerTitle: t('cart.title'),
-  })
-}
 </script>
 
 <template>

@@ -1,26 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Button from 'primevue/button'
-import CartComponent from '@/modules/cart/components/CartComponent.vue'
-import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { useOpenCart } from '@/modules/cart/composables/useOpenCart'
 import { intlLocale } from '@/i18n'
-import { useI18n } from 'vue-i18n'
 
-const modalStore = useMobileModalStore()
+const openCartModal = useOpenCart()
 const cartStore = useCartStore()
-const { t } = useI18n()
 
 const formattedTotal = computed(() => {
   return `${cartStore.totalAmount.toLocaleString(intlLocale())} ₽`
 })
-
-const openCartModal = () => {
-  modalStore.openModal({
-    component: CartComponent,
-    headerTitle: t('cart.title'),
-  })
-}
 </script>
 
 <template>
