@@ -212,6 +212,7 @@ export const en: typeof ru = {
   },
   cart: {
     title: 'Cart',
+    suggestions: 'Add to your order',
     loading: 'Loading cart...',
     empty: 'Cart is empty',
     emptyText: 'Now is the perfect time to add something tasty from the catalog.',

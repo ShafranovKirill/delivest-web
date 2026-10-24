@@ -5,6 +5,7 @@ import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
 import CartTotals from '@/modules/cart/components/CartTotals.vue'
 import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
+import CartSuggestions from '@/modules/cart/components/CartSuggestions.vue'
 import { useI18n } from 'vue-i18n'
 
 withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
@@ -49,6 +50,8 @@ const { t } = useI18n()
         </span>
       </li>
     </ul>
+
+    <CartSuggestions v-if="!compact" class="mt-4" />
 
     <div class="mt-4 flex flex-col gap-3 border-t border-gray-200 pt-4">
       <CartPromotions />

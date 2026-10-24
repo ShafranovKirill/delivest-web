@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import CartItemCard from './CartItem.vue'
 import CartPromotions from './CartPromotions.vue'
+import CartSuggestions from './CartSuggestions.vue'
 import CartTotals from './CartTotals.vue'
 import PromoCodeInput from './PromoCodeInput.vue'
 import { useCartStore } from '../stores/cart.store.ts'
@@ -90,6 +91,8 @@ function goToCatalog() {
         <div class="flex flex-col gap-3">
           <CartItemCard v-for="item in cartStore.items" :key="item.key" :item="item" />
         </div>
+
+        <CartSuggestions class="pt-2" />
 
         <div class="pt-4 pb-2 mt-auto border-t flex flex-col gap-3">
           <CartPromotions />
