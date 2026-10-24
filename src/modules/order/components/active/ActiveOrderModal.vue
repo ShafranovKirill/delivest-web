@@ -10,8 +10,8 @@ import OrderStatusSteps from './OrderStatusSteps.vue'
 import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
 import { useI18n } from 'vue-i18n'
 
-const props = defineProps<{ order: ActiveOrder | null }>()
-const emit = defineEmits<{ close: [] }>()
+const props = defineProps<{ order: ActiveOrder | null; repeatable?: boolean }>()
+const emit = defineEmits<{ close: []; repeat: [] }>()
 
 const contactsStore = useContactsStore()
 const { t } = useI18n()
@@ -134,6 +134,13 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
     <template #footer>
       <div class="flex w-full flex-col gap-2 pt-2">
         <Button
+          v-if="repeatable"
+          :label="t('account.orders.repeatOrder')"
+          icon="pi pi-replay"
+          class="h-12 w-full rounded-full! font-semibold"
+          @click="emit('repeat')"
+        />
+        <Button
           v-if="contactsStore.phone"
           as="a"
           :href="`tel:${contactsStore.phone}`"
@@ -144,6 +151,7 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
         />
         <Button
           :label="t('common.close')"
+          :severity="repeatable ? 'secondary' : undefined"
           class="h-12 w-full rounded-full! font-semibold"
           @click="emit('close')"
         />

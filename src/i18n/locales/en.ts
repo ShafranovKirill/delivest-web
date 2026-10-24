@@ -119,6 +119,10 @@ export const en: typeof ru = {
       authText: 'Your order history will appear here',
       emptyTitle: 'No orders yet',
       emptyText: 'Place your first order and it will show up here',
+      repeat: 'Repeat',
+      repeatOrder: 'Repeat order',
+      repeatPartial: 'Some items are unavailable now, the rest is in your cart',
+      repeatEmpty: 'These items are not on the menu right now',
     },
   },
   address: {

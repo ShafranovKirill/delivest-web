@@ -41,6 +41,11 @@ export const CartService = {
     return data.data
   },
 
+  async repeatOrder(cartId: string, orderId: string): Promise<Cart> {
+    const { data } = await api.post<CartResponse>(`/client/cart/${cartId}/repeat/${orderId}`)
+    return data.data
+  },
+
   async clearCart(cartId: string): Promise<Cart> {
     const { data } = await api.delete<CartResponse>(`/client/cart/${cartId}/clear`)
     return data.data

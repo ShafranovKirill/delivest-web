@@ -20,6 +20,7 @@ declare module 'vue' {
     ITablerMoon: typeof import('~icons/tabler/moon')['default']
     ITablerPepper: typeof import('~icons/tabler/pepper')['default']
     ITablerPlus: typeof import('~icons/tabler/plus')['default']
+    ITablerRepeat: typeof import('~icons/tabler/repeat')['default']
     ITablerRosetteDiscount: typeof import('~icons/tabler/rosette-discount')['default']
     ITablerSparkles: typeof import('~icons/tabler/sparkles')['default']
     ITablerX: typeof import('~icons/tabler/x')['default']
