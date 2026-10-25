@@ -26,7 +26,9 @@ const { t } = useI18n()
 
 const navigateToMenu = () => {
   sidebarStore.isSidebarVisible = false
-  if (branchStore.activeBranch?.slug) {
+  if (router.currentRoute.value.name === 'menu') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else if (branchStore.activeBranch?.slug) {
     router.push({
       name: 'menu',
       params: { slug: branchStore.activeBranch.slug },
