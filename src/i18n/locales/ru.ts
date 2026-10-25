@@ -205,12 +205,6 @@ export const ru = {
     addToCart: 'В корзину за {price} ₽',
     loadFailed: 'Не удалось загрузить меню',
     loadFailedHint: 'Попробуйте обновить страницу или повторить запрос позже.',
-    tags: {
-      hit: 'Хит',
-      new: 'Новинка',
-      spicy: 'Острое',
-      vegetarian: 'Вегетарианское',
-    },
   },
   cart: {
     title: 'Корзина',

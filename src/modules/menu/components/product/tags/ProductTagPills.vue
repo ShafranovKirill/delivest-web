@@ -1,22 +1,18 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { tagSoft, tagText, type ProductTag } from '../../../utils/productTags'
-import ProductTagIcon from './ProductTagIcon.vue'
+import type { ProductTag } from '../../../utils/productTags'
 
 defineProps<{ tags: ProductTag[] }>()
-const { t } = useI18n()
 </script>
 
 <template>
   <span v-if="tags.length" class="flex flex-wrap gap-1.5">
     <span
       v-for="tag in tags"
-      :key="tag"
-      class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
-      :class="[tagSoft[tag], tagText[tag]]"
+      :key="tag.id"
+      class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-800"
     >
-      <ProductTagIcon :tag="tag" class="size-3.5" />
-      {{ t(`menu.tags.${tag}`) }}
+      <img v-if="tag.icon_url" :src="tag.icon_url" alt="" class="size-3.5 object-contain" />
+      {{ tag.name }}
     </span>
   </span>
 </template>

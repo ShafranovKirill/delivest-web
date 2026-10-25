@@ -1126,8 +1126,18 @@ export interface components {
       slug?: string | null
       /** @description Предлагать в корзине в блоке «Добавить к заказу» */
       suggested?: boolean
-      /** @description Метки товара: хит, новинка, острое, вегетарианское */
-      tags?: ('hit' | 'new' | 'spicy' | 'vegetarian')[]
+      /** @description Теги товара, которые админ настраивает во вкладке «Теги» */
+      tags?: {
+        /**
+         * Format: uri
+         * @description Иконка тега: SVG из библиотеки или загруженный PNG 64×64
+         */
+        icon_url: string | null
+        /** Format: uuid */
+        id: string
+        /** @example Хит */
+        name: string
+      }[]
       /**
        * @description Вес товара (в граммах)
        * @example 450

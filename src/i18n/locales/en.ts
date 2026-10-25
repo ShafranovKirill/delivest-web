@@ -207,12 +207,6 @@ export const en: typeof ru = {
     addToCart: 'Add to cart for {price} ₽',
     loadFailed: 'Failed to load the menu',
     loadFailedHint: 'Try refreshing the page or retry later.',
-    tags: {
-      hit: 'Hit',
-      new: 'New',
-      spicy: 'Spicy',
-      vegetarian: 'Vegetarian',
-    },
   },
   cart: {
     title: 'Cart',

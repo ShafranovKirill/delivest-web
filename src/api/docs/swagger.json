@@ -1529,10 +1529,22 @@
             "x-validate": null
           },
           "tags": {
-            "description": "Метки товара: хит, новинка, острое, вегетарианское",
+            "description": "Теги товара, которые админ настраивает во вкладке «Теги»",
             "items": {
-              "enum": ["hit", "new", "spicy", "vegetarian"],
-              "type": "string",
+              "properties": {
+                "icon_url": {
+                  "description": "Иконка тега: SVG из библиотеки или загруженный PNG 64×64",
+                  "format": "uri",
+                  "nullable": true,
+                  "type": "string",
+                  "x-struct": null,
+                  "x-validate": null
+                },
+                "id": { "format": "uuid", "type": "string", "x-struct": null, "x-validate": null },
+                "name": { "example": "Хит", "type": "string", "x-struct": null, "x-validate": null }
+              },
+              "required": ["id", "name", "icon_url"],
+              "type": "object",
               "x-struct": null,
               "x-validate": null
             },
