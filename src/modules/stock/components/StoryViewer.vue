@@ -115,11 +115,19 @@ function openProduct() {
           @contextmenu.prevent
         >
           <img
+            :key="`${current.id}-backdrop`"
+            :src="current.photo_url"
+            alt=""
+            aria-hidden="true"
+            draggable="false"
+            class="absolute inset-0 size-full scale-125 object-cover blur-2xl brightness-50 saturate-150"
+          />
+          <img
             :key="current.id"
             :src="current.photo_url"
             :alt="current.text || t('stock.single')"
             draggable="false"
-            class="absolute inset-0 size-full object-cover"
+            class="absolute inset-0 size-full object-contain"
             @load="loaded = true"
             @error="loaded = true"
           />
