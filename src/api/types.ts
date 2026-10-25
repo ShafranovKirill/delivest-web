@@ -412,7 +412,7 @@ export interface paths {
     }
     /**
      * Токен для подключения к сокету
-     * @description Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (события `confirmed`, `failed`).
+     * @description Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (событие `confirmed`, после него токены забираются через `/client/auth/call/{id}/complete`).
      */
     get: operations['DelivestWeb.Client.Socket.SocketController.token']
     put?: never

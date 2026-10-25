@@ -19,6 +19,7 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   let channel: Channel | null = null
   let countdownTimer: ReturnType<typeof setInterval> | undefined
   let pollTimer: ReturnType<typeof setTimeout> | undefined
+  let checking = false
 
   const isWaiting = computed(() => confirmation.value !== null)
 
@@ -57,18 +58,30 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     }, 1000)
   }
 
+  async function check(confirmationId: string) {
+    if (checking) return
+    checking = true
+    try {
+      const session = await AuthService.checkCall(confirmationId)
+      if (session.status === 'confirmed') confirm(confirmationId, session)
+    } catch (error) {
+      const code = getApiErrorCode(error)
+      if (code && FINAL_CODES.includes(code) && waitingFor(confirmationId)) fail({ code })
+    } finally {
+      checking = false
+    }
+  }
+
   function poll(confirmationId: string) {
     pollTimer = setTimeout(async () => {
-      try {
-        const session = await AuthService.checkCall(confirmationId)
-        if (session.status === 'confirmed') return confirm(confirmationId, session)
-      } catch (error) {
-        const code = getApiErrorCode(error)
-        if (code && FINAL_CODES.includes(code) && waitingFor(confirmationId)) return fail({ code })
-      }
-
+      await check(confirmationId)
       if (waitingFor(confirmationId)) poll(confirmationId)
     }, POLL_INTERVAL_MS)
+  }
+
+  function checkOnReturn() {
+    const confirmationId = confirmation.value?.confirmation_id
+    if (confirmationId && document.visibilityState === 'visible') check(confirmationId)
   }
 
   async function listen(confirmationId: string) {
@@ -76,10 +89,7 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     if (!waitingFor(confirmationId)) return
 
     channel = socket.channel(`auth:${confirmationId}`)
-    channel.on('confirmed', (session: ClientSession) => confirm(confirmationId, session))
-    channel.on('failed', (failure: Failure) => {
-      if (waitingFor(confirmationId)) fail(failure)
-    })
+    channel.on('confirmed', () => check(confirmationId))
     channel.join()
   }
 
@@ -101,7 +111,12 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     }
   }
 
-  onScopeDispose(stop)
+  document.addEventListener('visibilitychange', checkOnReturn)
+
+  onScopeDispose(() => {
+    stop()
+    document.removeEventListener('visibilitychange', checkOnReturn)
+  })
 
   return { confirmation, isStarting, isWaiting, errorMessage, secondsLeft, start, reset }
 }
