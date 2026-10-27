@@ -486,7 +486,12 @@
                 "example": 1330,
                 "type": "integer"
               },
-              "total_amount": { "example": 1180, "type": "integer" }
+              "total_amount": { "example": 1180, "type": "integer" },
+              "delivery_amount": {
+                "description": "Стоимость доставки, входит в total_amount",
+                "example": 200,
+                "type": "integer"
+              }
             },
             "required": [
               "id",
@@ -497,6 +502,7 @@
               "total_amount",
               "subtotal_amount",
               "discount_amount",
+              "delivery_amount",
               "promotions",
               "branch_id",
               "cart_id",
@@ -920,6 +926,9 @@
               "address_not_found",
               "internal_error",
               "price_changed",
+              "delivery_below_minimum",
+              "delivery_outside_zones",
+              "delivery_no_coordinates",
               "promo_unavailable",
               "promo_not_found",
               "promo_inactive",
@@ -1011,7 +1020,12 @@
             "example": 1330,
             "type": "integer"
           },
-          "total_amount": { "example": 1180, "type": "integer" }
+          "total_amount": { "example": 1180, "type": "integer" },
+          "delivery_amount": {
+            "description": "Стоимость доставки, входит в total_amount",
+            "example": 200,
+            "type": "integer"
+          }
         },
         "required": [
           "id",
@@ -1022,6 +1036,7 @@
           "total_amount",
           "subtotal_amount",
           "discount_amount",
+          "delivery_amount",
           "promotions",
           "branch_id",
           "inserted_at",
@@ -1105,6 +1120,27 @@
           "data": { "items": { "$ref": "#/components/schemas/StockResponse" }, "type": "array" }
         },
         "title": "StocksListResponse",
+        "type": "object"
+      },
+      "DeliveryQuoteResponse": {
+        "properties": { "data": { "$ref": "#/components/schemas/DeliveryQuote" } },
+        "required": ["data"],
+        "title": "DeliveryQuoteResponse",
+        "type": "object"
+      },
+      "DeliveryQuote": {
+        "properties": {
+          "free_from": { "example": 1500, "nullable": true, "type": "integer" },
+          "min_order": { "example": 500, "nullable": true, "type": "integer" },
+          "minutes": { "example": 45, "nullable": true, "type": "integer" },
+          "price": { "example": 150, "nullable": true, "type": "integer" },
+          "status": {
+            "enum": ["ok", "below_minimum", "outside_zones", "no_coordinates"],
+            "type": "string"
+          }
+        },
+        "required": ["status", "price", "min_order", "free_from", "minutes"],
+        "title": "DeliveryQuote",
         "type": "object"
       }
     }
@@ -2229,6 +2265,61 @@
         },
         "summary": "Получить список активных акций филиала",
         "tags": []
+      }
+    },
+    "/client/delivery/quote": {
+      "get": {
+        "callbacks": {},
+        "description": "Стоимость доставки по точке адреса и сумме корзины. Зоны клиенту не отдаются, только итог: `ok` — доставляем, `below_minimum` — сумма меньше минимальной, `outside_zones` — сюда не доставляем, `no_coordinates` — у адреса нет точки на карте.",
+        "operationId": "DelivestWeb.Client.Delivery.DeliveryController.quote",
+        "parameters": [
+          {
+            "description": "",
+            "in": "query",
+            "name": "branch_id",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "latitude",
+            "required": false,
+            "schema": { "type": "number" }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "longitude",
+            "required": false,
+            "schema": { "type": "number" }
+          },
+          {
+            "description": "Сумма корзины со скидками",
+            "in": "query",
+            "name": "subtotal",
+            "required": false,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeliveryQuoteResponse" }
+              }
+            },
+            "description": "Стоимость"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Нет филиала"
+          }
+        },
+        "summary": "Стоимость доставки",
+        "tags": ["Delivery"]
       }
     }
   },

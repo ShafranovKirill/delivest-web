@@ -17,6 +17,7 @@ import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmen
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
 import { useI18n } from 'vue-i18n'
 
 export interface OrderFormValues {
@@ -61,6 +62,12 @@ const form = reactive({
 
 const isDelivery = computed(() => fulfillmentStore.current?.type === 'delivery')
 
+const delivery = useDeliveryQuote()
+
+const deliveryBlocked = computed(
+  () => isDelivery.value && !form.call_operator_for_address && delivery.blocked.value,
+)
+
 const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
   isDelivery.value ? 'delivery' : pickupKind.value,
 )
@@ -101,6 +108,8 @@ function handleSubmit() {
     flowStore.openPicker('delivery')
     return
   }
+
+  if (deliveryBlocked.value) return
 
   emit('submit', {
     ...form,
@@ -173,9 +182,13 @@ function handleSubmit() {
       </label>
     </SurfaceCard>
 
+    <p v-if="deliveryBlocked" class="text-center text-sm font-medium text-red-500">
+      {{ delivery.hint.value }}
+    </p>
     <Button
       type="submit"
       :label="t('order.form.submit')"
+      :disabled="deliveryBlocked"
       icon="pi pi-check"
       iconPos="right"
       :loading="isLoading"

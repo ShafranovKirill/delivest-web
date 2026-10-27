@@ -563,6 +563,26 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/delivery/quote': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Стоимость доставки
+     * @description Стоимость доставки по точке адреса и сумме корзины. Зоны клиенту не отдаются, только итог: `ok` — доставляем, `below_minimum` — сумма меньше минимальной, `outside_zones` — сюда не доставляем, `no_coordinates` — у адреса нет точки на карте.
+     */
+    get: operations['DelivestWeb.Client.Delivery.DeliveryController.quote']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
@@ -969,6 +989,11 @@ export interface components {
         subtotal_amount: number
         /** @example 1180 */
         total_amount: number
+        /**
+         * @description Стоимость доставки, входит в total_amount
+         * @example 200
+         */
+        delivery_amount: number
       }
     }
     /**
@@ -1311,6 +1336,9 @@ export interface components {
         | 'address_not_found'
         | 'internal_error'
         | 'price_changed'
+        | 'delivery_below_minimum'
+        | 'delivery_outside_zones'
+        | 'delivery_no_coordinates'
         | 'promo_unavailable'
         | 'promo_not_found'
         | 'promo_inactive'
@@ -1387,6 +1415,11 @@ export interface components {
       subtotal_amount: number
       /** @example 1180 */
       total_amount: number
+      /**
+       * @description Стоимость доставки, входит в total_amount
+       * @example 200
+       */
+      delivery_amount: number
     }
     /** BranchInfoResponse */
     BranchInfoResponse: {
@@ -1469,6 +1502,23 @@ export interface components {
     /** StocksListResponse */
     StocksListResponse: {
       data?: components['schemas']['StockResponse'][]
+    }
+    /** DeliveryQuoteResponse */
+    DeliveryQuoteResponse: {
+      data: components['schemas']['DeliveryQuote']
+    }
+    /** DeliveryQuote */
+    DeliveryQuote: {
+      /** @example 1500 */
+      free_from: number | null
+      /** @example 500 */
+      min_order: number | null
+      /** @example 45 */
+      minutes: number | null
+      /** @example 150 */
+      price: number | null
+      /** @enum {string} */
+      status: 'ok' | 'below_minimum' | 'outside_zones' | 'no_coordinates'
     }
   }
   responses: never
@@ -2602,6 +2652,41 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['StocksListResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Delivery.DeliveryController.quote': {
+    parameters: {
+      query: {
+        branch_id: string
+        latitude?: number
+        longitude?: number
+        /** @description Сумма корзины со скидками */
+        subtotal?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Стоимость */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['DeliveryQuoteResponse']
+        }
+      }
+      /** @description Нет филиала */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
         }
       }
     }

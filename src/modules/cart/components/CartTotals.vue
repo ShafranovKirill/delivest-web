@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useCartStore } from '../stores/cart.store'
 import { useI18n } from 'vue-i18n'
+import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
 
 const cartStore = useCartStore()
 const { t } = useI18n()
+const { price: deliveryPrice } = useDeliveryQuote()
+
+const total = computed(() => cartStore.totalAmount + (deliveryPrice.value ?? 0))
 </script>
 
 <template>
@@ -22,9 +27,15 @@ const { t } = useI18n()
         <span class="tabular-nums">−{{ cartStore.discountAmount }} ₽</span>
       </div>
     </template>
+    <div v-if="deliveryPrice !== null" class="flex justify-between text-sm text-gray-500">
+      <span>{{ t('delivery.line') }}</span>
+      <span class="tabular-nums">
+        {{ deliveryPrice ? `${deliveryPrice} ₽` : t('common.free') }}
+      </span>
+    </div>
     <div class="flex justify-between text-lg font-extrabold text-gray-950">
       <span>{{ t('common.total') }}</span>
-      <span class="tabular-nums">{{ cartStore.totalAmount }} ₽</span>
+      <span class="tabular-nums">{{ total }} ₽</span>
     </div>
   </div>
 </template>

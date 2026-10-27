@@ -61,6 +61,9 @@ export const ru = {
       address_not_found: 'Адрес не найден',
       internal_error: 'Ошибка сервера. Попробуйте позже',
       price_changed: 'Сумма заказа изменилась. Проверьте корзину и оформите заказ снова',
+      delivery_below_minimum: 'Сумма заказа меньше минимальной для доставки по этому адресу',
+      delivery_outside_zones: 'По этому адресу не доставляем, выберите другой адрес',
+      delivery_no_coordinates: 'Уточните адрес доставки на карте',
       promo_unavailable: 'Акция только что закончилась. Корзина пересчитана',
       promo_not_found: 'Промокод не найден',
       promo_inactive: 'Промокод сейчас не действует',
@@ -139,6 +142,15 @@ export const ru = {
       entrance: 'подъезд {value}',
       floor: 'этаж {value}',
     },
+  },
+  delivery: {
+    free: 'Доставка бесплатно',
+    price: 'Доставка {price} ₽',
+    priceFreeFrom: 'Доставка {price} ₽, бесплатно от {sum} ₽',
+    minimum: 'Минимальная сумма заказа на доставку — {sum} ₽',
+    outside: 'Сюда не доставляем, выберите другой адрес',
+    noPoint: 'Уточните адрес на карте',
+    line: 'Доставка',
   },
   fulfillment: {
     prompt: {

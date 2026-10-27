@@ -63,6 +63,9 @@ export const en: typeof ru = {
       address_not_found: 'Address not found',
       internal_error: 'Server error. Try again later',
       price_changed: 'The order total has changed. Check your cart and place the order again',
+      delivery_below_minimum: 'The order is below the minimum for delivery to this address',
+      delivery_outside_zones: 'We do not deliver to this address, pick another one',
+      delivery_no_coordinates: 'Pick the delivery address on the map',
       promo_unavailable: 'The promotion has just ended. The cart has been recalculated',
       promo_not_found: 'Promo code not found',
       promo_inactive: 'This promo code is not active right now',
@@ -141,6 +144,15 @@ export const en: typeof ru = {
       entrance: 'entrance {value}',
       floor: 'floor {value}',
     },
+  },
+  delivery: {
+    free: 'Free delivery',
+    price: 'Delivery {price} ₽',
+    priceFreeFrom: 'Delivery {price} ₽, free from {sum} ₽',
+    minimum: 'Minimum order for delivery is {sum} ₽',
+    outside: 'We do not deliver here, pick another address',
+    noPoint: 'Pick the address on the map',
+    line: 'Delivery',
   },
   fulfillment: {
     prompt: {

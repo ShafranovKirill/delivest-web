@@ -5,11 +5,13 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { formatAddress } from '@/modules/shared/utils/address'
 import { useFulfillmentStore } from '../stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '../stores/fulfillmentFlow.store'
+import { useDeliveryQuote } from '../composables/useDeliveryQuote'
 
 const { t } = useI18n()
 const branchStore = useBranchStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
+const { hint, blocked } = useDeliveryQuote()
 
 const summary = computed(() => {
   const choice = fulfillmentStore.current
@@ -39,6 +41,13 @@ const summary = computed(() => {
         {{ summary?.title ?? t('fulfillment.summary.empty') }}
       </span>
       <span v-if="summary?.text" class="block text-gray-500">{{ summary.text }}</span>
+      <span
+        v-if="fulfillmentStore.current?.type === 'delivery' && hint"
+        class="block font-medium"
+        :class="blocked ? 'text-red-500' : 'text-gray-700'"
+      >
+        {{ hint }}
+      </span>
     </span>
     <button
       type="button"
