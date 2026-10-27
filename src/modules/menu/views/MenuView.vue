@@ -9,6 +9,7 @@ import StoryStrip from '@/modules/stock/components/StoryStrip.vue'
 import ClosedBanner from '@/modules/branch/components/ClosedBanner.vue'
 import StoryViewer from '@/modules/stock/components/StoryViewer.vue'
 import FulfillmentSummary from '@/modules/fulfillment/components/FulfillmentSummary.vue'
+import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
 import ActiveOrders from '@/modules/order/components/active/ActiveOrders.vue'
 import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
@@ -22,6 +23,7 @@ import ErrorComponent from '../components/category/ErrorComponent.vue'
 const viewportStore = useViewportStore()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
+const fulfillmentStore = useFulfillmentStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
 
@@ -44,7 +46,7 @@ onMounted(() => {
   <div class="bg-gray-200">
     <ClosedBanner />
     <StoryStrip />
-    <div class="w-full max-w-7xl mx-auto px-4 pb-4">
+    <div v-if="fulfillmentStore.current" class="w-full max-w-7xl mx-auto px-4 pb-4">
       <FulfillmentSummary />
     </div>
     <ActiveOrders />
