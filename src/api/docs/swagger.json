@@ -142,7 +142,6 @@
             "nullable": true,
             "type": "string"
           },
-          "external_id": { "nullable": true, "type": "string" },
           "id": {
             "example": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             "format": "uuid",
@@ -226,7 +225,7 @@
           "district": { "example": "Центральный р-н", "nullable": true, "type": "string" },
           "fias_id": { "description": "ФИАС дома", "nullable": true, "type": "string" },
           "geo_precision": {
-            "description": "Точность координат DaData qc_geo: 0 — дом, 5 — не определены",
+            "description": "Точность координат DaData qc_geo: 0 — точные, 5 — не определены",
             "nullable": true,
             "type": "integer"
           },

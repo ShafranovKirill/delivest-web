@@ -680,7 +680,6 @@ export interface components {
     ProductResponse: {
       /** @example Сочная пицца с колбасками */
       description?: string | null
-      external_id?: string | null
       /**
        * Format: uuid
        * @example 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
@@ -748,7 +747,7 @@ export interface components {
       district: string | null
       /** @description ФИАС дома */
       fias_id: string | null
-      /** @description Точность координат DaData qc_geo: 0 — дом, 5 — не определены */
+      /** @description Точность координат DaData qc_geo: 0 — точные, 5 — не определены */
       geo_precision: number | null
       /** @example 10 */
       house: string | null
