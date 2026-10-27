@@ -4,12 +4,7 @@
     "schemas": {
       "ActiveOrdersResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/ActiveOrder"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" }
         },
         "required": ["data"],
         "title": "ActiveOrdersResponse",
@@ -19,18 +14,9 @@
         "properties": {
           "data": {
             "properties": {
-              "body": {
-                "type": "string"
-              },
-              "kind": {
-                "enum": ["privacy", "consent", "offer", "terms"],
-                "type": "string"
-              },
-              "updated_at": {
-                "format": "date-time",
-                "nullable": true,
-                "type": "string"
-              }
+              "body": { "type": "string" },
+              "kind": { "enum": ["privacy", "consent", "offer", "terms"], "type": "string" },
+              "updated_at": { "format": "date-time", "nullable": true, "type": "string" }
             },
             "required": ["kind", "body", "updated_at"],
             "type": "object"
@@ -41,21 +27,14 @@
         "type": "object"
       },
       "StartCallRequest": {
-        "properties": {
-          "phone": {
-            "example": "+79990000000",
-            "type": "string"
-          }
-        },
+        "properties": { "phone": { "example": "+79990000000", "type": "string" } },
         "required": ["phone"],
         "title": "StartCallRequest",
         "type": "object"
       },
       "CreateOrderRequest": {
         "properties": {
-          "address": {
-            "$ref": "#/components/schemas/AddressRequest"
-          },
+          "address": { "$ref": "#/components/schemas/AddressRequest" },
           "branch_id": {
             "description": "UUID филиала",
             "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
@@ -68,11 +47,7 @@
             "format": "uuid",
             "type": "string"
           },
-          "comment": {
-            "example": "Без лука",
-            "nullable": true,
-            "type": "string"
-          },
+          "comment": { "example": "Без лука", "nullable": true, "type": "string" },
           "cook_by": {
             "description": "Желаемое время приготовления. Если пусто — как можно скорее. Не более 30 дней от текущей даты",
             "example": "2026-10-05T18:30:00",
@@ -122,10 +97,7 @@
             "example": 590,
             "type": "integer"
           },
-          "gift": {
-            "example": false,
-            "type": "boolean"
-          },
+          "gift": { "example": false, "type": "boolean" },
           "price": {
             "description": "Цена за единицу с учётом скидок",
             "example": 531,
@@ -136,14 +108,8 @@
             "format": "uuid",
             "type": "string"
           },
-          "quantity": {
-            "example": 2,
-            "type": "integer"
-          },
-          "title": {
-            "example": "Пицца Маргарита",
-            "type": "string"
-          }
+          "quantity": { "example": 2, "type": "integer" },
+          "title": { "example": "Пицца Маргарита", "type": "string" }
         },
         "required": ["product_id", "title", "price", "base_price", "gift", "quantity"],
         "title": "OrderItemResponse",
@@ -158,15 +124,8 @@
                 "example": "+78000000000",
                 "type": "string"
               },
-              "confirmation_id": {
-                "format": "uuid",
-                "type": "string"
-              },
-              "expires_in": {
-                "description": "Секунды",
-                "example": 600,
-                "type": "integer"
-              }
+              "confirmation_id": { "format": "uuid", "type": "string" },
+              "expires_in": { "description": "Секунды", "example": 600, "type": "integer" }
             },
             "required": ["confirmation_id", "call_number", "expires_in"],
             "type": "object"
@@ -183,23 +142,14 @@
             "nullable": true,
             "type": "string"
           },
-          "external_id": {
-            "nullable": true,
-            "type": "string"
-          },
+          "external_id": { "nullable": true, "type": "string" },
           "id": {
             "example": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             "format": "uuid",
             "type": "string"
           },
-          "is_active": {
-            "example": true,
-            "type": "boolean"
-          },
-          "name": {
-            "example": "Пипперони",
-            "type": "string"
-          },
+          "is_active": { "example": true, "type": "boolean" },
+          "name": { "example": "Пипперони", "type": "string" },
           "old_price": {
             "description": "Цена без скидки, если на товар действует акция; `price` — цена со скидкой",
             "example": 690,
@@ -244,14 +194,8 @@
                   "nullable": true,
                   "type": "string"
                 },
-                "id": {
-                  "format": "uuid",
-                  "type": "string"
-                },
-                "name": {
-                  "example": "Хит",
-                  "type": "string"
-                }
+                "id": { "format": "uuid", "type": "string" },
+                "name": { "example": "Хит", "type": "string" }
               },
               "required": ["id", "name", "icon_url"],
               "type": "object"
@@ -270,12 +214,7 @@
       },
       "BranchListResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/Branch"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/Branch" }, "type": "array" }
         },
         "required": ["data"],
         "title": "BranchListResponse",
@@ -283,46 +222,19 @@
       },
       "GeoAddress": {
         "properties": {
-          "city": {
-            "example": "Тюмень",
-            "nullable": true,
-            "type": "string"
-          },
-          "house": {
-            "example": "10",
-            "nullable": true,
-            "type": "string"
-          },
-          "latitude": {
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "longitude": {
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "street": {
-            "example": "ул Республики",
-            "nullable": true,
-            "type": "string"
-          },
-          "value": {
-            "example": "ул Республики, д 10",
-            "type": "string"
-          }
+          "city": { "example": "Тюмень", "nullable": true, "type": "string" },
+          "house": { "example": "10", "nullable": true, "type": "string" },
+          "latitude": { "format": "float", "nullable": true, "type": "number" },
+          "longitude": { "format": "float", "nullable": true, "type": "number" },
+          "street": { "example": "ул Республики", "nullable": true, "type": "string" },
+          "value": { "example": "ул Республики, д 10", "type": "string" }
         },
         "required": ["value", "city", "street", "house", "latitude", "longitude"],
         "title": "GeoAddress",
         "type": "object"
       },
       "ClientSessionResponse": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/ClientSession"
-          }
-        },
+        "properties": { "data": { "$ref": "#/components/schemas/ClientSession" } },
         "required": ["data"],
         "title": "ClientSessionResponse",
         "type": "object"
@@ -330,11 +242,7 @@
       "SocketTokenResponse": {
         "properties": {
           "data": {
-            "properties": {
-              "token": {
-                "type": "string"
-              }
-            },
+            "properties": { "token": { "type": "string" } },
             "required": ["token"],
             "type": "object"
           }
@@ -364,31 +272,15 @@
             "description": "Уникальный ключ строки: подарок и платный товар — разные строки",
             "type": "string"
           },
-          "name": {
-            "example": "Пицца Маргарита",
-            "type": "string"
-          },
-          "price": {
-            "description": "Цена за единицу по меню",
-            "example": 590,
-            "type": "integer"
-          },
+          "name": { "example": "Пицца Маргарита", "type": "string" },
+          "price": { "description": "Цена за единицу по меню", "example": 590, "type": "integer" },
           "product_id": {
             "example": "c4a3b8e0-1234-5678-9abc-def012345678",
             "format": "uuid",
             "type": "string"
           },
-          "promotion_ids": {
-            "items": {
-              "format": "uuid",
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "quantity": {
-            "example": 2,
-            "type": "integer"
-          },
+          "promotion_ids": { "items": { "format": "uuid", "type": "string" }, "type": "array" },
+          "quantity": { "example": 2, "type": "integer" },
           "total_price": {
             "description": "Итог по строке с учётом скидок",
             "example": 1062,
@@ -412,32 +304,16 @@
       "Branch": {
         "properties": {
           "branch_info": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/BranchInfoResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/BranchInfoResponse" }, { "type": "null" }]
           },
           "id": {
             "example": "c4a3b8e0-1234-5678-9abc-def012345678",
             "format": "uuid",
             "type": "string"
           },
-          "is_active": {
-            "example": true,
-            "type": "boolean"
-          },
-          "name": {
-            "example": "Центральный филиал",
-            "type": "string"
-          },
-          "slug": {
-            "example": "central",
-            "type": "string"
-          }
+          "is_active": { "example": true, "type": "boolean" },
+          "name": { "example": "Центральный филиал", "type": "string" },
+          "slug": { "example": "central", "type": "string" }
         },
         "required": ["id", "name", "slug", "is_active"],
         "title": "Branch",
@@ -445,18 +321,9 @@
       },
       "PromoGift": {
         "properties": {
-          "name": {
-            "example": "Кола 0.5",
-            "type": "string"
-          },
-          "product_id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "quantity": {
-            "example": 1,
-            "type": "integer"
-          }
+          "name": { "example": "Кола 0.5", "type": "string" },
+          "product_id": { "format": "uuid", "type": "string" },
+          "quantity": { "example": 1, "type": "integer" }
         },
         "required": ["product_id", "name", "quantity"],
         "title": "PromoGift",
@@ -464,109 +331,41 @@
       },
       "AddressRequest": {
         "properties": {
-          "apartment": {
-            "example": "12",
-            "nullable": true,
-            "type": "string"
-          },
-          "city": {
-            "example": "Москва",
-            "nullable": true,
-            "type": "string"
-          },
-          "comment": {
-            "example": "Вход со двора",
-            "nullable": true,
-            "type": "string"
-          },
-          "entrance": {
-            "example": "2",
-            "nullable": true,
-            "type": "string"
-          },
-          "floor": {
-            "example": "3",
-            "nullable": true,
-            "type": "string"
-          },
-          "house": {
-            "example": "10",
-            "nullable": true,
-            "type": "string"
-          },
-          "intercom": {
-            "example": "42",
-            "nullable": true,
-            "type": "string"
-          },
-          "latitude": {
-            "example": 57.153,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "longitude": {
-            "example": 65.534,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "street": {
-            "example": "Ленина",
-            "nullable": true,
-            "type": "string"
-          }
+          "apartment": { "example": "12", "nullable": true, "type": "string" },
+          "city": { "example": "Москва", "nullable": true, "type": "string" },
+          "comment": { "example": "Вход со двора", "nullable": true, "type": "string" },
+          "entrance": { "example": "2", "nullable": true, "type": "string" },
+          "floor": { "example": "3", "nullable": true, "type": "string" },
+          "house": { "example": "10", "nullable": true, "type": "string" },
+          "intercom": { "example": "42", "nullable": true, "type": "string" },
+          "latitude": { "example": 57.153, "format": "float", "nullable": true, "type": "number" },
+          "longitude": { "example": 65.534, "format": "float", "nullable": true, "type": "number" },
+          "street": { "example": "Ленина", "nullable": true, "type": "string" }
         },
         "title": "AddressRequest",
         "type": "object"
       },
       "OrderPromotion": {
         "properties": {
-          "code": {
-            "example": "SUMMER2025",
-            "nullable": true,
-            "type": "string"
-          },
-          "discount": {
-            "example": 150,
-            "type": "integer"
-          },
-          "name": {
-            "example": "Летняя скидка",
-            "type": "string"
-          }
+          "code": { "example": "SUMMER2025", "nullable": true, "type": "string" },
+          "discount": { "example": 150, "type": "integer" },
+          "name": { "example": "Летняя скидка", "type": "string" }
         },
         "required": ["name", "discount"],
         "title": "OrderPromotion",
         "type": "object"
       },
       "PromoCodeRequest": {
-        "properties": {
-          "code": {
-            "example": "SUMMER2025",
-            "maxLength": 32,
-            "type": "string"
-          }
-        },
+        "properties": { "code": { "example": "SUMMER2025", "maxLength": 32, "type": "string" } },
         "required": ["code"],
         "title": "PromoCodeRequest",
         "type": "object"
       },
       "ClientProfile": {
         "properties": {
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "name": {
-            "example": "Иван",
-            "nullable": true,
-            "type": "string"
-          },
-          "phone": {
-            "example": "+79990000000",
-            "type": "string"
-          }
+          "id": { "format": "uuid", "type": "string" },
+          "name": { "example": "Иван", "nullable": true, "type": "string" },
+          "phone": { "example": "+79990000000", "type": "string" }
         },
         "required": ["id", "phone"],
         "title": "ClientProfile",
@@ -576,11 +375,7 @@
         "properties": {
           "data": {
             "properties": {
-              "address": {
-                "additionalProperties": true,
-                "nullable": true,
-                "type": "object"
-              },
+              "address": { "additionalProperties": true, "nullable": true, "type": "object" },
               "branch_id": {
                 "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
                 "format": "uuid",
@@ -597,61 +392,34 @@
                 "nullable": true,
                 "type": "string"
               },
-              "comment": {
-                "example": "Без лука",
-                "nullable": true,
-                "type": "string"
-              },
+              "comment": { "example": "Без лука", "nullable": true, "type": "string" },
               "cook_by": {
                 "example": "2026-10-05T18:30:00",
                 "format": "date_time",
                 "nullable": true,
                 "type": "string"
               },
-              "customer_name": {
-                "example": "Иван",
-                "nullable": true,
-                "type": "string"
-              },
-              "customer_phone": {
-                "example": "+79990000000",
-                "nullable": true,
-                "type": "string"
-              },
-              "discount_amount": {
-                "example": 150,
-                "type": "integer"
-              },
-              "fulfillment_type": {
-                "example": "delivery",
-                "type": "string"
-              },
+              "customer_name": { "example": "Иван", "nullable": true, "type": "string" },
+              "customer_phone": { "example": "+79990000000", "nullable": true, "type": "string" },
+              "discount_amount": { "example": 150, "type": "integer" },
+              "fulfillment_type": { "enum": ["dine_in", "delivery", "pickup"], "type": "string" },
               "id": {
                 "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
                 "format": "uuid",
                 "type": "string"
               },
               "items": {
-                "items": {
-                  "$ref": "#/components/schemas/OrderItemResponse"
-                },
+                "items": { "$ref": "#/components/schemas/OrderItemResponse" },
                 "type": "array"
               },
-              "number": {
-                "example": "ORD-1001",
-                "type": "string"
-              },
-              "payment_method": {
-                "example": "cash",
-                "type": "string"
-              },
+              "number": { "example": "ORD-1001", "type": "string" },
+              "payment_method": { "enum": ["cash", "card_offline"], "type": "string" },
               "promotions": {
-                "items": {
-                  "$ref": "#/components/schemas/OrderPromotion"
-                },
+                "items": { "$ref": "#/components/schemas/OrderPromotion" },
                 "type": "array"
               },
               "status": {
+                "enum": ["created", "preparing", "ready", "delivering", "completed", "cancelled"],
                 "example": "created",
                 "type": "string"
               },
@@ -660,12 +428,22 @@
                 "example": 1330,
                 "type": "integer"
               },
-              "total_amount": {
-                "example": 1180,
-                "type": "integer"
-              }
+              "total_amount": { "example": 1180, "type": "integer" }
             },
-            "required": ["id", "number", "status", "total_amount", "branch_id", "cart_id", "items"],
+            "required": [
+              "id",
+              "number",
+              "status",
+              "fulfillment_type",
+              "payment_method",
+              "total_amount",
+              "subtotal_amount",
+              "discount_amount",
+              "promotions",
+              "branch_id",
+              "cart_id",
+              "items"
+            ],
             "type": "object"
           }
         },
@@ -676,35 +454,17 @@
       "PromoHint": {
         "description": "Автоматическая акция, которая сработает при выполнении условий.",
         "properties": {
-          "description": {
-            "nullable": true,
-            "type": "string"
-          },
-          "name": {
-            "example": "Кола в подарок",
-            "type": "string"
-          },
-          "promotion_id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "reasons": {
-            "items": {
-              "$ref": "#/components/schemas/PromoReason"
-            },
-            "type": "array"
-          }
+          "description": { "nullable": true, "type": "string" },
+          "name": { "example": "Кола в подарок", "type": "string" },
+          "promotion_id": { "format": "uuid", "type": "string" },
+          "reasons": { "items": { "$ref": "#/components/schemas/PromoReason" }, "type": "array" }
         },
         "required": ["promotion_id", "name", "reasons"],
         "title": "PromoHint",
         "type": "object"
       },
       "ProfileResponse": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/ClientProfile"
-          }
-        },
+        "properties": { "data": { "$ref": "#/components/schemas/ClientProfile" } },
         "required": ["data"],
         "title": "ProfileResponse",
         "type": "object"
@@ -713,46 +473,21 @@
         "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.",
         "properties": {
           "allowed": {
-            "items": {
-              "enum": ["dine_in", "delivery", "pickup"],
-              "type": "string"
-            },
+            "items": { "enum": ["dine_in", "delivery", "pickup"], "type": "string" },
             "nullable": true,
             "type": "array"
           },
           "days": {
             "example": [1, 2],
-            "items": {
-              "type": "integer"
-            },
+            "items": { "type": "integer" },
             "nullable": true,
             "type": "array"
           },
-          "from": {
-            "example": "11:00",
-            "nullable": true,
-            "type": "string"
-          },
-          "missing": {
-            "example": 300,
-            "nullable": true,
-            "type": "integer"
-          },
-          "name": {
-            "example": "Кола 0.5",
-            "nullable": true,
-            "type": "string"
-          },
-          "product_id": {
-            "format": "uuid",
-            "nullable": true,
-            "type": "string"
-          },
-          "to": {
-            "example": "16:00",
-            "nullable": true,
-            "type": "string"
-          },
+          "from": { "example": "11:00", "nullable": true, "type": "string" },
+          "missing": { "example": 300, "nullable": true, "type": "integer" },
+          "name": { "example": "Кола 0.5", "nullable": true, "type": "string" },
+          "product_id": { "format": "uuid", "nullable": true, "type": "string" },
+          "to": { "example": "16:00", "nullable": true, "type": "string" },
           "type": {
             "enum": [
               "subtotal",
@@ -782,11 +517,7 @@
             "example": true,
             "type": "boolean"
           },
-          "order": {
-            "example": 1.0,
-            "format": "float",
-            "type": "number"
-          },
+          "order": { "example": 1.0, "format": "float", "type": "number" },
           "photo_url": {
             "description": "Ссылка на медиафайл акции",
             "example": "https://storage.example.com/images/stock.jpg",
@@ -810,38 +541,20 @@
       },
       "PushSubscriptionRequest": {
         "properties": {
-          "endpoint": {
-            "format": "uri",
-            "type": "string"
-          },
+          "endpoint": { "format": "uri", "type": "string" },
           "keys": {
-            "properties": {
-              "auth": {
-                "type": "string"
-              },
-              "p256dh": {
-                "type": "string"
-              }
-            },
+            "properties": { "auth": { "type": "string" }, "p256dh": { "type": "string" } },
             "required": ["p256dh", "auth"],
             "type": "object"
           },
-          "locale": {
-            "enum": ["ru", "en"],
-            "nullable": true,
-            "type": "string"
-          }
+          "locale": { "enum": ["ru", "en"], "nullable": true, "type": "string" }
         },
         "required": ["endpoint", "keys"],
         "title": "PushSubscriptionRequest",
         "type": "object"
       },
       "BranchResponse": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/Branch"
-          }
-        },
+        "properties": { "data": { "$ref": "#/components/schemas/Branch" } },
         "required": ["data"],
         "title": "BranchResponse",
         "type": "object"
@@ -854,37 +567,16 @@
                 "description": "Адрес выбирается на карте с подсказками DaData",
                 "type": "boolean"
               },
-              "description": {
-                "nullable": true,
-                "type": "string"
-              },
+              "description": { "nullable": true, "type": "string" },
               "documents": {
-                "items": {
-                  "$ref": "#/components/schemas/LegalDocumentSummary"
-                },
+                "items": { "$ref": "#/components/schemas/LegalDocumentSummary" },
                 "type": "array"
               },
-              "legal": {
-                "$ref": "#/components/schemas/FranchiseLegal"
-              },
-              "logo_dark_url": {
-                "format": "uri",
-                "nullable": true,
-                "type": "string"
-              },
-              "logo_url": {
-                "format": "uri",
-                "nullable": true,
-                "type": "string"
-              },
-              "name": {
-                "example": "Sushi Like",
-                "type": "string"
-              },
-              "primary_color": {
-                "example": "#462094",
-                "type": "string"
-              }
+              "legal": { "$ref": "#/components/schemas/FranchiseLegal" },
+              "logo_dark_url": { "format": "uri", "nullable": true, "type": "string" },
+              "logo_url": { "format": "uri", "nullable": true, "type": "string" },
+              "name": { "example": "Sushi Like", "type": "string" },
+              "primary_color": { "example": "#462094", "type": "string" }
             },
             "required": [
               "name",
@@ -904,23 +596,14 @@
         "type": "object"
       },
       "RefreshRequest": {
-        "properties": {
-          "refresh_token": {
-            "type": "string"
-          }
-        },
+        "properties": { "refresh_token": { "type": "string" } },
         "required": ["refresh_token"],
         "title": "RefreshRequest",
         "type": "object"
       },
       "ClientAddressListResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/ClientAddress"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/ClientAddress" }, "type": "array" }
         },
         "required": ["data"],
         "title": "ClientAddressListResponse",
@@ -928,12 +611,7 @@
       },
       "RunningPromotionsResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/RunningPromotion"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/RunningPromotion" }, "type": "array" }
         },
         "required": ["data"],
         "title": "RunningPromotionsResponse",
@@ -946,36 +624,12 @@
             "nullable": true,
             "type": "string"
           },
-          "email": {
-            "example": "info@example.com",
-            "nullable": true,
-            "type": "string"
-          },
-          "form": {
-            "example": "ООО",
-            "nullable": true,
-            "type": "string"
-          },
-          "inn": {
-            "example": "7700000000",
-            "nullable": true,
-            "type": "string"
-          },
-          "name": {
-            "example": "Вкусная еда",
-            "nullable": true,
-            "type": "string"
-          },
-          "ogrn": {
-            "example": "1027700000000",
-            "nullable": true,
-            "type": "string"
-          },
-          "phone": {
-            "example": "+79990000000",
-            "nullable": true,
-            "type": "string"
-          }
+          "email": { "example": "info@example.com", "nullable": true, "type": "string" },
+          "form": { "example": "ООО", "nullable": true, "type": "string" },
+          "inn": { "example": "7700000000", "nullable": true, "type": "string" },
+          "name": { "example": "Вкусная еда", "nullable": true, "type": "string" },
+          "ogrn": { "example": "1027700000000", "nullable": true, "type": "string" },
+          "phone": { "example": "+79990000000", "nullable": true, "type": "string" }
         },
         "required": ["form", "name", "inn", "ogrn", "address", "email", "phone"],
         "title": "FranchiseLegal",
@@ -991,39 +645,25 @@
                 "nullable": true,
                 "type": "string"
               },
-              "discount_amount": {
-                "example": 200,
-                "type": "integer"
-              },
+              "discount_amount": { "example": 200, "type": "integer" },
               "fulfillment_type": {
                 "enum": ["dine_in", "delivery", "pickup"],
                 "nullable": true,
                 "type": "string"
               },
-              "hints": {
-                "items": {
-                  "$ref": "#/components/schemas/PromoHint"
-                },
-                "type": "array"
-              },
+              "hints": { "items": { "$ref": "#/components/schemas/PromoHint" }, "type": "array" },
               "id": {
                 "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
                 "format": "uuid",
                 "type": "string"
               },
               "items": {
-                "items": {
-                  "$ref": "#/components/schemas/CartItemResponse"
-                },
+                "items": { "$ref": "#/components/schemas/CartItemResponse" },
                 "type": "array"
               },
-              "promo_code": {
-                "$ref": "#/components/schemas/PromoCodeState"
-              },
+              "promo_code": { "$ref": "#/components/schemas/PromoCodeState" },
               "promotions": {
-                "items": {
-                  "$ref": "#/components/schemas/AppliedPromotion"
-                },
+                "items": { "$ref": "#/components/schemas/AppliedPromotion" },
                 "type": "array"
               },
               "session_id": {
@@ -1036,15 +676,8 @@
                 "example": 1700,
                 "type": "integer"
               },
-              "total_amount": {
-                "description": "К оплате",
-                "example": 1500,
-                "type": "integer"
-              },
-              "total_quantity": {
-                "example": 3,
-                "type": "integer"
-              }
+              "total_amount": { "description": "К оплате", "example": 1500, "type": "integer" },
+              "total_quantity": { "example": 3, "type": "integer" }
             },
             "required": [
               "id",
@@ -1065,23 +698,10 @@
       },
       "RunningPromotion": {
         "properties": {
-          "description": {
-            "nullable": true,
-            "type": "string"
-          },
-          "ends_at": {
-            "format": "date-time",
-            "nullable": true,
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "name": {
-            "example": "Скидка 10% на самовывоз",
-            "type": "string"
-          }
+          "description": { "nullable": true, "type": "string" },
+          "ends_at": { "format": "date-time", "nullable": true, "type": "string" },
+          "id": { "format": "uuid", "type": "string" },
+          "name": { "example": "Скидка 10% на самовывоз", "type": "string" }
         },
         "required": ["id", "name", "description", "ends_at"],
         "title": "RunningPromotion",
@@ -1089,12 +709,7 @@
       },
       "GeoAddressListResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/GeoAddress"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/GeoAddress" }, "type": "array" }
         },
         "required": ["data"],
         "title": "GeoAddressListResponse",
@@ -1102,15 +717,8 @@
       },
       "LegalDocumentSummary": {
         "properties": {
-          "kind": {
-            "enum": ["privacy", "consent", "offer", "terms"],
-            "type": "string"
-          },
-          "updated_at": {
-            "format": "date-time",
-            "nullable": true,
-            "type": "string"
-          }
+          "kind": { "enum": ["privacy", "consent", "offer", "terms"], "type": "string" },
+          "updated_at": { "format": "date-time", "nullable": true, "type": "string" }
         },
         "required": ["kind", "updated_at"],
         "title": "LegalDocumentSummary",
@@ -1118,12 +726,7 @@
       },
       "MenuResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/CategoryResponse"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/CategoryResponse" }, "type": "array" }
         },
         "title": "MenuResponse",
         "type": "object"
@@ -1143,12 +746,7 @@
       },
       "ClientOrdersResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/ActiveOrder"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" }
         },
         "required": ["data"],
         "title": "ClientOrdersResponse",
@@ -1156,24 +754,11 @@
       },
       "ClientSession": {
         "properties": {
-          "access_token": {
-            "type": "string"
-          },
-          "client": {
-            "$ref": "#/components/schemas/ClientProfile"
-          },
-          "expires_in": {
-            "description": "Секунды",
-            "example": 900,
-            "type": "integer"
-          },
-          "refresh_token": {
-            "type": "string"
-          },
-          "status": {
-            "enum": ["pending", "confirmed"],
-            "type": "string"
-          }
+          "access_token": { "type": "string" },
+          "client": { "$ref": "#/components/schemas/ClientProfile" },
+          "expires_in": { "description": "Секунды", "example": 900, "type": "integer" },
+          "refresh_token": { "type": "string" },
+          "status": { "enum": ["pending", "confirmed"], "type": "string" }
         },
         "required": ["status"],
         "title": "ClientSession",
@@ -1181,67 +766,24 @@
       },
       "ClientAddress": {
         "properties": {
-          "apartment": {
-            "nullable": true,
-            "type": "string"
-          },
-          "city": {
-            "nullable": true,
-            "type": "string"
-          },
-          "comment": {
-            "example": "Вход со двора",
-            "nullable": true,
-            "type": "string"
-          },
-          "entrance": {
-            "nullable": true,
-            "type": "string"
-          },
-          "floor": {
-            "nullable": true,
-            "type": "string"
-          },
-          "house": {
-            "example": "10",
-            "nullable": true,
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "intercom": {
-            "nullable": true,
-            "type": "string"
-          },
-          "latitude": {
-            "example": 57.153,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "longitude": {
-            "example": 65.534,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "street": {
-            "example": "Ленина",
-            "type": "string"
-          }
+          "apartment": { "nullable": true, "type": "string" },
+          "city": { "nullable": true, "type": "string" },
+          "comment": { "example": "Вход со двора", "nullable": true, "type": "string" },
+          "entrance": { "nullable": true, "type": "string" },
+          "floor": { "nullable": true, "type": "string" },
+          "house": { "example": "10", "nullable": true, "type": "string" },
+          "id": { "format": "uuid", "type": "string" },
+          "intercom": { "nullable": true, "type": "string" },
+          "latitude": { "example": 57.153, "format": "float", "nullable": true, "type": "number" },
+          "longitude": { "example": 65.534, "format": "float", "nullable": true, "type": "number" },
+          "street": { "example": "Ленина", "type": "string" }
         },
         "required": ["id", "street"],
         "title": "ClientAddress",
         "type": "object"
       },
       "ClientAddressResponse": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/ClientAddress"
-          }
-        },
+        "properties": { "data": { "$ref": "#/components/schemas/ClientAddress" } },
         "required": ["data"],
         "title": "ClientAddressResponse",
         "type": "object"
@@ -1250,15 +792,8 @@
         "description": "Введённый промокод: `applied` — применён, `pending` — условия пока не выполнены (см. `reasons`), `rejected` — не может быть применён (см. `reason`).",
         "nullable": true,
         "properties": {
-          "code": {
-            "example": "SUMMER2025",
-            "type": "string"
-          },
-          "name": {
-            "example": "Летняя скидка",
-            "nullable": true,
-            "type": "string"
-          },
+          "code": { "example": "SUMMER2025", "type": "string" },
+          "name": { "example": "Летняя скидка", "nullable": true, "type": "string" },
           "reason": {
             "enum": [
               "not_found",
@@ -1275,16 +810,8 @@
             "nullable": true,
             "type": "string"
           },
-          "reasons": {
-            "items": {
-              "$ref": "#/components/schemas/PromoReason"
-            },
-            "type": "array"
-          },
-          "status": {
-            "enum": ["applied", "pending", "rejected"],
-            "type": "string"
-          }
+          "reasons": { "items": { "$ref": "#/components/schemas/PromoReason" }, "type": "array" },
+          "status": { "enum": ["applied", "pending", "rejected"], "type": "string" }
         },
         "required": ["code", "status", "reasons"],
         "title": "PromoCodeState",
@@ -1296,9 +823,7 @@
           "details": {
             "additionalProperties": true,
             "description": "Ошибки валидации по полям: {поле: [сообщения]}",
-            "example": {
-              "customer_phone": ["must be in format +7XXXXXXXXXX"]
-            },
+            "example": { "customer_phone": ["must be in format +7XXXXXXXXXX"] },
             "nullable": true,
             "type": "object"
           },
@@ -1342,10 +867,7 @@
             "example": "validation_failed",
             "type": "string"
           },
-          "message": {
-            "example": "Validation failed",
-            "type": "string"
-          }
+          "message": { "example": "Validation failed", "type": "string" }
         },
         "required": ["error", "message"],
         "title": "ErrorResponse",
@@ -1355,10 +877,7 @@
         "properties": {
           "data": {
             "properties": {
-              "public_key": {
-                "description": "VAPID public key, base64url",
-                "type": "string"
-              }
+              "public_key": { "description": "VAPID public key, base64url", "type": "string" }
             },
             "required": ["public_key"],
             "type": "object"
@@ -1375,23 +894,11 @@
             "format": "uuid",
             "type": "string"
           },
-          "is_active": {
-            "example": true,
-            "type": "boolean"
-          },
-          "name": {
-            "example": "Пиццы",
-            "type": "string"
-          },
-          "order": {
-            "example": 1.0,
-            "format": "float",
-            "type": "number"
-          },
+          "is_active": { "example": true, "type": "boolean" },
+          "name": { "example": "Пиццы", "type": "string" },
+          "order": { "example": 1.0, "format": "float", "type": "number" },
           "products": {
-            "items": {
-              "$ref": "#/components/schemas/ProductResponse"
-            },
+            "items": { "$ref": "#/components/schemas/ProductResponse" },
             "type": "array"
           }
         },
@@ -1400,58 +907,22 @@
       },
       "ActiveOrder": {
         "properties": {
-          "address": {
-            "additionalProperties": true,
-            "nullable": true,
-            "type": "object"
-          },
-          "branch_id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "comment": {
-            "nullable": true,
-            "type": "string"
-          },
-          "cook_by": {
-            "format": "date_time",
-            "nullable": true,
-            "type": "string"
-          },
-          "discount_amount": {
-            "example": 150,
-            "type": "integer"
-          },
-          "fulfillment_type": {
-            "enum": ["dine_in", "delivery", "pickup"],
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "inserted_at": {
-            "format": "date_time",
-            "type": "string"
-          },
+          "address": { "additionalProperties": true, "nullable": true, "type": "object" },
+          "branch_id": { "format": "uuid", "type": "string" },
+          "comment": { "nullable": true, "type": "string" },
+          "cook_by": { "format": "date_time", "nullable": true, "type": "string" },
+          "discount_amount": { "example": 150, "type": "integer" },
+          "fulfillment_type": { "enum": ["dine_in", "delivery", "pickup"], "type": "string" },
+          "id": { "format": "uuid", "type": "string" },
+          "inserted_at": { "format": "date_time", "type": "string" },
           "items": {
-            "items": {
-              "$ref": "#/components/schemas/OrderItemResponse"
-            },
+            "items": { "$ref": "#/components/schemas/OrderItemResponse" },
             "type": "array"
           },
-          "number": {
-            "example": "A042",
-            "type": "string"
-          },
-          "payment_method": {
-            "enum": ["cash", "card_offline"],
-            "type": "string"
-          },
+          "number": { "example": "A042", "type": "string" },
+          "payment_method": { "enum": ["cash", "card_offline"], "type": "string" },
           "promotions": {
-            "items": {
-              "$ref": "#/components/schemas/OrderPromotion"
-            },
+            "items": { "$ref": "#/components/schemas/OrderPromotion" },
             "type": "array"
           },
           "status": {
@@ -1464,10 +935,7 @@
             "example": 1330,
             "type": "integer"
           },
-          "total_amount": {
-            "example": 1180,
-            "type": "integer"
-          }
+          "total_amount": { "example": 1180, "type": "integer" }
         },
         "required": [
           "id",
@@ -1488,22 +956,14 @@
       },
       "BranchInfoResponse": {
         "properties": {
-          "address": {
-            "example": "ул. Пушкина, д. 10",
-            "nullable": true,
-            "type": "string"
-          },
+          "address": { "example": "ул. Пушкина, д. 10", "nullable": true, "type": "string" },
           "city": {
             "description": "Город доставки, в нём ищутся адреса",
             "example": "Тюмень",
             "nullable": true,
             "type": "string"
           },
-          "delivery_time": {
-            "example": "30",
-            "nullable": true,
-            "type": "integer"
-          },
+          "delivery_time": { "example": "30", "nullable": true, "type": "integer" },
           "id": {
             "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
             "format": "uuid",
@@ -1514,28 +974,15 @@
             "nullable": true,
             "type": "string"
           },
-          "latitude": {
-            "example": 55.7558,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
+          "latitude": { "example": 55.7558, "format": "float", "nullable": true, "type": "number" },
           "longitude": {
             "example": 37.6173,
             "format": "float",
             "nullable": true,
             "type": "number"
           },
-          "phone_number": {
-            "example": "+79990000000",
-            "nullable": true,
-            "type": "string"
-          },
-          "vk_url": {
-            "example": "https://vk.com/group_name",
-            "nullable": true,
-            "type": "string"
-          },
+          "phone_number": { "example": "+79990000000", "nullable": true, "type": "string" },
+          "vk_url": { "example": "https://vk.com/group_name", "nullable": true, "type": "string" },
           "whatsapp_url": {
             "example": "https://wa.me/79990000000",
             "nullable": true,
@@ -1544,16 +991,8 @@
           "working_hours": {
             "additionalProperties": true,
             "example": {
-              "monday": {
-                "close": "22:00",
-                "enabled": true,
-                "open": "09:00"
-              },
-              "sunday": {
-                "close": null,
-                "enabled": false,
-                "open": null
-              }
+              "monday": { "close": "22:00", "enabled": true, "open": "09:00" },
+              "sunday": { "close": null, "enabled": false, "open": null }
             },
             "nullable": true,
             "type": "object"
@@ -1562,16 +1001,8 @@
             "additionalProperties": true,
             "nullable": true,
             "properties": {
-              "enabled": {
-                "example": true,
-                "nullable": true,
-                "type": "boolean"
-              },
-              "yandex_org_id": {
-                "example": "123456789",
-                "nullable": true,
-                "type": "string"
-              }
+              "enabled": { "example": true, "nullable": true, "type": "boolean" },
+              "yandex_org_id": { "example": "123456789", "nullable": true, "type": "string" }
             },
             "type": "object"
           }
@@ -1582,34 +1013,12 @@
       },
       "AppliedPromotion": {
         "properties": {
-          "code": {
-            "example": "SUMMER2025",
-            "nullable": true,
-            "type": "string"
-          },
-          "description": {
-            "nullable": true,
-            "type": "string"
-          },
-          "discount": {
-            "description": "Скидка в рублях",
-            "example": 150,
-            "type": "integer"
-          },
-          "gifts": {
-            "items": {
-              "$ref": "#/components/schemas/PromoGift"
-            },
-            "type": "array"
-          },
-          "name": {
-            "example": "Летняя скидка",
-            "type": "string"
-          },
-          "promotion_id": {
-            "format": "uuid",
-            "type": "string"
-          }
+          "code": { "example": "SUMMER2025", "nullable": true, "type": "string" },
+          "description": { "nullable": true, "type": "string" },
+          "discount": { "description": "Скидка в рублях", "example": 150, "type": "integer" },
+          "gifts": { "items": { "$ref": "#/components/schemas/PromoGift" }, "type": "array" },
+          "name": { "example": "Летняя скидка", "type": "string" },
+          "promotion_id": { "format": "uuid", "type": "string" }
         },
         "required": ["promotion_id", "name", "discount", "gifts"],
         "title": "AppliedPromotion",
@@ -1617,22 +1026,14 @@
       },
       "StocksListResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/StockResponse"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/StockResponse" }, "type": "array" }
         },
         "title": "StocksListResponse",
         "type": "object"
       }
     }
   },
-  "info": {
-    "title": "My App",
-    "version": "1.0"
-  },
+  "info": { "title": "My App", "version": "1.0" },
   "openapi": "3.0.0",
   "paths": {
     "/client/addresses": {
@@ -1644,29 +1045,19 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientAddressListResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientAddressListResponse" }
               }
             },
             "description": "Адреса"
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Нужна авторизация"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
+        "security": [{ "bearer": [] }],
         "summary": "Адреса доставки клиента",
         "tags": ["Addresses"]
       },
@@ -1676,11 +1067,7 @@
         "parameters": [],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddressRequest"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/AddressRequest" } }
           },
           "description": "Адрес",
           "required": false
@@ -1689,29 +1076,19 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientAddressResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientAddressResponse" }
               }
             },
             "description": "Адрес"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Ошибка валидации"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
+        "security": [{ "bearer": [] }],
         "summary": "Добавить адрес",
         "tags": ["Addresses"]
       }
@@ -1726,31 +1103,19 @@
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Удалён"
-          },
+          "204": { "description": "Удалён" },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Адрес не найден"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
+        "security": [{ "bearer": [] }],
         "summary": "Удалить адрес",
         "tags": ["Addresses"]
       },
@@ -1763,18 +1128,12 @@
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddressRequest"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/AddressRequest" } }
           },
           "description": "Адрес",
           "required": false
@@ -1783,39 +1142,25 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientAddressResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientAddressResponse" }
               }
             },
             "description": "Адрес"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Адрес не найден"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Ошибка валидации"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
+        "security": [{ "bearer": [] }],
         "summary": "Изменить адрес",
         "tags": ["Addresses"]
       }
@@ -1828,11 +1173,7 @@
         "parameters": [],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartCallRequest"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/StartCallRequest" } }
           },
           "description": "Номер телефона",
           "required": false
@@ -1840,41 +1181,25 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StartCallResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/StartCallResponse" } }
             },
             "description": "Ожидается звонок"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Некорректный номер"
           },
           "429": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Слишком много запросов"
           },
           "503": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Сервис звонков недоступен"
           }
@@ -1894,18 +1219,14 @@
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientSessionResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientSessionResponse" }
               }
             },
             "description": "Номер подтверждён"
@@ -1913,30 +1234,20 @@
           "202": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientSessionResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientSessionResponse" }
               }
             },
             "description": "Ожидается звонок"
           },
           "403": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Клиент заблокирован"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Подтверждение не найдено или истекло"
           }
@@ -1952,11 +1263,7 @@
         "parameters": [],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshRequest"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/RefreshRequest" } }
           },
           "description": "Refresh-токен",
           "required": false
@@ -1965,30 +1272,20 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientSessionResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientSessionResponse" }
               }
             },
             "description": "Новые токены"
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Токен недействителен"
           },
           "403": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Клиент заблокирован"
           }
@@ -2007,20 +1304,14 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BranchListResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/BranchListResponse" }
               }
             },
             "description": "Список филиалов"
           },
           "500": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Ошибка получения списка"
           }
@@ -2041,10 +1332,7 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "message": {
-                      "example": "Active branch cleared",
-                      "type": "string"
-                    }
+                    "message": { "example": "Active branch cleared", "type": "string" }
                   },
                   "type": "object"
                 }
@@ -2069,29 +1357,19 @@
             "in": "path",
             "name": "slug",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BranchResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/BranchResponse" } }
             },
             "description": "Детальная информация о филиале"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Филиал не найден"
           }
@@ -2112,30 +1390,19 @@
             "in": "path",
             "name": "branch_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MenuResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/MenuResponse" } }
             },
             "description": "Меню филиала с категориями и товарами"
           },
           "400": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Ошибка получения меню"
           }
@@ -2156,30 +1423,19 @@
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BranchResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/BranchResponse" } }
             },
             "description": "Детальная информация о филиале"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Филиал не найден"
           }
@@ -2199,40 +1455,26 @@
             "in": "query",
             "name": "force",
             "required": false,
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
+            "schema": { "default": false, "type": "boolean" }
           },
           {
             "description": "ID активного филиала",
             "in": "query",
             "name": "branch_id",
             "required": false,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
             "description": "Данные корзины"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Ошибка создания корзины"
           }
@@ -2252,30 +1494,19 @@
             "in": "path",
             "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
             "description": "Очищенная корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Корзина не найдена"
           }
@@ -2295,19 +1526,12 @@
             "in": "path",
             "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CartContextRequest"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/CartContextRequest" } }
           },
           "description": "Контекст корзины",
           "required": false
@@ -2315,31 +1539,19 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
             "description": "Обновлённая корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Корзина не найдена"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Некорректный способ получения"
           }
@@ -2359,50 +1571,33 @@
             "in": "path",
             "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           },
           {
             "description": "UUID товара",
             "in": "path",
             "name": "product_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           },
           {
             "description": "Удалить все единицы товара из корзины",
             "in": "query",
             "name": "all",
             "required": false,
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
+            "schema": { "default": false, "type": "boolean" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
             "description": "Обновленная корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Корзина или товар не найдены"
           }
@@ -2420,50 +1615,32 @@
             "in": "path",
             "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           },
           {
             "description": "UUID товара",
             "in": "path",
             "name": "product_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
             "description": "Обновленная корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Корзина не найдена"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Ошибка добавления товара"
           }
@@ -2482,30 +1659,19 @@
             "in": "path",
             "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
             "description": "Обновлённая корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Корзина не найдена"
           }
@@ -2523,19 +1689,12 @@
             "in": "path",
             "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PromoCodeRequest"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/PromoCodeRequest" } }
           },
           "description": "Промокод",
           "required": false
@@ -2543,41 +1702,25 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
             "description": "Обновлённая корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Корзина не найдена"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Промокод не может быть применён"
           },
           "429": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Слишком много попыток"
           }
@@ -2597,40 +1740,26 @@
             "in": "path",
             "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           },
           {
             "description": "",
             "in": "path",
             "name": "order_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
             "description": "Обновленная корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Корзина или заказ не найдены"
           }
@@ -2648,11 +1777,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FranchiseResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/FranchiseResponse" } }
             },
             "description": "Настройки франшизы"
           }
@@ -2672,30 +1797,21 @@
             "in": "path",
             "name": "kind",
             "required": true,
-            "schema": {
-              "enum": ["privacy", "consent", "offer", "terms"],
-              "type": "string"
-            }
+            "schema": { "enum": ["privacy", "consent", "offer", "terms"], "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LegalDocumentResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/LegalDocumentResponse" }
               }
             },
             "description": "Документ"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Документ не найден"
           }
@@ -2715,48 +1831,34 @@
             "in": "query",
             "name": "latitude",
             "required": true,
-            "schema": {
-              "type": "number"
-            }
+            "schema": { "type": "number" }
           },
           {
             "description": "",
             "in": "query",
             "name": "longitude",
             "required": true,
-            "schema": {
-              "type": "number"
-            }
+            "schema": { "type": "number" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GeoAddressListResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/GeoAddressListResponse" }
               }
             },
             "description": "Адреса"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Неверные координаты"
           },
           "503": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Подсказки выключены"
           }
@@ -2776,38 +1878,28 @@
             "in": "query",
             "name": "query",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           },
           {
             "description": "Город филиала",
             "in": "query",
             "name": "city",
             "required": false,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GeoAddressListResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/GeoAddressListResponse" }
               }
             },
             "description": "Адреса"
           },
           "503": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Подсказки выключены"
           }
@@ -2824,30 +1916,18 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProfileResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ProfileResponse" } }
             },
             "description": "Профиль"
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Нужна авторизация"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
+        "security": [{ "bearer": [] }],
         "summary": "Текущий клиент",
         "tags": ["Auth"]
       }
@@ -2862,29 +1942,19 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientOrdersResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientOrdersResponse" }
               }
             },
             "description": "Заказы клиента"
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Нужна авторизация"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
+        "security": [{ "bearer": [] }],
         "summary": "Мои заказы",
         "tags": ["Orders"]
       },
@@ -2895,11 +1965,7 @@
         "parameters": [],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateOrderRequest"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateOrderRequest" } }
           },
           "description": "Создание заказа",
           "required": false
@@ -2907,31 +1973,19 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrderResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/OrderResponse" } }
             },
             "description": "Созданный заказ"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Ошибка создания заказа"
           },
           "429": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Слишком много запросов"
           }
@@ -2950,9 +2004,7 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ActiveOrdersResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ActiveOrdersResponse" }
               }
             },
             "description": "Активные заказы"
@@ -2973,44 +2025,29 @@
             "in": "path",
             "name": "order_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PushSubscriptionRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/PushSubscriptionRequest" }
             }
           },
           "description": "Подписка браузера",
           "required": false
         },
         "responses": {
-          "204": {
-            "description": "Подписка сохранена"
-          },
+          "204": { "description": "Подписка сохранена" },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Заказ не найден"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Неверная подписка"
           }
@@ -3028,11 +2065,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PushKeyResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/PushKeyResponse" } }
             },
             "description": "Ключ"
           }
@@ -3051,9 +2084,7 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SocketTokenResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/SocketTokenResponse" }
               }
             },
             "description": "Токен"
@@ -3074,19 +2105,14 @@
             "in": "path",
             "name": "branch_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunningPromotionsResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/RunningPromotionsResponse" }
               }
             },
             "description": "Список акций"
@@ -3108,19 +2134,14 @@
             "in": "path",
             "name": "branch_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StocksListResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/StocksListResponse" }
               }
             },
             "description": "Список акций"
@@ -3132,11 +2153,6 @@
     }
   },
   "security": [],
-  "servers": [
-    {
-      "url": "http://localhost:4000",
-      "variables": {}
-    }
-  ],
+  "servers": [{ "url": "http://localhost:4000", "variables": {} }],
   "tags": []
 }

@@ -911,9 +911,9 @@ export interface components {
         /** @example +79990000000 */
         customer_phone?: string | null
         /** @example 150 */
-        discount_amount?: number
-        /** @example delivery */
-        fulfillment_type?: string
+        discount_amount: number
+        /** @enum {string} */
+        fulfillment_type: 'dine_in' | 'delivery' | 'pickup'
         /**
          * Format: uuid
          * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
@@ -922,16 +922,19 @@ export interface components {
         items: components['schemas']['OrderItemResponse'][]
         /** @example ORD-1001 */
         number: string
-        /** @example cash */
-        payment_method?: string
-        promotions?: components['schemas']['OrderPromotion'][]
-        /** @example created */
-        status: string
+        /** @enum {string} */
+        payment_method: 'cash' | 'card_offline'
+        promotions: components['schemas']['OrderPromotion'][]
+        /**
+         * @example created
+         * @enum {string}
+         */
+        status: 'created' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
         /**
          * @description Сумма без скидок
          * @example 1330
          */
-        subtotal_amount?: number
+        subtotal_amount: number
         /** @example 1180 */
         total_amount: number
       }
