@@ -7,6 +7,7 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useFulfillmentStore } from '../../stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '../../stores/fulfillmentFlow.store'
 import { useDeliveryQuote } from '../../composables/useDeliveryQuote'
+import { useDeliveryZones } from '../../composables/useDeliveryZones'
 import { emptyDeliveryAddress, type DeliveryAddress } from '../../utils/deliveryAddress'
 
 const { t } = useI18n()
@@ -21,6 +22,11 @@ const address = ref<DeliveryAddress>({
 })
 
 const delivery = useDeliveryQuote(address)
+const zones = useDeliveryZones()
+
+const pinNote = computed(() =>
+  delivery.quote.value?.status === 'outside_zones' ? t('delivery.outside') : null,
+)
 
 function confirm() {
   const branchId = branchStore.activeBranch?.id
@@ -32,7 +38,7 @@ function confirm() {
 </script>
 
 <template>
-  <AddressEditor v-model="address" :city="city">
+  <AddressEditor v-model="address" :city="city" :zones="zones" :pin-note="pinNote">
     <template #default="{ ready, locating }">
       <p
         v-if="ready && delivery.hint.value"

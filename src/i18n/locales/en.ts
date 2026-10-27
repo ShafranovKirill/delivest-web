@@ -150,7 +150,7 @@ export const en: typeof ru = {
     price: 'Delivery {price} ₽',
     priceFreeFrom: 'Delivery {price} ₽, free from {sum} ₽',
     minimum: 'Minimum order for delivery is {sum} ₽',
-    outside: 'We do not deliver here, pick another address',
+    outside: 'Sorry, we do not deliver here',
     noPoint: 'Pick the address on the map',
     line: 'Delivery',
   },

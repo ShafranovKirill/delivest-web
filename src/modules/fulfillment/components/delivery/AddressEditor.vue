@@ -11,10 +11,17 @@ import { useAddressEditor } from '../../composables/useAddressEditor'
 import { useCityAddresses } from '../../composables/useCityAddresses'
 import { savedMarkers } from '../../utils/savedMarkers'
 import type { DeliveryAddress } from '../../utils/deliveryAddress'
+import type { DeliveryZone } from '../../api/delivery.service'
 
-const props = withDefaults(defineProps<{ city: string | null; saved?: boolean }>(), {
-  saved: true,
-})
+const props = withDefaults(
+  defineProps<{
+    city: string | null
+    saved?: boolean
+    zones?: DeliveryZone[]
+    pinNote?: string | null
+  }>(),
+  { saved: true, zones: () => [], pinNote: null },
+)
 
 const address = defineModel<DeliveryAddress>({ required: true })
 
@@ -39,6 +46,8 @@ function pickMarker(id: string) {
       v-if="franchiseStore.addressMap"
       :center="mapCenter"
       :markers="markers"
+      :zones="zones"
+      :pin-note="pinNote"
       pin
       class="min-h-48 flex-1"
       @moved="locate"

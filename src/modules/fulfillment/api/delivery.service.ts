@@ -2,6 +2,7 @@ import { api } from '@/api/client'
 import type { components } from '@/api/types'
 
 export type DeliveryQuote = components['schemas']['DeliveryQuote']
+export type DeliveryZone = components['schemas']['DeliveryZone']
 
 type Envelope<T> = { data: T }
 
@@ -19,6 +20,13 @@ export const DeliveryService = {
         longitude: longitude ?? undefined,
         subtotal,
       },
+    })
+    return data.data
+  },
+
+  async zones(branchId: string): Promise<DeliveryZone[]> {
+    const { data } = await api.get<Envelope<DeliveryZone[]>>('/client/delivery/zones', {
+      params: { branch_id: branchId },
     })
     return data.data
   },

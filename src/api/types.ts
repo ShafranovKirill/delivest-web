@@ -322,6 +322,46 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/delivery/quote': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Стоимость доставки
+     * @description Стоимость доставки по точке адреса и сумме корзины: `ok` — доставляем, `below_minimum` — сумма меньше минимальной, `outside_zones` — сюда не доставляем, `no_coordinates` — у адреса нет точки на карте.
+     */
+    get: operations['DelivestWeb.Client.Delivery.DeliveryController.quote']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/delivery/zones': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Зоны доставки
+     * @description Зоны доставки филиала для показа на карте. Пустой список, если доставка без зон или в админке не стоит галочка показывать зоны клиенту.
+     */
+    get: operations['DelivestWeb.Client.Delivery.DeliveryController.zones']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/franchise': {
     parameters: {
       query?: never
@@ -555,26 +595,6 @@ export interface paths {
      * @description Возвращает список всех активных акций, привязанных к данному branch_id
      */
     get: operations['DelivestWeb.Client.Stock.StockController.index']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/delivery/quote': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Стоимость доставки
-     * @description Стоимость доставки по точке адреса и сумме корзины. Зоны клиенту не отдаются, только итог: `ok` — доставляем, `below_minimum` — сумма меньше минимальной, `outside_zones` — сюда не доставляем, `no_coordinates` — у адреса нет точки на карте.
-     */
-    get: operations['DelivestWeb.Client.Delivery.DeliveryController.quote']
     put?: never
     post?: never
     delete?: never
@@ -854,6 +874,10 @@ export interface components {
       /** @example central */
       slug: string
     }
+    /** DeliveryQuoteResponse */
+    DeliveryQuoteResponse: {
+      data: components['schemas']['DeliveryQuote']
+    }
     /** ClientAddressRequest */
     ClientAddressRequest: components['schemas']['AddressRequest'] & {
       /** @example Дом */
@@ -961,6 +985,11 @@ export interface components {
         customer_name?: string | null
         /** @example +79990000000 */
         customer_phone?: string | null
+        /**
+         * @description Стоимость доставки, входит в total_amount
+         * @example 200
+         */
+        delivery_amount: number
         /** @example 150 */
         discount_amount: number
         /** @enum {string} */
@@ -989,11 +1018,6 @@ export interface components {
         subtotal_amount: number
         /** @example 1180 */
         total_amount: number
-        /**
-         * @description Стоимость доставки, входит в total_amount
-         * @example 200
-         */
-        delivery_amount: number
       }
     }
     /**
@@ -1038,6 +1062,10 @@ export interface components {
       /** @enum {string} */
       type:
         'subtotal' | 'quantity' | 'product' | 'fulfillment' | 'time' | 'weekday' | 'requires_client'
+    }
+    /** DeliveryZonesResponse */
+    DeliveryZonesResponse: {
+      data: components['schemas']['DeliveryZone'][]
     }
     /** StockResponse */
     StockResponse: {
@@ -1135,6 +1163,21 @@ export interface components {
       /** @example +79990000000 */
       phone: string | null
     }
+    /** DeliveryZone */
+    DeliveryZone: {
+      /** @example #2563eb */
+      color: string
+      /** Format: uuid */
+      id: string
+      /** @example Центр */
+      name: string
+      /** @description GeoJSON Polygon, точки [долгота, широта] */
+      polygon: {
+        coordinates: number[][][]
+        /** @enum {string} */
+        type: 'Polygon'
+      }
+    }
     /** CartResponse */
     CartResponse: {
       data: {
@@ -1171,6 +1214,19 @@ export interface components {
         /** @example 3 */
         total_quantity: number
       }
+    }
+    /** DeliveryQuote */
+    DeliveryQuote: {
+      /** @example 1500 */
+      free_from: number | null
+      /** @example 500 */
+      min_order: number | null
+      /** @example 45 */
+      minutes: number | null
+      /** @example 150 */
+      price: number | null
+      /** @enum {string} */
+      status: 'ok' | 'below_minimum' | 'outside_zones' | 'no_coordinates'
     }
     /** RunningPromotion */
     RunningPromotion: {
@@ -1388,6 +1444,11 @@ export interface components {
       comment?: string | null
       /** Format: date_time */
       cook_by?: string | null
+      /**
+       * @description Стоимость доставки, входит в total_amount
+       * @example 200
+       */
+      delivery_amount: number
       /** @example 150 */
       discount_amount: number
       /** @enum {string} */
@@ -1415,11 +1476,6 @@ export interface components {
       subtotal_amount: number
       /** @example 1180 */
       total_amount: number
-      /**
-       * @description Стоимость доставки, входит в total_amount
-       * @example 200
-       */
-      delivery_amount: number
     }
     /** BranchInfoResponse */
     BranchInfoResponse: {
@@ -1502,23 +1558,6 @@ export interface components {
     /** StocksListResponse */
     StocksListResponse: {
       data?: components['schemas']['StockResponse'][]
-    }
-    /** DeliveryQuoteResponse */
-    DeliveryQuoteResponse: {
-      data: components['schemas']['DeliveryQuote']
-    }
-    /** DeliveryQuote */
-    DeliveryQuote: {
-      /** @example 1500 */
-      free_from: number | null
-      /** @example 500 */
-      min_order: number | null
-      /** @example 45 */
-      minutes: number | null
-      /** @example 150 */
-      price: number | null
-      /** @enum {string} */
-      status: 'ok' | 'below_minimum' | 'outside_zones' | 'no_coordinates'
     }
   }
   responses: never
@@ -2278,6 +2317,72 @@ export interface operations {
       }
     }
   }
+  'DelivestWeb.Client.Delivery.DeliveryController.quote': {
+    parameters: {
+      query: {
+        branch_id: string
+        latitude?: number
+        longitude?: number
+        /** @description Сумма корзины со скидками */
+        subtotal?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Стоимость */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['DeliveryQuoteResponse']
+        }
+      }
+      /** @description Нет филиала */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Delivery.DeliveryController.zones': {
+    parameters: {
+      query: {
+        branch_id: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Зоны */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['DeliveryZonesResponse']
+        }
+      }
+      /** @description Нет филиала */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   'DelivestWeb.Client.Franchise.FranchiseController.show': {
     parameters: {
       query?: never
@@ -2652,41 +2757,6 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['StocksListResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Delivery.DeliveryController.quote': {
-    parameters: {
-      query: {
-        branch_id: string
-        latitude?: number
-        longitude?: number
-        /** @description Сумма корзины со скидками */
-        subtotal?: number
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Стоимость */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['DeliveryQuoteResponse']
-        }
-      }
-      /** @description Нет филиала */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
         }
       }
     }
