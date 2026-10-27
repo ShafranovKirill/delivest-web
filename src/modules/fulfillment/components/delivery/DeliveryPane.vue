@@ -75,7 +75,7 @@ function confirm() {
 </script>
 
 <template>
-  <div class="flex h-full flex-col">
+  <div class="flex h-full flex-col lg:flex-row-reverse">
     <BaseMap
       v-if="franchiseStore.addressMap"
       :center="mapCenter"
@@ -84,7 +84,14 @@ function confirm() {
       @moved="locate"
     />
 
-    <div class="flex flex-col gap-3 p-4" :class="{ 'flex-1': !franchiseStore.addressMap }">
+    <div
+      class="flex flex-col gap-3 overflow-y-auto p-4"
+      :class="
+        franchiseStore.addressMap
+          ? 'lg:w-[26rem] lg:shrink-0'
+          : 'flex-1 lg:mx-auto lg:w-full lg:max-w-xl'
+      "
+    >
       <SavedAddresses :city="city" @select="onSaved" />
 
       <DeliveryAddressForm
