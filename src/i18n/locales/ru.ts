@@ -324,6 +324,7 @@ export const ru = {
     },
     status: {
       created: 'Ждёт подтверждения',
+      accepted: 'Подтверждён',
       preparing: 'Готовится',
       ready: 'Готов',
       delivering: 'В пути',

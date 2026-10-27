@@ -326,6 +326,7 @@ export const en: typeof ru = {
     },
     status: {
       created: 'Awaiting confirmation',
+      accepted: 'Confirmed',
       preparing: 'Preparing',
       ready: 'Ready',
       delivering: 'On the way',

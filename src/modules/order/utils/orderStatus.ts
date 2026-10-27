@@ -5,6 +5,7 @@ type FulfillmentType = ActiveOrder['fulfillment_type']
 
 const STATUS_ICONS: Record<OrderStatus, string> = {
   created: 'pi-clock',
+  accepted: 'pi-check-circle',
   preparing: 'pi-hourglass',
   ready: 'pi-shopping-bag',
   delivering: 'pi-truck',
@@ -29,9 +30,9 @@ export function paymentLabel(method: ActiveOrder['payment_method']): string {
 }
 
 const STEPS: Record<FulfillmentType, OrderStatus[]> = {
-  delivery: ['created', 'preparing', 'delivering'],
-  pickup: ['created', 'preparing', 'ready'],
-  dine_in: ['created', 'preparing', 'ready'],
+  delivery: ['created', 'accepted', 'preparing', 'delivering'],
+  pickup: ['created', 'accepted', 'preparing', 'ready'],
+  dine_in: ['created', 'accepted', 'preparing', 'ready'],
 }
 
 export function orderSteps(order: ActiveOrder): OrderStatus[] {
@@ -40,11 +41,12 @@ export function orderSteps(order: ActiveOrder): OrderStatus[] {
 
 const RANK: Record<OrderStatus, number> = {
   created: 0,
-  preparing: 1,
-  ready: 2,
-  delivering: 3,
-  completed: 4,
-  cancelled: 4,
+  accepted: 1,
+  preparing: 2,
+  ready: 3,
+  delivering: 4,
+  completed: 5,
+  cancelled: 5,
 }
 
 export function currentStep(order: ActiveOrder): number {

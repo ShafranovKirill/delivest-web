@@ -463,7 +463,15 @@
                 "type": "array"
               },
               "status": {
-                "enum": ["created", "preparing", "ready", "delivering", "completed", "cancelled"],
+                "enum": [
+                  "created",
+                  "accepted",
+                  "preparing",
+                  "ready",
+                  "delivering",
+                  "completed",
+                  "cancelled"
+                ],
                 "example": "created",
                 "type": "string"
               },
@@ -980,7 +988,15 @@
             "type": "array"
           },
           "status": {
-            "enum": ["created", "preparing", "ready", "delivering", "completed", "cancelled"],
+            "enum": [
+              "created",
+              "accepted",
+              "preparing",
+              "ready",
+              "delivering",
+              "completed",
+              "cancelled"
+            ],
             "example": "preparing",
             "type": "string"
           },

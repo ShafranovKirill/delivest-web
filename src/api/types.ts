@@ -954,7 +954,8 @@ export interface components {
          * @example created
          * @enum {string}
          */
-        status: 'created' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
+        status:
+          'created' | 'accepted' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
         /**
          * @description Сумма без скидок
          * @example 1330
@@ -1371,7 +1372,8 @@ export interface components {
        * @example preparing
        * @enum {string}
        */
-      status: 'created' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
+      status:
+        'created' | 'accepted' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
       /**
        * @description Сумма без скидок
        * @example 1330
