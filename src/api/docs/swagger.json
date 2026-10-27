@@ -1514,6 +1514,18 @@
             "nullable": true,
             "type": "string"
           },
+          "latitude": {
+            "example": 55.7558,
+            "format": "float",
+            "nullable": true,
+            "type": "number"
+          },
+          "longitude": {
+            "example": 37.6173,
+            "format": "float",
+            "nullable": true,
+            "type": "number"
+          },
           "phone_number": {
             "example": "+79990000000",
             "nullable": true,
@@ -1550,25 +1562,10 @@
             "additionalProperties": true,
             "nullable": true,
             "properties": {
-              "address": {
-                "example": "Москва, Красная площадь",
-                "nullable": true,
-                "type": "string"
-              },
               "enabled": {
                 "example": true,
                 "nullable": true,
                 "type": "boolean"
-              },
-              "latitude": {
-                "example": 55.7558,
-                "nullable": true,
-                "type": "number"
-              },
-              "longitude": {
-                "example": 37.6173,
-                "nullable": true,
-                "type": "number"
               },
               "yandex_org_id": {
                 "example": "123456789",

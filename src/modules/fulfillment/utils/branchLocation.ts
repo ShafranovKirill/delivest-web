@@ -4,10 +4,9 @@ import type { LngLat } from './deliveryAddress'
 const FALLBACK: LngLat = [37.6176, 55.7558]
 
 export function branchLngLat(branch: Branch | null | undefined): LngLat | null {
-  const settings = branch?.branch_info?.ycart_settings as
-    { latitude?: number | null; longitude?: number | null } | null | undefined
-  if (settings?.latitude == null || settings?.longitude == null) return null
-  return [settings.longitude, settings.latitude]
+  const info = branch?.branch_info
+  if (info?.latitude == null || info?.longitude == null) return null
+  return [info.longitude, info.latitude]
 }
 
 export function fallbackLngLat(branches: Branch[]): LngLat {

@@ -1359,6 +1359,16 @@ export interface components {
       id: string
       /** @example https://instagram.com/profile_name */
       instagram_url?: string | null
+      /**
+       * Format: float
+       * @example 55.7558
+       */
+      latitude?: number | null
+      /**
+       * Format: float
+       * @example 37.6173
+       */
+      longitude?: number | null
       /** @example +79990000000 */
       phone_number?: string | null
       /** @example https://vk.com/group_name */
@@ -1384,14 +1394,8 @@ export interface components {
       } | null
       ycart_settings?:
         | ({
-            /** @example Москва, Красная площадь */
-            address?: string | null
             /** @example true */
             enabled?: boolean | null
-            /** @example 55.7558 */
-            latitude?: number | null
-            /** @example 37.6173 */
-            longitude?: number | null
             /** @example 123456789 */
             yandex_org_id?: string | null
           } & {

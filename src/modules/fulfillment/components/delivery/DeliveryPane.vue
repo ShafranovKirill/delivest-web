@@ -29,7 +29,6 @@ const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
-const { isLocating, locate } = useReverseGeocode()
 
 const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
 
@@ -43,18 +42,19 @@ const mapCenter = ref<LngLat>(
     fallbackLngLat(branchStore.branches),
 )
 
+const { isLocating, locate, remember } = useReverseGeocode((geo, [longitude, latitude]) => {
+  address.value = { ...withGeo(address.value, geo), longitude, latitude }
+})
+
+remember(lngLatOf(address.value))
+
 const outsideCity = computed(() => !sameCity(address.value.city, city.value))
 const canConfirm = computed(() => isComplete(address.value) && !outsideCity.value)
 
 function focus(next: DeliveryAddress) {
   address.value = next
   mapCenter.value = lngLatOf(next) ?? mapCenter.value
-}
-
-async function onMoved(center: LngLat) {
-  const geo = await locate(center)
-  if (!geo) return
-  address.value = { ...withGeo(address.value, geo), longitude: center[0], latitude: center[1] }
+  remember(lngLatOf(next))
 }
 
 function onSuggestion(geo: GeoAddress) {
@@ -81,7 +81,7 @@ function confirm() {
       :center="mapCenter"
       pin
       class="min-h-48 flex-1"
-      @moved="onMoved"
+      @moved="locate"
     />
 
     <div class="flex flex-col gap-3 p-4" :class="{ 'flex-1': !franchiseStore.addressMap }">

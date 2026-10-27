@@ -21,9 +21,9 @@ export const useMapStore = defineStore('yandexMap', () => {
   })
 
   const coordinates = computed<[number, number] | null>(() => {
-    const settings = mapSettings.value
-    if (!settings || !settings.latitude || !settings.longitude) return null
-    return [settings.latitude, settings.longitude]
+    const info = branchStore.activeBranch?.branch_info
+    if (info?.latitude == null || info?.longitude == null) return null
+    return [info.latitude, info.longitude]
   })
 
   const yandexOrgUrl = computed<string | null>(() => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
-import maplibregl, { type Map as MapLibreMap, type Marker } from 'maplibre-gl'
+import maplibregl, { type AddLayerObject, type Map as MapLibreMap, type Marker } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { LngLat } from '../../utils/deliveryAddress'
 
@@ -13,6 +13,20 @@ export interface MapMarker {
 
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty'
 
+const HOUSE_NUMBERS: AddLayerObject = {
+  id: 'house-numbers',
+  type: 'symbol',
+  source: 'openmaptiles',
+  'source-layer': 'housenumber',
+  minzoom: 16,
+  layout: {
+    'text-field': ['get', 'housenumber'],
+    'text-font': ['Noto Sans Regular'],
+    'text-size': 12,
+  },
+  paint: { 'text-color': '#4b5563', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+}
+
 const props = withDefaults(
   defineProps<{
     center: LngLat
@@ -20,11 +34,11 @@ const props = withDefaults(
     pin?: boolean
     markers?: MapMarker[]
   }>(),
-  { zoom: 16, pin: false, markers: () => [] },
+  { zoom: 17, pin: false, markers: () => [] },
 )
 
 const emit = defineEmits<{
-  moved: [center: LngLat]
+  moved: [center: LngLat, zoom: number]
   markerClick: [id: string]
 }>()
 
@@ -63,12 +77,13 @@ onMounted(() => {
     attributionControl: { compact: true },
   })
 
+  map.value.on('load', () => map.value?.addLayer(HOUSE_NUMBERS))
   map.value.on('dragstart', () => (isDragging.value = true))
   map.value.on('moveend', (event) => {
     isDragging.value = false
     if (!event.originalEvent) return
     const { lng, lat } = map.value!.getCenter()
-    emit('moved', [lng, lat])
+    emit('moved', [lng, lat], map.value!.getZoom())
   })
 
   renderMarkers()

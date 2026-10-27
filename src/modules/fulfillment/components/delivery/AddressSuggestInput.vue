@@ -30,7 +30,6 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
     emit('select', address)
   } else {
     query.value = `${address.value}, `
-    search(query.value)
   }
 }
 </script>
@@ -42,7 +41,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
     option-label="value"
     :placeholder="placeholder"
     :delay="0"
-    :min-length="3"
+    :min-length="4"
     fluid
     @update:model-value="onInput"
     @complete="search($event.query)"
