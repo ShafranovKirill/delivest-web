@@ -374,7 +374,6 @@ export const en: typeof ru = {
     success: {
       title: 'Order placed!',
       number: 'Order number',
-      next: 'What’s next',
       operatorCall: 'The operator will call to confirm',
       hint: 'It usually takes up to {time}. If there is no call, please call us.',
       hintTime: '5 minutes',
