@@ -13,6 +13,8 @@ export interface MapMarker {
 
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty'
 
+const BLANK_IMAGE = { width: 1, height: 1, data: new Uint8Array(4) }
+
 const HOUSE_NUMBERS: AddLayerObject = {
   id: 'house-numbers',
   type: 'symbol',
@@ -78,6 +80,7 @@ onMounted(() => {
   })
 
   map.value.on('load', () => map.value?.addLayer(HOUSE_NUMBERS))
+  map.value.on('styleimagemissing', ({ id }) => map.value?.addImage(id, BLANK_IMAGE))
   map.value.on('dragstart', () => (isDragging.value = true))
   map.value.on('moveend', (event) => {
     isDragging.value = false
