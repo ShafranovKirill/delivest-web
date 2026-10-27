@@ -120,5 +120,6 @@ watch(() => props.markers, renderMarkers, { deep: true })
     >
       <i class="pi pi-map-marker text-4xl text-primary drop-shadow-md" />
     </div>
+    <slot />
   </div>
 </template>

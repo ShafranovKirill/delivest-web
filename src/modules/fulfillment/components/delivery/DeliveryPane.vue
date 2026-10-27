@@ -77,21 +77,16 @@ function confirm() {
 </script>
 
 <template>
-  <div class="relative flex h-full flex-col">
-    <SavedAddressesButton
-      v-if="franchiseStore.addressMap"
-      :city="city"
-      class="absolute right-3 top-16 z-10"
-      @select="onSaved"
-    />
-
+  <div class="flex h-full flex-col">
     <BaseMap
       v-if="franchiseStore.addressMap"
       :center="mapCenter"
       pin
       class="min-h-48 flex-1"
       @moved="locate"
-    />
+    >
+      <SavedAddressesButton :city="city" class="absolute bottom-9 left-3 z-10" @select="onSaved" />
+    </BaseMap>
 
     <SheetPanel :floating="franchiseStore.addressMap">
       <SavedAddresses v-if="!franchiseStore.addressMap" :city="city" @select="onSaved" />
