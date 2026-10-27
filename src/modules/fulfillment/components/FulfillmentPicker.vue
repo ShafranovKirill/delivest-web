@@ -3,13 +3,21 @@ import { computed, defineAsyncComponent } from 'vue'
 import Dialog from 'primevue/dialog'
 import { useI18n } from 'vue-i18n'
 import ModeSwitch from './ModeSwitch.vue'
+import PaneSkeleton from './PaneSkeleton.vue'
 import { useFulfillmentFlowStore, type PickerMode } from '../stores/fulfillmentFlow.store'
+import { usePrefetchPanes } from '../composables/usePrefetchPanes'
+import { loadDeliveryPane, loadPickupPane } from '../utils/panes'
 
-const DeliveryPane = defineAsyncComponent(() => import('./delivery/DeliveryPane.vue'))
-const PickupPane = defineAsyncComponent(() => import('./pickup/PickupPane.vue'))
+const asyncPane = (loader: typeof loadDeliveryPane | typeof loadPickupPane) =>
+  defineAsyncComponent({ loader, loadingComponent: PaneSkeleton, delay: 0 })
+
+const DeliveryPane = asyncPane(loadDeliveryPane)
+const PickupPane = asyncPane(loadPickupPane)
 
 const { t } = useI18n()
 const flowStore = useFulfillmentFlowStore()
+
+usePrefetchPanes()
 
 const modes = computed<Array<{ value: PickerMode; label: string }>>(() => [
   { value: 'delivery', label: t('order.form.delivery') },

@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import maplibregl, { type AddLayerObject, type Map as MapLibreMap, type Marker } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import MapPlaceholder from './MapPlaceholder.vue'
 import type { LngLat } from '../../utils/deliveryAddress'
 
 export interface MapMarker {
@@ -47,6 +48,7 @@ const emit = defineEmits<{
 const container = ref<HTMLDivElement | null>(null)
 const map = shallowRef<MapLibreMap | null>(null)
 const isDragging = ref(false)
+const isLoaded = ref(false)
 let rendered: Marker[] = []
 
 function markerElement(marker: MapMarker) {
@@ -79,7 +81,10 @@ onMounted(() => {
     attributionControl: { compact: true },
   })
 
-  map.value.on('load', () => map.value?.addLayer(HOUSE_NUMBERS))
+  map.value.on('load', () => {
+    map.value?.addLayer(HOUSE_NUMBERS)
+    isLoaded.value = true
+  })
   map.value.on('styleimagemissing', ({ id }) => map.value?.addImage(id, BLANK_IMAGE))
   map.value.on('dragstart', () => (isDragging.value = true))
   map.value.on('moveend', (event) => {
@@ -107,8 +112,9 @@ watch(() => props.markers, renderMarkers, { deep: true })
 <template>
   <div class="relative h-full w-full overflow-hidden">
     <div ref="container" class="h-full w-full" />
+    <MapPlaceholder v-if="!isLoaded" class="absolute inset-0" />
     <div
-      v-if="pin"
+      v-if="pin && isLoaded"
       class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full transition-transform"
       :class="{ '-translate-y-[calc(100%+8px)]': isDragging }"
     >
