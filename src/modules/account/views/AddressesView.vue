@@ -10,6 +10,8 @@ import AuthRequired from '@/modules/auth/components/AuthRequired.vue'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import AddressCard from '../components/AddressCard.vue'
 import AddressFormDialog from '../components/AddressFormDialog.vue'
+import AddressEditorDialog from '../components/AddressEditorDialog.vue'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import type { ClientAddress } from '../api/account.service'
 import { useAddressesQuery } from '../composables/useAddressesQuery'
 import { useAddressMutations } from '../composables/useAddressMutations'
@@ -18,6 +20,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const authStore = useAuthStore()
+const franchiseStore = useFranchiseStore()
 const toast = useToast()
 const { data: addresses, isLoading } = useAddressesQuery()
 const { remove } = useAddressMutations()
@@ -68,7 +71,18 @@ function removeAddress(address: ClientAddress) {
         :text="t('account.addresses.emptyText')"
       />
 
-      <AddressFormDialog :visible="isDialogOpen" :address="editing" @close="isDialogOpen = false" />
+      <AddressEditorDialog
+        v-if="franchiseStore.addressMap"
+        :visible="isDialogOpen"
+        :address="editing"
+        @close="isDialogOpen = false"
+      />
+      <AddressFormDialog
+        v-else
+        :visible="isDialogOpen"
+        :address="editing"
+        @close="isDialogOpen = false"
+      />
     </AuthRequired>
   </PageShell>
 </template>

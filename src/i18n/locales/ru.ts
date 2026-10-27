@@ -104,6 +104,7 @@ export const ru = {
       remove: 'Удалить адрес',
       editTitle: 'Изменить адрес',
       newTitle: 'Новый адрес',
+      label: 'Название, например «Дом»',
     },
     addresses: {
       title: 'Мои адреса',

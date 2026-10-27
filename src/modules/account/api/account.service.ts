@@ -3,7 +3,7 @@ import type { components } from '@/api/types'
 import type { ActiveOrder } from '@/modules/order/api/order.service'
 
 export type ClientAddress = components['schemas']['ClientAddress']
-export type AddressPayload = components['schemas']['AddressRequest']
+export type AddressPayload = components['schemas']['ClientAddressRequest']
 
 type Envelope<T> = { data: T }
 

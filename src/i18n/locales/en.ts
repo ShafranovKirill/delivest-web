@@ -106,6 +106,7 @@ export const en: typeof ru = {
       remove: 'Delete address',
       editTitle: 'Edit address',
       newTitle: 'New address',
+      label: 'Name, e.g. “Home”',
     },
     addresses: {
       title: 'My addresses',
