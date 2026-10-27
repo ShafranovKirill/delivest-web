@@ -111,7 +111,7 @@ watch(() => props.markers, renderMarkers, { deep: true })
 
 <template>
   <div class="relative h-full w-full overflow-hidden">
-    <div ref="container" class="h-full w-full" />
+    <div ref="container" class="h-full w-full [&_.maplibregl-ctrl-bottom-right]:bottom-[25px]!" />
     <MapPlaceholder v-if="!isLoaded" class="absolute inset-0" />
     <div
       v-if="pin && isLoaded"
