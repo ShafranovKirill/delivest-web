@@ -34,8 +34,13 @@ function select(address: ClientAddress) {
           class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
           @click="select(address)"
         >
-          <i class="pi pi-history text-gray-400" />
-          <span class="min-w-0 flex-1">{{ formatAddress(address) }}</span>
+          <i class="pi text-gray-400" :class="address.label ? 'pi-home' : 'pi-history'" />
+          <span class="min-w-0 flex-1">
+            <span v-if="address.label" class="block text-gray-950">{{ address.label }}</span>
+            <span class="block" :class="{ 'text-xs font-normal text-gray-500': address.label }">
+              {{ formatAddress(address) }}
+            </span>
+          </span>
         </button>
       </li>
     </ul>

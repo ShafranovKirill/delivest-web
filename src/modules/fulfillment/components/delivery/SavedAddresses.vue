@@ -18,8 +18,8 @@ const addresses = useCityAddresses(() => props.city)
       class="flex shrink-0 items-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:border-primary transition-colors cursor-pointer max-w-64"
       @click="$emit('select', address)"
     >
-      <i class="pi pi-history" />
-      <span class="truncate">{{ formatAddress(address) }}</span>
+      <i class="pi" :class="address.label ? 'pi-home' : 'pi-history'" />
+      <span class="truncate">{{ address.label || formatAddress(address) }}</span>
     </button>
   </div>
 </template>

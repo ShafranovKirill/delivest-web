@@ -21,10 +21,18 @@ defineEmits<{ edit: [address: ClientAddress]; remove: [address: ClientAddress] }
       <span
         class="grid place-items-center size-11 shrink-0 rounded-2xl bg-white text-primary shadow-xs"
       >
-        <i class="pi pi-map-marker" />
+        <i class="pi" :class="address.label ? 'pi-home' : 'pi-map-marker'" />
       </span>
       <span class="min-w-0">
-        <span class="block font-bold text-gray-900 truncate">{{ formatAddress(address) }}</span>
+        <span v-if="address.label" class="block font-bold text-gray-900 truncate">
+          {{ address.label }}
+        </span>
+        <span
+          class="block truncate"
+          :class="address.label ? 'text-sm text-gray-500' : 'font-bold text-gray-900'"
+        >
+          {{ formatAddress(address) }}
+        </span>
         <span v-if="address.intercom" class="block text-sm text-gray-500">
           {{ t('account.address.intercom', { value: address.intercom }) }}
         </span>
