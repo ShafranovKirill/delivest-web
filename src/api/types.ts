@@ -744,12 +744,20 @@ export interface components {
     GeoAddress: {
       /** @example Тюмень */
       city: string | null
+      /** @example Центральный р-н */
+      district: string | null
+      /** @description ФИАС дома */
+      fias_id: string | null
+      /** @description Точность координат DaData qc_geo: 0 — дом, 5 — не определены */
+      geo_precision: number | null
       /** @example 10 */
       house: string | null
       /** Format: float */
       latitude: number | null
       /** Format: float */
       longitude: number | null
+      /** @example 625000 */
+      postal_code: string | null
       /** @example ул Республики */
       street: string | null
       /** @example ул Республики, д 10 */
@@ -817,6 +825,11 @@ export interface components {
       /** @example central */
       slug: string
     }
+    /** ClientAddressRequest */
+    ClientAddressRequest: components['schemas']['AddressRequest'] & {
+      /** @example Дом */
+      label?: string | null
+    }
     /** PromoGift */
     PromoGift: {
       /** @example Кола 0.5 */
@@ -834,10 +847,17 @@ export interface components {
       city?: string | null
       /** @example Вход со двора */
       comment?: string | null
+      /** @example Центральный р-н */
+      district?: string | null
       /** @example 2 */
       entrance?: string | null
+      /** @description ФИАС дома */
+      fias_id?: string | null
       /** @example 3 */
       floor?: string | null
+      /** @example г Тюмень, ул Республики, д 10 */
+      formatted?: string | null
+      geo_precision?: number | null
       /** @example 10 */
       house?: string | null
       /** @example 42 */
@@ -852,6 +872,8 @@ export interface components {
        * @example 65.534
        */
       longitude?: number | null
+      /** @example 625000 */
+      postal_code?: string | null
       /** @example Ленина */
       street?: string | null
     }
@@ -1174,13 +1196,22 @@ export interface components {
       city?: string | null
       /** @example Вход со двора */
       comment?: string | null
+      /** @example Центральный р-н */
+      district?: string | null
       entrance?: string | null
+      /** @description ФИАС дома */
+      fias_id?: string | null
       floor?: string | null
+      /** @example г Тюмень, ул Республики, д 10 */
+      formatted?: string | null
+      geo_precision?: number | null
       /** @example 10 */
       house?: string | null
       /** Format: uuid */
       id: string
       intercom?: string | null
+      /** @example Дом */
+      label?: string | null
       /**
        * Format: float
        * @example 57.153
@@ -1191,6 +1222,8 @@ export interface components {
        * @example 65.534
        */
       longitude?: number | null
+      /** @example 625000 */
+      postal_code?: string | null
       /** @example Ленина */
       street: string
     }
@@ -1474,7 +1507,7 @@ export interface operations {
     /** @description Адрес */
     requestBody?: {
       content: {
-        'application/json': components['schemas']['AddressRequest']
+        'application/json': components['schemas']['ClientAddressRequest']
       }
     }
     responses: {
@@ -1511,7 +1544,7 @@ export interface operations {
     /** @description Адрес */
     requestBody?: {
       content: {
-        'application/json': components['schemas']['AddressRequest']
+        'application/json': components['schemas']['ClientAddressRequest']
       }
     }
     responses: {

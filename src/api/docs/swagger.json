@@ -223,13 +223,32 @@
       "GeoAddress": {
         "properties": {
           "city": { "example": "Тюмень", "nullable": true, "type": "string" },
+          "district": { "example": "Центральный р-н", "nullable": true, "type": "string" },
+          "fias_id": { "description": "ФИАС дома", "nullable": true, "type": "string" },
+          "geo_precision": {
+            "description": "Точность координат DaData qc_geo: 0 — дом, 5 — не определены",
+            "nullable": true,
+            "type": "integer"
+          },
           "house": { "example": "10", "nullable": true, "type": "string" },
           "latitude": { "format": "float", "nullable": true, "type": "number" },
           "longitude": { "format": "float", "nullable": true, "type": "number" },
+          "postal_code": { "example": "625000", "nullable": true, "type": "string" },
           "street": { "example": "ул Республики", "nullable": true, "type": "string" },
           "value": { "example": "ул Республики, д 10", "type": "string" }
         },
-        "required": ["value", "city", "street", "house", "latitude", "longitude"],
+        "required": [
+          "value",
+          "city",
+          "street",
+          "house",
+          "latitude",
+          "longitude",
+          "fias_id",
+          "postal_code",
+          "district",
+          "geo_precision"
+        ],
         "title": "GeoAddress",
         "type": "object"
       },
@@ -319,6 +338,18 @@
         "title": "Branch",
         "type": "object"
       },
+      "ClientAddressRequest": {
+        "allOf": [
+          { "$ref": "#/components/schemas/AddressRequest" },
+          {
+            "properties": {
+              "label": { "example": "Дом", "maxLength": 30, "nullable": true, "type": "string" }
+            },
+            "type": "object"
+          }
+        ],
+        "title": "ClientAddressRequest"
+      },
       "PromoGift": {
         "properties": {
           "name": { "example": "Кола 0.5", "type": "string" },
@@ -334,12 +365,21 @@
           "apartment": { "example": "12", "nullable": true, "type": "string" },
           "city": { "example": "Москва", "nullable": true, "type": "string" },
           "comment": { "example": "Вход со двора", "nullable": true, "type": "string" },
+          "district": { "example": "Центральный р-н", "nullable": true, "type": "string" },
           "entrance": { "example": "2", "nullable": true, "type": "string" },
+          "fias_id": { "description": "ФИАС дома", "nullable": true, "type": "string" },
           "floor": { "example": "3", "nullable": true, "type": "string" },
+          "formatted": {
+            "example": "г Тюмень, ул Республики, д 10",
+            "nullable": true,
+            "type": "string"
+          },
+          "geo_precision": { "maximum": 5, "minimum": 0, "nullable": true, "type": "integer" },
           "house": { "example": "10", "nullable": true, "type": "string" },
           "intercom": { "example": "42", "nullable": true, "type": "string" },
           "latitude": { "example": 57.153, "format": "float", "nullable": true, "type": "number" },
           "longitude": { "example": 65.534, "format": "float", "nullable": true, "type": "number" },
+          "postal_code": { "example": "625000", "nullable": true, "type": "string" },
           "street": { "example": "Ленина", "nullable": true, "type": "string" }
         },
         "title": "AddressRequest",
@@ -769,13 +809,23 @@
           "apartment": { "nullable": true, "type": "string" },
           "city": { "nullable": true, "type": "string" },
           "comment": { "example": "Вход со двора", "nullable": true, "type": "string" },
+          "district": { "example": "Центральный р-н", "nullable": true, "type": "string" },
           "entrance": { "nullable": true, "type": "string" },
+          "fias_id": { "description": "ФИАС дома", "nullable": true, "type": "string" },
           "floor": { "nullable": true, "type": "string" },
+          "formatted": {
+            "example": "г Тюмень, ул Республики, д 10",
+            "nullable": true,
+            "type": "string"
+          },
+          "geo_precision": { "maximum": 5, "minimum": 0, "nullable": true, "type": "integer" },
           "house": { "example": "10", "nullable": true, "type": "string" },
           "id": { "format": "uuid", "type": "string" },
           "intercom": { "nullable": true, "type": "string" },
+          "label": { "example": "Дом", "maxLength": 30, "nullable": true, "type": "string" },
           "latitude": { "example": 57.153, "format": "float", "nullable": true, "type": "number" },
           "longitude": { "example": 65.534, "format": "float", "nullable": true, "type": "number" },
+          "postal_code": { "example": "625000", "nullable": true, "type": "string" },
           "street": { "example": "Ленина", "type": "string" }
         },
         "required": ["id", "street"],
@@ -1067,7 +1117,9 @@
         "parameters": [],
         "requestBody": {
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/AddressRequest" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ClientAddressRequest" }
+            }
           },
           "description": "Адрес",
           "required": false
@@ -1133,7 +1185,9 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/AddressRequest" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ClientAddressRequest" }
+            }
           },
           "description": "Адрес",
           "required": false

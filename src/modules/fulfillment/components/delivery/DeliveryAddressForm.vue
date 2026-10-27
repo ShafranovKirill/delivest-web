@@ -2,7 +2,7 @@
 import InputText from 'primevue/inputtext'
 import { useI18n } from 'vue-i18n'
 import AddressSuggestInput from './AddressSuggestInput.vue'
-import { streetLine, type DeliveryAddress } from '../../utils/deliveryAddress'
+import { streetLine, withoutGeo, type DeliveryAddress } from '../../utils/deliveryAddress'
 import type { GeoAddress } from '../../api/geo.service'
 
 defineProps<{ suggest: boolean; city: string | null }>()
@@ -12,7 +12,7 @@ const address = defineModel<DeliveryAddress>({ required: true })
 const { t } = useI18n()
 
 function clearHouse() {
-  address.value = { ...address.value, street: '', house: '', latitude: null, longitude: null }
+  address.value = withoutGeo(address.value)
 }
 
 const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
