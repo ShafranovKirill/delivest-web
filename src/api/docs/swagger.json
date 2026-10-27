@@ -148,6 +148,12 @@
             "type": "string"
           },
           "is_active": { "example": true, "type": "boolean" },
+          "measure_unit": {
+            "description": "Единица измерения веса: граммы или миллилитры",
+            "enum": ["g", "ml"],
+            "example": "g",
+            "type": "string"
+          },
           "name": { "example": "Пипперони", "type": "string" },
           "old_price": {
             "description": "Цена без скидки, если на товар действует акция; `price` — цена со скидкой",

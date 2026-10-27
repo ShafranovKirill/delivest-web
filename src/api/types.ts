@@ -687,6 +687,12 @@ export interface components {
       id?: string
       /** @example true */
       is_active?: boolean
+      /**
+       * @description Единица измерения веса: граммы или миллилитры
+       * @example g
+       * @enum {string}
+       */
+      measure_unit?: 'g' | 'ml'
       /** @example Пипперони */
       name?: string
       /**

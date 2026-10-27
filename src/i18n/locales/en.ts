@@ -11,6 +11,7 @@ export const en: typeof ru = {
     error: 'Error',
     free: 'Free',
     grams: '{value} g',
+    milliliters: '{value} ml',
     loadFailed: 'Failed to load data.',
     phone: 'Phone',
     pieces: '{count} pcs',

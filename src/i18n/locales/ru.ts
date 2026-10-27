@@ -9,6 +9,7 @@ export const ru = {
     error: 'Ошибка',
     free: 'Бесплатно',
     grams: '{value} г',
+    milliliters: '{value} мл',
     loadFailed: 'Произошла ошибка при загрузке данных.',
     phone: 'Телефон',
     pieces: '{count} шт.',
