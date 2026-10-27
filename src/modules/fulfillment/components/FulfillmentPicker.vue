@@ -2,7 +2,7 @@
 import { computed, defineAsyncComponent } from 'vue'
 import Dialog from 'primevue/dialog'
 import { useI18n } from 'vue-i18n'
-import OptionChips from '@/modules/order/components/OptionChips.vue'
+import ModeSwitch from './ModeSwitch.vue'
 import { useFulfillmentFlowStore, type PickerMode } from '../stores/fulfillmentFlow.store'
 
 const DeliveryPane = defineAsyncComponent(() => import('./delivery/DeliveryPane.vue'))
@@ -11,9 +11,9 @@ const PickupPane = defineAsyncComponent(() => import('./pickup/PickupPane.vue'))
 const { t } = useI18n()
 const flowStore = useFulfillmentFlowStore()
 
-const modes = computed<Array<{ value: PickerMode; label: string; icon: string }>>(() => [
-  { value: 'delivery', label: t('order.form.delivery'), icon: 'pi-car' },
-  { value: 'pickup', label: t('order.form.pickup'), icon: 'pi-shopping-bag' },
+const modes = computed<Array<{ value: PickerMode; label: string }>>(() => [
+  { value: 'delivery', label: t('order.form.delivery') },
+  { value: 'pickup', label: t('order.form.pickup') },
 ])
 </script>
 
@@ -34,11 +34,11 @@ const modes = computed<Array<{ value: PickerMode; label: string; icon: string }>
     >
       <i class="pi pi-times text-lg" />
     </button>
-    <div
-      class="absolute left-1/2 top-3 z-10 w-[min(20rem,calc(100%-8rem))] -translate-x-1/2 rounded-3xl bg-white p-1 shadow-lg ring-1 ring-black/10 dark:ring-white/10"
-    >
-      <OptionChips v-model="flowStore.pickerMode" :options="modes" :columns="2" />
-    </div>
+    <ModeSwitch
+      v-model="flowStore.pickerMode"
+      :options="modes"
+      class="absolute left-16 right-3 top-3 z-10 mx-auto max-w-xl"
+    />
     <div class="min-h-0 flex-1">
       <DeliveryPane v-if="flowStore.pickerMode === 'delivery'" />
       <PickupPane v-else />
