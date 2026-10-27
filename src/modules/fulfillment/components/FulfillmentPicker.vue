@@ -29,13 +29,13 @@ const modes = computed<Array<{ value: PickerMode; label: string; icon: string }>
     <button
       type="button"
       :aria-label="t('common.close')"
-      class="absolute left-3 top-3 z-10 grid size-11 place-items-center rounded-full bg-white text-gray-700 shadow-md hover:bg-gray-50 cursor-pointer"
+      class="absolute left-3 top-3 z-10 grid size-11 place-items-center rounded-full bg-white text-gray-700 shadow-lg ring-1 ring-black/10 hover:bg-gray-50 dark:ring-white/10 cursor-pointer"
       @click="flowStore.isPickerOpen = false"
     >
       <i class="pi pi-times text-lg" />
     </button>
     <div
-      class="absolute left-1/2 top-3 z-10 w-[min(20rem,calc(100%-8rem))] -translate-x-1/2 rounded-3xl bg-white p-1 shadow-md"
+      class="absolute left-1/2 top-3 z-10 w-[min(20rem,calc(100%-8rem))] -translate-x-1/2 rounded-3xl bg-white p-1 shadow-lg ring-1 ring-black/10 dark:ring-white/10"
     >
       <OptionChips v-model="flowStore.pickerMode" :options="modes" :columns="2" />
     </div>

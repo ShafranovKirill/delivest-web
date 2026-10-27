@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import BaseMap from '../map/BaseMap.vue'
 import DeliveryAddressForm from './DeliveryAddressForm.vue'
 import SavedAddresses from './SavedAddresses.vue'
+import SheetPanel from '../SheetPanel.vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useFulfillmentStore } from '../../stores/fulfillment.store'
@@ -84,10 +85,7 @@ function confirm() {
       @moved="locate"
     />
 
-    <div
-      class="mx-auto flex w-full max-w-2xl flex-col gap-3 overflow-y-auto p-4"
-      :class="{ 'flex-1 pt-20': !franchiseStore.addressMap }"
-    >
+    <SheetPanel :floating="franchiseStore.addressMap">
       <SavedAddresses :city="city" @select="onSaved" />
 
       <DeliveryAddressForm
@@ -108,6 +106,6 @@ function confirm() {
         class="h-12 w-full rounded-full! font-semibold"
         @click="confirm"
       />
-    </div>
+    </SheetPanel>
   </div>
 </template>

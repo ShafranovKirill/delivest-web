@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import BaseMap, { type MapMarker } from '../map/BaseMap.vue'
 import PickupBranchList from './PickupBranchList.vue'
 import PickupBranchCard from './PickupBranchCard.vue'
+import SheetPanel from '../SheetPanel.vue'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
@@ -74,10 +75,7 @@ async function confirm(branch: Branch) {
       @marker-click="selectedId = $event"
     />
 
-    <div
-      class="mx-auto flex w-full max-w-2xl flex-col gap-3 overflow-y-auto p-4"
-      :class="hasMap ? 'max-h-[55%]' : 'flex-1 pt-20'"
-    >
+    <SheetPanel :floating="hasMap" :class="{ 'max-h-[55%]': hasMap }">
       <PickupBranchCard
         v-if="selected"
         :branch="selected"
@@ -89,6 +87,6 @@ async function confirm(branch: Branch) {
         :selected-id="selectedId"
         @select="selectedId = $event.id"
       />
-    </div>
+    </SheetPanel>
   </div>
 </template>
