@@ -37,7 +37,7 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
       <InputText v-model="address.house" :placeholder="t('address.house')" class="w-full" />
     </div>
 
-    <div class="grid grid-cols-4 gap-2">
+    <div class="grid grid-cols-2 gap-2">
       <InputText
         v-for="field in details"
         :key="field"
