@@ -179,6 +179,10 @@
             "nullable": true,
             "type": "string"
           },
+          "stopped": {
+            "description": "Товар в стоп-листе: показывать, но не давать заказать",
+            "type": "boolean"
+          },
           "suggested": {
             "description": "Предлагать в корзине в блоке «Добавить к заказу»",
             "type": "boolean"

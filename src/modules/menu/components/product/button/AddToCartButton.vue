@@ -4,6 +4,7 @@ import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
+import SoldOutLabel from './SoldOutLabel.vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
@@ -36,7 +37,9 @@ const handleAddToCart = async () => {
 </script>
 
 <template>
+  <SoldOutLabel v-if="product?.stopped" class="py-3.5!" />
   <Button
+    v-else
     @click="handleAddToCart"
     :loading="cartStore.isLoading"
     :disabled="!product || cartStore.isLoading"

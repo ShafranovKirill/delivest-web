@@ -38,6 +38,7 @@ const { activeProduct } = storeToRefs(menuStore)
               :alt="activeProduct?.name"
               fit="contain"
               class="w-full max-h-[35vh] aspect-square rounded-3xl"
+              :class="{ 'opacity-50 grayscale': activeProduct?.stopped }"
             />
           </div>
 

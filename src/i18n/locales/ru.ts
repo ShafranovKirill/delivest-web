@@ -234,6 +234,7 @@ export const ru = {
   menu: {
     more: 'Ещё',
     addToCart: 'В корзину за {price} ₽',
+    soldOut: 'Закончилось',
     loadFailed: 'Не удалось загрузить меню',
     loadFailedHint: 'Попробуйте обновить страницу или повторить запрос позже.',
   },

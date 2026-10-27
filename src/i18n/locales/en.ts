@@ -236,6 +236,7 @@ export const en: typeof ru = {
   menu: {
     more: 'More',
     addToCart: 'Add to cart for {price} ₽',
+    soldOut: 'Sold out',
     loadFailed: 'Failed to load the menu',
     loadFailedHint: 'Try refreshing the page or retry later.',
   },

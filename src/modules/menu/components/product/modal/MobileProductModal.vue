@@ -28,6 +28,7 @@ const { activeProduct } = storeToRefs(menuStore)
             :src="activeProduct?.photo_url"
             :alt="activeProduct?.name"
             class="w-full max-w-70 sm:max-w-xs aspect-square rounded-4xl"
+            :class="{ 'opacity-50 grayscale': activeProduct?.stopped }"
           />
         </div>
 

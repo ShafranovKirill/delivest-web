@@ -715,6 +715,8 @@ export interface components {
        * @example hinkali
        */
       slug?: string | null
+      /** @description Товар в стоп-листе: показывать, но не давать заказать */
+      stopped?: boolean
       /** @description Предлагать в корзине в блоке «Добавить к заказу» */
       suggested?: boolean
       /** @description Теги товара, которые админ настраивает во вкладке «Теги» */

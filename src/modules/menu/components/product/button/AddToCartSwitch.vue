@@ -6,6 +6,7 @@ import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
+import SoldOutLabel from './SoldOutLabel.vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ product: MenuProduct }>()
@@ -66,7 +67,8 @@ const handleRemove = async (event: Event) => {
 </script>
 
 <template>
-  <div class="mt-auto w-full flex justify-center">
+  <SoldOutLabel v-if="product.stopped" />
+  <div v-else class="mt-auto w-full flex justify-center">
     <template v-if="quantity > 0">
       <div
         @click.stop

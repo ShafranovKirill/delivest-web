@@ -22,6 +22,7 @@ const menuStore = useMenuStore()
             :src="product.photo_url"
             :alt="product.name"
             class="w-full mb-2 aspect-square rounded-4xl transition-transform duration-500 ease-in-out group-hover:translate-y-1.5"
+            :class="{ 'opacity-50 grayscale': product.stopped }"
           />
           <p class="text-xl font-bold text-center mb-2">{{ product.name }}</p>
         </div>
