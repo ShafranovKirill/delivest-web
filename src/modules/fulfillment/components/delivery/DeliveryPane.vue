@@ -34,9 +34,9 @@ const flowStore = useFulfillmentFlowStore()
 
 const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
 
-const address = ref<DeliveryAddress>(
-  structuredClone(fulfillmentStore.deliveryAddress ?? emptyDeliveryAddress(city.value ?? '')),
-)
+const address = ref<DeliveryAddress>({
+  ...(fulfillmentStore.deliveryAddress ?? emptyDeliveryAddress(city.value ?? '')),
+})
 
 const mapCenter = ref<LngLat>(
   lngLatOf(address.value) ??
