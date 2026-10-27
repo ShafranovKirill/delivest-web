@@ -19,4 +19,3 @@ export const getEnv = <T = string>(key: string, defaultValue?: T): T => {
 
 export const getApiBaseUrl = () =>
   getEnv('VITE_API_BASE_URL', 'https://delivest-server.shafranov.tech')
-export const getYandexMapsApiKey = () => getEnv('VITE_YANDEX_MAPS_API_KEY', '')

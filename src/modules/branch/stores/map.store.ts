@@ -1,16 +1,9 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useBranchStore } from './branch.store'
-import { getYandexMapsApiKey } from '@/utils/env'
 
-type YmapsInstance = typeof window.ymaps
-
-export const useMapStore = defineStore('yandexMap', () => {
+export const useMapStore = defineStore('branchMap', () => {
   const branchStore = useBranchStore()
-
-  const isLoaded = ref<boolean>(false)
-  const isLoading = ref<boolean>(false)
-  const loadError = ref<string | null>(null)
 
   const isMapEnabled = computed<boolean>(() => {
     return branchStore.activeBranch?.branch_info?.ycart_settings?.enabled ?? false
@@ -23,7 +16,7 @@ export const useMapStore = defineStore('yandexMap', () => {
   const coordinates = computed<[number, number] | null>(() => {
     const info = branchStore.activeBranch?.branch_info
     if (info?.latitude == null || info?.longitude == null) return null
-    return [info.latitude, info.longitude]
+    return [info.longitude, info.latitude]
   })
 
   const yandexOrgUrl = computed<string | null>(() => {
@@ -32,65 +25,10 @@ export const useMapStore = defineStore('yandexMap', () => {
     return `https://yandex.ru/maps/org/${orgId}`
   })
 
-  async function initYandexMapScript(): Promise<YmapsInstance> {
-    if (window.ymaps) {
-      isLoaded.value = true
-      return window.ymaps
-    }
-
-    if (isLoading.value) {
-      return new Promise<YmapsInstance>((resolve) => {
-        const checkInterval = setInterval(() => {
-          if (window.ymaps) {
-            clearInterval(checkInterval)
-            isLoaded.value = true
-            resolve(window.ymaps)
-          }
-        }, 100)
-      })
-    }
-
-    isLoading.value = true
-    loadError.value = null
-
-    return new Promise<YmapsInstance>((resolve, reject) => {
-      const apiKey = getYandexMapsApiKey()
-      const script = document.createElement('script')
-      script.src = `https://api-maps.yandex.ru/2.1/?apikey=${apiKey}&lang=ru_RU`
-      script.async = true
-
-      script.onload = () => {
-        if (window.ymaps) {
-          window.ymaps.ready(() => {
-            isLoading.value = false
-            isLoaded.value = true
-            resolve(window.ymaps)
-          })
-        } else {
-          isLoading.value = false
-          loadError.value = 'ymaps object is missing after script load'
-          reject(new Error(loadError.value))
-        }
-      }
-
-      script.onerror = (err) => {
-        isLoading.value = false
-        loadError.value = 'Yandex Maps script failed to load'
-        reject(err)
-      }
-
-      document.head.appendChild(script)
-    })
-  }
-
   return {
-    isLoaded,
-    isLoading,
-    loadError,
     isMapEnabled,
     mapSettings,
     coordinates,
     yandexOrgUrl,
-    initYandexMapScript,
   }
 })

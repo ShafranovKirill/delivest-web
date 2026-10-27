@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMapStore } from '../stores/map.store'
-import BranchYandexMap from '../components/BranchYandexMap.vue'
+import BaseMap from '@/modules/fulfillment/components/map/BaseMap.vue'
 import { useBranchStore } from '../stores/branch.store.ts'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
@@ -90,11 +90,16 @@ const socials = computed(() =>
           </a>
         </template>
 
-        <div v-if="isMapEnabled && coordinates" class="overflow-hidden rounded-2xl">
-          <BranchYandexMap
-            :coordinates="coordinates"
-            :branch-name="activeBranch.name"
-            :address="info?.address"
+        <div
+          v-if="isMapEnabled && coordinates"
+          class="h-87.5 overflow-hidden rounded-2xl border border-gray-200"
+        >
+          <BaseMap
+            :center="coordinates"
+            :zoom="16"
+            :markers="[
+              { id: 'branch', lngLat: coordinates, active: true, title: activeBranch.name },
+            ]"
           />
         </div>
       </SurfaceCard>
