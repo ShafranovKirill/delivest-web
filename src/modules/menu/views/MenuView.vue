@@ -8,6 +8,7 @@ import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
 import StoryStrip from '@/modules/stock/components/StoryStrip.vue'
 import ClosedBanner from '@/modules/branch/components/ClosedBanner.vue'
 import StoryViewer from '@/modules/stock/components/StoryViewer.vue'
+import FulfillmentSummary from '@/modules/fulfillment/components/FulfillmentSummary.vue'
 import ActiveOrders from '@/modules/order/components/active/ActiveOrders.vue'
 import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
@@ -43,6 +44,9 @@ onMounted(() => {
   <div class="bg-gray-200">
     <ClosedBanner />
     <StoryStrip />
+    <div class="w-full max-w-7xl mx-auto px-4 pb-4">
+      <FulfillmentSummary />
+    </div>
     <ActiveOrders />
   </div>
   <MobileCategoryBar v-if="viewportStore.isMobile" />
