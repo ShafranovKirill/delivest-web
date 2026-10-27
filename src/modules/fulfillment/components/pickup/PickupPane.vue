@@ -64,7 +64,7 @@ async function confirm(branch: Branch) {
 </script>
 
 <template>
-  <div class="flex h-full flex-col lg:flex-row-reverse">
+  <div class="flex h-full flex-col">
     <BaseMap
       v-if="hasMap"
       :center="mapCenter"
@@ -75,12 +75,8 @@ async function confirm(branch: Branch) {
     />
 
     <div
-      class="flex flex-col gap-3 overflow-y-auto p-4"
-      :class="
-        hasMap
-          ? 'max-h-[55%] lg:max-h-none lg:w-[26rem] lg:shrink-0'
-          : 'flex-1 lg:mx-auto lg:w-full lg:max-w-xl'
-      "
+      class="mx-auto flex w-full max-w-2xl flex-col gap-3 overflow-y-auto p-4"
+      :class="hasMap ? 'max-h-[55%]' : 'flex-1 pt-20'"
     >
       <PickupBranchCard
         v-if="selected"

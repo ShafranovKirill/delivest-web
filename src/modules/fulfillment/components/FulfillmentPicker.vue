@@ -23,27 +23,21 @@ const modes = computed<Array<{ value: PickerMode; label: string; icon: string }>
     modal
     :show-header="false"
     class="m-0! h-dvh! max-h-dvh! w-screen max-w-none! rounded-none!"
-    content-class="flex flex-col p-0! flex-1 min-h-0"
+    content-class="relative flex flex-col p-0! flex-1 min-h-0"
     @hide="flowStore.dismiss"
   >
-    <div class="flex items-center gap-3 px-4 py-3">
-      <button
-        type="button"
-        :aria-label="t('common.close')"
-        class="grid size-10 shrink-0 place-items-center rounded-full text-gray-600 hover:bg-gray-100 cursor-pointer"
-        @click="flowStore.isPickerOpen = false"
-      >
-        <i class="pi pi-times text-lg" />
-      </button>
-      <h2 class="hidden text-lg font-bold text-gray-900 sm:block">
-        {{ t('fulfillment.picker.title') }}
-      </h2>
-      <OptionChips
-        v-model="flowStore.pickerMode"
-        :options="modes"
-        :columns="2"
-        class="flex-1 sm:ml-auto sm:max-w-sm sm:flex-none sm:w-full"
-      />
+    <button
+      type="button"
+      :aria-label="t('common.close')"
+      class="absolute left-3 top-3 z-10 grid size-11 place-items-center rounded-full bg-white text-gray-700 shadow-md hover:bg-gray-50 cursor-pointer"
+      @click="flowStore.isPickerOpen = false"
+    >
+      <i class="pi pi-times text-lg" />
+    </button>
+    <div
+      class="absolute left-1/2 top-3 z-10 w-[min(20rem,calc(100%-8rem))] -translate-x-1/2 rounded-3xl bg-white p-1 shadow-md"
+    >
+      <OptionChips v-model="flowStore.pickerMode" :options="modes" :columns="2" />
     </div>
     <div class="min-h-0 flex-1">
       <DeliveryPane v-if="flowStore.pickerMode === 'delivery'" />
