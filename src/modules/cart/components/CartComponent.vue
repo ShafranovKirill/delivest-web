@@ -102,10 +102,13 @@ function goToCatalog() {
       </div>
 
       <div class="pt-3 pb-[calc(env(safe-area-inset-bottom))] bg-white z-20">
+        <p v-if="cartStore.hasStopped" class="mb-2 text-center text-sm text-red-500">
+          {{ t('cart.removeSoldOut') }}
+        </p>
         <button
           type="button"
           @click="handleCheckout"
-          :disabled="cartStore.isLoading"
+          :disabled="cartStore.isLoading || cartStore.hasStopped"
           class="w-full py-3.5 px-4 rounded-2xl bg-(--p-primary-500) text-white font-medium text-base transition-opacity hover:opacity-90 disabled:opacity-50 shadow-sm"
         >
           {{ t('cart.checkout') }}

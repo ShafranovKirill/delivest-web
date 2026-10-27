@@ -303,6 +303,7 @@
           },
           "promotion_ids": { "items": { "format": "uuid", "type": "string" }, "type": "array" },
           "quantity": { "example": 2, "type": "integer" },
+          "stopped": { "description": "Товар в стоп-листе: заказать нельзя", "type": "boolean" },
           "total_price": {
             "description": "Итог по строке с учётом скидок",
             "example": 1062,

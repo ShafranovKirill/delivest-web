@@ -250,6 +250,8 @@ export const en: typeof ru = {
     toCatalog: 'Go to catalog',
     toMenu: 'Go to menu',
     checkout: 'Proceed to checkout',
+    soldOut: 'Sold out',
+    removeSoldOut: 'Remove sold out items to place the order',
     promoGift: 'Promotion gift',
     remove: 'Remove from cart',
     gift: 'Gift: {name}',

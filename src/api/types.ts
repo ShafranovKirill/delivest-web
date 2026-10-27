@@ -805,6 +805,8 @@ export interface components {
       promotion_ids: string[]
       /** @example 2 */
       quantity: number
+      /** @description Товар в стоп-листе: заказать нельзя */
+      stopped?: boolean
       /**
        * @description Итог по строке с учётом скидок
        * @example 1062

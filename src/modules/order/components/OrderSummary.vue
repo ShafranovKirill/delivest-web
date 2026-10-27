@@ -29,11 +29,15 @@ const { t } = useI18n()
           :src="item.image_url"
           :alt="item.name"
           class="size-14 shrink-0 rounded-xl"
+          :class="{ 'opacity-50 grayscale': item.stopped }"
         />
         <span class="min-w-0 flex-1" :class="{ 'pl-2': compact }">
           <span class="block text-sm font-semibold text-gray-900 truncate">{{ item.name }}</span>
           <span v-if="item.gift" class="block text-xs font-medium text-green-700">
             <i class="pi pi-gift text-xs" /> {{ t('order.giftCount', { count: item.quantity }) }}
+          </span>
+          <span v-else-if="item.stopped" class="block text-xs font-medium text-red-500">
+            {{ t('cart.soldOut') }}
           </span>
           <span v-else class="block text-xs text-gray-500 tabular-nums">
             {{ item.quantity }} × {{ item.price }} ₽
@@ -60,8 +64,12 @@ const { t } = useI18n()
     </div>
   </SurfaceCard>
 
+  <p v-if="!compact && cartStore.hasStopped" class="mt-3 text-center text-sm text-red-500">
+    {{ t('cart.removeSoldOut') }}
+  </p>
   <Button
     v-if="!compact"
+    :disabled="cartStore.hasStopped"
     :label="t('order.toCheckout')"
     icon="pi pi-arrow-right"
     iconPos="right"

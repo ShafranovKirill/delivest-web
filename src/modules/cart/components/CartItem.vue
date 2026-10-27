@@ -26,7 +26,12 @@ function handleDecrease() {
     :class="item.gift ? 'border-green-200 bg-green-50/60' : 'border-border/40 bg-background'"
   >
     <div class="p-3 flex items-center gap-3">
-      <ProductImage :src="item.image_url" :alt="item.name" class="w-14 h-14 rounded-2xl shrink-0" />
+      <ProductImage
+        :src="item.image_url"
+        :alt="item.name"
+        class="w-14 h-14 rounded-2xl shrink-0"
+        :class="{ 'opacity-50 grayscale': item.stopped }"
+      />
       <div class="grow min-w-0">
         <h4 class="text-sm font-medium leading-tight truncate">
           {{ item.name }}
@@ -36,6 +41,9 @@ function handleDecrease() {
           class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-green-700"
         >
           <i class="pi pi-gift text-xs" /> {{ t('cart.promoGift') }}
+        </span>
+        <span v-else-if="item.stopped" class="mt-1 block text-xs font-medium text-red-500">
+          {{ t('cart.soldOut') }}
         </span>
       </div>
       <button
@@ -84,7 +92,8 @@ function handleDecrease() {
         <button
           type="button"
           @click="cartStore.addItem(item.product_id)"
-          class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-background transition-colors text-xs font-medium"
+          :disabled="item.stopped"
+          class="disabled:opacity-40 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-background transition-colors text-xs font-medium"
         >
           <i class="pi pi-plus"></i>
         </button>
