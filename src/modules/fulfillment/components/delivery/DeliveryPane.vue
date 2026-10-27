@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import BaseMap from '../map/BaseMap.vue'
 import DeliveryAddressForm from './DeliveryAddressForm.vue'
 import SavedAddresses from './SavedAddresses.vue'
+import SavedAddressesButton from './SavedAddressesButton.vue'
 import SheetPanel from '../SheetPanel.vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
@@ -76,7 +77,14 @@ function confirm() {
 </script>
 
 <template>
-  <div class="flex h-full flex-col">
+  <div class="relative flex h-full flex-col">
+    <SavedAddressesButton
+      v-if="franchiseStore.addressMap"
+      :city="city"
+      class="absolute right-3 top-16 z-10"
+      @select="onSaved"
+    />
+
     <BaseMap
       v-if="franchiseStore.addressMap"
       :center="mapCenter"
@@ -86,7 +94,7 @@ function confirm() {
     />
 
     <SheetPanel :floating="franchiseStore.addressMap">
-      <SavedAddresses :city="city" @select="onSaved" />
+      <SavedAddresses v-if="!franchiseStore.addressMap" :city="city" @select="onSaved" />
 
       <DeliveryAddressForm
         v-model="address"

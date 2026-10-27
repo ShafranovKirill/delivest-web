@@ -166,6 +166,7 @@ export const ru = {
     pickupHere: 'Заказать сюда',
     outsideCity: 'Этот филиал доставляет только по городу {city}',
     notOnMap: 'нет на карте',
+    savedAddresses: 'Мои адреса',
   },
   branch: {
     foodDelivery: 'Доставка еды',

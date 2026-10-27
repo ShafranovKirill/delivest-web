@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useAddressesQuery } from '@/modules/account/composables/useAddressesQuery'
 import type { ClientAddress } from '@/modules/account/api/account.service'
 import { formatAddress } from '@/modules/shared/utils/address'
-import { sameCity } from '../../utils/deliveryAddress'
+import { useCityAddresses } from '../../composables/useCityAddresses'
 
 const props = defineProps<{ city: string | null }>()
 defineEmits<{ select: [address: ClientAddress] }>()
 
-const { data } = useAddressesQuery()
-
-const addresses = computed(() =>
-  (data.value ?? []).filter((address) => sameCity(address.city ?? '', props.city)),
-)
+const addresses = useCityAddresses(() => props.city)
 </script>
 
 <template>

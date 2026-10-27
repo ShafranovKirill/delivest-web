@@ -168,6 +168,7 @@ export const en: typeof ru = {
     pickupHere: 'Order here',
     outsideCity: 'This branch delivers only within {city}',
     notOnMap: 'not on the map',
+    savedAddresses: 'My addresses',
   },
   branch: {
     foodDelivery: 'Food delivery',
