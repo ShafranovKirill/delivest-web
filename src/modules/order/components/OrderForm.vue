@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, computed, watch } from 'vue'
+import { reactive, computed, ref, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import OrderConsent from './OrderConsent.vue'
@@ -10,13 +10,13 @@ import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 import OptionChips from '@/modules/order/components/OptionChips.vue'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
-import AddressFields, { type AddressForm } from '@/modules/shared/components/AddressFields.vue'
-import SavedAddressPicker from '@/modules/order/components/SavedAddressPicker.vue'
-import { emptyAddressForm, toAddressForm } from '@/modules/shared/utils/addressForm'
-import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import FulfillmentSummary from '@/modules/fulfillment/components/FulfillmentSummary.vue'
+import type { DeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
+import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
+import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
-import type { ClientAddress } from '@/modules/account/api/account.service'
 import { useI18n } from 'vue-i18n'
 
 export interface OrderFormValues {
@@ -26,7 +26,7 @@ export interface OrderFormValues {
   payment_method: 'cash' | 'card_offline'
   comment: string
   cook_by: string | null
-  address: AddressForm
+  address: DeliveryAddress | null
   call_operator_for_address: boolean
 }
 
@@ -40,42 +40,41 @@ const emit = defineEmits<{
 
 const toast = useToast()
 const { t } = useI18n()
-const branchStore = useBranchStore()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const franchiseStore = useFranchiseStore()
+const fulfillmentStore = useFulfillmentStore()
+const flowStore = useFulfillmentFlowStore()
 
-const form = reactive<OrderFormValues>({
+type PickupKind = Extract<OrderFormValues['fulfillment_type'], 'pickup' | 'dine_in'>
+
+const pickupKind = ref<PickupKind>('pickup')
+
+const form = reactive({
   customer_name: authStore.client?.name ?? '',
   customer_phone: authStore.client?.phone ?? authStore.lastPhone ?? '+7',
-  fulfillment_type: 'pickup',
-  payment_method: 'cash',
+  payment_method: 'cash' as OrderFormValues['payment_method'],
   comment: '',
-  cook_by: null,
-  address: emptyAddressForm(),
+  cook_by: null as string | null,
   call_operator_for_address: false,
 })
 
-function selectAddress(address: ClientAddress) {
-  form.address = toAddressForm(address)
-}
+const isDelivery = computed(() => fulfillmentStore.current?.type === 'delivery')
+
+const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
+  isDelivery.value ? 'delivery' : pickupKind.value,
+)
 
 watch(
   () => authStore.client?.phone,
   (phone) => phone && (form.customer_phone = phone),
 )
 
-watch(
-  () => form.fulfillment_type,
-  (type) => cartStore.setFulfillment(type).catch((e) => console.error(e)),
-  { immediate: true },
-)
+watch(fulfillmentType, (type) => cartStore.setFulfillment(type).catch((e) => console.error(e)), {
+  immediate: true,
+})
 
-const pickupAddress = computed(() => branchStore.activeBranch?.branch_info?.address || null)
-
-const fulfillmentOptions = computed<
-  Array<{ value: OrderFormValues['fulfillment_type']; label: string; icon: string }>
->(() => [
-  { value: 'delivery', label: t('order.form.delivery'), icon: 'pi-car' },
+const pickupOptions = computed<Array<{ value: PickupKind; label: string; icon: string }>>(() => [
   { value: 'pickup', label: t('order.form.pickup'), icon: 'pi-shopping-bag' },
   { value: 'dine_in', label: t('order.form.dineIn'), icon: 'pi-home' },
 ])
@@ -98,7 +97,17 @@ function handleSubmit() {
     return
   }
 
-  emit('submit', form)
+  if (!fulfillmentStore.current) {
+    flowStore.openPicker('delivery')
+    return
+  }
+
+  emit('submit', {
+    ...form,
+    fulfillment_type: fulfillmentType.value,
+    address: fulfillmentStore.deliveryAddress,
+    call_operator_for_address: isDelivery.value && form.call_operator_for_address,
+  })
 }
 </script>
 
@@ -129,35 +138,26 @@ function handleSubmit() {
     </SurfaceCard>
 
     <SurfaceCard icon="pi-send" :title="t('order.form.fulfillment')">
-      <OptionChips v-model="form.fulfillment_type" :options="fulfillmentOptions" :columns="3" />
+      <FulfillmentSummary />
 
-      <p
-        v-if="form.fulfillment_type === 'pickup' && pickupAddress"
-        class="mt-3 flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm text-gray-600 border border-gray-100"
+      <OptionChips
+        v-if="fulfillmentStore.current?.type === 'pickup'"
+        v-model="pickupKind"
+        :options="pickupOptions"
+        :columns="2"
+        class="mt-3"
+      />
+
+      <label
+        v-if="isDelivery && !franchiseStore.addressMap"
+        class="mt-3 flex items-center gap-2 cursor-pointer select-none"
       >
-        <i class="pi pi-map-marker text-primary" />
-        {{ t('order.form.pickupAt') }}
-        <span class="font-semibold text-gray-900">{{ pickupAddress }}</span>
-      </p>
-
-      <div v-if="form.fulfillment_type === 'delivery'" class="mt-4 flex flex-col gap-3 sm:gap-4">
-        <label class="flex items-center gap-2 cursor-pointer select-none">
-          <Checkbox v-model="form.call_operator_for_address" binary />
-          <span class="text-sm text-gray-700">{{ t('order.form.callOperator') }}</span>
-        </label>
-
-        <template v-if="!form.call_operator_for_address">
-          <SavedAddressPicker
-            v-if="authStore.isAuthenticated"
-            :current="form.address"
-            @select="selectAddress"
-          />
-          <AddressFields v-model="form.address" />
-        </template>
-      </div>
+        <Checkbox v-model="form.call_operator_for_address" binary />
+        <span class="text-sm text-gray-700">{{ t('order.form.callOperator') }}</span>
+      </label>
     </SurfaceCard>
 
-    <OrderTimeSelect v-model="form.cook_by" :fulfillment="form.fulfillment_type" />
+    <OrderTimeSelect v-model="form.cook_by" :fulfillment="fulfillmentType" />
 
     <SurfaceCard icon="pi-wallet" :title="t('order.payment.title')">
       <OptionChips v-model="form.payment_method" :options="paymentOptions" :columns="2" />

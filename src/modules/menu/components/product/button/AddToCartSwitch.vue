@@ -3,12 +3,14 @@ import { computed, ref } from 'vue'
 import ProgressSpinner from 'primevue/progressspinner'
 import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ product: MenuProduct }>()
 const cartStore = useCartStore()
+const flowStore = useFulfillmentFlowStore()
 const toast = useToast()
 const { t } = useI18n()
 
@@ -34,7 +36,7 @@ const quantity = computed(() => {
 
 const handleAdd = async (event: Event) => {
   event.stopPropagation()
-  if (!props.product?.id || isPending.value) return
+  if (!props.product?.id || isPending.value || !(await flowStore.ensure())) return
 
   isPending.value = true
   try {

@@ -302,6 +302,26 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/cart/{cart_id}/repeat/{order_id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Повторить заказ
+     * @description Добавляет в корзину позиции прошлого заказа клиента. Недоступные сейчас товары пропускаются.
+     */
+    post: operations['DelivestWeb.Client.Cart.CartController.repeat']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/franchise': {
     parameters: {
       query?: never
@@ -334,6 +354,46 @@ export interface paths {
      * @description Текст документа с подставленными реквизитами.
      */
     get: operations['DelivestWeb.Client.Franchise.FranchiseController.document']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/geo/reverse': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Адрес по координатам
+     * @description Ближайший дом к точке на карте.
+     */
+    get: operations['DelivestWeb.Client.Geo.GeoController.reverse']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/geo/suggest': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Подсказки адресов
+     * @description Адреса DaData по введённой строке, в пределах города, если он передан.
+     */
+    get: operations['DelivestWeb.Client.Geo.GeoController.suggest']
     put?: never
     post?: never
     delete?: never
@@ -403,66 +463,6 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/socket_token': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Токен для подключения к сокету
-     * @description Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (событие `confirmed`, после него токены забираются через `/client/auth/call/{id}/complete`).
-     */
-    get: operations['DelivestWeb.Client.Socket.SocketController.token']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/{branch_id}/stocks': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Получить список активных акций филиала
-     * @description Возвращает список всех активных акций, привязанных к данному branch_id
-     */
-    get: operations['DelivestWeb.Client.Stock.StockController.index']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/cart/{cart_id}/repeat/{order_id}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /**
-     * Повторить заказ
-     * @description Добавляет в корзину позиции прошлого заказа клиента. Недоступные сейчас товары пропускаются.
-     */
-    post: operations['DelivestWeb.Client.Cart.CartController.repeat']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
   '/client/orders/{order_id}/push': {
     parameters: {
       query?: never
@@ -503,6 +503,26 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/socket_token': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Токен для подключения к сокету
+     * @description Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (событие `confirmed`, после него токены забираются через `/client/auth/call/{id}/complete`).
+     */
+    get: operations['DelivestWeb.Client.Socket.SocketController.token']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/{branch_id}/promotions': {
     parameters: {
       query?: never
@@ -523,314 +543,48 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/{branch_id}/stocks': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Получить список активных акций филиала
+     * @description Возвращает список всех активных акций, привязанных к данному branch_id
+     */
+    get: operations['DelivestWeb.Client.Stock.StockController.index']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
-    /** ActiveOrder */
-    ActiveOrder: {
-      address?: {
-        [key: string]: unknown
-      } | null
-      /** Format: uuid */
-      branch_id: string
-      comment?: string | null
-      /** Format: date_time */
-      cook_by?: string | null
-      /** @example 150 */
-      discount_amount: number
-      /** @enum {string} */
-      fulfillment_type: 'dine_in' | 'delivery' | 'pickup'
-      /** Format: uuid */
-      id: string
-      /** Format: date_time */
-      inserted_at: string
-      items: components['schemas']['OrderItemResponse'][]
-      /** @example A042 */
-      number: string
-      /** @enum {string} */
-      payment_method: 'cash' | 'card_offline'
-      promotions: components['schemas']['OrderPromotion'][]
-      /**
-       * @example preparing
-       * @enum {string}
-       */
-      status: 'created' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
-      /**
-       * @description Сумма без скидок
-       * @example 1330
-       */
-      subtotal_amount: number
-      /** @example 1180 */
-      total_amount: number
-    }
     /** ActiveOrdersResponse */
     ActiveOrdersResponse: {
       data: components['schemas']['ActiveOrder'][]
     }
-    /** AddressRequest */
-    AddressRequest: {
-      /** @example 12 */
-      apartment?: string | null
-      /** @example Москва */
-      city?: string | null
-      /** @example 2 */
-      entrance?: string | null
-      /** @example 3 */
-      floor?: string | null
-      /** @example 10 */
-      house?: string | null
-      /** @example 42 */
-      intercom?: string | null
-      /** @example Ленина */
-      street?: string | null
-    }
-    /** AppliedPromotion */
-    AppliedPromotion: {
-      /** @example SUMMER2025 */
-      code?: string | null
-      description?: string | null
-      /**
-       * @description Скидка в рублях
-       * @example 150
-       */
-      discount: number
-      gifts: components['schemas']['PromoGift'][]
-      /** @example Летняя скидка */
-      name: string
-      /** Format: uuid */
-      promotion_id: string
-    }
-    /** Branch */
-    Branch: {
-      branch_info?: components['schemas']['BranchInfoResponse'] | null
-      /**
-       * Format: uuid
-       * @example c4a3b8e0-1234-5678-9abc-def012345678
-       */
-      id: string
-      /** @example true */
-      is_active: boolean
-      /** @example Центральный филиал */
-      name: string
-      /** @example central */
-      slug: string
-    }
-    /** BranchInfoResponse */
-    BranchInfoResponse: {
-      /** @example ул. Пушкина, д. 10 */
-      address?: string | null
-      /** @example 30 */
-      delivery_time?: number | null
-      /**
-       * Format: uuid
-       * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
-       */
-      id: string
-      /** @example https://instagram.com/profile_name */
-      instagram_url?: string | null
-      /** @example +79990000000 */
-      phone_number?: string | null
-      /** @example https://vk.com/group_name */
-      vk_url?: string | null
-      /** @example https://wa.me/79990000000 */
-      whatsapp_url?: string | null
-      /**
-       * @example {
-       *       "monday": {
-       *         "close": "22:00",
-       *         "enabled": true,
-       *         "open": "09:00"
-       *       },
-       *       "sunday": {
-       *         "close": null,
-       *         "enabled": false,
-       *         "open": null
-       *       }
-       *     }
-       */
-      working_hours?: {
-        [key: string]: unknown
-      } | null
-      ycart_settings?:
-        | ({
-            /** @example Москва, Красная площадь */
-            address?: string | null
-            /** @example true */
-            enabled?: boolean | null
-            /** @example 55.7558 */
-            latitude?: number | null
-            /** @example 37.6173 */
-            longitude?: number | null
-            /** @example 123456789 */
-            yandex_org_id?: string | null
-          } & {
-            [key: string]: unknown
-          })
-        | null
-    }
-    /** BranchListResponse */
-    BranchListResponse: {
-      data: components['schemas']['Branch'][]
-    }
-    /** BranchResponse */
-    BranchResponse: {
-      data: components['schemas']['Branch']
-    }
-    /**
-     * CartContextRequest
-     * @description Контекст корзины, от которого зависят условия акций.
-     */
-    CartContextRequest: {
-      /**
-       * @example delivery
-       * @enum {string|null}
-       */
-      fulfillment_type?: 'dine_in' | 'delivery' | 'pickup' | null
-    }
-    /** CartItemResponse */
-    CartItemResponse: {
-      /**
-       * @description Итог по строке без скидок
-       * @example 1180
-       */
-      base_total: number
-      /**
-       * @description Подарок по акции: количество менять нельзя
-       * @example false
-       */
-      gift: boolean
-      /** @example https://example.com/images/pizza.jpg */
-      image_url?: string | null
-      /** @description Уникальный ключ строки: подарок и платный товар — разные строки */
-      key: string
-      /** @example Пицца Маргарита */
-      name: string
-      /**
-       * @description Цена за единицу по меню
-       * @example 590
-       */
-      price: number
-      /**
-       * Format: uuid
-       * @example c4a3b8e0-1234-5678-9abc-def012345678
-       */
-      product_id: string
-      promotion_ids: string[]
-      /** @example 2 */
-      quantity: number
-      /**
-       * @description Итог по строке с учётом скидок
-       * @example 1062
-       */
-      total_price: number
-    }
-    /** CartResponse */
-    CartResponse: {
+    /** LegalDocumentResponse */
+    LegalDocumentResponse: {
       data: {
-        /**
-         * Format: uuid
-         * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
-         */
-        branch_id?: string | null
-        /** @example 200 */
-        discount_amount: number
-        /** @enum {string|null} */
-        fulfillment_type?: 'dine_in' | 'delivery' | 'pickup' | null
-        hints: components['schemas']['PromoHint'][]
-        /**
-         * Format: uuid
-         * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
-         */
-        id: string
-        items: components['schemas']['CartItemResponse'][]
-        promo_code?: components['schemas']['PromoCodeState']
-        promotions: components['schemas']['AppliedPromotion'][]
-        /** @example eceaec3d-dd25-4e19-8afc-f1d0f1412c9c */
-        session_id?: string | null
-        /**
-         * @description Сумма без скидок
-         * @example 1700
-         */
-        subtotal_amount: number
-        /**
-         * @description К оплате
-         * @example 1500
-         */
-        total_amount: number
-        /** @example 3 */
-        total_quantity: number
+        body: string
+        /** @enum {string} */
+        kind: 'privacy' | 'consent' | 'offer' | 'terms'
+        /** Format: date-time */
+        updated_at: string | null
       }
     }
-    /** CategoryResponse */
-    CategoryResponse: {
-      /**
-       * Format: uuid
-       * @example a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
-       */
-      id?: string
-      /** @example true */
-      is_active?: boolean
-      /** @example Пиццы */
-      name?: string
-      /**
-       * Format: float
-       * @example 1
-       */
-      order?: number
-      products?: components['schemas']['ProductResponse'][]
-    }
-    /** ClientAddress */
-    ClientAddress: {
-      apartment?: string | null
-      city?: string | null
-      entrance?: string | null
-      floor?: string | null
-      /** @example 10 */
-      house?: string | null
-      /** Format: uuid */
-      id: string
-      intercom?: string | null
-      /** @example Ленина */
-      street: string
-    }
-    /** ClientAddressListResponse */
-    ClientAddressListResponse: {
-      data: components['schemas']['ClientAddress'][]
-    }
-    /** ClientAddressResponse */
-    ClientAddressResponse: {
-      data: components['schemas']['ClientAddress']
-    }
-    /** ClientOrdersResponse */
-    ClientOrdersResponse: {
-      data: components['schemas']['ActiveOrder'][]
-    }
-    /** ClientProfile */
-    ClientProfile: {
-      /** Format: uuid */
-      id: string
-      /** @example Иван */
-      name?: string | null
+    /** StartCallRequest */
+    StartCallRequest: {
       /** @example +79990000000 */
       phone: string
-    }
-    /** ClientSession */
-    ClientSession: {
-      access_token?: string
-      client?: components['schemas']['ClientProfile']
-      /**
-       * @description Секунды
-       * @example 900
-       */
-      expires_in?: number
-      refresh_token?: string
-      /** @enum {string} */
-      status: 'pending' | 'confirmed'
-    }
-    /** ClientSessionResponse */
-    ClientSessionResponse: {
-      data: components['schemas']['ClientSession']
     }
     /** CreateOrderRequest */
     CreateOrderRequest: {
@@ -881,118 +635,6 @@ export interface components {
        */
       payment_method?: 'cash' | 'card_offline' | null
     }
-    /**
-     * ErrorResponse
-     * @description Ошибка API. `error` — стабильный машиночитаемый код, по нему клиент выбирает текст для пользователя.
-     */
-    ErrorResponse: {
-      /**
-       * @description Ошибки валидации по полям: {поле: [сообщения]}
-       * @example {
-       *       "customer_phone": [
-       *         "must be in format +7XXXXXXXXXX"
-       *       ]
-       *     }
-       */
-      details?: {
-        [key: string]: unknown
-      } | null
-      /**
-       * @example validation_failed
-       * @enum {string}
-       */
-      error:
-        | 'bad_request'
-        | 'branch_id_required'
-        | 'branch_not_found'
-        | 'document_not_found'
-        | 'cart_not_found'
-        | 'cart_is_empty'
-        | 'cart_already_ordered'
-        | 'cart_branch_mismatch'
-        | 'product_unavailable'
-        | 'client_blocked'
-        | 'quantity_limit_exceeded'
-        | 'item_not_found'
-        | 'validation_failed'
-        | 'order_failed'
-        | 'too_many_requests'
-        | 'unauthorized'
-        | 'invalid_phone'
-        | 'call_failed'
-        | 'confirmation_not_found'
-        | 'invalid_refresh_token'
-        | 'address_not_found'
-        | 'internal_error'
-        | 'price_changed'
-        | 'promo_unavailable'
-        | 'promo_not_found'
-        | 'promo_inactive'
-        | 'promo_not_started'
-        | 'promo_expired'
-        | 'promo_exhausted'
-        | 'promo_requires_client'
-        | 'promo_client_limit'
-        | 'promo_not_owner'
-        | 'promo_code_used'
-        | 'promo_code_required'
-      /** @example Validation failed */
-      message: string
-    }
-    /** FranchiseLegal */
-    FranchiseLegal: {
-      /** @example г. Москва, ул. Пушкина, д. 10 */
-      address: string | null
-      /** @example info@example.com */
-      email: string | null
-      /** @example ООО */
-      form: string | null
-      /** @example 7700000000 */
-      inn: string | null
-      /** @example Вкусная еда */
-      name: string | null
-      /** @example 1027700000000 */
-      ogrn: string | null
-      /** @example +79990000000 */
-      phone: string | null
-    }
-    /** FranchiseResponse */
-    FranchiseResponse: {
-      data: {
-        description: string | null
-        documents: components['schemas']['LegalDocumentSummary'][]
-        legal: components['schemas']['FranchiseLegal']
-        /** @example Sushi Like */
-        name: string
-        /** @example #462094 */
-        primary_color: string
-        /** Format: uri */
-        logo_url: string | null
-        /** Format: uri */
-        logo_dark_url: string | null
-      }
-    }
-    /** LegalDocumentResponse */
-    LegalDocumentResponse: {
-      data: {
-        body: string
-        /** @enum {string} */
-        kind: 'privacy' | 'consent' | 'offer' | 'terms'
-        /** Format: date-time */
-        updated_at: string | null
-      }
-    }
-    /** LegalDocumentSummary */
-    LegalDocumentSummary: {
-      /** @enum {string} */
-      kind: 'privacy' | 'consent' | 'offer' | 'terms'
-      /** Format: date-time */
-      updated_at: string | null
-    }
-    /** MenuResponse */
-    MenuResponse: {
-      data?: components['schemas']['CategoryResponse'][]
-    }
     /** OrderItemResponse */
     OrderItemResponse: {
       /**
@@ -1017,71 +659,21 @@ export interface components {
       /** @example Пицца Маргарита */
       title: string
     }
-    /** OrderPromotion */
-    OrderPromotion: {
-      /** @example SUMMER2025 */
-      code?: string | null
-      /** @example 150 */
-      discount: number
-      /** @example Летняя скидка */
-      name: string
-    }
-    /** OrderResponse */
-    OrderResponse: {
+    /** StartCallResponse */
+    StartCallResponse: {
       data: {
-        address?: {
-          [key: string]: unknown
-        } | null
         /**
-         * Format: uuid
-         * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
+         * @description Номер, на который нужно позвонить для подтверждения
+         * @example +78000000000
          */
-        branch_id: string
+        call_number: string
+        /** Format: uuid */
+        confirmation_id: string
         /**
-         * Format: uuid
-         * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+         * @description Секунды
+         * @example 600
          */
-        cart_id: string
-        /**
-         * Format: uuid
-         * @example c4a3b8e0-1234-5678-9abc-def012345678
-         */
-        client_id?: string | null
-        /** @example Без лука */
-        comment?: string | null
-        /**
-         * Format: date_time
-         * @example 2026-10-05T18:30:00
-         */
-        cook_by?: string | null
-        /** @example Иван */
-        customer_name?: string | null
-        /** @example +79990000000 */
-        customer_phone?: string | null
-        /** @example 150 */
-        discount_amount?: number
-        /** @example delivery */
-        fulfillment_type?: string
-        /**
-         * Format: uuid
-         * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
-         */
-        id: string
-        items: components['schemas']['OrderItemResponse'][]
-        /** @example ORD-1001 */
-        number: string
-        /** @example cash */
-        payment_method?: string
-        promotions?: components['schemas']['OrderPromotion'][]
-        /** @example created */
-        status: string
-        /**
-         * @description Сумма без скидок
-         * @example 1330
-         */
-        subtotal_amount?: number
-        /** @example 1180 */
-        total_amount: number
+        expires_in: number
       }
     }
     /** ProductResponse */
@@ -1144,41 +736,87 @@ export interface components {
        */
       weight?: number | null
     }
-    /** ProfileResponse */
-    ProfileResponse: {
-      data: components['schemas']['ClientProfile']
+    /** BranchListResponse */
+    BranchListResponse: {
+      data: components['schemas']['Branch'][]
     }
-    /** PromoCodeRequest */
-    PromoCodeRequest: {
-      /** @example SUMMER2025 */
-      code: string
+    /** GeoAddress */
+    GeoAddress: {
+      /** @example Тюмень */
+      city: string | null
+      /** @example 10 */
+      house: string | null
+      /** Format: float */
+      latitude: number | null
+      /** Format: float */
+      longitude: number | null
+      /** @example ул Республики */
+      street: string | null
+      /** @example ул Республики, д 10 */
+      value: string
     }
-    /**
-     * PromoCodeState
-     * @description Введённый промокод: `applied` — применён, `pending` — условия пока не выполнены (см. `reasons`), `rejected` — не может быть применён (см. `reason`).
-     */
-    PromoCodeState: {
-      /** @example SUMMER2025 */
-      code: string
-      /** @example Летняя скидка */
-      name?: string | null
-      /** @enum {string|null} */
-      reason?:
-        | 'not_found'
-        | 'inactive'
-        | 'not_started'
-        | 'expired'
-        | 'exhausted'
-        | 'requires_client'
-        | 'client_limit'
-        | 'not_owner'
-        | 'code_used'
-        | 'code_required'
-        | null
-      reasons: components['schemas']['PromoReason'][]
-      /** @enum {string} */
-      status: 'applied' | 'pending' | 'rejected'
-    } | null
+    /** ClientSessionResponse */
+    ClientSessionResponse: {
+      data: components['schemas']['ClientSession']
+    }
+    /** SocketTokenResponse */
+    SocketTokenResponse: {
+      data: {
+        token: string
+      }
+    }
+    /** CartItemResponse */
+    CartItemResponse: {
+      /**
+       * @description Итог по строке без скидок
+       * @example 1180
+       */
+      base_total: number
+      /**
+       * @description Подарок по акции: количество менять нельзя
+       * @example false
+       */
+      gift: boolean
+      /** @example https://example.com/images/pizza.jpg */
+      image_url?: string | null
+      /** @description Уникальный ключ строки: подарок и платный товар — разные строки */
+      key: string
+      /** @example Пицца Маргарита */
+      name: string
+      /**
+       * @description Цена за единицу по меню
+       * @example 590
+       */
+      price: number
+      /**
+       * Format: uuid
+       * @example c4a3b8e0-1234-5678-9abc-def012345678
+       */
+      product_id: string
+      promotion_ids: string[]
+      /** @example 2 */
+      quantity: number
+      /**
+       * @description Итог по строке с учётом скидок
+       * @example 1062
+       */
+      total_price: number
+    }
+    /** Branch */
+    Branch: {
+      branch_info?: components['schemas']['BranchInfoResponse'] | null
+      /**
+       * Format: uuid
+       * @example c4a3b8e0-1234-5678-9abc-def012345678
+       */
+      id: string
+      /** @example true */
+      is_active: boolean
+      /** @example Центральный филиал */
+      name: string
+      /** @example central */
+      slug: string
+    }
     /** PromoGift */
     PromoGift: {
       /** @example Кола 0.5 */
@@ -1187,6 +825,116 @@ export interface components {
       product_id: string
       /** @example 1 */
       quantity: number
+    }
+    /** AddressRequest */
+    AddressRequest: {
+      /** @example 12 */
+      apartment?: string | null
+      /** @example Москва */
+      city?: string | null
+      /** @example Вход со двора */
+      comment?: string | null
+      /** @example 2 */
+      entrance?: string | null
+      /** @example 3 */
+      floor?: string | null
+      /** @example 10 */
+      house?: string | null
+      /** @example 42 */
+      intercom?: string | null
+      /**
+       * Format: float
+       * @example 57.153
+       */
+      latitude?: number | null
+      /**
+       * Format: float
+       * @example 65.534
+       */
+      longitude?: number | null
+      /** @example Ленина */
+      street?: string | null
+    }
+    /** OrderPromotion */
+    OrderPromotion: {
+      /** @example SUMMER2025 */
+      code?: string | null
+      /** @example 150 */
+      discount: number
+      /** @example Летняя скидка */
+      name: string
+    }
+    /** PromoCodeRequest */
+    PromoCodeRequest: {
+      /** @example SUMMER2025 */
+      code: string
+    }
+    /** ClientProfile */
+    ClientProfile: {
+      /** Format: uuid */
+      id: string
+      /** @example Иван */
+      name?: string | null
+      /** @example +79990000000 */
+      phone: string
+    }
+    /** OrderResponse */
+    OrderResponse: {
+      data: {
+        address?: {
+          [key: string]: unknown
+        } | null
+        /**
+         * Format: uuid
+         * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
+         */
+        branch_id: string
+        /**
+         * Format: uuid
+         * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+         */
+        cart_id: string
+        /**
+         * Format: uuid
+         * @example c4a3b8e0-1234-5678-9abc-def012345678
+         */
+        client_id?: string | null
+        /** @example Без лука */
+        comment?: string | null
+        /**
+         * Format: date_time
+         * @example 2026-10-05T18:30:00
+         */
+        cook_by?: string | null
+        /** @example Иван */
+        customer_name?: string | null
+        /** @example +79990000000 */
+        customer_phone?: string | null
+        /** @example 150 */
+        discount_amount?: number
+        /** @example delivery */
+        fulfillment_type?: string
+        /**
+         * Format: uuid
+         * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+         */
+        id: string
+        items: components['schemas']['OrderItemResponse'][]
+        /** @example ORD-1001 */
+        number: string
+        /** @example cash */
+        payment_method?: string
+        promotions?: components['schemas']['OrderPromotion'][]
+        /** @example created */
+        status: string
+        /**
+         * @description Сумма без скидок
+         * @example 1330
+         */
+        subtotal_amount?: number
+        /** @example 1180 */
+        total_amount: number
+      }
     }
     /**
      * PromoHint
@@ -1199,6 +947,10 @@ export interface components {
       /** Format: uuid */
       promotion_id: string
       reasons: components['schemas']['PromoReason'][]
+    }
+    /** ProfileResponse */
+    ProfileResponse: {
+      data: components['schemas']['ClientProfile']
     }
     /**
      * PromoReason
@@ -1226,38 +978,6 @@ export interface components {
       /** @enum {string} */
       type:
         'subtotal' | 'quantity' | 'product' | 'fulfillment' | 'time' | 'weekday' | 'requires_client'
-    }
-    /** RefreshRequest */
-    RefreshRequest: {
-      refresh_token: string
-    }
-    /** SocketTokenResponse */
-    SocketTokenResponse: {
-      data: {
-        token: string
-      }
-    }
-    /** StartCallRequest */
-    StartCallRequest: {
-      /** @example +79990000000 */
-      phone: string
-    }
-    /** StartCallResponse */
-    StartCallResponse: {
-      data: {
-        /**
-         * @description Номер, на который нужно позвонить для подтверждения
-         * @example +78000000000
-         */
-        call_number: string
-        /** Format: uuid */
-        confirmation_id: string
-        /**
-         * @description Секунды
-         * @example 600
-         */
-        expires_in: number
-      }
     }
     /** StockResponse */
     StockResponse: {
@@ -1293,10 +1013,6 @@ export interface components {
        */
       text?: string
     }
-    /** StocksListResponse */
-    StocksListResponse: {
-      data?: components['schemas']['StockResponse'][]
-    }
     /** PushSubscriptionRequest */
     PushSubscriptionRequest: {
       /** Format: uri */
@@ -1308,9 +1024,93 @@ export interface components {
       /** @enum {string|null} */
       locale?: 'ru' | 'en' | null
     }
+    /** BranchResponse */
+    BranchResponse: {
+      data: components['schemas']['Branch']
+    }
+    /** FranchiseResponse */
+    FranchiseResponse: {
+      data: {
+        /** @description Адрес выбирается на карте с подсказками DaData */
+        address_map: boolean
+        description: string | null
+        documents: components['schemas']['LegalDocumentSummary'][]
+        legal: components['schemas']['FranchiseLegal']
+        /** Format: uri */
+        logo_dark_url: string | null
+        /** Format: uri */
+        logo_url: string | null
+        /** @example Sushi Like */
+        name: string
+        /** @example #462094 */
+        primary_color: string
+      }
+    }
+    /** RefreshRequest */
+    RefreshRequest: {
+      refresh_token: string
+    }
+    /** ClientAddressListResponse */
+    ClientAddressListResponse: {
+      data: components['schemas']['ClientAddress'][]
+    }
     /** RunningPromotionsResponse */
     RunningPromotionsResponse: {
       data: components['schemas']['RunningPromotion'][]
+    }
+    /** FranchiseLegal */
+    FranchiseLegal: {
+      /** @example г. Москва, ул. Пушкина, д. 10 */
+      address: string | null
+      /** @example info@example.com */
+      email: string | null
+      /** @example ООО */
+      form: string | null
+      /** @example 7700000000 */
+      inn: string | null
+      /** @example Вкусная еда */
+      name: string | null
+      /** @example 1027700000000 */
+      ogrn: string | null
+      /** @example +79990000000 */
+      phone: string | null
+    }
+    /** CartResponse */
+    CartResponse: {
+      data: {
+        /**
+         * Format: uuid
+         * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
+         */
+        branch_id?: string | null
+        /** @example 200 */
+        discount_amount: number
+        /** @enum {string|null} */
+        fulfillment_type?: 'dine_in' | 'delivery' | 'pickup' | null
+        hints: components['schemas']['PromoHint'][]
+        /**
+         * Format: uuid
+         * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+         */
+        id: string
+        items: components['schemas']['CartItemResponse'][]
+        promo_code?: components['schemas']['PromoCodeState']
+        promotions: components['schemas']['AppliedPromotion'][]
+        /** @example eceaec3d-dd25-4e19-8afc-f1d0f1412c9c */
+        session_id?: string | null
+        /**
+         * @description Сумма без скидок
+         * @example 1700
+         */
+        subtotal_amount: number
+        /**
+         * @description К оплате
+         * @example 1500
+         */
+        total_amount: number
+        /** @example 3 */
+        total_quantity: number
+      }
     }
     /** RunningPromotion */
     RunningPromotion: {
@@ -1322,12 +1122,302 @@ export interface components {
       /** @example Скидка 10% на самовывоз */
       name: string
     }
+    /** GeoAddressListResponse */
+    GeoAddressListResponse: {
+      data: components['schemas']['GeoAddress'][]
+    }
+    /** LegalDocumentSummary */
+    LegalDocumentSummary: {
+      /** @enum {string} */
+      kind: 'privacy' | 'consent' | 'offer' | 'terms'
+      /** Format: date-time */
+      updated_at: string | null
+    }
+    /** MenuResponse */
+    MenuResponse: {
+      data?: components['schemas']['CategoryResponse'][]
+    }
+    /**
+     * CartContextRequest
+     * @description Контекст корзины, от которого зависят условия акций.
+     */
+    CartContextRequest: {
+      /**
+       * @example delivery
+       * @enum {string|null}
+       */
+      fulfillment_type?: 'dine_in' | 'delivery' | 'pickup' | null
+    }
+    /** ClientOrdersResponse */
+    ClientOrdersResponse: {
+      data: components['schemas']['ActiveOrder'][]
+    }
+    /** ClientSession */
+    ClientSession: {
+      access_token?: string
+      client?: components['schemas']['ClientProfile']
+      /**
+       * @description Секунды
+       * @example 900
+       */
+      expires_in?: number
+      refresh_token?: string
+      /** @enum {string} */
+      status: 'pending' | 'confirmed'
+    }
+    /** ClientAddress */
+    ClientAddress: {
+      apartment?: string | null
+      city?: string | null
+      /** @example Вход со двора */
+      comment?: string | null
+      entrance?: string | null
+      floor?: string | null
+      /** @example 10 */
+      house?: string | null
+      /** Format: uuid */
+      id: string
+      intercom?: string | null
+      /**
+       * Format: float
+       * @example 57.153
+       */
+      latitude?: number | null
+      /**
+       * Format: float
+       * @example 65.534
+       */
+      longitude?: number | null
+      /** @example Ленина */
+      street: string
+    }
+    /** ClientAddressResponse */
+    ClientAddressResponse: {
+      data: components['schemas']['ClientAddress']
+    }
+    /**
+     * PromoCodeState
+     * @description Введённый промокод: `applied` — применён, `pending` — условия пока не выполнены (см. `reasons`), `rejected` — не может быть применён (см. `reason`).
+     */
+    PromoCodeState: {
+      /** @example SUMMER2025 */
+      code: string
+      /** @example Летняя скидка */
+      name?: string | null
+      /** @enum {string|null} */
+      reason?:
+        | 'not_found'
+        | 'inactive'
+        | 'not_started'
+        | 'expired'
+        | 'exhausted'
+        | 'requires_client'
+        | 'client_limit'
+        | 'not_owner'
+        | 'code_used'
+        | 'code_required'
+        | null
+      reasons: components['schemas']['PromoReason'][]
+      /** @enum {string} */
+      status: 'applied' | 'pending' | 'rejected'
+    } | null
+    /**
+     * ErrorResponse
+     * @description Ошибка API. `error` — стабильный машиночитаемый код, по нему клиент выбирает текст для пользователя.
+     */
+    ErrorResponse: {
+      /**
+       * @description Ошибки валидации по полям: {поле: [сообщения]}
+       * @example {
+       *       "customer_phone": [
+       *         "must be in format +7XXXXXXXXXX"
+       *       ]
+       *     }
+       */
+      details?: {
+        [key: string]: unknown
+      } | null
+      /**
+       * @example validation_failed
+       * @enum {string}
+       */
+      error:
+        | 'bad_request'
+        | 'branch_id_required'
+        | 'branch_not_found'
+        | 'document_not_found'
+        | 'cart_not_found'
+        | 'cart_is_empty'
+        | 'cart_already_ordered'
+        | 'cart_branch_mismatch'
+        | 'product_unavailable'
+        | 'client_blocked'
+        | 'quantity_limit_exceeded'
+        | 'item_not_found'
+        | 'validation_failed'
+        | 'order_failed'
+        | 'too_many_requests'
+        | 'unauthorized'
+        | 'invalid_phone'
+        | 'call_failed'
+        | 'confirmation_not_found'
+        | 'invalid_refresh_token'
+        | 'address_not_found'
+        | 'internal_error'
+        | 'price_changed'
+        | 'promo_unavailable'
+        | 'promo_not_found'
+        | 'promo_inactive'
+        | 'promo_not_started'
+        | 'promo_expired'
+        | 'promo_exhausted'
+        | 'promo_requires_client'
+        | 'promo_client_limit'
+        | 'promo_not_owner'
+        | 'promo_code_used'
+        | 'promo_code_required'
+      /** @example Validation failed */
+      message: string
+    }
     /** PushKeyResponse */
     PushKeyResponse: {
       data: {
         /** @description VAPID public key, base64url */
         public_key: string
       }
+    }
+    /** CategoryResponse */
+    CategoryResponse: {
+      /**
+       * Format: uuid
+       * @example a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+       */
+      id?: string
+      /** @example true */
+      is_active?: boolean
+      /** @example Пиццы */
+      name?: string
+      /**
+       * Format: float
+       * @example 1
+       */
+      order?: number
+      products?: components['schemas']['ProductResponse'][]
+    }
+    /** ActiveOrder */
+    ActiveOrder: {
+      address?: {
+        [key: string]: unknown
+      } | null
+      /** Format: uuid */
+      branch_id: string
+      comment?: string | null
+      /** Format: date_time */
+      cook_by?: string | null
+      /** @example 150 */
+      discount_amount: number
+      /** @enum {string} */
+      fulfillment_type: 'dine_in' | 'delivery' | 'pickup'
+      /** Format: uuid */
+      id: string
+      /** Format: date_time */
+      inserted_at: string
+      items: components['schemas']['OrderItemResponse'][]
+      /** @example A042 */
+      number: string
+      /** @enum {string} */
+      payment_method: 'cash' | 'card_offline'
+      promotions: components['schemas']['OrderPromotion'][]
+      /**
+       * @example preparing
+       * @enum {string}
+       */
+      status: 'created' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
+      /**
+       * @description Сумма без скидок
+       * @example 1330
+       */
+      subtotal_amount: number
+      /** @example 1180 */
+      total_amount: number
+    }
+    /** BranchInfoResponse */
+    BranchInfoResponse: {
+      /** @example ул. Пушкина, д. 10 */
+      address?: string | null
+      /**
+       * @description Город доставки, в нём ищутся адреса
+       * @example Тюмень
+       */
+      city?: string | null
+      /** @example 30 */
+      delivery_time?: number | null
+      /**
+       * Format: uuid
+       * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
+       */
+      id: string
+      /** @example https://instagram.com/profile_name */
+      instagram_url?: string | null
+      /** @example +79990000000 */
+      phone_number?: string | null
+      /** @example https://vk.com/group_name */
+      vk_url?: string | null
+      /** @example https://wa.me/79990000000 */
+      whatsapp_url?: string | null
+      /**
+       * @example {
+       *       "monday": {
+       *         "close": "22:00",
+       *         "enabled": true,
+       *         "open": "09:00"
+       *       },
+       *       "sunday": {
+       *         "close": null,
+       *         "enabled": false,
+       *         "open": null
+       *       }
+       *     }
+       */
+      working_hours?: {
+        [key: string]: unknown
+      } | null
+      ycart_settings?:
+        | ({
+            /** @example Москва, Красная площадь */
+            address?: string | null
+            /** @example true */
+            enabled?: boolean | null
+            /** @example 55.7558 */
+            latitude?: number | null
+            /** @example 37.6173 */
+            longitude?: number | null
+            /** @example 123456789 */
+            yandex_org_id?: string | null
+          } & {
+            [key: string]: unknown
+          })
+        | null
+    }
+    /** AppliedPromotion */
+    AppliedPromotion: {
+      /** @example SUMMER2025 */
+      code?: string | null
+      description?: string | null
+      /**
+       * @description Скидка в рублях
+       * @example 150
+       */
+      discount: number
+      gifts: components['schemas']['PromoGift'][]
+      /** @example Летняя скидка */
+      name: string
+      /** Format: uuid */
+      promotion_id: string
+    }
+    /** StocksListResponse */
+    StocksListResponse: {
+      data?: components['schemas']['StockResponse'][]
     }
   }
   responses: never
@@ -2055,6 +2145,38 @@ export interface operations {
       }
     }
   }
+  'DelivestWeb.Client.Cart.CartController.repeat': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        cart_id: string
+        order_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Обновленная корзина */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Корзина или заказ не найдены */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   'DelivestWeb.Client.Franchise.FranchiseController.show': {
     parameters: {
       query?: never
@@ -2097,6 +2219,81 @@ export interface operations {
       }
       /** @description Документ не найден */
       404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Geo.GeoController.reverse': {
+    parameters: {
+      query: {
+        latitude: number
+        longitude: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Адреса */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['GeoAddressListResponse']
+        }
+      }
+      /** @description Неверные координаты */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Подсказки выключены */
+      503: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Geo.GeoController.suggest': {
+    parameters: {
+      query: {
+        /** @description Введённый адрес */
+        query: string
+        /** @description Город филиала */
+        city?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Адреса */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['GeoAddressListResponse']
+        }
+      }
+      /** @description Подсказки выключены */
+      503: {
         headers: {
           [name: string]: unknown
         }
@@ -2227,84 +2424,6 @@ export interface operations {
       }
     }
   }
-  'DelivestWeb.Client.Socket.SocketController.token': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Токен */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['SocketTokenResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Stock.StockController.index': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        /**
-         * @description UUID филиала
-         * @example 123e4567-e89b-12d3-a456-426614174000
-         */
-        branch_id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Список акций */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['StocksListResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Cart.CartController.repeat': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        cart_id: string
-        order_id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Обновленная корзина */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['CartResponse']
-        }
-      }
-      /** @description Корзина или заказ не найдены */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
   'DelivestWeb.Client.Push.PushController.subscribe': {
     parameters: {
       query?: never
@@ -2368,6 +2487,26 @@ export interface operations {
       }
     }
   }
+  'DelivestWeb.Client.Socket.SocketController.token': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Токен */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['SocketTokenResponse']
+        }
+      }
+    }
+  }
   'DelivestWeb.Client.Promotion.PromotionController.index': {
     parameters: {
       query?: never
@@ -2386,6 +2525,32 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['RunningPromotionsResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Stock.StockController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /**
+         * @description UUID филиала
+         * @example 123e4567-e89b-12d3-a456-426614174000
+         */
+        branch_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список акций */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['StocksListResponse']
         }
       }
     }

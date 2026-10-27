@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
 import { useI18n } from 'vue-i18n'
@@ -14,11 +15,12 @@ const emit = defineEmits<{
 }>()
 
 const cartStore = useCartStore()
+const flowStore = useFulfillmentFlowStore()
 const toast = useToast()
 const { t } = useI18n()
 
 const handleAddToCart = async () => {
-  if (!props.product) return
+  if (!props.product || !(await flowStore.ensure())) return
   try {
     await cartStore.addItem(props.product.id!)
     emit('added')

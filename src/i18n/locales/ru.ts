@@ -138,6 +138,35 @@ export const ru = {
       floor: 'этаж {value}',
     },
   },
+  fulfillment: {
+    prompt: {
+      title: 'Какой у вас адрес?',
+      text: 'Хотим убедиться, что вы в зоне доставки. Адрес сохраним для будущих заказов.',
+      delivery: 'Указать адрес доставки',
+      pickup: 'Заберу из пиццерии',
+      haveAccount: 'Уже есть аккаунт?',
+      signIn: 'Войти',
+    },
+    picker: {
+      title: 'Куда привезти?',
+    },
+    form: {
+      streetAndHouse: 'Улица и дом',
+      entrance: 'Подъезд',
+      intercom: 'Код двери',
+      floor: 'Этаж',
+      apartment: 'Квартира',
+      comment: 'Комментарий к адресу',
+    },
+    summary: {
+      empty: 'Адрес не выбран',
+      choose: 'Выбрать',
+    },
+    deliverHere: 'Заказать сюда',
+    pickupHere: 'Заказать сюда',
+    outsideCity: 'Этот филиал доставляет только по городу {city}',
+    notOnMap: 'нет на карте',
+  },
   branch: {
     foodDelivery: 'Доставка еды',
     notSelected: 'Не выбран',
@@ -316,7 +345,6 @@ export const ru = {
       dineIn: 'В зале',
       cash: 'Наличными',
       card: 'Картой',
-      pickupAt: 'Забрать по адресу:',
       callOperator: 'Назову адрес оператору по телефону',
       comment: 'Комментарий к заказу',
       commentPlaceholder: 'Например: без лука',

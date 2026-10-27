@@ -1,0 +1,100 @@
+<script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { useResizeObserver } from '@vueuse/core'
+import maplibregl, { type Map as MapLibreMap, type Marker } from 'maplibre-gl'
+import 'maplibre-gl/dist/maplibre-gl.css'
+import type { LngLat } from '../../utils/deliveryAddress'
+
+export interface MapMarker {
+  id: string
+  lngLat: LngLat
+  active: boolean
+}
+
+const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty'
+
+const props = withDefaults(
+  defineProps<{
+    center: LngLat
+    zoom?: number
+    pin?: boolean
+    markers?: MapMarker[]
+  }>(),
+  { zoom: 16, pin: false, markers: () => [] },
+)
+
+const emit = defineEmits<{
+  moved: [center: LngLat]
+  markerClick: [id: string]
+}>()
+
+const container = ref<HTMLDivElement | null>(null)
+const map = shallowRef<MapLibreMap | null>(null)
+const isDragging = ref(false)
+let rendered: Marker[] = []
+
+function markerElement(marker: MapMarker) {
+  const element = document.createElement('button')
+  element.type = 'button'
+  element.className = [
+    'grid place-items-center size-10 rounded-full border-2 border-white shadow-md cursor-pointer transition-transform',
+    marker.active ? 'bg-primary text-white scale-125' : 'bg-white text-primary',
+  ].join(' ')
+  element.innerHTML = '<i class="pi pi-shop"></i>'
+  element.addEventListener('click', () => emit('markerClick', marker.id))
+  return element
+}
+
+function renderMarkers() {
+  rendered.forEach((marker) => marker.remove())
+  rendered = props.markers.map((marker) =>
+    new maplibregl.Marker({ element: markerElement(marker) })
+      .setLngLat(marker.lngLat)
+      .addTo(map.value!),
+  )
+}
+
+onMounted(() => {
+  map.value = new maplibregl.Map({
+    container: container.value!,
+    style: STYLE_URL,
+    center: props.center,
+    zoom: props.zoom,
+    attributionControl: { compact: true },
+  })
+
+  map.value.on('dragstart', () => (isDragging.value = true))
+  map.value.on('moveend', (event) => {
+    isDragging.value = false
+    if (!event.originalEvent) return
+    const { lng, lat } = map.value!.getCenter()
+    emit('moved', [lng, lat])
+  })
+
+  renderMarkers()
+})
+
+useResizeObserver(container, () => map.value?.resize())
+
+onBeforeUnmount(() => map.value?.remove())
+
+watch(
+  () => props.center,
+  (center) => map.value?.flyTo({ center, zoom: Math.max(map.value.getZoom(), props.zoom) }),
+)
+
+watch(() => props.markers, renderMarkers, { deep: true })
+</script>
+
+<template>
+  <div class="relative h-full w-full overflow-hidden">
+    <div ref="container" class="h-full w-full" />
+    <div
+      v-if="pin"
+      class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full transition-transform"
+      :class="{ '-translate-y-[calc(100%+8px)]': isDragging }"
+    >
+      <i class="pi pi-map-marker text-4xl text-primary drop-shadow-md" />
+    </div>
+  </div>
+</template>

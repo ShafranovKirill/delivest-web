@@ -140,6 +140,35 @@ export const en: typeof ru = {
       floor: 'floor {value}',
     },
   },
+  fulfillment: {
+    prompt: {
+      title: "What's your address?",
+      text: "We want to make sure you're in the delivery area. We'll save the address for future orders.",
+      delivery: 'Set delivery address',
+      pickup: "I'll pick it up",
+      haveAccount: 'Already have an account?',
+      signIn: 'Sign in',
+    },
+    picker: {
+      title: 'Where to deliver?',
+    },
+    form: {
+      streetAndHouse: 'Street and house',
+      entrance: 'Entrance',
+      intercom: 'Door code',
+      floor: 'Floor',
+      apartment: 'Apartment',
+      comment: 'Address comment',
+    },
+    summary: {
+      empty: 'No address chosen',
+      choose: 'Choose',
+    },
+    deliverHere: 'Order here',
+    pickupHere: 'Order here',
+    outsideCity: 'This branch delivers only within {city}',
+    notOnMap: 'not on the map',
+  },
   branch: {
     foodDelivery: 'Food delivery',
     notSelected: 'Not selected',
@@ -318,7 +347,6 @@ export const en: typeof ru = {
       dineIn: 'Dine-in',
       cash: 'Cash',
       card: 'Card',
-      pickupAt: 'Pick up at:',
       callOperator: 'I will tell the address to the operator by phone',
       comment: 'Order comment',
       commentPlaceholder: 'For example: no onions',

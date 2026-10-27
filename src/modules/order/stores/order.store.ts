@@ -11,6 +11,7 @@ import { ACTIVE_ORDERS_KEY } from '../composables/useActiveOrdersQuery'
 import { MY_ORDERS_KEY } from '@/modules/account/composables/useMyOrdersQuery'
 import { ADDRESSES_KEY } from '@/modules/account/composables/useAddressesQuery'
 import { t } from '@/i18n'
+import { emptyDeliveryAddress, toAddressPayload } from '@/modules/fulfillment/utils/deliveryAddress'
 
 const PRICE_ERRORS = ['price_changed', 'promo_unavailable']
 
@@ -77,7 +78,7 @@ export const useOrderStore = defineStore('order', () => {
     isLoading.value = true
 
     const shouldSendAddress =
-      form.fulfillment_type === 'delivery' && !form.call_operator_for_address
+      form.fulfillment_type === 'delivery' && !form.call_operator_for_address && form.address
 
     let comment = form.comment?.trim() || null
     if (form.call_operator_for_address) {
@@ -92,14 +93,9 @@ export const useOrderStore = defineStore('order', () => {
       payment_method: form.payment_method,
       comment,
       cook_by: form.cook_by || null,
-      address: {
-        street: shouldSendAddress ? form.address.street || null : null,
-        house: shouldSendAddress ? form.address.house || null : null,
-        apartment: shouldSendAddress ? form.address.apartment || null : null,
-        entrance: shouldSendAddress ? form.address.entrance || null : null,
-        floor: shouldSendAddress ? form.address.floor || null : null,
-        intercom: shouldSendAddress ? form.address.intercom || null : null,
-      },
+      address: toAddressPayload(
+        shouldSendAddress && form.address ? form.address : emptyDeliveryAddress(),
+      ),
       branch_id: branchId,
       cart_id: cartId,
       expected_total: cartStore.totalAmount,
