@@ -10,6 +10,8 @@ export interface MapMarker {
   id: string
   lngLat: LngLat
   active: boolean
+  icon?: string
+  title?: string
 }
 
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty'
@@ -58,7 +60,8 @@ function markerElement(marker: MapMarker) {
     'grid place-items-center size-10 rounded-full border-2 border-white shadow-md cursor-pointer transition-transform',
     marker.active ? 'bg-primary text-white scale-125' : 'bg-white text-primary',
   ].join(' ')
-  element.innerHTML = '<i class="pi pi-shop"></i>'
+  element.title = marker.title ?? ''
+  element.innerHTML = `<i class="pi ${marker.icon ?? 'pi-shop'}"></i>`
   element.addEventListener('click', () => emit('markerClick', marker.id))
   return element
 }
