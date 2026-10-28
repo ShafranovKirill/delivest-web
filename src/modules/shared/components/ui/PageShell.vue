@@ -21,10 +21,7 @@ const widthClass = {
       <div class="h-8 sm:h-10 bg-white rounded-t-4xl lg:rounded-t-[2.5rem]" />
     </div>
     <div class="flex-1 w-full bg-white">
-      <div
-        class="mx-auto w-full px-4 sm:px-6 pb-10 sm:pb-14"
-        :class="widthClass[width]"
-      >
+      <div class="mx-auto w-full px-4 sm:px-6 pb-10 sm:pb-14" :class="widthClass[width]">
         <header
           v-if="title || $slots.actions"
           class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6 sm:mb-8"
