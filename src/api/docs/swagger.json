@@ -1387,7 +1387,7 @@
                 "x-validate": null
               },
               "primary_color": {
-                "example": "#462094",
+                "example": "#48010c",
                 "type": "string",
                 "x-struct": null,
                 "x-validate": null

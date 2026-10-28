@@ -1132,7 +1132,7 @@ export interface components {
         logo_url: string | null
         /** @example Sushi Like */
         name: string
-        /** @example #462094 */
+        /** @example #48010c */
         primary_color: string
       }
     }
