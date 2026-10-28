@@ -20,6 +20,7 @@
   --color-primary: var(--p-primary-500);
   --color-primary-soft: var(--p-primary-50);
   --color-primary-strong: var(--p-primary-700);
+  --color-primary-fill: var(--p-primary-500);
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -29,18 +30,19 @@ body {
 }
 
 html.dark {
-  --p-primary-500: #8d6bc7;
-  --p-primary-600: #7e5bb9;
-  --p-primary-700: #a487d6;
-  --p-primary-800: #bea6e4;
+  --p-primary-500: #b86a69;
+  --p-primary-600: #b86a69;
+  --p-primary-700: #c68887;
+  --p-primary-800: #d4a6a5;
 }
 
 .dark {
   color-scheme: dark;
 
-  --color-primary: var(--p-primary-400);
-  --color-primary-soft: color-mix(in srgb, var(--p-primary-400) 18%, transparent);
-  --color-primary-strong: var(--p-primary-300);
+  --color-primary: var(--p-primary-500);
+  --color-primary-soft: color-mix(in srgb, var(--p-primary-500) 18%, transparent);
+  --color-primary-strong: var(--p-primary-700);
+  --color-primary-fill: #ae6061;
 
   --surface-page: #0c0c0f;
   --surface-card: #17171b;

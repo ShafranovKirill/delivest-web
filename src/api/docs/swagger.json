@@ -1349,6 +1349,14 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "dark_primary_color": {
+                "description": "Цвет для тёмной темы; если пусто, подбирается из основного",
+                "example": "#b86a69",
+                "nullable": true,
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
               "description": {
                 "nullable": true,
                 "type": "string",
@@ -1397,6 +1405,7 @@
               "name",
               "description",
               "primary_color",
+              "dark_primary_color",
               "logo_url",
               "logo_dark_url",
               "address_map",

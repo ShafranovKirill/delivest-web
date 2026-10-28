@@ -1,15 +1,27 @@
 import { palette, updatePrimaryPalette } from '@primeuix/themes'
+import { darkAccent, darkFill } from './brandTones'
 
 const DARK_STYLE_ID = 'brand-dark-palette'
 
 type Scale = Record<number, string>
 
-function darkOverrides(scale: Scale): string {
-  return `html.dark {
-  --p-primary-500: ${scale[400]};
-  --p-primary-600: ${scale[400]};
-  --p-primary-700: ${scale[300]};
-  --p-primary-800: ${scale[200]};
+function darkOverrides(color: string): string {
+  const accent = darkAccent(color)
+  const fill = darkFill(color)
+
+  return `:root.dark {
+  --color-primary: ${accent};
+  --color-primary-strong: color-mix(in srgb, ${accent} 80%, white);
+  --color-primary-soft: color-mix(in srgb, ${accent} 18%, transparent);
+  --color-primary-fill: ${fill};
+  --p-primary-500: ${accent};
+  --p-primary-600: ${accent};
+  --p-primary-700: color-mix(in srgb, ${accent} 80%, white);
+  --p-primary-800: color-mix(in srgb, ${accent} 60%, white);
+  --p-primary-color: ${fill};
+  --p-primary-hover-color: color-mix(in srgb, ${fill} 88%, white);
+  --p-primary-active-color: color-mix(in srgb, ${fill} 80%, white);
+  --p-primary-contrast-color: #ffffff;
 }`
 }
 
@@ -23,8 +35,7 @@ function darkStyleElement(): HTMLStyleElement {
   return element
 }
 
-export function applyBrandColor(color: string) {
-  const scale = palette(color) as Scale
-  updatePrimaryPalette(scale)
-  darkStyleElement().textContent = darkOverrides(scale)
+export function applyBrandColor(color: string, darkColor: string | null) {
+  updatePrimaryPalette(palette(color) as Scale)
+  darkStyleElement().textContent = darkOverrides(darkColor ?? color)
 }

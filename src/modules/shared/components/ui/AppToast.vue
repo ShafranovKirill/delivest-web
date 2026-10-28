@@ -6,7 +6,7 @@ const viewportStore = useViewportStore()
 
 const SEVERITY: Record<string, { icon: string; badge: string; bar: string }> = {
   success: { icon: 'pi-check', badge: 'bg-green-100 text-green-700', bar: 'bg-green-500' },
-  info: { icon: 'pi-info', badge: 'bg-primary-soft text-primary', bar: 'bg-primary' },
+  info: { icon: 'pi-info', badge: 'bg-primary-soft text-primary', bar: 'bg-primary-fill' },
   warn: {
     icon: 'pi-exclamation-triangle',
     badge: 'bg-amber-50 text-amber-800',

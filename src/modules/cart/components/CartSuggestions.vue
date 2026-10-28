@@ -51,7 +51,7 @@ async function add(product: MenuProduct) {
         </span>
         <button
           type="button"
-          class="mt-auto flex h-8 items-center justify-center gap-1 rounded-full bg-primary-soft text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white disabled:opacity-60 cursor-pointer"
+          class="mt-auto flex h-8 items-center justify-center gap-1 rounded-full bg-primary-soft text-sm font-bold text-primary transition-colors hover:bg-primary-fill hover:text-white disabled:opacity-60 cursor-pointer"
           :disabled="pendingId !== null"
           @click="add(product)"
         >

@@ -1123,6 +1123,11 @@ export interface components {
         address_map: boolean
         /** @description Клиенты могут войти по звонку; иначе все заказывают как гости */
         client_auth: boolean
+        /**
+         * @description Цвет для тёмной темы; если пусто, подбирается из основного
+         * @example #b86a69
+         */
+        dark_primary_color: string | null
         description: string | null
         documents: components['schemas']['LegalDocumentSummary'][]
         legal: components['schemas']['FranchiseLegal']

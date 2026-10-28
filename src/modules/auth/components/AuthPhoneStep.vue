@@ -40,7 +40,7 @@ onMounted(() => field.value?.querySelector('input')?.focus())
       :disabled="loading"
       @click="useSuggestion"
     >
-      <span class="grid place-items-center size-9 shrink-0 rounded-full bg-primary text-white">
+      <span class="grid place-items-center size-9 shrink-0 rounded-full bg-primary-fill text-white">
         <i class="pi pi-history text-sm" />
       </span>
       <span class="flex-1 text-sm font-semibold text-gray-900">

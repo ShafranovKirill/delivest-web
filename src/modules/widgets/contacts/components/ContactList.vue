@@ -47,7 +47,7 @@ const handleCopy = async () => {
         class="flex flex-1 items-center gap-3 min-w-0 text-left cursor-pointer group"
         @click="contactsStore.makeCall"
       >
-        <span class="grid place-items-center size-11 shrink-0 rounded-2xl bg-primary text-white">
+        <span class="grid place-items-center size-11 shrink-0 rounded-2xl bg-primary-fill text-white">
           <i class="pi pi-phone" />
         </span>
         <span class="min-w-0">

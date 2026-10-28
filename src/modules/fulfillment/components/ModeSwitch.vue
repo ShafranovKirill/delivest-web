@@ -17,7 +17,7 @@ const model = defineModel<T>({ required: true })
       :aria-checked="model === option.value"
       class="h-9 flex-1 rounded-full text-sm font-semibold transition-colors cursor-pointer"
       :class="
-        model === option.value ? 'bg-primary text-white' : 'text-gray-600 hover:text-gray-900'
+        model === option.value ? 'bg-primary-fill text-white' : 'text-gray-600 hover:text-gray-900'
       "
       @click="model = option.value"
     >

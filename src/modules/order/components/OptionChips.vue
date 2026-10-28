@@ -26,7 +26,7 @@ const model = defineModel<T>({ required: true })
       class="flex items-center justify-center gap-2 rounded-2xl border px-3 py-3 text-sm font-semibold transition-colors cursor-pointer"
       :class="[
         model === option.value
-          ? 'bg-primary text-white border-primary shadow-sm'
+          ? 'bg-primary-fill text-white border-primary-fill shadow-sm'
           : 'bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary',
         columns === 3 ? 'flex-col gap-1 px-2 sm:flex-row sm:gap-2 sm:px-3' : '',
       ]"

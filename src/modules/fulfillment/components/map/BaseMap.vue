@@ -69,7 +69,7 @@ function markerElement(marker: MapMarker) {
   element.type = 'button'
   element.className = [
     'grid place-items-center size-10 rounded-full border-2 border-white shadow-md cursor-pointer transition-transform',
-    marker.active ? 'bg-primary text-white scale-125' : 'bg-white text-primary',
+    marker.active ? 'bg-primary-fill text-white scale-125' : 'bg-white text-primary',
   ].join(' ')
   element.title = marker.title ?? ''
   element.innerHTML = `<i class="pi ${marker.icon ?? 'pi-shop'}"></i>`

@@ -6,8 +6,8 @@ export function useBrandColor() {
   const franchiseStore = useFranchiseStore()
 
   watch(
-    () => franchiseStore.primaryColor,
-    (color) => color && applyBrandColor(color),
+    () => [franchiseStore.primaryColor, franchiseStore.darkPrimaryColor] as const,
+    ([color, darkColor]) => color && applyBrandColor(color, darkColor),
     { immediate: true },
   )
 }

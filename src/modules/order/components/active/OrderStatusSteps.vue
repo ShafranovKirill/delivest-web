@@ -17,7 +17,7 @@ const current = computed(() => currentStep(props.order))
       v-for="(step, index) in steps"
       :key="step"
       class="h-1.5 flex-1 rounded-full transition-colors duration-500"
-      :class="index <= current ? 'bg-primary' : 'bg-gray-200'"
+      :class="index <= current ? 'bg-primary-fill' : 'bg-gray-200'"
     />
   </div>
 
@@ -29,7 +29,7 @@ const current = computed(() => currentStep(props.order))
           index < current
             ? 'bg-primary-soft text-primary'
             : index === current
-              ? 'bg-primary text-white shadow-md'
+              ? 'bg-primary-fill text-white shadow-md'
               : 'bg-gray-100 text-gray-400'
         "
       >
@@ -45,7 +45,7 @@ const current = computed(() => currentStep(props.order))
       </span>
       <span
         v-if="index === current"
-        class="ml-auto size-2.5 rounded-full bg-primary animate-pulse"
+        class="ml-auto size-2.5 rounded-full bg-primary-fill animate-pulse"
         aria-hidden="true"
       />
     </li>

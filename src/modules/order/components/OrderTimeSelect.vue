@@ -68,7 +68,7 @@ function pick(value: string) {
 
 function optionClass(active: boolean) {
   return active
-    ? 'bg-primary text-white border-primary shadow-sm'
+    ? 'bg-primary-fill text-white border-primary-fill shadow-sm'
     : 'bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary'
 }
 </script>

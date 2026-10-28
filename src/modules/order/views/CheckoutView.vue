@@ -73,7 +73,7 @@ onUnmounted(() => {
           class="flex w-full items-center justify-center gap-2 rounded-full px-2 py-2.5 text-sm font-semibold transition-colors"
           :class="[
             step === item.value
-              ? 'bg-primary text-white shadow-sm'
+              ? 'bg-primary-fill text-white shadow-sm'
               : step > item.value
                 ? 'text-primary'
                 : 'text-gray-400',

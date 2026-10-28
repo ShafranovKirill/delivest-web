@@ -16,7 +16,7 @@ const { t } = useI18n()
         class="absolute inset-0 animate-ping rounded-full bg-primary/30 [animation-iteration-count:2]"
       />
       <span
-        class="relative grid size-20 place-items-center rounded-full bg-primary text-white shadow-lg"
+        class="relative grid size-20 place-items-center rounded-full bg-primary-fill text-white shadow-lg"
       >
         <i class="pi pi-check text-3xl" />
       </span>
