@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useBranchNavigation } from '@/modules/branch/composables/useBranchNavigation'
-import { useContactsStore } from '../contacts/stores/constacts.store'
 import AccountMenu from '@/modules/auth/components/AccountMenu.vue'
 import ThemeToggle from '@/modules/settings/components/ThemeToggle.vue'
 import LocaleToggle from '@/modules/settings/components/LocaleToggle.vue'
 import { useI18n } from 'vue-i18n'
 
 const navigateTo = useBranchNavigation()
-const contactStore = useContactsStore()
 const { t } = useI18n()
 
 const links = computed(() => [
   { label: t('nav.menu'), action: () => navigateTo('menu') },
   { label: t('nav.promotions'), action: () => navigateTo('promotions') },
   { label: t('nav.about'), action: () => navigateTo('branch-info') },
-  { label: t('nav.contacts'), action: contactStore.openModal },
+  { label: t('nav.contacts'), action: () => navigateTo('contacts') },
 ])
 
 const linkClass = 'hover:text-gray-900 transition-colors cursor-pointer'

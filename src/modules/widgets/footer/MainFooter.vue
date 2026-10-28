@@ -4,12 +4,10 @@ import FooterBrand from './FooterBrand.vue'
 import FooterLinks from './FooterLinks.vue'
 import FooterLegal from './FooterLegal.vue'
 import PoweredByDelivest from '../powered-by/PoweredByDelivest.vue'
-import { useContactsStore } from '../contacts/stores/constacts.store'
 import { useBranchNavigation } from '@/modules/branch/composables/useBranchNavigation'
 import { useLegalLinks } from '@/modules/franchise/composables/useLegalLinks'
 import { useI18n } from 'vue-i18n'
 
-const contactsStore = useContactsStore()
 const navigateTo = useBranchNavigation()
 const legalLinks = useLegalLinks()
 const { t } = useI18n()
@@ -18,7 +16,7 @@ const customerLinks = computed(() => [
   { label: t('nav.menu'), action: () => navigateTo('menu') },
   { label: t('nav.promotions'), action: () => navigateTo('promotions') },
   { label: t('nav.about'), action: () => navigateTo('branch-info') },
-  { label: t('nav.contacts'), action: contactsStore.openModal },
+  { label: t('nav.contacts'), action: () => navigateTo('contacts') },
 ])
 </script>
 
