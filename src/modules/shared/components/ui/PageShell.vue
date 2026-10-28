@@ -17,9 +17,12 @@ const widthClass = {
 
 <template>
   <section class="min-h-full flex flex-col w-full bg-gray-200">
-    <div class="flex-1 w-full bg-white rounded-t-4xl lg:rounded-t-[2.5rem]">
+    <div class="sticky top-15 z-40 w-full bg-gray-200" aria-hidden="true">
+      <div class="h-8 sm:h-10 bg-white rounded-t-4xl lg:rounded-t-[2.5rem]" />
+    </div>
+    <div class="flex-1 w-full bg-white">
       <div
-        class="mx-auto w-full px-4 sm:px-6 pt-6 sm:pt-10 pb-10 sm:pb-14"
+        class="mx-auto w-full px-4 sm:px-6 pb-10 sm:pb-14"
         :class="widthClass[width]"
       >
         <header
