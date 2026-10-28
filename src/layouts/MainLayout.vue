@@ -18,7 +18,7 @@ useLiveOrders()
 </script>
 <template>
   <div
-    class="min-h-screen flex flex-col mx-auto items-center bg-white rounded-b-4xl lg:rounded-t-4xl lg:rounded-b-[70px] overflow-clip"
+    class="min-h-screen flex flex-col mx-auto items-center bg-white rounded-b-4xl lg:rounded-b-[70px] overflow-clip"
   >
     <TopBar v-if="!viewportStore.isMobile" />
     <MainHeader />
