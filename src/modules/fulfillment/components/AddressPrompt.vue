@@ -38,7 +38,10 @@ const flowStore = useFulfillmentFlowStore()
       />
     </div>
 
-    <p v-if="!authStore.isAuthenticated" class="mt-4 text-center text-sm text-gray-500">
+    <p
+      v-if="authStore.isEnabled && !authStore.isAuthenticated"
+      class="mt-4 text-center text-sm text-gray-500"
+    >
       {{ t('fulfillment.prompt.haveAccount') }}
       <button
         type="button"

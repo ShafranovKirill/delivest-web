@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { queryClient } from '@/api/client'
 import type { ClientProfile, ClientSession } from '../api/auth.service'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 
 export const useAuthStore = defineStore(
   'auth',
@@ -11,8 +12,12 @@ export const useAuthStore = defineStore(
     const client = ref<ClientProfile | null>(null)
     const lastPhone = ref<string | null>(null)
     const isModalOpen = ref(false)
+    const franchiseStore = useFranchiseStore()
 
-    const isAuthenticated = computed(() => Boolean(refreshToken.value && client.value))
+    const isEnabled = computed(() => franchiseStore.clientAuth)
+    const isAuthenticated = computed(() =>
+      Boolean(isEnabled.value && refreshToken.value && client.value),
+    )
 
     function setSession(session: ClientSession) {
       accessToken.value = session.access_token ?? null
@@ -34,8 +39,16 @@ export const useAuthStore = defineStore(
     }
 
     function openModal() {
-      isModalOpen.value = true
+      if (isEnabled.value) isModalOpen.value = true
     }
+
+    watch(
+      isEnabled,
+      (enabled) => {
+        if (!enabled && refreshToken.value) logout()
+      },
+      { immediate: true },
+    )
 
     function closeModal() {
       isModalOpen.value = false
@@ -47,6 +60,7 @@ export const useAuthStore = defineStore(
       client,
       lastPhone,
       isModalOpen,
+      isEnabled,
       isAuthenticated,
       setSession,
       signIn,

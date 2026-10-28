@@ -35,6 +35,8 @@ function open(event: Event) {
 </script>
 
 <template>
-  <slot :open="open" :signed-in="authStore.isAuthenticated" />
-  <Menu ref="menu" :model="items" popup />
+  <template v-if="authStore.isEnabled">
+    <slot :open="open" :signed-in="authStore.isAuthenticated" />
+    <Menu ref="menu" :model="items" popup />
+  </template>
 </template>

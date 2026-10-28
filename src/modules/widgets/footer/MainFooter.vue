@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import FooterBrand from './FooterBrand.vue'
 import FooterLinks from './FooterLinks.vue'
 import FooterLegal from './FooterLegal.vue'
+import PoweredByDelivest from '../powered-by/PoweredByDelivest.vue'
 import { useContactsStore } from '../contacts/stores/constacts.store'
 import { useBranchNavigation } from '@/modules/branch/composables/useBranchNavigation'
 import { useLegalLinks } from '@/modules/franchise/composables/useLegalLinks'
@@ -31,6 +32,10 @@ const customerLinks = computed(() => [
 
     <div class="max-w-5xl mx-auto mt-10 pt-6 border-t border-gray-300">
       <FooterLegal />
+    </div>
+
+    <div class="max-w-5xl mx-auto mt-6 flex justify-center">
+      <PoweredByDelivest />
     </div>
   </footer>
 </template>

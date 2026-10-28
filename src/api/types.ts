@@ -1121,6 +1121,8 @@ export interface components {
       data: {
         /** @description Адрес выбирается на карте с подсказками DaData */
         address_map: boolean
+        /** @description Клиенты могут войти по звонку; иначе все заказывают как гости */
+        client_auth: boolean
         description: string | null
         documents: components['schemas']['LegalDocumentSummary'][]
         legal: components['schemas']['FranchiseLegal']

@@ -13,6 +13,12 @@ const { t } = useI18n()
 <template>
   <slot v-if="authStore.isAuthenticated" />
   <EmptyState v-else icon="pi-user" :title="t('auth.required')" :text="text">
-    <Button :label="t('auth.signIn')" icon="pi pi-sign-in" rounded @click="authStore.openModal" />
+    <Button
+      v-if="authStore.isEnabled"
+      :label="t('auth.signIn')"
+      icon="pi pi-sign-in"
+      rounded
+      @click="authStore.openModal"
+    />
   </EmptyState>
 </template>

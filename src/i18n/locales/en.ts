@@ -417,6 +417,9 @@ export const en: typeof ru = {
     copyPhone: 'Copy number',
     empty: 'This branch has no contacts yet',
   },
+  poweredBy: {
+    prefix: 'Powered by',
+  },
   footer: {
     ourPlace: 'Our restaurant',
     tagline: 'The most homely, cozy and truly soulful food. Cooked with love for each of you!',

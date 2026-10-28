@@ -48,7 +48,7 @@ function signIn() {
   </SidebarTile>
 
   <SidebarTile
-    v-else
+    v-else-if="authStore.isEnabled"
     icon="pi-user"
     :title="t('auth.guestTitle')"
     :subtitle="t('auth.subtitle')"

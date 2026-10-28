@@ -10,6 +10,7 @@ import { useAccountLinks } from '@/modules/auth/composables/useAccountLinks'
 import ThemeToggle from '@/modules/settings/components/ThemeToggle.vue'
 import LocaleToggle from '@/modules/settings/components/LocaleToggle.vue'
 import BrandLogo from '@/modules/franchise/components/BrandLogo.vue'
+import PoweredByDelivest from '@/modules/widgets/powered-by/PoweredByDelivest.vue'
 import { useI18n } from 'vue-i18n'
 
 const sidebarStore = useSidebarStore()
@@ -47,9 +48,12 @@ const settingClass =
 
     <SidebarNav v-if="authStore.isAuthenticated" :title="t('nav.account')" :items="accountLinks" />
 
-    <div class="mt-auto flex gap-2">
-      <ThemeToggle labeled :class="settingClass" />
-      <LocaleToggle :class="settingClass" />
+    <div class="mt-auto flex flex-col items-center gap-4">
+      <div class="flex w-full gap-2">
+        <ThemeToggle labeled :class="settingClass" />
+        <LocaleToggle :class="settingClass" />
+      </div>
+      <PoweredByDelivest />
     </div>
   </Drawer>
 </template>

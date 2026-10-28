@@ -14,6 +14,7 @@ export const useFranchiseStore = defineStore(
     const logoUrl = computed(() => franchise.value?.logo_url ?? null)
     const logoDarkUrl = computed(() => franchise.value?.logo_dark_url ?? null)
     const addressMap = computed(() => franchise.value?.address_map ?? false)
+    const clientAuth = computed(() => franchise.value?.client_auth ?? true)
 
     async function load() {
       try {
@@ -37,6 +38,7 @@ export const useFranchiseStore = defineStore(
       logoUrl,
       logoDarkUrl,
       addressMap,
+      clientAuth,
       init,
     }
   },

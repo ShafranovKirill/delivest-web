@@ -415,6 +415,9 @@ export const ru = {
     copyPhone: 'Скопировать номер',
     empty: 'У этого филиала пока нет контактов',
   },
+  poweredBy: {
+    prefix: 'Работает на ядре',
+  },
   footer: {
     ourPlace: 'Наше заведение',
     tagline:

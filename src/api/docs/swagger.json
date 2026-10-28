@@ -1343,6 +1343,12 @@
                 "x-struct": null,
                 "x-validate": null
               },
+              "client_auth": {
+                "description": "Клиенты могут войти по звонку; иначе все заказывают как гости",
+                "type": "boolean",
+                "x-struct": null,
+                "x-validate": null
+              },
               "description": {
                 "nullable": true,
                 "type": "string",
@@ -1394,6 +1400,7 @@
               "logo_url",
               "logo_dark_url",
               "address_map",
+              "client_auth",
               "legal",
               "documents"
             ],
