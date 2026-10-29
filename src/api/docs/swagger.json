@@ -94,7 +94,7 @@
           },
           "expected_total": {
             "description": "Сумма, которую видел клиент. Если итог после пересчёта акций окажется больше — вернётся `price_changed`",
-            "example": 1500,
+            "example": 150000,
             "nullable": true,
             "type": "integer"
           },
@@ -109,6 +109,14 @@
             "example": "cash",
             "nullable": true,
             "type": "string"
+          },
+          "persons": {
+            "description": "Количество приборов",
+            "example": 2,
+            "maximum": 99,
+            "minimum": 0,
+            "nullable": true,
+            "type": "integer"
           }
         },
         "required": ["cart_id", "branch_id"],
@@ -119,7 +127,7 @@
         "properties": {
           "base_price": {
             "description": "Цена за единицу по меню",
-            "example": 590,
+            "example": 59000,
             "type": "integer"
           },
           "gift": {
@@ -128,7 +136,7 @@
           },
           "price": {
             "description": "Цена за единицу с учётом скидок",
-            "example": 531,
+            "example": 53100,
             "type": "integer"
           },
           "product_id": {
@@ -204,7 +212,7 @@
           },
           "old_price": {
             "description": "Цена без скидки, если на товар действует акция; `price` — цена со скидкой",
-            "example": 690,
+            "example": 69000,
             "nullable": true,
             "type": "integer"
           },
@@ -216,8 +224,8 @@
             "type": "string"
           },
           "price": {
-            "description": "Цена в копейках/минимальных единицах",
-            "example": 590,
+            "description": "Цена в копейках",
+            "example": 59000,
             "type": "integer"
           },
           "quantity": {
@@ -384,7 +392,7 @@
         "properties": {
           "base_total": {
             "description": "Итог по строке без скидок",
-            "example": 1180,
+            "example": 118000,
             "type": "integer"
           },
           "gift": {
@@ -407,7 +415,7 @@
           },
           "price": {
             "description": "Цена за единицу по меню",
-            "example": 590,
+            "example": 59000,
             "type": "integer"
           },
           "product_id": {
@@ -432,7 +440,7 @@
           },
           "total_price": {
             "description": "Итог по строке с учётом скидок",
-            "example": 1062,
+            "example": 106200,
             "type": "integer"
           }
         },
@@ -624,7 +632,7 @@
             "type": "string"
           },
           "discount": {
-            "example": 150,
+            "example": 15000,
             "type": "integer"
           },
           "name": {
@@ -714,13 +722,18 @@
                 "nullable": true,
                 "type": "string"
               },
+              "customer_phone_ext": {
+                "example": "1234",
+                "nullable": true,
+                "type": "string"
+              },
               "delivery_amount": {
                 "description": "Стоимость доставки, входит в total_amount",
-                "example": 200,
+                "example": 20000,
                 "type": "integer"
               },
               "discount_amount": {
-                "example": 150,
+                "example": 15000,
                 "type": "integer"
               },
               "fulfillment_type": {
@@ -745,6 +758,11 @@
               "payment_method": {
                 "enum": ["cash", "card_offline"],
                 "type": "string"
+              },
+              "persons": {
+                "example": 2,
+                "nullable": true,
+                "type": "integer"
               },
               "promotions": {
                 "items": {
@@ -771,11 +789,11 @@
               },
               "subtotal_amount": {
                 "description": "Сумма без скидок",
-                "example": 1330,
+                "example": 133000,
                 "type": "integer"
               },
               "total_amount": {
-                "example": 1180,
+                "example": 118000,
                 "type": "integer"
               }
             },
@@ -839,7 +857,7 @@
         "type": "object"
       },
       "PromoReason": {
-        "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.",
+        "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.",
         "properties": {
           "allowed": {
             "items": {
@@ -863,7 +881,7 @@
             "type": "string"
           },
           "missing": {
-            "example": 300,
+            "example": 30000,
             "nullable": true,
             "type": "integer"
           },
@@ -1188,7 +1206,7 @@
                 "type": "string"
               },
               "discount_amount": {
-                "example": 200,
+                "example": 20000,
                 "type": "integer"
               },
               "fulfillment_type": {
@@ -1229,12 +1247,12 @@
               },
               "subtotal_amount": {
                 "description": "Сумма без скидок",
-                "example": 1700,
+                "example": 170000,
                 "type": "integer"
               },
               "total_amount": {
                 "description": "К оплате",
-                "example": 1500,
+                "example": 150000,
                 "type": "integer"
               },
               "total_quantity": {
@@ -1262,12 +1280,12 @@
       "DeliveryQuote": {
         "properties": {
           "free_from": {
-            "example": 1500,
+            "example": 150000,
             "nullable": true,
             "type": "integer"
           },
           "min_order": {
-            "example": 500,
+            "example": 50000,
             "nullable": true,
             "type": "integer"
           },
@@ -1277,7 +1295,7 @@
             "type": "integer"
           },
           "price": {
-            "example": 150,
+            "example": 15000,
             "nullable": true,
             "type": "integer"
           },
@@ -1685,11 +1703,11 @@
           },
           "delivery_amount": {
             "description": "Стоимость доставки, входит в total_amount",
-            "example": 200,
+            "example": 20000,
             "type": "integer"
           },
           "discount_amount": {
-            "example": 150,
+            "example": 15000,
             "type": "integer"
           },
           "fulfillment_type": {
@@ -1743,11 +1761,11 @@
           },
           "subtotal_amount": {
             "description": "Сумма без скидок",
-            "example": 1330,
+            "example": 133000,
             "type": "integer"
           },
           "total_amount": {
-            "example": 1180,
+            "example": 118000,
             "type": "integer"
           }
         },
@@ -1902,8 +1920,8 @@
             "type": "string"
           },
           "discount": {
-            "description": "Скидка в рублях",
-            "example": 150,
+            "description": "Скидка в копейках",
+            "example": 15000,
             "type": "integer"
           },
           "gifts": {
@@ -1940,6 +1958,7 @@
     }
   },
   "info": {
+    "description": "Все суммы — в копейках, целым числом.",
     "title": "My App",
     "version": "1.0"
   },

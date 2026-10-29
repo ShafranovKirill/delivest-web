@@ -661,7 +661,7 @@ export interface components {
       customer_phone?: string | null
       /**
        * @description Сумма, которую видел клиент. Если итог после пересчёта акций окажется больше — вернётся `price_changed`
-       * @example 1500
+       * @example 150000
        */
       expected_total?: number | null
       /**
@@ -674,19 +674,24 @@ export interface components {
        * @enum {string|null}
        */
       payment_method?: 'cash' | 'card_offline' | null
+      /**
+       * @description Количество приборов
+       * @example 2
+       */
+      persons?: number | null
     }
     /** OrderItemResponse */
     OrderItemResponse: {
       /**
        * @description Цена за единицу по меню
-       * @example 590
+       * @example 59000
        */
       base_price: number
       /** @example false */
       gift: boolean
       /**
        * @description Цена за единицу с учётом скидок
-       * @example 531
+       * @example 53100
        */
       price: number
       /**
@@ -737,7 +742,7 @@ export interface components {
       name?: string
       /**
        * @description Цена без скидки, если на товар действует акция; `price` — цена со скидкой
-       * @example 690
+       * @example 69000
        */
       old_price?: number | null
       /**
@@ -747,8 +752,8 @@ export interface components {
        */
       photo_url?: string | null
       /**
-       * @description Цена в копейках/минимальных единицах
-       * @example 590
+       * @description Цена в копейках
+       * @example 59000
        */
       price?: number
       /**
@@ -824,7 +829,7 @@ export interface components {
     CartItemResponse: {
       /**
        * @description Итог по строке без скидок
-       * @example 1180
+       * @example 118000
        */
       base_total: number
       /**
@@ -840,7 +845,7 @@ export interface components {
       name: string
       /**
        * @description Цена за единицу по меню
-       * @example 590
+       * @example 59000
        */
       price: number
       /**
@@ -855,7 +860,7 @@ export interface components {
       stopped?: boolean
       /**
        * @description Итог по строке с учётом скидок
-       * @example 1062
+       * @example 106200
        */
       total_price: number
     }
@@ -934,7 +939,7 @@ export interface components {
     OrderPromotion: {
       /** @example SUMMER2025 */
       code?: string | null
-      /** @example 150 */
+      /** @example 15000 */
       discount: number
       /** @example Летняя скидка */
       name: string
@@ -985,12 +990,14 @@ export interface components {
         customer_name?: string | null
         /** @example +79990000000 */
         customer_phone?: string | null
+        /** @example 1234 */
+        customer_phone_ext?: string | null
         /**
          * @description Стоимость доставки, входит в total_amount
-         * @example 200
+         * @example 20000
          */
         delivery_amount: number
-        /** @example 150 */
+        /** @example 15000 */
         discount_amount: number
         /** @enum {string} */
         fulfillment_type: 'dine_in' | 'delivery' | 'pickup'
@@ -1004,6 +1011,8 @@ export interface components {
         number: string
         /** @enum {string} */
         payment_method: 'cash' | 'card_offline'
+        /** @example 2 */
+        persons?: number | null
         promotions: components['schemas']['OrderPromotion'][]
         /** @example 42 */
         short_number: string
@@ -1015,10 +1024,10 @@ export interface components {
           'created' | 'accepted' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
         /**
          * @description Сумма без скидок
-         * @example 1330
+         * @example 133000
          */
         subtotal_amount: number
-        /** @example 1180 */
+        /** @example 118000 */
         total_amount: number
       }
     }
@@ -1040,7 +1049,7 @@ export interface components {
     }
     /**
      * PromoReason
-     * @description Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.
+     * @description Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.
      */
     PromoReason: {
       allowed?: ('dine_in' | 'delivery' | 'pickup')[] | null
@@ -1053,7 +1062,7 @@ export interface components {
       days?: number[] | null
       /** @example 11:00 */
       from?: string | null
-      /** @example 300 */
+      /** @example 30000 */
       missing?: number | null
       /** @example Кола 0.5 */
       name?: string | null
@@ -1195,7 +1204,7 @@ export interface components {
          * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
          */
         branch_id?: string | null
-        /** @example 200 */
+        /** @example 20000 */
         discount_amount: number
         /** @enum {string|null} */
         fulfillment_type?: 'dine_in' | 'delivery' | 'pickup' | null
@@ -1212,12 +1221,12 @@ export interface components {
         session_id?: string | null
         /**
          * @description Сумма без скидок
-         * @example 1700
+         * @example 170000
          */
         subtotal_amount: number
         /**
          * @description К оплате
-         * @example 1500
+         * @example 150000
          */
         total_amount: number
         /** @example 3 */
@@ -1226,13 +1235,13 @@ export interface components {
     }
     /** DeliveryQuote */
     DeliveryQuote: {
-      /** @example 1500 */
+      /** @example 150000 */
       free_from: number | null
-      /** @example 500 */
+      /** @example 50000 */
       min_order: number | null
       /** @example 45 */
       minutes: number | null
-      /** @example 150 */
+      /** @example 15000 */
       price: number | null
       /** @enum {string} */
       status: 'ok' | 'below_minimum' | 'outside_zones' | 'no_coordinates'
@@ -1456,10 +1465,10 @@ export interface components {
       courier: components['schemas']['OrderCourier']
       /**
        * @description Стоимость доставки, входит в total_amount
-       * @example 200
+       * @example 20000
        */
       delivery_amount: number
-      /** @example 150 */
+      /** @example 15000 */
       discount_amount: number
       /** @enum {string} */
       fulfillment_type: 'dine_in' | 'delivery' | 'pickup'
@@ -1483,10 +1492,10 @@ export interface components {
         'created' | 'accepted' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
       /**
        * @description Сумма без скидок
-       * @example 1330
+       * @example 133000
        */
       subtotal_amount: number
-      /** @example 1180 */
+      /** @example 118000 */
       total_amount: number
     }
     /**
@@ -1572,8 +1581,8 @@ export interface components {
       code?: string | null
       description?: string | null
       /**
-       * @description Скидка в рублях
-       * @example 150
+       * @description Скидка в копейках
+       * @example 15000
        */
       discount: number
       gifts: components['schemas']['PromoGift'][]
