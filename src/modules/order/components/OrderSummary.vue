@@ -34,6 +34,13 @@ const { t } = useI18n()
         />
         <span class="min-w-0 flex-1" :class="{ 'pl-2': compact }">
           <span class="block text-sm font-semibold text-gray-900 truncate">{{ item.name }}</span>
+          <span
+            v-for="modifier in item.modifiers ?? []"
+            :key="modifier.id ?? modifier.name"
+            class="block text-xs text-gray-500 truncate"
+          >
+            + {{ modifier.name }}
+          </span>
           <span v-if="item.gift" class="block text-xs font-medium text-green-700">
             <i class="pi pi-gift text-xs" /> {{ t('order.giftCount', { count: item.quantity }) }}
           </span>

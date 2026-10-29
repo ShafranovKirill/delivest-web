@@ -12,6 +12,7 @@ export type PromoCodeState = NonNullable<components['schemas']['PromoCodeState']
 export type PromoRejection = NonNullable<PromoCodeState['reason']>
 export type AppliedPromotion = components['schemas']['AppliedPromotion']
 export type PromoHint = components['schemas']['PromoHint']
+export type ModifierChoice = components['schemas']['ModifierChoice']
 export type PromoReason = components['schemas']['PromoReason']
 
 interface CartQueryParams {
@@ -29,13 +30,16 @@ export const CartService = {
     return data.data
   },
 
-  async addItem(cartId: string, productId: string): Promise<Cart> {
-    const { data } = await api.post<CartResponse>(`/client/cart/${cartId}/items/${productId}`)
+  async addItem(cartId: string, productId: string, modifiers?: ModifierChoice[]): Promise<Cart> {
+    const { data } = await api.post<CartResponse>(
+      `/client/cart/${cartId}/items/${productId}`,
+      modifiers ? { quantity: 1, modifiers } : undefined,
+    )
     return data.data
   },
 
-  async removeItem(cartId: string, productId: string, all = false): Promise<Cart> {
-    const { data } = await api.delete<CartResponse>(`/client/cart/${cartId}/items/${productId}`, {
+  async removeItem(cartId: string, key: string, all = false): Promise<Cart> {
+    const { data } = await api.delete<CartResponse>(`/client/cart/${cartId}/items/${key}`, {
       params: all ? { all: true } : undefined,
     })
     return data.data

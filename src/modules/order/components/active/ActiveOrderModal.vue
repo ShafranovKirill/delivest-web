@@ -103,6 +103,13 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
             <span class="text-gray-800">
               <i v-if="item.gift" class="pi pi-gift text-xs text-green-700" />
               {{ item.title }}
+              <span
+                v-for="modifier in item.modifiers ?? []"
+                :key="modifier.id ?? modifier.name"
+                class="block text-xs text-gray-500"
+              >
+                + {{ modifier.name }}
+              </span>
             </span>
             <span v-if="item.gift" class="shrink-0 text-green-700">
               {{ t('order.giftCount', { count: item.quantity }) }}

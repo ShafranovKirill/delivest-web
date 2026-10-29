@@ -14,10 +14,17 @@ const { t } = useI18n()
 
 function handleDecrease() {
   if (props.item.quantity > 1) {
-    cartStore.removeItem(props.item.product_id)
+    cartStore.removeItem(props.item.key)
   } else {
-    cartStore.removeAllOfItem(props.item.product_id)
+    cartStore.removeAllOfItem(props.item.key)
   }
+}
+
+function handleIncrease() {
+  const modifiers = (props.item.modifiers ?? [])
+    .filter((m) => m.id)
+    .map((m) => ({ id: m.id!, quantity: m.quantity }))
+  cartStore.addItem(props.item.product_id, modifiers)
 }
 </script>
 
@@ -37,6 +44,14 @@ function handleDecrease() {
         <h4 class="text-sm font-medium leading-tight truncate">
           {{ item.name }}
         </h4>
+        <p
+          v-for="modifier in item.modifiers ?? []"
+          :key="modifier.id ?? modifier.name"
+          class="text-xs text-muted-foreground leading-tight truncate"
+        >
+          + {{ modifier.name
+          }}<template v-if="modifier.quantity > 1"> × {{ modifier.quantity }}</template>
+        </p>
         <span
           v-if="item.gift"
           class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-green-700"
@@ -50,7 +65,7 @@ function handleDecrease() {
       <button
         v-if="!item.gift"
         type="button"
-        @click="cartStore.removeAllOfItem(item.product_id)"
+        @click="cartStore.removeAllOfItem(item.key)"
         class="text-muted-foreground hover:text-destructive p-1 transition-colors shrink-0"
         :title="t('cart.remove')"
       >
@@ -92,7 +107,7 @@ function handleDecrease() {
         </span>
         <button
           type="button"
-          @click="cartStore.addItem(item.product_id)"
+          @click="handleIncrease"
           :disabled="item.stopped"
           class="disabled:opacity-40 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-background transition-colors text-xs font-medium"
         >
