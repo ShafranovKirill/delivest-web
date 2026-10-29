@@ -641,6 +641,11 @@ export interface components {
        * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
        */
       cart_id: string
+      /**
+       * @description Сдача с какой суммы, в копейках. Только для наличных
+       * @example 500000
+       */
+      cash_given?: number | null
       /** @example Без лука */
       comment?: string | null
       /**

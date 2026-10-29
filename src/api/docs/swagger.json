@@ -68,6 +68,13 @@
             "format": "uuid",
             "type": "string"
           },
+          "cash_given": {
+            "description": "Сдача с какой суммы, в копейках. Только для наличных",
+            "example": 500000,
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
           "comment": {
             "example": "Без лука",
             "nullable": true,
