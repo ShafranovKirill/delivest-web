@@ -30,7 +30,7 @@ const { t } = useI18n()
       </span>
       <div class="min-w-0 flex-1">
         <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-          {{ t('order.number', { number: order.number }) }} ·
+          {{ t('order.number', { number: order.short_number }) }} ·
           {{ fulfillmentLabel(order.fulfillment_type) }}
         </p>
         <p class="font-extrabold text-gray-950">{{ statusLabel(order.status) }}</p>

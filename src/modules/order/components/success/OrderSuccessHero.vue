@@ -27,10 +27,10 @@ const { t } = useI18n()
         {{ t('order.success.title') }}
       </h2>
       <span
-        v-if="order?.number"
+        v-if="order?.short_number"
         class="rounded-full bg-white px-4 py-1.5 text-sm font-bold text-gray-900 shadow-xs"
       >
-        {{ t('order.number', { number: order.number }) }}
+        {{ t('order.number', { number: order.short_number }) }}
       </span>
     </div>
   </div>

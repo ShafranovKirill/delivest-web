@@ -38,7 +38,7 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
     <template #header>
       <div v-if="order">
         <h2 class="text-xl font-extrabold text-gray-950">
-          {{ t('order.number', { number: order.number }) }}
+          {{ t('order.number', { number: order.short_number }) }}
         </h2>
         <p class="text-sm text-gray-500">
           {{ t('order.placedAt', { time: formatTime(order.inserted_at) }) }}

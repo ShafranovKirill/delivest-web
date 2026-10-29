@@ -675,21 +675,6 @@ export interface components {
        */
       payment_method?: 'cash' | 'card_offline' | null
     }
-    /**
-     * OrderCourier
-     * @description Курьер, который взял заказ. Есть с назначения курьера до вручения
-     */
-    OrderCourier: {
-      /** @example Иван */
-      name: string | null
-      /**
-       * @description У курьера Яндекса подменный номер, добавочный после ,,
-       * @example +79001112233
-       */
-      phone: string | null
-      /** @description Ссылка отслеживания Яндекс Доставки */
-      tracking_url: string | null
-    } | null
     /** OrderItemResponse */
     OrderItemResponse: {
       /**
@@ -1015,11 +1000,13 @@ export interface components {
          */
         id: string
         items: components['schemas']['OrderItemResponse'][]
-        /** @example ORD-1001 */
+        /** @example 261029-MSK1-042 */
         number: string
         /** @enum {string} */
         payment_method: 'cash' | 'card_offline'
         promotions: components['schemas']['OrderPromotion'][]
+        /** @example 42 */
+        short_number: string
         /**
          * @example created
          * @enum {string}
@@ -1481,11 +1468,13 @@ export interface components {
       /** Format: date_time */
       inserted_at: string
       items: components['schemas']['OrderItemResponse'][]
-      /** @example A042 */
+      /** @example 261029-MSK1-042 */
       number: string
       /** @enum {string} */
       payment_method: 'cash' | 'card_offline'
       promotions: components['schemas']['OrderPromotion'][]
+      /** @example 42 */
+      short_number: string
       /**
        * @example preparing
        * @enum {string}
@@ -1500,6 +1489,21 @@ export interface components {
       /** @example 1180 */
       total_amount: number
     }
+    /**
+     * OrderCourier
+     * @description Курьер, который взял заказ. Есть с назначения курьера до вручения
+     */
+    OrderCourier: {
+      /** @example Иван */
+      name: string | null
+      /**
+       * @description У курьера Яндекса подменный номер, добавочный после ,,
+       * @example +79001112233
+       */
+      phone: string | null
+      /** @description Ссылка отслеживания Яндекс Доставки */
+      tracking_url: string | null
+    } | null
     /** BranchInfoResponse */
     BranchInfoResponse: {
       /** @example ул. Пушкина, д. 10 */
