@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatPrice } from '@/utils/money'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
@@ -40,7 +41,7 @@ const { t } = useI18n()
             {{ t('cart.soldOut') }}
           </span>
           <span v-else class="block text-xs text-gray-500 tabular-nums">
-            {{ item.quantity }} × {{ item.price }} ₽
+            {{ item.quantity }} × {{ formatPrice(item.price) }}
           </span>
         </span>
         <span class="shrink-0 text-right text-sm font-bold text-gray-900 tabular-nums">
@@ -48,9 +49,9 @@ const { t } = useI18n()
             v-if="item.base_total > item.total_price"
             class="block text-xs font-normal text-gray-400 line-through"
           >
-            {{ item.base_total }} ₽
+            {{ formatPrice(item.base_total) }}
           </span>
-          {{ item.gift ? t('common.free') : `${item.total_price} ₽` }}
+          {{ item.gift ? t('common.free') : formatPrice(item.total_price) }}
         </span>
       </li>
     </ul>

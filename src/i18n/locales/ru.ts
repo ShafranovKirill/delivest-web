@@ -145,13 +145,13 @@ export const ru = {
   },
   delivery: {
     free: 'Доставка бесплатно',
-    price: 'Доставка {price} ₽',
-    priceFreeFrom: 'Доставка {price} ₽, бесплатно от {sum} ₽',
-    minimum: 'Минимальная сумма заказа на доставку — {sum} ₽',
+    price: 'Доставка {price}',
+    priceFreeFrom: 'Доставка {price}, бесплатно от {sum}',
+    minimum: 'Минимальная сумма заказа на доставку — {sum}',
     outside: 'Извините, сюда не доставляем',
     noPoint: 'Уточните адрес на карте',
     line: 'Доставка',
-    freeFrom: 'бесплатно от {sum} ₽',
+    freeFrom: 'бесплатно от {sum}',
   },
   fulfillment: {
     prompt: {
@@ -247,7 +247,7 @@ export const ru = {
   },
   menu: {
     more: 'Ещё',
-    addToCart: 'В корзину за {price} ₽',
+    addToCart: 'В корзину за {price}',
     soldOut: 'Закончилось',
     loadFailed: 'Не удалось загрузить меню',
     loadFailedHint: 'Попробуйте обновить страницу или повторить запрос позже.',
@@ -292,7 +292,7 @@ export const ru = {
       sun: 'вс',
     },
     reason: {
-      subtotal: 'добавьте товаров ещё на {amount} ₽',
+      subtotal: 'добавьте товаров ещё на {amount}',
       quantity: 'добавьте ещё {count} шт.',
       product: 'добавьте «{name}»',
       productMany: 'добавьте «{name}» × {count}',

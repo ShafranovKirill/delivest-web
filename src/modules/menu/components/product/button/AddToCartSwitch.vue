@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatPrice } from '@/utils/money'
 import { computed, ref } from 'vue'
 import ProgressSpinner from 'primevue/progressspinner'
 import { useToast } from 'primevue/usetoast'
@@ -120,12 +121,12 @@ const handleRemove = async (event: Event) => {
           class="white-spinner"
         />
         <template v-else>
-          <span>{{ `${product.price} ₽` }}</span>
+          <span>{{ formatPrice(product.price) }}</span>
           <span
             v-if="product.old_price && product.old_price > (product.price ?? 0)"
             class="text-sm opacity-70 line-through"
           >
-            {{ product.old_price }} ₽
+            {{ formatPrice(product.old_price) }}
           </span>
         </template>
       </button>

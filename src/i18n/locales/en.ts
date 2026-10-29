@@ -147,13 +147,13 @@ export const en: typeof ru = {
   },
   delivery: {
     free: 'Free delivery',
-    price: 'Delivery {price} ₽',
-    priceFreeFrom: 'Delivery {price} ₽, free from {sum} ₽',
-    minimum: 'Minimum order for delivery is {sum} ₽',
+    price: 'Delivery {price}',
+    priceFreeFrom: 'Delivery {price}, free from {sum}',
+    minimum: 'Minimum order for delivery is {sum}',
     outside: 'Sorry, we do not deliver here',
     noPoint: 'Pick the address on the map',
     line: 'Delivery',
-    freeFrom: 'free from {sum} ₽',
+    freeFrom: 'free from {sum}',
   },
   fulfillment: {
     prompt: {
@@ -249,7 +249,7 @@ export const en: typeof ru = {
   },
   menu: {
     more: 'More',
-    addToCart: 'Add to cart for {price} ₽',
+    addToCart: 'Add to cart for {price}',
     soldOut: 'Sold out',
     loadFailed: 'Failed to load the menu',
     loadFailedHint: 'Try refreshing the page or retry later.',
@@ -294,7 +294,7 @@ export const en: typeof ru = {
       sun: 'Sun',
     },
     reason: {
-      subtotal: 'add {amount} ₽ more',
+      subtotal: 'add {amount} more',
       quantity: 'add {count} more pcs',
       product: 'add “{name}”',
       productMany: 'add “{name}” × {count}',

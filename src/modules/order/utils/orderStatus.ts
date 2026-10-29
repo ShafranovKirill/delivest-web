@@ -60,7 +60,3 @@ export function formatTime(value?: string | null): string | null {
   if (!value) return null
   return new Date(value).toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' })
 }
-
-export function formatPrice(value: number): string {
-  return `${value.toLocaleString(intlLocale())} ₽`
-}

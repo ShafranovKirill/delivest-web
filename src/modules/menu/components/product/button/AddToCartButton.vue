@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatPrice } from '@/utils/money'
 import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
@@ -45,13 +46,13 @@ const handleAddToCart = async () => {
     :disabled="!product || cartStore.isLoading"
     class="whitespace-nowrap rounded-3xl! w-full! flex items-center justify-center gap-2 py-3.5! px-6 font-semibold transition-all hover:opacity-95"
   >
-    <span>{{ t('menu.addToCart', { price: product?.price }) }}</span>
+    <span>{{ t('menu.addToCart', { price: formatPrice(product?.price) }) }}</span>
 
     <span
       v-if="product?.old_price && product.old_price > (product.price ?? 0)"
       class="line-through text-xs opacity-70 font-normal"
     >
-      {{ product.old_price }} ₽
+      {{ formatPrice(product.old_price) }}
     </span>
   </Button>
 </template>

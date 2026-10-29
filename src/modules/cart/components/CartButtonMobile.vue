@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import { formatPrice } from '@/utils/money'
 import { computed } from 'vue'
 import Button from 'primevue/button'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useOpenCart } from '@/modules/cart/composables/useOpenCart'
-import { intlLocale } from '@/i18n'
 
 const openCartModal = useOpenCart()
 const cartStore = useCartStore()
 
 const formattedTotal = computed(() => {
-  return `${cartStore.totalAmount.toLocaleString(intlLocale())} ₽`
+  return formatPrice(cartStore.totalAmount)
 })
 </script>
 

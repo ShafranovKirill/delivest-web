@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatPrice } from '@/utils/money'
 import type { CartItem } from '@/modules/cart/api/cart.service.ts'
 import { useCartStore } from '../stores/cart.store.ts'
 import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
@@ -67,9 +68,9 @@ function handleDecrease() {
             v-if="item.base_total > item.total_price"
             class="mr-1 text-xs font-normal text-muted-foreground line-through"
           >
-            {{ item.base_total }} ₽
+            {{ formatPrice(item.base_total) }}
           </span>
-          {{ item.gift ? t('common.free') : `${item.total_price} ₽` }}
+          {{ item.gift ? t('common.free') : formatPrice(item.total_price) }}
         </span>
       </div>
 

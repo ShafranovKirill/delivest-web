@@ -2,6 +2,7 @@ import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 import { keepPreviousData, useQuery } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { formatPrice } from '@/utils/money'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useFulfillmentStore } from '../stores/fulfillment.store'
 import { DeliveryService } from '../api/delivery.service'
@@ -57,10 +58,13 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
       case 'ok':
         if (!value.price) return t('delivery.free')
         return value.free_from
-          ? t('delivery.priceFreeFrom', { price: value.price, sum: value.free_from })
-          : t('delivery.price', { price: value.price })
+          ? t('delivery.priceFreeFrom', {
+              price: formatPrice(value.price),
+              sum: formatPrice(value.free_from),
+            })
+          : t('delivery.price', { price: formatPrice(value.price) })
       case 'below_minimum':
-        return t('delivery.minimum', { sum: value.min_order })
+        return t('delivery.minimum', { sum: formatPrice(value.min_order) })
       case 'outside_zones':
         return t('delivery.outside')
       default:

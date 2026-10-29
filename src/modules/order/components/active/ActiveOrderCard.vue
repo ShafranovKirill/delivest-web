@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { ActiveOrder } from '../../api/order.service'
-import {
-  formatPrice,
-  formatTime,
-  fulfillmentLabel,
-  statusIcon,
-  statusLabel,
-} from '../../utils/orderStatus'
+import { formatPrice } from '@/utils/money'
+import { formatTime, fulfillmentLabel, statusIcon, statusLabel } from '../../utils/orderStatus'
 import OrderStatusSteps from './OrderStatusSteps.vue'
 import { useI18n } from 'vue-i18n'
 
