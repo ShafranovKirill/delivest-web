@@ -331,6 +331,13 @@ export const en: typeof ru = {
     items: 'Order items',
     giftCount: 'Gift × {count}',
     promoCode: 'Promo code {code}',
+    courier: {
+      title: 'Courier',
+      coming: 'The courier is coming for the order',
+      onTheWay: 'The courier is on the way',
+      call: 'Call the courier',
+      track: 'Where is the courier',
+    },
     addressByOperator: 'The operator will confirm the address',
     atBranch: 'At the branch',
     steps: {

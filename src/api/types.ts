@@ -675,6 +675,21 @@ export interface components {
        */
       payment_method?: 'cash' | 'card_offline' | null
     }
+    /**
+     * OrderCourier
+     * @description Курьер, который взял заказ. Есть с назначения курьера до вручения
+     */
+    OrderCourier: {
+      /** @example Иван */
+      name: string | null
+      /**
+       * @description У курьера Яндекса подменный номер, добавочный после ,,
+       * @example +79001112233
+       */
+      phone: string | null
+      /** @description Ссылка отслеживания Яндекс Доставки */
+      tracking_url: string | null
+    } | null
     /** OrderItemResponse */
     OrderItemResponse: {
       /**
@@ -1451,6 +1466,7 @@ export interface components {
       comment?: string | null
       /** Format: date_time */
       cook_by?: string | null
+      courier: components['schemas']['OrderCourier']
       /**
        * @description Стоимость доставки, входит в total_amount
        * @example 200

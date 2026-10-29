@@ -329,6 +329,13 @@ export const ru = {
     items: 'Состав заказа',
     giftCount: 'Подарок × {count}',
     promoCode: 'Промокод {code}',
+    courier: {
+      title: 'Курьер',
+      coming: 'Курьер едет за заказом',
+      onTheWay: 'Курьер везёт заказ',
+      call: 'Позвонить курьеру',
+      track: 'Где курьер',
+    },
     addressByOperator: 'Адрес уточнит оператор',
     atBranch: 'В филиале',
     steps: {

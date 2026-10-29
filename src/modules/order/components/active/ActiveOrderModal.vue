@@ -7,6 +7,7 @@ import { formatPrice, formatTime, fulfillmentLabel, paymentLabel } from '../../u
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import OrderStatusSteps from './OrderStatusSteps.vue'
+import OrderCourierCard from './OrderCourierCard.vue'
 import OrderPushPrompt from '@/modules/pwa/components/OrderPushPrompt.vue'
 import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
 import { useI18n } from 'vue-i18n'
@@ -49,6 +50,12 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
       <SurfaceCard>
         <OrderStatusSteps :order="order" detailed />
       </SurfaceCard>
+
+      <OrderCourierCard
+        v-if="!repeatable && order.courier"
+        :courier="order.courier"
+        :status="order.status"
+      />
 
       <OrderPushPrompt v-if="!repeatable" :order-id="order.id" />
 

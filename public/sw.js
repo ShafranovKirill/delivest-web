@@ -20,6 +20,11 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close()
   const url = new URL(event.notification.data?.url || '/', self.location.origin).href
 
+  if (!url.startsWith(self.location.origin)) {
+    event.waitUntil(self.clients.openWindow(url))
+    return
+  }
+
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
       const open = windows.find((client) => client.url.startsWith(self.location.origin))
