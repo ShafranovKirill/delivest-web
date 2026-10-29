@@ -694,6 +694,7 @@ export interface components {
       base_price: number
       /** @example false */
       gift: boolean
+      modifiers?: components['schemas']['ItemModifier'][]
       /**
        * @description Цена за единицу с учётом скидок
        * @example 53100
@@ -743,6 +744,31 @@ export interface components {
        * @enum {string}
        */
       measure_unit?: 'g' | 'ml'
+      /** @description Группы модификаторов. `min`/`max` — сколько выбрать в группе, `is_size` — размер (переключатель) */
+      modifier_groups?: {
+        /** Format: uuid */
+        id: string
+        is_size: boolean
+        /** @example 1 */
+        max: number
+        /** @example 1 */
+        min: number
+        modifiers: {
+          /** Format: uuid */
+          id: string
+          is_default: boolean
+          /** @example 1 */
+          max_quantity: number
+          /** @example 35 см */
+          name: string
+          /** @example 20000 */
+          price: number
+          stopped: boolean
+          weight?: number | null
+        }[]
+        /** @example Размер */
+        name: string
+      }[]
       /** @example Пипперони */
       name?: string
       /**
@@ -797,6 +823,22 @@ export interface components {
     BranchListResponse: {
       data: components['schemas']['Branch'][]
     }
+    /** ItemModifier */
+    ItemModifier: {
+      /** @example Размер */
+      group_name?: string | null
+      /** Format: uuid */
+      id?: string | null
+      /** @example 35 см */
+      name: string
+      /**
+       * @description Цена за единицу, копейки
+       * @example 20000
+       */
+      price: number
+      /** @example 1 */
+      quantity: number
+    }
     /** GeoAddress */
     GeoAddress: {
       /** @example Тюмень */
@@ -844,8 +886,9 @@ export interface components {
       gift: boolean
       /** @example https://example.com/images/pizza.jpg */
       image_url?: string | null
-      /** @description Уникальный ключ строки: подарок и платный товар — разные строки */
+      /** @description Уникальный ключ строки: подарок, платный товар и товар с другими модификаторами — разные строки. Им же удаляется строка */
       key: string
+      modifiers?: components['schemas']['ItemModifier'][]
       /** @example Пицца Маргарита */
       name: string
       /**
@@ -1036,6 +1079,13 @@ export interface components {
         total_amount: number
       }
     }
+    /** ModifierChoice */
+    ModifierChoice: {
+      /** Format: uuid */
+      id: string
+      /** @default 1 */
+      quantity: number
+    }
     /**
      * PromoHint
      * @description Автоматическая акция, которая сработает при выполнении условий.
@@ -1131,6 +1181,13 @@ export interface components {
     /** BranchResponse */
     BranchResponse: {
       data: components['schemas']['Branch']
+    }
+    /** AddItemRequest */
+    AddItemRequest: {
+      /** @description Выбранные модификаторы. Пусто — модификаторы по умолчанию. Тот же товар с другими модификаторами — отдельная строка */
+      modifiers?: components['schemas']['ModifierChoice'][] | null
+      /** @default 1 */
+      quantity: number
     }
     /** FranchiseResponse */
     FranchiseResponse: {
@@ -2173,7 +2230,12 @@ export interface operations {
       }
       cookie?: never
     }
-    requestBody?: never
+    /** @description Количество и модификаторы */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['AddItemRequest']
+      }
+    }
     responses: {
       /** @description Обновленная корзина */
       200: {
@@ -2214,7 +2276,7 @@ export interface operations {
       path: {
         /** @description UUID корзины */
         cart_id: string
-        /** @description UUID товара */
+        /** @description UUID товара или `key` строки корзины */
         product_id: string
       }
       cookie?: never

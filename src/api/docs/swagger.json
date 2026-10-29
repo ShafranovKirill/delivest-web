@@ -141,6 +141,12 @@
             "example": false,
             "type": "boolean"
           },
+          "modifiers": {
+            "items": {
+              "$ref": "#/components/schemas/ItemModifier"
+            },
+            "type": "array"
+          },
           "price": {
             "description": "Цена за единицу с учётом скидок",
             "example": 53100,
@@ -212,6 +218,70 @@
             "enum": ["g", "ml"],
             "example": "g",
             "type": "string"
+          },
+          "modifier_groups": {
+            "description": "Группы модификаторов. `min`/`max` — сколько выбрать в группе, `is_size` — размер (переключатель)",
+            "items": {
+              "properties": {
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "is_size": {
+                  "type": "boolean"
+                },
+                "max": {
+                  "example": 1,
+                  "type": "integer"
+                },
+                "min": {
+                  "example": 1,
+                  "type": "integer"
+                },
+                "modifiers": {
+                  "items": {
+                    "properties": {
+                      "id": {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "is_default": {
+                        "type": "boolean"
+                      },
+                      "max_quantity": {
+                        "example": 1,
+                        "type": "integer"
+                      },
+                      "name": {
+                        "example": "35 см",
+                        "type": "string"
+                      },
+                      "price": {
+                        "example": 20000,
+                        "type": "integer"
+                      },
+                      "stopped": {
+                        "type": "boolean"
+                      },
+                      "weight": {
+                        "nullable": true,
+                        "type": "integer"
+                      }
+                    },
+                    "required": ["id", "name", "price", "max_quantity", "is_default", "stopped"],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "name": {
+                  "example": "Размер",
+                  "type": "string"
+                }
+              },
+              "required": ["id", "name", "min", "max", "is_size", "modifiers"],
+              "type": "object"
+            },
+            "type": "array"
           },
           "name": {
             "example": "Пипперони",
@@ -300,6 +370,36 @@
         },
         "required": ["data"],
         "title": "BranchListResponse",
+        "type": "object"
+      },
+      "ItemModifier": {
+        "properties": {
+          "group_name": {
+            "example": "Размер",
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "example": "35 см",
+            "type": "string"
+          },
+          "price": {
+            "description": "Цена за единицу, копейки",
+            "example": 20000,
+            "type": "integer"
+          },
+          "quantity": {
+            "example": 1,
+            "type": "integer"
+          }
+        },
+        "required": ["name", "price", "quantity"],
+        "title": "ItemModifier",
         "type": "object"
       },
       "GeoAddress": {
@@ -413,8 +513,14 @@
             "type": "string"
           },
           "key": {
-            "description": "Уникальный ключ строки: подарок и платный товар — разные строки",
+            "description": "Уникальный ключ строки: подарок, платный товар и товар с другими модификаторами — разные строки. Им же удаляется строка",
             "type": "string"
+          },
+          "modifiers": {
+            "items": {
+              "$ref": "#/components/schemas/ItemModifier"
+            },
+            "type": "array"
           },
           "name": {
             "example": "Пицца Маргарита",
@@ -827,6 +933,22 @@
         "title": "OrderResponse",
         "type": "object"
       },
+      "ModifierChoice": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quantity": {
+            "default": 1,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": ["id"],
+        "title": "ModifierChoice",
+        "type": "object"
+      },
       "PromoHint": {
         "description": "Автоматическая акция, которая сработает при выполнении условий.",
         "properties": {
@@ -1011,6 +1133,25 @@
         },
         "required": ["data"],
         "title": "BranchResponse",
+        "type": "object"
+      },
+      "AddItemRequest": {
+        "properties": {
+          "modifiers": {
+            "description": "Выбранные модификаторы. Пусто — модификаторы по умолчанию. Тот же товар с другими модификаторами — отдельная строка",
+            "items": {
+              "$ref": "#/components/schemas/ModifierChoice"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "quantity": {
+            "default": 1,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "title": "AddItemRequest",
         "type": "object"
       },
       "FranchiseResponse": {
@@ -2701,12 +2842,11 @@
             }
           },
           {
-            "description": "UUID товара",
+            "description": "UUID товара или `key` строки корзины",
             "in": "path",
             "name": "product_id",
             "required": true,
             "schema": {
-              "format": "uuid",
               "type": "string"
             }
           },
@@ -2772,6 +2912,17 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddItemRequest"
+              }
+            }
+          },
+          "description": "Количество и модификаторы",
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
