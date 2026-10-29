@@ -10,11 +10,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store.ts'
 import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store.ts'
 import { useI18n } from 'vue-i18n'
+import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
 
 const cartStore = useCartStore()
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
+const delivery = useDeliveryQuote()
 
 const desktopModalStore = useDesktopModalStore()
 const mobileModalStore = useMobileModalStore()
@@ -104,6 +106,12 @@ function goToCatalog() {
       <div class="pt-3 pb-[calc(env(safe-area-inset-bottom))] bg-white z-20">
         <p v-if="cartStore.hasStopped" class="mb-2 text-center text-sm text-red-500">
           {{ t('cart.removeSoldOut') }}
+        </p>
+        <p
+          v-else-if="delivery.blocked.value"
+          class="mb-2 text-center text-sm font-medium text-red-500"
+        >
+          {{ delivery.hint.value }}
         </p>
         <button
           type="button"

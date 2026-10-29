@@ -6,7 +6,7 @@ import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQ
 
 const cartStore = useCartStore()
 const { t } = useI18n()
-const { price: deliveryPrice } = useDeliveryQuote()
+const { quote, price: deliveryPrice } = useDeliveryQuote()
 
 const total = computed(() => cartStore.totalAmount + (deliveryPrice.value ?? 0))
 </script>
@@ -28,7 +28,12 @@ const total = computed(() => cartStore.totalAmount + (deliveryPrice.value ?? 0))
       </div>
     </template>
     <div v-if="deliveryPrice !== null" class="flex justify-between text-sm text-gray-500">
-      <span>{{ t('delivery.line') }}</span>
+      <span>
+        {{ t('delivery.line') }}
+        <span v-if="deliveryPrice && quote?.free_from">
+          · {{ t('delivery.freeFrom', { sum: quote.free_from }) }}
+        </span>
+      </span>
       <span class="tabular-nums">
         {{ deliveryPrice ? `${deliveryPrice} ₽` : t('common.free') }}
       </span>

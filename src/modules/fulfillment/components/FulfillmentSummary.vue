@@ -11,6 +11,8 @@ const { t } = useI18n()
 const branchStore = useBranchStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
+const props = defineProps<{ withQuote?: boolean }>()
+
 const { hint, blocked } = useDeliveryQuote()
 
 const summary = computed(() => {
@@ -42,7 +44,7 @@ const summary = computed(() => {
       </span>
       <span v-if="summary?.text" class="block text-gray-500">{{ summary.text }}</span>
       <span
-        v-if="fulfillmentStore.current?.type === 'delivery' && hint"
+        v-if="props.withQuote && fulfillmentStore.current?.type === 'delivery' && hint"
         class="block font-medium"
         :class="blocked ? 'text-red-500' : 'text-gray-700'"
       >

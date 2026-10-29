@@ -151,6 +151,7 @@ export const ru = {
     outside: 'Извините, сюда не доставляем',
     noPoint: 'Уточните адрес на карте',
     line: 'Доставка',
+    freeFrom: 'бесплатно от {sum} ₽',
   },
   fulfillment: {
     prompt: {

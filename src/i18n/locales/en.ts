@@ -153,6 +153,7 @@ export const en: typeof ru = {
     outside: 'Sorry, we do not deliver here',
     noPoint: 'Pick the address on the map',
     line: 'Delivery',
+    freeFrom: 'free from {sum} ₽',
   },
   fulfillment: {
     prompt: {

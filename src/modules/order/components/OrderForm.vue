@@ -147,7 +147,7 @@ function handleSubmit() {
     </SurfaceCard>
 
     <SurfaceCard icon="pi-send" :title="t('order.form.fulfillment')">
-      <FulfillmentSummary />
+      <FulfillmentSummary with-quote />
 
       <OptionChips
         v-if="fulfillmentStore.current?.type === 'pickup'"
