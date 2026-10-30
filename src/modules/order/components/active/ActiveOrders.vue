@@ -21,7 +21,7 @@ const selected = computed<ActiveOrder | null>(
     <h2 class="mb-2 text-lg font-extrabold text-gray-950">{{ t('order.active') }}</h2>
 
     <div
-      class="flex snap-x gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3"
+      class="flex snap-x gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3"
     >
       <ActiveOrderCard
         v-for="order in orders"
