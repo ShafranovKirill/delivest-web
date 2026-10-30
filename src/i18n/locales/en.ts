@@ -289,6 +289,9 @@ export const en: typeof ru = {
     loadFailedHint: 'Try refreshing the page or retry later.',
   },
   cart: {
+    removeShort: 'Remove',
+    decrease: 'Decrease',
+    increase: 'Increase',
     headline: {
       one: '{count} item, {sum}',
       few: '{count} items, {sum}',

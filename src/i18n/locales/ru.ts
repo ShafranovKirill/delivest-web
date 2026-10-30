@@ -287,6 +287,9 @@ export const ru = {
     loadFailedHint: 'Попробуйте обновить страницу или повторить запрос позже.',
   },
   cart: {
+    removeShort: 'Убрать',
+    decrease: 'Убавить',
+    increase: 'Добавить',
     headline: {
       one: '{count} товар на сумму {sum}',
       few: '{count} товара на сумму {sum}',
