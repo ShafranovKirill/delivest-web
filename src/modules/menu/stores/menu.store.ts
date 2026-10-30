@@ -7,6 +7,7 @@ export const useMenuStore = defineStore('menu', {
     isManualScroll: false,
     isProductModalOpen: false,
     activeProduct: null as MenuProduct | null,
+    returnToCart: false,
   }),
 
   getters: {
@@ -22,6 +23,7 @@ export const useMenuStore = defineStore('menu', {
       this.isManualScroll = false
       this.isProductModalOpen = false
       this.activeProduct = null
+      this.returnToCart = false
     },
 
     setActiveCategory(id: string | undefined) {

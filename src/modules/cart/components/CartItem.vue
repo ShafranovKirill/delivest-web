@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store.ts'
 import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store.ts'
+import { useMenuStore } from '@/modules/menu/stores/menu.store'
 import { PRODUCT_QUERY_KEY } from '@/modules/menu/composables/useProductRoute'
 
 const props = defineProps<{
@@ -17,6 +18,7 @@ const props = defineProps<{
 const cartStore = useCartStore()
 const { t } = useI18n()
 const router = useRouter()
+const menuStore = useMenuStore()
 const branchStore = useBranchStore()
 const desktopModalStore = useDesktopModalStore()
 const mobileModalStore = useMobileModalStore()
@@ -27,6 +29,7 @@ function handleEdit() {
 
   desktopModalStore.closeModal()
   mobileModalStore.closeModal()
+  menuStore.returnToCart = true
   router.push({
     name: 'menu',
     params: { slug },
