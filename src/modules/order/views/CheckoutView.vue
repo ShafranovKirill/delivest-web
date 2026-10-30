@@ -80,7 +80,11 @@ onUnmounted(() => {
       v-else-if="step === 2"
       class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-3 sm:gap-4 items-start"
     >
-      <OrderForm :isLoading="orderStore.isLoading" @submit="orderStore.createOrder" />
+      <OrderForm
+        :isLoading="orderStore.isLoading"
+        @submit="orderStore.createOrder"
+        @back="orderStore.handleStepChange(1)"
+      />
       <aside class="hidden lg:block sticky top-28">
         <OrderSummary compact />
       </aside>

@@ -43,6 +43,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'submit', form: OrderFormValues): void
+  (e: 'back'): void
 }>()
 
 const toast = useToast()
@@ -333,15 +334,26 @@ function handleSubmit() {
     <p v-if="deliveryBlocked" class="text-center text-sm font-medium text-red-500">
       {{ delivery.hint.value }}
     </p>
-    <Button
-      type="submit"
-      :label="t('order.form.submit')"
-      :disabled="deliveryBlocked"
-      icon="pi pi-check"
-      iconPos="right"
-      :loading="isLoading"
-      class="w-full h-14 rounded-full! text-base font-semibold"
-    />
+    <div class="flex items-center gap-3">
+      <Button
+        type="button"
+        :label="t('order.form.backToCart')"
+        icon="pi pi-angle-left"
+        variant="text"
+        severity="secondary"
+        class="hidden shrink-0 md:inline-flex h-14 rounded-full! text-base font-semibold"
+        @click="emit('back')"
+      />
+      <Button
+        type="submit"
+        :label="t('order.form.submit')"
+        :disabled="deliveryBlocked"
+        icon="pi pi-check"
+        iconPos="right"
+        :loading="isLoading"
+        class="min-w-0 flex-1 h-14 rounded-full! text-base font-semibold"
+      />
+    </div>
 
     <OrderConsent />
   </form>

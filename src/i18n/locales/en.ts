@@ -2,6 +2,7 @@ import type { ru } from './ru'
 
 export const en: typeof ru = {
   common: {
+    back: 'Back',
     add: 'Add',
     call: 'Call',
     callUs: 'Call us',
@@ -404,6 +405,7 @@ export const en: typeof ru = {
       failed: 'Could not open the payment page, please try again',
     },
     form: {
+      backToCart: 'Back to cart',
       closed: {
         today: 'The place opens today at {time}. Place a scheduled order',
         tomorrow: 'The place opens tomorrow at {time}. Place a scheduled order',

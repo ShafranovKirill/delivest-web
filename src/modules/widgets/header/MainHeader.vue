@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import Toolbar from 'primevue/toolbar'
@@ -8,6 +9,7 @@ import { useSidebarStore } from '../sidebar/sidebar.store'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useOrderStore } from '@/modules/order/stores/order.store'
 import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
 import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
 import UserButton from '@/modules/auth/components/UserButton.vue'
@@ -21,7 +23,21 @@ const viewportStore = useViewportStore()
 const branchStore = useBranchStore()
 const modalStore = useMobileModalStore()
 const franchiseStore = useFranchiseStore()
+const orderStore = useOrderStore()
 const { t } = useI18n()
+
+const showStepBack = computed(
+  () =>
+    viewportStore.isMobile &&
+    router.currentRoute.value.name === 'checkout' &&
+    !orderStore.createdOrderId,
+)
+
+function stepBack() {
+  if (Number(orderStore.activeStep) > 1)
+    orderStore.handleStepChange(Number(orderStore.activeStep) - 1)
+  else router.back()
+}
 
 const navigateToMenu = () => {
   sidebarStore.isSidebarVisible = false
@@ -54,6 +70,15 @@ const navigateToMenu = () => {
 
             <div class="h-6 w-px bg-gray-400 shrink-0" />
           </template>
+
+          <Button
+            v-if="showStepBack && !modalStore.isOpen"
+            icon="pi pi-arrow-left text-2xl!"
+            variant="text"
+            class="p-1! -ml-1 text-gray-700 hover:text-black shrink-0"
+            :aria-label="t('common.back')"
+            @click="stepBack"
+          />
 
           <button
             type="button"
