@@ -49,7 +49,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <PageShell width="default">
+  <PageShell width="wide">
     <Message
       v-if="orderStore.errorMessage"
       severity="error"
@@ -76,7 +76,7 @@ onUnmounted(() => {
 
     <div
       v-else-if="step !== 3"
-      class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-3 sm:gap-4 items-start"
+      class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-3 sm:gap-4 items-start"
     >
       <OrderForm
         :isLoading="orderStore.isLoading"
