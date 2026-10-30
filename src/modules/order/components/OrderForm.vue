@@ -310,7 +310,7 @@ function handleSubmit() {
       </div>
     </Dialog>
 
-    <div class="flex flex-col gap-1.5 text-sm text-gray-600">
+    <div class="flex flex-col gap-1.5 text-sm text-gray-600 lg:hidden">
       <div class="flex justify-between">
         <span>{{ goodsLabel }}</span>
         <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>

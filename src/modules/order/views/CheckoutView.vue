@@ -8,7 +8,7 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useOrderStore } from '../stores/order.store'
 import { useOpenCart } from '@/modules/cart/composables/useOpenCart'
 import OrderForm from '../components/OrderForm.vue'
-import OrderSummary from '../components/OrderSummary.vue'
+import OrderComposition from '../components/OrderComposition.vue'
 import OrderSuccess from '../components/OrderSuccess.vue'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
@@ -84,7 +84,7 @@ onUnmounted(() => {
         @back="openCart"
       />
       <aside class="hidden lg:block sticky top-28">
-        <OrderSummary compact />
+        <OrderComposition />
       </aside>
     </div>
 

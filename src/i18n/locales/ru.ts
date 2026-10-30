@@ -355,6 +355,7 @@ export const ru = {
     },
   },
   order: {
+    composition: 'Состав заказа',
     cancel: { action: 'Отменить заказ', confirm: 'Да, отменить' },
     checkout: 'Оформление заказа',
     summary: 'Ваш заказ',

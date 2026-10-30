@@ -357,6 +357,7 @@ export const en: typeof ru = {
     },
   },
   order: {
+    composition: 'Order contents',
     cancel: { action: 'Cancel the order', confirm: 'Yes, cancel' },
     checkout: 'Checkout',
     summary: 'Your order',
