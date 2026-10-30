@@ -100,6 +100,15 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  async function replaceItem(key: string, modifiers: ModifierChoice[]): Promise<Cart> {
+    try {
+      return await withCart((cartId) => CartService.replaceItem(cartId, key, modifiers))
+    } catch (error) {
+      console.error(`[CartStore] Failed to replace item ${key}:`, error)
+      throw error
+    }
+  }
+
   async function removeItem(key: string): Promise<Cart> {
     if (!cart.value?.id) return fetchCart()
 
@@ -174,6 +183,7 @@ export const useCartStore = defineStore('cart', () => {
     fetchCart,
     initBranchSync,
     addItem,
+    replaceItem,
     removeItem,
     removeAllOfItem,
     clearCart,

@@ -14,6 +14,7 @@ const openCart = useOpenCart()
 watch(
   () => menuStore.isProductModalOpen,
   async (open, wasOpen) => {
+    if (wasOpen && !open) menuStore.editingKey = null
     if (wasOpen && !open && menuStore.returnToCart) {
       menuStore.returnToCart = false
       await nextTick()

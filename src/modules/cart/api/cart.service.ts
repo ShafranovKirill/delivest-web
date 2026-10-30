@@ -38,6 +38,13 @@ export const CartService = {
     return data.data
   },
 
+  async replaceItem(cartId: string, key: string, modifiers: ModifierChoice[]): Promise<Cart> {
+    const { data } = await api.put<CartResponse>(`/client/cart/${cartId}/items/${key}`, {
+      modifiers,
+    })
+    return data.data
+  },
+
   async removeItem(cartId: string, key: string, all = false): Promise<Cart> {
     const { data } = await api.delete<CartResponse>(`/client/cart/${cartId}/items/${key}`, {
       params: all ? { all: true } : undefined,

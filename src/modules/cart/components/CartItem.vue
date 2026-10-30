@@ -30,6 +30,7 @@ function handleEdit() {
   desktopModalStore.closeModal()
   mobileModalStore.closeModal()
   menuStore.returnToCart = true
+  menuStore.editingKey = props.item.key
   router.push({
     name: 'menu',
     params: { slug },

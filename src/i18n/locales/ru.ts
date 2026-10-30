@@ -271,7 +271,7 @@ export const ru = {
     },
   },
   menu: {
-    inCart: 'В корзине',
+    saveChanges: 'Сохранить · {price}',
     noModifiers: 'Без добавок',
     nutrition: {
       per100: 'На 100 г',
