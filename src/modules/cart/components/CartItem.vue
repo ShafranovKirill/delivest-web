@@ -113,7 +113,7 @@ function handleIncrease() {
           <div class="flex items-center gap-2">
             <button
               type="button"
-              class="h-10 rounded-full bg-white px-4 text-sm font-semibold text-gray-700 shadow-xs transition-colors hover:bg-gray-100 cursor-pointer"
+              class="px-2 text-sm font-semibold text-primary transition-opacity hover:opacity-70 cursor-pointer"
               @click="handleEdit"
             >
               {{ t('cart.edit') }}
