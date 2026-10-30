@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { useEventListener } from '@vueuse/core'
+import { useMenuStore } from '../stores/menu.store'
 import { useMenuQuery } from '../composables/useMenuQuery'
 import { useProductRoute } from '../composables/useProductRoute'
 
@@ -30,6 +32,15 @@ const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
 
 const menu = computed(() => {
   return menuData.value?.filter((category) => category.products && category.products.length > 0)
+})
+
+const menuStore = useMenuStore()
+
+useEventListener(window, 'scroll', () => {
+  const first = menu.value?.[0]
+  if (!first || menuStore.isManualScroll) return
+  const top = document.getElementById(`category-${first.id}`)?.getBoundingClientRect().top
+  if (top !== undefined && top > window.innerHeight * 0.2) menuStore.setActiveCategory(first.id)
 })
 
 useProductRoute(menuData)
