@@ -18,16 +18,16 @@ const selected = computed<ActiveOrder | null>(
 
 <template>
   <section v-if="orders?.length" class="w-full max-w-7xl mx-auto px-4 pb-4">
-    <h2 class="mb-2 px-2 text-lg font-extrabold text-gray-950">{{ t('order.active') }}</h2>
+    <h2 class="mb-2 text-lg font-extrabold text-gray-950">{{ t('order.active') }}</h2>
 
     <div
-      class="flex snap-x gap-3 overflow-x-auto px-2 pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3"
+      class="flex snap-x gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3"
     >
       <ActiveOrderCard
         v-for="order in orders"
         :key="order.id"
         :order="order"
-        class="w-[min(82vw,320px)] shrink-0 snap-start sm:w-auto"
+        :class="orders.length > 1 ? 'w-[min(82vw,320px)] shrink-0 snap-start sm:w-auto' : 'w-full'"
         @open="selectedId = $event.id"
       />
     </div>

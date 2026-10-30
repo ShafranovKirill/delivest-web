@@ -34,10 +34,10 @@ const summary = computed(() => {
 </script>
 
 <template>
-  <div
-    class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white px-4 py-3 text-sm"
-  >
-    <i class="pi text-primary" :class="summary?.icon ?? 'pi-map-marker'" />
+  <div class="flex items-center gap-3 rounded-3xl border border-gray-100 bg-white p-3 pr-4 text-sm">
+    <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary">
+      <i class="pi text-lg" :class="summary?.icon ?? 'pi-map-marker'" />
+    </span>
     <span class="min-w-0 flex-1">
       <span class="block font-semibold text-gray-900">
         {{ summary?.title ?? t('fulfillment.summary.empty') }}
