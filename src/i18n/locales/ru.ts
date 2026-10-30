@@ -198,6 +198,10 @@ export const ru = {
       selectFailed: 'Не удалось сменить филиал. Попробуйте ещё раз',
     },
     closed: {
+      until: 'Закрыто до {time}',
+      untilTomorrow: 'Закрыто до завтра, {time}',
+      untilDay: 'Закрыто до {day}, {time}',
+      untilUnknown: 'Закрыто',
       title: 'Сейчас закрыто',
       today: 'Откроемся сегодня в {time}',
       tomorrow: 'Откроемся завтра в {time}',

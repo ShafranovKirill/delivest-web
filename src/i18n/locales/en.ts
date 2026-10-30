@@ -200,6 +200,10 @@ export const en: typeof ru = {
       selectFailed: 'Failed to change the branch. Please try again',
     },
     closed: {
+      until: 'Closed until {time}',
+      untilTomorrow: 'Closed until tomorrow, {time}',
+      untilDay: 'Closed until {day}, {time}',
+      untilUnknown: 'Closed',
       title: 'Closed now',
       today: 'We open today at {time}',
       tomorrow: 'We open tomorrow at {time}',

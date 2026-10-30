@@ -29,7 +29,7 @@ function openBranchModal() {
         <span>·</span>
       </template>
       <span>4.78</span>
-      <i class="pi pi-star-fill text-amber-400 text-[10px]" />
+      <i class="pi pi-star-fill text-amber-400 text-[10px] relative -top-[0.5px]" />
     </template>
 
     <template #trailing>
