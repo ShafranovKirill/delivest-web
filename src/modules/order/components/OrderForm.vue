@@ -8,6 +8,7 @@ import Checkbox from 'primevue/checkbox'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 import OptionChips from '@/modules/order/components/OptionChips.vue'
+import { captionClass, sectionClass } from '@/modules/order/utils/formLayout'
 import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
 import Dialog from 'primevue/dialog'
 import { useBranchOpening } from '@/modules/branch/composables/useBranchOpening'
@@ -219,18 +220,18 @@ function handleSubmit() {
   <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
     <h2 class="text-2xl font-extrabold text-gray-950">{{ headline }}</h2>
 
-    <div>
-      <p class="mb-2 text-sm font-semibold text-gray-500">{{ t('order.form.phoneCaption') }}</p>
+    <div :class="sectionClass">
+      <p :class="captionClass">{{ t('order.form.phoneCaption') }}</p>
       <PhoneInput
         v-model="form.customer_phone"
         required
         :disabled="authStore.isAuthenticated"
-        class="w-full"
+        class="w-full lg:max-w-sm"
       />
     </div>
 
-    <div>
-      <p class="mb-2 text-sm font-semibold text-gray-500">{{ addressCaption }}</p>
+    <div :class="sectionClass">
+      <p :class="captionClass">{{ addressCaption }}</p>
       <OrderPickRow :title="addressRow.title" :text="addressRow.text" @click="openAddressPicker" />
 
       <p v-if="closedNotice" class="mt-2 text-sm font-medium text-amber-700">
@@ -264,13 +265,15 @@ function handleSubmit() {
 
     <OrderTimeSelect v-model="form.cook_by" :fulfillment="fulfillmentType" />
 
-    <div>
-      <p class="mb-2 text-sm font-semibold text-gray-500">{{ t('order.form.paymentCaption') }}</p>
+    <div :class="sectionClass">
+      <p :class="captionClass">{{ t('order.form.paymentCaption') }}</p>
       <OrderPickRow :title="paymentLabel" @click="paymentOpen = true" />
     </div>
 
-    <label class="flex flex-col gap-2">
-      <span class="text-sm font-semibold text-gray-500">{{ t('order.form.comment') }}</span>
+    <label
+      class="flex flex-col gap-2 lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-x-6 lg:gap-y-0"
+    >
+      <span :class="captionClass">{{ t('order.form.comment') }}</span>
       <Textarea
         v-model="form.comment"
         rows="1"

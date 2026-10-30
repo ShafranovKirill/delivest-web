@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue'
 import Dialog from 'primevue/dialog'
+import { captionClass, sectionClass } from '../utils/formLayout'
 import { useOrderTime, type Fulfillment } from '../composables/useOrderTime'
 import { useI18n } from 'vue-i18n'
 
@@ -82,8 +83,8 @@ function chipClass(active: boolean) {
 </script>
 
 <template>
-  <div>
-    <p class="mb-2 text-sm font-semibold text-gray-500">{{ caption }}</p>
+  <div :class="sectionClass">
+    <p :class="captionClass">{{ caption }}</p>
 
     <div
       v-if="days.length"
