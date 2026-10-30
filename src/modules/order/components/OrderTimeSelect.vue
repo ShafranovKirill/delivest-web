@@ -76,8 +76,8 @@ function pick(value: string) {
 
 function chipClass(active: boolean) {
   return active
-    ? 'bg-primary-fill text-white border-primary-fill shadow-sm'
-    : 'bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary'
+    ? 'bg-white text-gray-950 border-primary-fill'
+    : 'bg-white text-gray-700 border-gray-200 hover:border-primary'
 }
 </script>
 
@@ -92,7 +92,7 @@ function chipClass(active: boolean) {
       <button
         v-if="asapAvailable"
         type="button"
-        class="flex shrink-0 snap-start flex-col items-center rounded-2xl border px-4 py-2.5 text-sm font-semibold leading-tight transition-colors cursor-pointer"
+        class="flex shrink-0 snap-start flex-col items-center rounded-2xl border-2 px-4 py-2.5 text-sm font-semibold leading-tight transition-colors cursor-pointer"
         :class="chipClass(modelValue === null)"
         @click="modelValue = null"
       >
@@ -103,7 +103,7 @@ function chipClass(active: boolean) {
         v-for="slot in suggestions"
         :key="slot.value"
         type="button"
-        class="shrink-0 snap-start rounded-2xl border px-4 py-3 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
+        class="shrink-0 snap-start rounded-2xl border-2 px-4 py-3 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
         :class="chipClass(modelValue === slot.value)"
         @click="modelValue = slot.value"
       >
@@ -111,7 +111,7 @@ function chipClass(active: boolean) {
       </button>
       <button
         type="button"
-        class="shrink-0 snap-start whitespace-nowrap rounded-2xl border px-4 py-3 text-sm font-semibold transition-colors cursor-pointer"
+        class="shrink-0 snap-start whitespace-nowrap rounded-2xl border-2 px-4 py-3 text-sm font-semibold transition-colors cursor-pointer"
         :class="chipClass(customSelected)"
         @click="openDialog"
       >
@@ -122,7 +122,6 @@ function chipClass(active: boolean) {
 
     <p v-if="days.length" class="mt-2 text-xs text-gray-500 flex flex-wrap gap-x-3 gap-y-1">
       <span v-if="workingUntil">{{ t('order.timeSelect.openUntil', { time: workingUntil }) }}</span>
-      <span v-else class="text-amber-600">{{ t('order.timeSelect.closedNow') }}</span>
       <span>{{ leadHint }}</span>
     </p>
 
@@ -143,7 +142,7 @@ function chipClass(active: boolean) {
           v-for="day in days"
           :key="day.key"
           type="button"
-          class="shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors cursor-pointer"
+          class="shrink-0 rounded-full border-2 px-4 py-1.5 text-sm font-semibold transition-colors cursor-pointer"
           :class="chipClass(visibleDay?.key === day.key)"
           @click="activeDay = day.key"
         >
@@ -159,7 +158,7 @@ function chipClass(active: boolean) {
           v-for="slot in visibleDay.slots"
           :key="slot.value"
           type="button"
-          class="flex items-center justify-between rounded-2xl border px-4 py-3 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
+          class="flex items-center justify-between rounded-2xl border-2 px-4 py-3 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
           :class="chipClass(modelValue === slot.value)"
           @click="pick(slot.value)"
         >

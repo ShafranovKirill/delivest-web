@@ -23,11 +23,11 @@ const model = defineModel<T>({ required: true })
       type="button"
       role="radio"
       :aria-checked="model === option.value"
-      class="flex items-center justify-center gap-2 rounded-2xl border px-3 py-3 text-sm font-semibold transition-colors cursor-pointer"
+      class="flex items-center justify-center gap-2 rounded-2xl border-2 px-3 py-3 text-sm font-semibold transition-colors cursor-pointer"
       :class="[
         model === option.value
-          ? 'bg-primary-fill text-white border-primary-fill shadow-sm'
-          : 'bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary',
+          ? 'bg-white text-gray-950 border-primary-fill'
+          : 'bg-white text-gray-700 border-gray-200 hover:border-primary',
         columns === 3 ? 'flex-col gap-1 px-2 sm:flex-row sm:gap-2 sm:px-3' : '',
       ]"
       @click="model = option.value"

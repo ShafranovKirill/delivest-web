@@ -404,6 +404,20 @@ export const en: typeof ru = {
       failed: 'Could not open the payment page, please try again',
     },
     form: {
+      closed: {
+        today: 'The place opens today at {time}. Place a scheduled order',
+        tomorrow: 'The place opens tomorrow at {time}. Place a scheduled order',
+        later: 'The place opens {day} at {time}. Place a scheduled order',
+      },
+      orderTotal: 'Order total',
+      goods: {
+        one: '{count} item',
+        few: '{count} items',
+        many: '{count} items',
+        other: '{count} items',
+        zero: '{count} items',
+        two: '{count} items',
+      },
       headlineDelivery: 'Delivery order',
       headlinePickup: 'Pickup order',
       headlineDineIn: 'Dine-in order',

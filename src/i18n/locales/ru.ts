@@ -402,6 +402,20 @@ export const ru = {
       failed: 'Не удалось открыть страницу оплаты, попробуйте ещё раз',
     },
     form: {
+      closed: {
+        today: 'Заведение откроется сегодня в {time}. Оформите отложенный заказ',
+        tomorrow: 'Заведение откроется завтра в {time}. Оформите отложенный заказ',
+        later: 'Заведение откроется {day} в {time}. Оформите отложенный заказ',
+      },
+      orderTotal: 'Сумма заказа',
+      goods: {
+        one: '{count} товар',
+        few: '{count} товара',
+        many: '{count} товаров',
+        other: '{count} товара',
+        zero: '{count} товаров',
+        two: '{count} товара',
+      },
       headlineDelivery: 'Заказ на доставку',
       headlinePickup: 'Заказ на самовывоз',
       headlineDineIn: 'Заказ в зале',

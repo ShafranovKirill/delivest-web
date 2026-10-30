@@ -10,6 +10,9 @@ import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 import OptionChips from '@/modules/order/components/OptionChips.vue'
 import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
 import Dialog from 'primevue/dialog'
+import { useBranchOpening } from '@/modules/branch/composables/useBranchOpening'
+import { addDays } from '@/modules/branch/utils/workWindow'
+import { intlLocale } from '@/i18n'
 import { formatAddress } from '@/modules/shared/utils/address'
 import type { DeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
 import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
@@ -123,6 +126,36 @@ function pickPayment(method: OrderFormValues['payment_method']) {
   paymentOpen.value = false
 }
 
+const { isOpen, opensAt, now } = useBranchOpening()
+
+const closedNotice = computed(() => {
+  const date = opensAt.value
+  if (isOpen.value || !date) return null
+
+  const time = date.toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' })
+  if (date.toDateString() === now.value.toDateString()) {
+    return t('order.form.closed.today', { time })
+  }
+  if (date.toDateString() === addDays(now.value, 1).toDateString()) {
+    return t('order.form.closed.tomorrow', { time })
+  }
+  const day = date.toLocaleDateString(intlLocale(), {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+  })
+  return t('order.form.closed.later', { day, time })
+})
+
+const goodsLabel = computed(() => {
+  const count = cartStore.totalQuantity
+  const rule = new Intl.PluralRules(intlLocale()).select(count)
+  return t(`order.form.goods.${rule}`, { count })
+})
+
+const deliveryFee = computed(() => (isDelivery.value ? delivery.price.value : null))
+const orderTotal = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
+
 const headline = computed(() => {
   if (fulfillmentType.value === 'delivery') return t('order.form.headlineDelivery')
   return fulfillmentType.value === 'dine_in'
@@ -153,27 +186,6 @@ function openAddressPicker() {
   flowStore.openPicker(fulfillmentStore.current?.type ?? 'delivery')
 }
 
-const BANKNOTES = [500, 1000, 2000, 5000]
-const changeOpen = ref(false)
-
-const changeOptions = computed(() =>
-  BANKNOTES.map((rubles) => rubles * 100).filter((kopecks) => kopecks > cartStore.totalAmount),
-)
-
-watch(
-  () => form.payment_method,
-  (method) => {
-    if (method !== 'cash') {
-      form.cash_given = null
-      changeOpen.value = false
-    }
-  },
-)
-
-function pickChange(kopecks: number | null) {
-  form.cash_given = form.cash_given === kopecks ? null : kopecks
-}
-
 function handleSubmit() {
   if (!form.customer_phone || form.customer_phone.length < 12) {
     toast.add({
@@ -194,7 +206,7 @@ function handleSubmit() {
 
   emit('submit', {
     ...form,
-    cash_given: form.payment_method === 'cash' ? form.cash_given : null,
+    cash_given: null,
     fulfillment_type: fulfillmentType.value,
     address: fulfillmentStore.deliveryAddress,
     call_operator_for_address: isDelivery.value && form.call_operator_for_address,
@@ -219,6 +231,10 @@ function handleSubmit() {
     <div>
       <p class="mb-2 text-sm font-semibold text-gray-500">{{ addressCaption }}</p>
       <OrderPickRow :title="addressRow.title" :text="addressRow.text" @click="openAddressPicker" />
+
+      <p v-if="closedNotice" class="mt-2 text-sm font-medium text-amber-700">
+        {{ closedNotice }}
+      </p>
 
       <p
         v-if="isDelivery && delivery.hint.value"
@@ -250,55 +266,14 @@ function handleSubmit() {
     <div>
       <p class="mb-2 text-sm font-semibold text-gray-500">{{ t('order.form.paymentCaption') }}</p>
       <OrderPickRow :title="paymentLabel" @click="paymentOpen = true" />
-
-      <div v-if="form.payment_method === 'cash' && changeOptions.length" class="mt-3">
-        <button
-          type="button"
-          class="text-sm font-medium text-primary cursor-pointer"
-          @click="changeOpen = !changeOpen"
-        >
-          {{
-            form.cash_given
-              ? t('order.form.changeFrom', { amount: formatPrice(form.cash_given) })
-              : t('order.form.changeAsk')
-          }}
-        </button>
-        <div v-if="changeOpen" class="mt-2 flex flex-wrap gap-2">
-          <button
-            v-for="kopecks in changeOptions"
-            :key="kopecks"
-            type="button"
-            class="rounded-full border px-3 py-1.5 text-sm font-semibold cursor-pointer"
-            :class="
-              form.cash_given === kopecks
-                ? 'border-primary-fill bg-primary-fill text-white'
-                : 'border-gray-200 bg-white text-gray-700'
-            "
-            @click="pickChange(kopecks)"
-          >
-            {{ formatPrice(kopecks) }}
-          </button>
-          <button
-            type="button"
-            class="rounded-full border px-3 py-1.5 text-sm font-semibold cursor-pointer"
-            :class="
-              form.cash_given === null
-                ? 'border-primary-fill bg-primary-fill text-white'
-                : 'border-gray-200 bg-white text-gray-700'
-            "
-            @click="form.cash_given = null"
-          >
-            {{ t('order.form.noChange') }}
-          </button>
-        </div>
-      </div>
     </div>
 
     <label class="flex flex-col gap-2">
       <span class="text-sm font-semibold text-gray-500">{{ t('order.form.comment') }}</span>
       <Textarea
         v-model="form.comment"
-        rows="3"
+        rows="1"
+        auto-resize
         :placeholder="t('order.form.commentPlaceholder')"
         class="w-full resize-none"
       />
@@ -320,10 +295,10 @@ function handleSubmit() {
           v-for="option in paymentOptions"
           :key="option.value"
           type="button"
-          class="flex items-center justify-between rounded-2xl border px-4 py-3.5 text-left font-semibold transition-colors cursor-pointer"
+          class="flex items-center justify-between rounded-2xl border-2 px-4 py-3.5 text-left font-semibold transition-colors cursor-pointer"
           :class="
             form.payment_method === option.value
-              ? 'border-primary-fill bg-primary-fill text-white'
+              ? 'border-primary-fill bg-white text-gray-950'
               : 'border-gray-200 bg-white text-gray-800 hover:border-primary'
           "
           @click="pickPayment(option.value)"
@@ -333,6 +308,27 @@ function handleSubmit() {
         </button>
       </div>
     </Dialog>
+
+    <div class="flex flex-col gap-1.5 text-sm text-gray-600">
+      <div class="flex justify-between">
+        <span>{{ goodsLabel }}</span>
+        <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
+      </div>
+      <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
+        <span>{{ t('cart.discount') }}</span>
+        <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
+      </div>
+      <div v-if="deliveryFee !== null" class="flex justify-between">
+        <span>{{ t('delivery.line') }}</span>
+        <span class="tabular-nums">
+          {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
+        </span>
+      </div>
+      <div class="flex justify-between text-lg font-extrabold text-gray-950">
+        <span>{{ t('order.form.orderTotal') }}</span>
+        <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>
+      </div>
+    </div>
 
     <p v-if="deliveryBlocked" class="text-center text-sm font-medium text-red-500">
       {{ delivery.hint.value }}

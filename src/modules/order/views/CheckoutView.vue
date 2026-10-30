@@ -20,23 +20,7 @@ const branchStore = useBranchStore()
 const orderStore = useOrderStore()
 const { t } = useI18n()
 
-const steps = computed(() => [
-  { value: 1, label: t('cart.title'), icon: 'pi-shopping-cart' },
-  { value: 2, label: t('order.steps.details'), icon: 'pi-user' },
-  { value: 3, label: t('order.steps.done'), icon: 'pi-check' },
-])
-
 const step = computed(() => Number(orderStore.activeStep))
-
-function canOpen(value: number) {
-  if (orderStore.createdOrderId) return value === 3
-  if (value === 2) return !cartStore.isEmpty
-  return value === 1
-}
-
-function goTo(value: number) {
-  if (canOpen(value)) orderStore.handleStepChange(value)
-}
 
 function jumpToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
@@ -64,33 +48,6 @@ onUnmounted(() => {
 
 <template>
   <PageShell width="default">
-    <ol
-      class="mb-6 sm:mb-8 grid grid-cols-3 gap-2 rounded-full bg-gray-50 border border-gray-100 p-1.5"
-    >
-      <li v-for="item in steps" :key="item.value">
-        <button
-          type="button"
-          class="flex w-full items-center justify-center gap-2 rounded-full px-2 py-2.5 text-sm font-semibold transition-colors"
-          :class="[
-            step === item.value
-              ? 'bg-primary-fill text-white shadow-sm'
-              : step > item.value
-                ? 'text-primary'
-                : 'text-gray-400',
-            canOpen(item.value) && step !== item.value
-              ? 'cursor-pointer hover:bg-white'
-              : 'cursor-default',
-          ]"
-          :disabled="!canOpen(item.value)"
-          :aria-current="step === item.value ? 'step' : undefined"
-          @click="goTo(item.value)"
-        >
-          <i :class="['pi', step > item.value ? 'pi-check-circle' : item.icon, 'text-sm']" />
-          <span>{{ item.label }}</span>
-        </button>
-      </li>
-    </ol>
-
     <Message
       v-if="orderStore.errorMessage"
       severity="error"
