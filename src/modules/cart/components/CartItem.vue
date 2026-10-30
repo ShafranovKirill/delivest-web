@@ -109,33 +109,36 @@ function handleIncrease() {
         </template>
 
         <template v-else>
-          <button
-            type="button"
-            class="rounded-full px-1 py-1.5 text-sm font-semibold text-primary cursor-pointer"
-            @click="handleEdit"
-          >
-            {{ t('cart.edit') }}
-          </button>
-          <div class="flex items-center rounded-full bg-white p-1 shadow-xs">
+          <span />
+          <div class="flex items-center gap-2">
             <button
               type="button"
-              class="grid size-8 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
-              :aria-label="t('cart.decrease')"
-              @click="handleDecrease"
+              class="h-10 rounded-full bg-white px-4 text-sm font-semibold text-gray-700 shadow-xs transition-colors hover:bg-gray-100 cursor-pointer"
+              @click="handleEdit"
             >
-              <i class="pi pi-minus text-xs" />
+              {{ t('cart.edit') }}
             </button>
-            <span class="min-w-7 text-center text-sm font-bold tabular-nums">
-              {{ item.quantity }}
-            </span>
-            <button
-              type="button"
-              class="grid size-8 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
-              :aria-label="t('cart.increase')"
-              @click="handleIncrease"
-            >
-              <i class="pi pi-plus text-xs" />
-            </button>
+            <div class="flex items-center rounded-full bg-white p-1 shadow-xs">
+              <button
+                type="button"
+                class="grid size-8 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
+                :aria-label="t('cart.decrease')"
+                @click="handleDecrease"
+              >
+                <i class="pi pi-minus text-xs" />
+              </button>
+              <span class="min-w-7 text-center text-sm font-bold tabular-nums">
+                {{ item.quantity }}
+              </span>
+              <button
+                type="button"
+                class="grid size-8 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
+                :aria-label="t('cart.increase')"
+                @click="handleIncrease"
+              >
+                <i class="pi pi-plus text-xs" />
+              </button>
+            </div>
           </div>
         </template>
       </div>
