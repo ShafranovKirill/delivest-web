@@ -58,6 +58,8 @@ export const en: typeof ru = {
       unauthorized: 'Please sign in',
       invalid_phone: 'Check the phone number',
       call_failed: 'Failed to start verification. Try again later',
+      invalid_code: 'Wrong code',
+      attempts_exhausted: 'No attempts left. Request a new call',
       confirmation_not_found: 'Verification time has expired. Please try again',
       invalid_refresh_token: 'Session expired. Please sign in again',
       address_not_found: 'Address not found',
@@ -103,6 +105,12 @@ export const en: typeof ru = {
       waiting: 'Waiting for your call · {time}',
       changeNumber: 'Change number',
       copied: 'Number copied',
+    },
+    flash: {
+      instruction: 'We will call {phone}. Enter the last 4 digits of the incoming number',
+      waiting: 'Waiting for the call · {time}',
+      wrong: 'Wrong code, attempts left: {left}',
+      retry: 'Call again',
     },
   },
   account: {

@@ -714,10 +714,12 @@ export interface components {
     StartCallResponse: {
       data: {
         /**
-         * @description Номер, на который нужно позвонить для подтверждения
+         * @description Режим inbound: номер, на который нужно позвонить. Режим flash: null, клиенту позвонят сами
          * @example +78000000000
          */
-        call_number: string
+        call_number: string | null
+        /** @enum {string} */
+        mode: 'inbound' | 'flash'
         /** Format: uuid */
         confirmation_id: string
         /**
@@ -1215,6 +1217,20 @@ export interface components {
         /** @description Клиенты могут войти по звонку; иначе все заказывают как гости */
         client_auth: boolean
         /**
+         * @description inbound: клиент звонит сам; flash: клиенту звонят, он вводит 4 цифры
+         * @enum {string}
+         */
+        login_call_mode: 'inbound' | 'flash'
+        /** @description Оценка Яндекса; null, если не настроено или данные старше 7 дней */
+        rating: {
+          /** @example 4.8 */
+          value: number
+          /** @example 120 */
+          count: number
+          /** Format: uri */
+          url: string | null
+        } | null
+        /**
          * @description Цвет для тёмной темы; если пусто, подбирается из основного
          * @example #b86a69
          */
@@ -1486,6 +1502,8 @@ export interface components {
         | 'invalid_phone'
         | 'call_failed'
         | 'confirmation_not_found'
+        | 'invalid_code'
+        | 'attempts_exhausted'
         | 'invalid_refresh_token'
         | 'address_not_found'
         | 'internal_error'

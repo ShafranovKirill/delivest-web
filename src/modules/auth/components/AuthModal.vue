@@ -8,6 +8,7 @@ import { useCallConfirmation } from '../composables/useCallConfirmation'
 import type { ClientSession } from '../api/auth.service'
 import AuthPhoneStep from './AuthPhoneStep.vue'
 import AuthCallStep from './AuthCallStep.vue'
+import AuthFlashStep from './AuthFlashStep.vue'
 import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
@@ -26,8 +27,17 @@ function onConfirmed(session: ClientSession) {
   })
 }
 
-const { confirmation, isStarting, errorMessage, secondsLeft, start, reset } =
-  useCallConfirmation(onConfirmed)
+const {
+  confirmation,
+  isStarting,
+  isChecking,
+  errorMessage,
+  secondsLeft,
+  attemptsLeft,
+  start,
+  submitCode,
+  reset,
+} = useCallConfirmation(onConfirmed)
 
 function submitPhone(value: string) {
   phone.value = value
@@ -62,8 +72,17 @@ watch(
       {{ errorMessage }}
     </Message>
 
+    <AuthFlashStep
+      v-if="confirmation?.mode === 'flash'"
+      :phone="phone"
+      :seconds-left="secondsLeft"
+      :attempts-left="attemptsLeft"
+      :checking="isChecking"
+      @submit="submitCode"
+      @back="reset()"
+    />
     <AuthCallStep
-      v-if="confirmation"
+      v-else-if="confirmation?.call_number"
       :call-number="confirmation.call_number"
       :phone="phone"
       :seconds-left="secondsLeft"

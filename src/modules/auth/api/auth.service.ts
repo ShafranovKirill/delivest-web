@@ -20,6 +20,10 @@ export const AuthService = {
     return data.data
   },
 
+  async confirmCode(confirmationId: string, code: string): Promise<void> {
+    await api.post(`/client/auth/call/${confirmationId}/confirm`, { code })
+  },
+
   async refresh(refreshToken: string): Promise<ClientSession> {
     const { data } = await api.post<Envelope<ClientSession>>('/client/auth/refresh', {
       refresh_token: refreshToken,

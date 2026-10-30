@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useBranchOpening } from '@/modules/branch/composables/useBranchOpening'
 import { addDays } from '@/modules/branch/utils/workWindow'
@@ -9,6 +10,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const branchStore = useBranchStore()
+const rating = computed(() => useFranchiseStore().rating)
 const { isOpen, opensAt, now } = useBranchOpening()
 
 const deliveryTime = computed(() => {
@@ -61,13 +63,14 @@ const closedUntil = computed(() => {
     >
       <template v-if="deliveryTime">
         <span class="shrink-0">~{{ t('branch.minutes', { minutes: deliveryTime }) }}</span>
-        <span class="shrink-0">•</span>
+        <span v-if="rating" class="shrink-0">•</span>
       </template>
 
       <div
+        v-if="rating"
         class="flex items-center gap-0.5 text-gray-700! dark:text-gray-300 font-semibold shrink-0"
       >
-        <span>4.78</span>
+        <span>{{ rating.value.toFixed(1) }}</span>
         <i class="pi pi-star-fill text-amber-400 text-[9px] relative -top-[0.5px]"></i>
       </div>
     </div>

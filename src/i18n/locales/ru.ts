@@ -56,6 +56,8 @@ export const ru = {
       unauthorized: 'Войдите в аккаунт',
       invalid_phone: 'Проверьте номер телефона',
       call_failed: 'Не удалось начать подтверждение. Попробуйте позже',
+      invalid_code: 'Неверный код',
+      attempts_exhausted: 'Попытки закончились. Запросите звонок заново',
       confirmation_not_found: 'Время подтверждения истекло. Попробуйте ещё раз',
       invalid_refresh_token: 'Сессия истекла. Войдите снова',
       address_not_found: 'Адрес не найден',
@@ -101,6 +103,12 @@ export const ru = {
       waiting: 'Ждём ваш звонок · {time}',
       changeNumber: 'Изменить номер',
       copied: 'Номер скопирован',
+    },
+    flash: {
+      instruction: 'Вам позвонят на {phone}. Введите последние 4 цифры входящего номера',
+      waiting: 'Ждём звонок · {time}',
+      wrong: 'Неверный код, осталось попыток: {left}',
+      retry: 'Позвонить ещё раз',
     },
   },
   account: {

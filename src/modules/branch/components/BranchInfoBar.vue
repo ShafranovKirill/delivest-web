@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
 const branchStore = useBranchStore()
+const rating = computed(() => useFranchiseStore().rating)
 
 const deliveryTime = computed(() => {
   return branchStore.activeBranch?.branch_info?.delivery_time
@@ -29,11 +31,11 @@ const deliveryTime = computed(() => {
     <div class="flex items-center gap-2 text-sm font-medium leading-tight text-gray-600 mt-0.5">
       <template v-if="deliveryTime">
         <span>{{ t('branch.minutes', { minutes: deliveryTime }) }}</span>
-        <span>•</span>
+        <span v-if="rating">•</span>
       </template>
 
-      <div class="flex items-center gap-0.5 font-semibold text-gray-600">
-        <span>4.78</span>
+      <div v-if="rating" class="flex items-center gap-0.5 font-semibold text-gray-600">
+        <span>{{ rating.value.toFixed(1) }}</span>
         <i class="pi pi-star-fill text-amber-400 text-[10px]"></i>
       </div>
     </div>
