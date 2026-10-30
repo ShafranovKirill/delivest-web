@@ -25,6 +25,8 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
 import { useI18n } from 'vue-i18n'
 import { formatPrice } from '@/utils/money'
+import { useLoyaltyQuery } from '@/modules/account/composables/useLoyaltyQuery'
+import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
 
 export interface OrderFormValues {
   customer_name: string
@@ -32,6 +34,7 @@ export interface OrderFormValues {
   fulfillment_type: 'delivery' | 'pickup' | 'dine_in'
   payment_method: 'cash' | 'card_offline' | 'online'
   cash_given: number | null
+  spend_points: number
   comment: string
   cook_by: string | null
   address: DeliveryAddress | null
@@ -69,6 +72,9 @@ const form = reactive({
   cook_by: null as string | null,
   call_operator_for_address: false,
 })
+
+const loyalty = useLoyaltyQuery()
+const starsLabel = useStarsLabel()
 
 const isDelivery = computed(() => fulfillmentStore.current?.type === 'delivery')
 
@@ -156,7 +162,18 @@ const goodsLabel = computed(() => {
 })
 
 const deliveryFee = computed(() => (isDelivery.value ? delivery.price.value : null))
-const orderTotal = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
+const loyaltyRate = computed(() => branchStore.activeBranch?.branch_info?.loyalty)
+const useStars = ref(false)
+const maxStars = computed(() => {
+  const rate = loyaltyRate.value
+  if (!rate?.spend_enabled || !rate.max_percent || !loyalty.data.value?.enabled) return 0
+  const cap = Math.floor(Math.floor((cartStore.totalAmount * rate.max_percent) / 100) / 100)
+  return Math.max(Math.min(cap, loyalty.data.value.balance), 0)
+})
+const starsToSpend = computed(() => (useStars.value ? maxStars.value : 0))
+const orderTotal = computed(
+  () => cartStore.totalAmount - starsToSpend.value * 100 + (deliveryFee.value ?? 0),
+)
 
 const headline = computed(() => {
   if (fulfillmentType.value === 'delivery') return t('order.form.headlineDelivery')
@@ -209,6 +226,7 @@ function handleSubmit() {
   emit('submit', {
     ...form,
     cash_given: null,
+    spend_points: starsToSpend.value,
     fulfillment_type: fulfillmentType.value,
     address: fulfillmentStore.deliveryAddress,
     call_operator_for_address: isDelivery.value && form.call_operator_for_address,
@@ -313,6 +331,18 @@ function handleSubmit() {
       </div>
     </Dialog>
 
+    <label
+      v-if="maxStars > 0"
+      id="spend-stars"
+      class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3.5"
+    >
+      <span class="flex items-center gap-2 font-semibold text-amber-800">
+        <i class="pi pi-star-fill" />
+        {{ t('loyalty.spend', { stars: starsLabel(maxStars) }) }}
+      </span>
+      <ToggleSwitch v-model="useStars" />
+    </label>
+
     <div class="flex flex-col gap-1.5 text-sm text-gray-600 lg:hidden">
       <div class="flex justify-between">
         <span>{{ goodsLabel }}</span>
@@ -321,6 +351,10 @@ function handleSubmit() {
       <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
         <span>{{ t('cart.discount') }}</span>
         <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
+      </div>
+      <div v-if="starsToSpend > 0" class="flex justify-between text-amber-700">
+        <span>{{ t('loyalty.spent') }}</span>
+        <span class="tabular-nums">−{{ formatPrice(starsToSpend * 100) }}</span>
       </div>
       <div v-if="deliveryFee !== null" class="flex justify-between">
         <span>{{ t('delivery.line') }}</span>

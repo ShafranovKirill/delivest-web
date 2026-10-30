@@ -29,6 +29,8 @@ export const ru = {
       two: '{count} звезды',
     },
     balance: 'Баланс: {stars}',
+    spend: 'Списать {stars}',
+    spent: 'Оплачено звёздами',
     afterCompleted: '{stars} после выполнения заказа',
   },
   nav: {

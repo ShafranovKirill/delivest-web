@@ -31,6 +31,8 @@ export const en: typeof ru = {
       two: '{count} stars',
     },
     balance: 'Balance: {stars}',
+    spend: 'Spend {stars}',
+    spent: 'Paid with stars',
     afterCompleted: '{stars} once the order is completed',
   },
   nav: {

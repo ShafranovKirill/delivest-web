@@ -92,6 +92,7 @@ export const useOrderStore = defineStore('order', () => {
       fulfillment_type: form.fulfillment_type,
       payment_method: form.payment_method,
       cash_given: form.cash_given,
+      spend_points: form.spend_points > 0 ? form.spend_points : null,
       comment,
       cook_by: form.cook_by || null,
       address: toAddressPayload(

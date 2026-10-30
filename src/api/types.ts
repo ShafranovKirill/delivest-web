@@ -670,6 +670,11 @@ export interface components {
        */
       expected_total?: number | null
       /**
+       * @description Сколько звёзд списать с суммы заказа (1 звезда = 1 ₽). Только для вошедшего клиента в филиале с включённым списанием
+       * @example 100
+       */
+      spend_points?: number | null
+      /**
        * @example delivery
        * @enum {string|null}
        */
@@ -1655,7 +1660,9 @@ export interface components {
       loyalty?: {
         enabled?: boolean
         expire_days?: number | null
+        max_percent?: number | null
         per_rubles?: number | null
+        spend_enabled?: boolean
         stars?: number | null
       }
       /** @description Способы оплаты, включённые на филиале */
