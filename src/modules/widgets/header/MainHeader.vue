@@ -34,9 +34,7 @@ const showStepBack = computed(
 )
 
 function stepBack() {
-  if (Number(orderStore.activeStep) > 1)
-    orderStore.handleStepChange(Number(orderStore.activeStep) - 1)
-  else router.back()
+  router.back()
 }
 
 const navigateToMenu = () => {

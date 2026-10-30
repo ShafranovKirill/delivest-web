@@ -6,6 +6,7 @@ import Message from 'primevue/message'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useOrderStore } from '../stores/order.store'
+import { useOpenCart } from '@/modules/cart/composables/useOpenCart'
 import OrderForm from '../components/OrderForm.vue'
 import OrderSummary from '../components/OrderSummary.vue'
 import OrderSuccess from '../components/OrderSuccess.vue'
@@ -15,6 +16,7 @@ import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const openCart = useOpenCart()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
 const orderStore = useOrderStore()
@@ -72,18 +74,14 @@ onUnmounted(() => {
       <Button :label="t('cart.toMenu')" rounded @click="router.push('/')" />
     </EmptyState>
 
-    <div v-else-if="step === 1" class="mx-auto max-w-2xl">
-      <OrderSummary @next="orderStore.handleStepChange(2)" />
-    </div>
-
     <div
-      v-else-if="step === 2"
+      v-else-if="step !== 3"
       class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-3 sm:gap-4 items-start"
     >
       <OrderForm
         :isLoading="orderStore.isLoading"
         @submit="orderStore.createOrder"
-        @back="orderStore.handleStepChange(1)"
+        @back="openCart"
       />
       <aside class="hidden lg:block sticky top-28">
         <OrderSummary compact />

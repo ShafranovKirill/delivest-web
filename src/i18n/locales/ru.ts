@@ -284,6 +284,14 @@ export const ru = {
     loadFailedHint: 'Попробуйте обновить страницу или повторить запрос позже.',
   },
   cart: {
+    headline: {
+      one: '{count} товар на сумму {sum}',
+      few: '{count} товара на сумму {sum}',
+      many: '{count} товаров на сумму {sum}',
+      other: '{count} товара на сумму {sum}',
+      zero: '{count} товаров на сумму {sum}',
+      two: '{count} товара на сумму {sum}',
+    },
     title: 'Корзина',
     suggestions: 'Добавить к заказу',
     loading: 'Загрузка корзины...',

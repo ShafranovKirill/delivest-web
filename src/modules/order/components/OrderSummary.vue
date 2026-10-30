@@ -7,6 +7,7 @@ import CartTotals from '@/modules/cart/components/CartTotals.vue'
 import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
 import CartSuggestions from '@/modules/cart/components/CartSuggestions.vue'
+import { useCartHeadline } from '@/modules/cart/composables/useCartHeadline'
 import { useI18n } from 'vue-i18n'
 
 withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
@@ -14,10 +15,14 @@ const emit = defineEmits<{ (e: 'next'): void }>()
 
 const cartStore = useCartStore()
 const { t } = useI18n()
+const headline = useCartHeadline()
 </script>
 
 <template>
-  <SurfaceCard icon="pi-shopping-cart" :title="t('order.summary')">
+  <SurfaceCard
+    :title="compact ? headline : t('order.summary')"
+    :icon="compact ? undefined : 'pi-shopping-cart'"
+  >
     <ul class="flex flex-col gap-2">
       <li
         v-for="item in cartStore.items"

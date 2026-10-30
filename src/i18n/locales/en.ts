@@ -286,6 +286,14 @@ export const en: typeof ru = {
     loadFailedHint: 'Try refreshing the page or retry later.',
   },
   cart: {
+    headline: {
+      one: '{count} item, {sum}',
+      few: '{count} items, {sum}',
+      many: '{count} items, {sum}',
+      other: '{count} items, {sum}',
+      zero: '{count} items, {sum}',
+      two: '{count} items, {sum}',
+    },
     title: 'Cart',
     suggestions: 'Add to your order',
     loading: 'Loading cart...',

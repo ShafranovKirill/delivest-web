@@ -10,6 +10,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store.ts'
 import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store.ts'
 import { useI18n } from 'vue-i18n'
+import { useCartHeadline } from '../composables/useCartHeadline'
 import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
 
 const cartStore = useCartStore()
@@ -17,6 +18,7 @@ const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 const delivery = useDeliveryQuote()
+const headline = useCartHeadline()
 
 const desktopModalStore = useDesktopModalStore()
 const mobileModalStore = useMobileModalStore()
@@ -90,6 +92,8 @@ function goToCatalog() {
 
     <template v-else>
       <div class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 pr-1">
+        <p class="text-lg font-extrabold text-gray-950">{{ headline }}</p>
+
         <div class="flex flex-col gap-3">
           <CartItemCard v-for="item in cartStore.items" :key="item.key" :item="item" />
         </div>
