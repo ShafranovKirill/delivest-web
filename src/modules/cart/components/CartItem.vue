@@ -51,20 +51,18 @@ function handleIncrease() {
 </script>
 
 <template>
-  <div class="flex gap-3 rounded-3xl p-3" :class="item.gift ? 'bg-green-50' : 'bg-gray-50'">
-    <ProductImage
-      :src="item.image_url"
-      :alt="item.name"
-      class="size-[72px] shrink-0 rounded-2xl"
-      :class="{ 'opacity-50 grayscale': item.stopped }"
-    />
-
-    <div class="flex min-w-0 flex-1 flex-col">
-      <div class="flex items-start justify-between gap-2">
-        <h4 class="text-sm font-semibold leading-snug text-gray-950">{{ item.name }}</h4>
-        <div class="shrink-0 text-right tabular-nums">
+  <div class="rounded-3xl p-3" :class="item.gift ? 'bg-green-50' : 'bg-gray-50'">
+    <div class="flex gap-3">
+      <div class="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
+        <ProductImage
+          :src="item.image_url"
+          :alt="item.name"
+          class="size-[72px] rounded-2xl"
+          :class="{ 'opacity-50 grayscale': item.stopped }"
+        />
+        <div class="text-center tabular-nums leading-tight">
           <p
-            class="text-sm font-bold leading-snug"
+            class="text-sm font-bold"
             :class="
               item.gift || item.base_total > item.total_price ? 'text-green-700' : 'text-gray-950'
             "
@@ -73,75 +71,84 @@ function handleIncrease() {
           </p>
           <p
             v-if="!item.gift && item.base_total > item.total_price"
-            class="text-xs leading-tight text-gray-400 line-through"
+            class="text-xs text-gray-400 line-through"
           >
             {{ formatPrice(item.base_total) }}
           </p>
         </div>
       </div>
 
-      <p v-if="item.modifiers?.length" class="mt-0.5 text-xs leading-snug text-gray-500">
-        <template v-for="(modifier, index) in item.modifiers" :key="modifier.id ?? modifier.name">
-          <template v-if="index">, </template>+ {{ modifier.name
-          }}<template v-if="modifier.quantity > 1"> × {{ modifier.quantity }}</template>
-        </template>
-      </p>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-start justify-between gap-2">
+          <h4 class="text-sm font-semibold leading-snug text-gray-950">{{ item.name }}</h4>
+          <button
+            v-if="!item.gift"
+            type="button"
+            class="-mr-1 -mt-1 grid size-8 shrink-0 place-items-center rounded-full text-gray-400 transition-colors hover:text-red-500 cursor-pointer"
+            :aria-label="t('cart.remove')"
+            @click="cartStore.removeAllOfItem(item.key)"
+          >
+            <i class="pi pi-times text-sm" />
+          </button>
+        </div>
 
-      <div class="mt-auto flex items-end justify-between gap-2 pt-2">
+        <p v-if="item.modifiers?.length" class="mt-0.5 text-xs leading-snug text-gray-500">
+          <template v-for="(modifier, index) in item.modifiers" :key="modifier.id ?? modifier.name">
+            <template v-if="index">, </template>+ {{ modifier.name
+            }}<template v-if="modifier.quantity > 1"> × {{ modifier.quantity }}</template>
+          </template>
+        </p>
+
         <span
-          v-if="item.gift"
-          class="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-green-700"
+          v-if="item.stopped"
+          class="mt-1.5 inline-block rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600"
         >
-          <i class="pi pi-gift text-xs" /> {{ t('cart.promoGift') }} · {{ item.quantity }}
+          {{ t('cart.soldOut') }}
         </span>
+      </div>
+    </div>
 
-        <template v-else-if="item.stopped">
-          <span class="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">
-            {{ t('cart.soldOut') }}
+    <div
+      class="mt-3 flex items-center justify-end gap-2 border-t pt-3"
+      :class="item.gift ? 'border-green-100' : 'border-gray-200'"
+    >
+      <span
+        v-if="item.gift"
+        class="mr-auto inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-green-700"
+      >
+        <i class="pi pi-gift text-xs" /> {{ t('cart.promoGift') }} · {{ item.quantity }}
+      </span>
+
+      <template v-else-if="!item.stopped">
+        <button
+          type="button"
+          class="px-2 text-sm font-semibold text-primary transition-opacity hover:opacity-70 cursor-pointer"
+          @click="handleEdit"
+        >
+          {{ t('cart.edit') }}
+        </button>
+        <div class="flex items-center gap-1 rounded-full bg-white p-0.5 shadow-xs">
+          <button
+            type="button"
+            class="grid size-7 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
+            :aria-label="t('cart.decrease')"
+            @click="handleDecrease"
+          >
+            <i class="pi pi-minus text-[10px]" />
+          </button>
+          <span class="min-w-8 text-center text-sm font-bold tabular-nums">
+            {{ item.quantity }}
           </span>
           <button
             type="button"
-            class="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 cursor-pointer"
-            @click="cartStore.removeAllOfItem(item.key)"
+            class="grid size-7 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
+            :aria-label="t('cart.increase')"
+            @click="handleIncrease"
           >
-            {{ t('cart.removeShort') }}
+            <i class="pi pi-plus text-[10px]" />
           </button>
-        </template>
-
-        <template v-else>
-          <span />
-          <div class="flex items-center gap-2">
-            <button
-              type="button"
-              class="px-2 text-sm font-semibold text-primary transition-opacity hover:opacity-70 cursor-pointer"
-              @click="handleEdit"
-            >
-              {{ t('cart.edit') }}
-            </button>
-            <div class="flex items-center gap-1 rounded-full bg-white p-0.5 shadow-xs">
-              <button
-                type="button"
-                class="grid size-7 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
-                :aria-label="t('cart.decrease')"
-                @click="handleDecrease"
-              >
-                <i class="pi pi-minus text-[10px]" />
-              </button>
-              <span class="min-w-8 text-center text-sm font-bold tabular-nums">
-                {{ item.quantity }}
-              </span>
-              <button
-                type="button"
-                class="grid size-7 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
-                :aria-label="t('cart.increase')"
-                @click="handleIncrease"
-              >
-                <i class="pi pi-plus text-[10px]" />
-              </button>
-            </div>
-          </div>
-        </template>
-      </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
