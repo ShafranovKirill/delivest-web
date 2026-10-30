@@ -338,15 +338,17 @@ function handleSubmit() {
       {{ delivery.hint.value }}
     </p>
     <div class="flex items-center gap-3">
-      <Button
-        type="button"
-        :label="t('order.form.backToCart')"
-        icon="pi pi-angle-left"
-        variant="text"
-        severity="secondary"
-        class="hidden shrink-0 md:inline-flex h-14 rounded-full! text-base font-semibold"
-        @click="emit('back')"
-      />
+      <div class="hidden shrink-0 md:block">
+        <Button
+          type="button"
+          :label="t('order.form.backToCart')"
+          icon="pi pi-angle-left"
+          variant="text"
+          severity="secondary"
+          class="h-14 rounded-full! text-base font-semibold"
+          @click="emit('back')"
+        />
+      </div>
       <Button
         type="submit"
         :label="t('order.form.submit')"
