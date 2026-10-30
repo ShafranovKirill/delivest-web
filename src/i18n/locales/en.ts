@@ -97,7 +97,10 @@ export const en: typeof ru = {
     phoneConfirmed: 'Phone number confirmed',
     phone: {
       useLast: 'Sign in with {phone}',
-      hint: 'Enter your phone number. To confirm it, you will make a free call — no SMS or codes.',
+      hint: 'Enter your phone number below to sign in to your profile',
+      consent: 'By continuing, you accept the {offer} and give {consent}',
+      consentOffer: 'public offer',
+      consentData: 'consent to personal data processing',
     },
     call: {
       instruction:

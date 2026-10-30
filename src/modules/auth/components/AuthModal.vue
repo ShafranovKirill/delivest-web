@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import Message from 'primevue/message'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '../stores/auth.store'
@@ -51,20 +51,12 @@ watch(
 </script>
 
 <template>
-  <Dialog
-    v-model:visible="authStore.isModalOpen"
-    modal
-    dismissable-mask
-    :draggable="false"
-    class="w-[min(92vw,420px)]"
-    :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
-  >
+  <ResponsiveSheet v-model:visible="authStore.isModalOpen">
     <template #header>
       <div>
         <h2 class="text-xl font-extrabold text-gray-950">
           {{ confirmation ? t('auth.confirmTitle') : t('auth.signInTitle') }}
         </h2>
-        <p class="text-sm text-gray-500">{{ t('auth.subtitle') }}</p>
       </div>
     </template>
 
@@ -89,5 +81,5 @@ watch(
       @back="reset()"
     />
     <AuthPhoneStep v-else :loading="isStarting" @submit="submitPhone" />
-  </Dialog>
+  </ResponsiveSheet>
 </template>
