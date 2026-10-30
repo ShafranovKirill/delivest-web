@@ -2,7 +2,7 @@
 import { computed, ref, toRef, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
-import { useOrderTime, type Fulfillment } from '../composables/useOrderTime'
+import { useOrderTime, type Fulfillment, type TimeSlot } from '../composables/useOrderTime'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ fulfillment: Fulfillment }>()
@@ -28,6 +28,33 @@ const activeDay = ref<string | null>(null)
 const visibleDay = computed(
   () => days.value.find((day) => day.key === activeDay.value) ?? days.value[0] ?? null,
 )
+
+const activeHour = ref<number | null>(null)
+const pending = ref<string | null>(null)
+
+function pad(value: number) {
+  return String(value).padStart(2, '0')
+}
+
+const hours = computed(() => {
+  const groups: { hour: number; slots: TimeSlot[] }[] = []
+  for (const slot of visibleDay.value?.slots ?? []) {
+    const hour = slot.date.getHours()
+    const group = groups.find((item) => item.hour === hour)
+    if (group) group.slots.push(slot)
+    else groups.push({ hour, slots: [slot] })
+  }
+  return groups
+})
+
+const visibleHour = computed(
+  () => hours.value.find((group) => group.hour === activeHour.value) ?? hours.value[0] ?? null,
+)
+
+const pendingLabel = computed(() => {
+  const slot = visibleDay.value?.slots.find((item) => item.value === pending.value)
+  return slot ? formatTimeLabel(slot.date) : null
+})
 
 const customSelected = computed(
   () =>
@@ -57,8 +84,21 @@ watch(
 )
 
 function openDialog() {
-  activeDay.value = days.value[0]?.key ?? null
+  const selected = days.value.find((day) =>
+    day.slots.some((slot) => slot.value === modelValue.value),
+  )
+  activeDay.value = (selected ?? days.value[0])?.key ?? null
+  pending.value = selected ? modelValue.value : null
+  activeHour.value = selected
+    ? (selected.slots.find((slot) => slot.value === modelValue.value)?.date.getHours() ?? null)
+    : null
   isDialogOpen.value = true
+}
+
+function selectDay(key: string) {
+  activeDay.value = key
+  activeHour.value = null
+  pending.value = null
 }
 
 function pick(value: string) {
@@ -139,27 +179,58 @@ function optionClass(active: boolean) {
           type="button"
           class="shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors cursor-pointer"
           :class="optionClass(visibleDay?.key === day.key)"
-          @click="activeDay = day.key"
+          @click="selectDay(day.key)"
         >
           {{ day.label }}
         </button>
       </div>
 
-      <div
-        v-if="visibleDay"
-        class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[50vh] overflow-y-auto"
-      >
+      <template v-if="visibleDay">
+        <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          {{ t('order.timeSelect.hour') }}
+        </p>
+        <div class="grid grid-cols-4 gap-2">
+          <button
+            v-for="group in hours"
+            :key="group.hour"
+            type="button"
+            class="rounded-2xl border py-2.5 text-sm font-bold tabular-nums transition-colors cursor-pointer"
+            :class="optionClass(visibleHour?.hour === group.hour)"
+            @click="activeHour = group.hour"
+          >
+            {{ pad(group.hour) }}
+          </button>
+        </div>
+
+        <p class="mt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          {{ t('order.timeSelect.minutes') }}
+        </p>
+        <div class="grid grid-cols-4 gap-2">
+          <button
+            v-for="slot in visibleHour?.slots ?? []"
+            :key="slot.value"
+            type="button"
+            class="rounded-2xl border py-2.5 text-sm font-bold tabular-nums transition-colors cursor-pointer"
+            :class="optionClass(pending === slot.value)"
+            @click="pending = slot.value"
+          >
+            :{{ pad(slot.date.getMinutes()) }}
+          </button>
+        </div>
+
         <button
-          v-for="slot in visibleDay.slots"
-          :key="slot.value"
           type="button"
-          class="rounded-2xl border px-2 py-2.5 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
-          :class="optionClass(modelValue === slot.value)"
-          @click="pick(slot.value)"
+          :disabled="!pending"
+          class="mt-6 h-12 w-full rounded-full bg-primary-fill font-semibold text-white transition-opacity disabled:opacity-40 cursor-pointer disabled:cursor-default"
+          @click="pending && pick(pending)"
         >
-          {{ formatTimeLabel(slot.date) }}
+          {{
+            pendingLabel
+              ? t('order.timeSelect.confirm', { time: pendingLabel })
+              : t('order.timeSelect.choose')
+          }}
         </button>
-      </div>
+      </template>
       <p v-else class="text-sm text-gray-500">{{ t('order.timeSelect.noSlots') }}</p>
     </Dialog>
   </SurfaceCard>
