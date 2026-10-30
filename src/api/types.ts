@@ -1597,6 +1597,19 @@ export interface components {
       id: string
       /** @example https://instagram.com/profile_name */
       instagram_url?: string | null
+      /**
+       * @description Исключения по датам (ISO-дата → enabled, open, close) поверх недели
+       * @example {
+       *       "2026-12-31": {
+       *         "close": "18:00",
+       *         "enabled": true,
+       *         "open": "10:00"
+       *       }
+       *     }
+       */
+      special_hours?: {
+        [key: string]: unknown
+      }
       /** @description Режим приёма: normal, load (добавка к времени) или paused (заказы закрыты) */
       intake?: {
         extra_minutes?: number

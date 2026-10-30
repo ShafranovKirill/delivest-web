@@ -9,7 +9,7 @@ const props = defineProps<{ branch: Branch; loading: boolean }>()
 defineEmits<{ confirm: [] }>()
 
 const { t } = useI18n()
-const { formattedScheduleList } = useBranchSchedule(toRef(props, 'branch'))
+const { workingHours, closingTimeToday } = useBranchSchedule(toRef(props, 'branch'))
 </script>
 
 <template>
@@ -21,17 +21,9 @@ const { formattedScheduleList } = useBranchSchedule(toRef(props, 'branch'))
       </p>
     </div>
 
-    <ul v-if="formattedScheduleList.length" class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-sm">
-      <li
-        v-for="item in formattedScheduleList"
-        :key="item.day"
-        class="flex justify-between gap-2"
-        :class="item.isToday ? 'font-semibold text-gray-900' : 'text-gray-500'"
-      >
-        <span>{{ item.day }}</span>
-        <span>{{ item.enabled ? `${item.open}–${item.close}` : t('branch.schedule.dayOff') }}</span>
-      </li>
-    </ul>
+    <p v-if="workingHours" class="text-sm text-gray-700">
+      {{ t('branch.info.today', { time: closingTimeToday }) }}
+    </p>
 
     <Button
       :label="t('fulfillment.pickupHere')"

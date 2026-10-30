@@ -1,6 +1,7 @@
 import { computed, type Ref } from 'vue'
 import type { Branch } from '../api/branch.service'
 import { t } from '@/i18n'
+import { isoDate } from '../utils/workWindow'
 
 export interface DaySchedule {
   enabled: boolean
@@ -17,6 +18,12 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
     return Object.keys(rawHours).length > 0 ? (rawHours as unknown as WorkingHoursMap) : null
   })
 
+  const specialHours = computed<WorkingHoursMap | null>(() => {
+    const raw = activeBranch.value?.branch_info?.special_hours
+    if (!raw || typeof raw !== 'object') return null
+    return Object.keys(raw).length > 0 ? (raw as unknown as WorkingHoursMap) : null
+  })
+
   const dayKeysMap: Record<number, string> = {
     0: 'sunday',
     1: 'monday',
@@ -28,6 +35,9 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
   }
 
   const todaySchedule = computed<DaySchedule | null>(() => {
+    const exception = specialHours.value?.[isoDate(new Date())]
+    if (exception) return exception
+
     const hours = workingHours.value
     if (!hours) return null
 
@@ -42,8 +52,7 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
   })
 
   const isOpenNow = computed<boolean>(() => {
-    const hours = workingHours.value
-    if (!hours) return true
+    if (!workingHours.value && !specialHours.value) return true
 
     const schedule = todaySchedule.value
     if (!schedule || !schedule.enabled) return false
@@ -60,8 +69,7 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
   })
 
   const closingTimeToday = computed<string>(() => {
-    const hours = workingHours.value
-    if (!hours) return t('branch.schedule.notSet')
+    if (!workingHours.value && !specialHours.value) return t('branch.schedule.notSet')
 
     const schedule = todaySchedule.value
     if (!schedule || !schedule.enabled) {
@@ -102,6 +110,7 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
 
   return {
     workingHours,
+    specialHours,
     todaySchedule,
     isOpenNow,
     closingTimeToday,
