@@ -9,7 +9,6 @@ import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
-import MobileBranchHeaderInfo from '@/modules/branch/components/MobileBranchHeaderInfo.vue'
 import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
 import UserButton from '@/modules/auth/components/UserButton.vue'
 import BrandLogo from '@/modules/franchise/components/BrandLogo.vue'
@@ -40,8 +39,7 @@ const navigateToMenu = () => {
 <template>
   <header class="w-full bg-gray-200 h-15 sticky top-0 z-50">
     <Toolbar
-      class="rounded-none! max-w-7xl mx-auto px-3! lg:px-4! py-0! h-full bg-gray-200! border-0! flex-nowrap! gap-2"
-      :pt="{ center: { class: 'min-w-0 flex-1 flex justify-center' } }"
+      class="rounded-none! max-w-7xl mx-auto px-4! py-0! h-full bg-gray-200! border-0! flex-nowrap! gap-2"
     >
       <template #start>
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -59,7 +57,7 @@ const navigateToMenu = () => {
 
           <button
             type="button"
-            class="flex h-8 sm:h-10 max-w-40 sm:max-w-56 px-0.5 text-2xl sm:text-4xl cursor-pointer hover:opacity-80 transition-opacity shrink-0"
+            class="flex h-8 sm:h-10 max-w-40 sm:max-w-56 text-2xl sm:text-4xl cursor-pointer hover:opacity-80 transition-opacity shrink-0"
             :aria-label="franchiseStore.name"
             @click="navigateToMenu"
           >
@@ -67,12 +65,6 @@ const navigateToMenu = () => {
           </button>
           <BranchInfoBar v-if="branchStore.activeBranch && !viewportStore.isMobile" />
         </div>
-      </template>
-
-      <template #center>
-        <MobileBranchHeaderInfo
-          v-if="branchStore.activeBranch && viewportStore.isMobile && !modalStore.isOpen"
-        />
       </template>
 
       <template #end>
@@ -84,7 +76,7 @@ const navigateToMenu = () => {
             @click="contactStore.openModal"
           />
 
-          <UserButton v-if="!viewportStore.isMobile" />
+          <UserButton />
 
           <CartButtonDesktop v-if="!viewportStore.isMobile" />
 
