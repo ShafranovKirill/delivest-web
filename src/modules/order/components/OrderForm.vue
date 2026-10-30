@@ -19,12 +19,14 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
 import { useI18n } from 'vue-i18n'
+import { formatPrice } from '@/utils/money'
 
 export interface OrderFormValues {
   customer_name: string
   customer_phone: string
   fulfillment_type: 'delivery' | 'pickup' | 'dine_in'
   payment_method: 'cash' | 'card_offline'
+  cash_given: number | null
   comment: string
   cook_by: string | null
   address: DeliveryAddress | null
@@ -55,6 +57,7 @@ const form = reactive({
   customer_name: authStore.client?.name ?? '',
   customer_phone: authStore.client?.phone ?? authStore.lastPhone ?? '+7',
   payment_method: 'cash' as OrderFormValues['payment_method'],
+  cash_given: null as number | null,
   comment: '',
   cook_by: null as string | null,
   call_operator_for_address: false,
@@ -93,6 +96,27 @@ const paymentOptions = computed<
   { value: 'card_offline', label: t('order.form.card'), icon: 'pi-credit-card' },
 ])
 
+const BANKNOTES = [500, 1000, 2000, 5000]
+const changeOpen = ref(false)
+
+const changeOptions = computed(() =>
+  BANKNOTES.map((rubles) => rubles * 100).filter((kopecks) => kopecks > cartStore.totalAmount),
+)
+
+watch(
+  () => form.payment_method,
+  (method) => {
+    if (method !== 'cash') {
+      form.cash_given = null
+      changeOpen.value = false
+    }
+  },
+)
+
+function pickChange(kopecks: number | null) {
+  form.cash_given = form.cash_given === kopecks ? null : kopecks
+}
+
 function handleSubmit() {
   if (!form.customer_phone || form.customer_phone.length < 12) {
     toast.add({
@@ -113,6 +137,7 @@ function handleSubmit() {
 
   emit('submit', {
     ...form,
+    cash_given: form.payment_method === 'cash' ? form.cash_given : null,
     fulfillment_type: fulfillmentType.value,
     address: fulfillmentStore.deliveryAddress,
     call_operator_for_address: isDelivery.value && form.call_operator_for_address,
@@ -170,6 +195,48 @@ function handleSubmit() {
 
     <SurfaceCard icon="pi-wallet" :title="t('order.payment.title')">
       <OptionChips v-model="form.payment_method" :options="paymentOptions" :columns="2" />
+
+      <div v-if="form.payment_method === 'cash' && changeOptions.length" class="mt-3">
+        <button
+          type="button"
+          class="text-sm font-medium text-primary cursor-pointer"
+          @click="changeOpen = !changeOpen"
+        >
+          {{
+            form.cash_given
+              ? t('order.form.changeFrom', { amount: formatPrice(form.cash_given) })
+              : t('order.form.changeAsk')
+          }}
+        </button>
+        <div v-if="changeOpen" class="mt-2 flex flex-wrap gap-2">
+          <button
+            v-for="kopecks in changeOptions"
+            :key="kopecks"
+            type="button"
+            class="rounded-full border px-3 py-1.5 text-sm font-semibold cursor-pointer"
+            :class="
+              form.cash_given === kopecks
+                ? 'border-primary-fill bg-primary-fill text-white'
+                : 'border-gray-200 bg-white text-gray-700'
+            "
+            @click="pickChange(kopecks)"
+          >
+            {{ formatPrice(kopecks) }}
+          </button>
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 text-sm font-semibold cursor-pointer"
+            :class="
+              form.cash_given === null
+                ? 'border-primary-fill bg-primary-fill text-white'
+                : 'border-gray-200 bg-white text-gray-700'
+            "
+            @click="form.cash_given = null"
+          >
+            {{ t('order.form.noChange') }}
+          </button>
+        </div>
+      </div>
 
       <label class="mt-4 flex flex-col gap-1.5">
         <span class="text-sm font-medium text-gray-600">{{ t('order.form.comment') }}</span>

@@ -91,6 +91,7 @@ export const useOrderStore = defineStore('order', () => {
       customer_phone: form.customer_phone.length === 12 ? form.customer_phone : null,
       fulfillment_type: form.fulfillment_type,
       payment_method: form.payment_method,
+      cash_given: form.cash_given,
       comment,
       cook_by: form.cook_by || null,
       address: toAddressPayload(
