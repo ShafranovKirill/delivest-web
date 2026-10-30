@@ -63,7 +63,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <PageShell :title="t('order.checkout')" width="default">
+  <PageShell width="default">
     <ol
       class="mb-6 sm:mb-8 grid grid-cols-3 gap-2 rounded-full bg-gray-50 border border-gray-100 p-1.5"
     >

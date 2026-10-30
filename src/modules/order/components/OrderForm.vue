@@ -3,14 +3,14 @@ import { reactive, computed, ref, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import OrderConsent from './OrderConsent.vue'
-import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 import OptionChips from '@/modules/order/components/OptionChips.vue'
-import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
-import FulfillmentSummary from '@/modules/fulfillment/components/FulfillmentSummary.vue'
+import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
+import Dialog from 'primevue/dialog'
+import { formatAddress } from '@/modules/shared/utils/address'
 import type { DeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
 import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
@@ -86,17 +86,17 @@ watch(fulfillmentType, (type) => cartStore.setFulfillment(type).catch((e) => con
   immediate: true,
 })
 
-const pickupOptions = computed<Array<{ value: PickupKind; label: string; icon: string }>>(() => [
-  { value: 'pickup', label: t('order.form.pickup'), icon: 'pi-shopping-bag' },
-  { value: 'dine_in', label: t('order.form.dineIn'), icon: 'pi-home' },
+const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() => [
+  { value: 'pickup', label: t('order.form.takeaway') },
+  { value: 'dine_in', label: t('order.form.dineIn') },
 ])
 
 const allPaymentOptions = computed<
-  Array<{ value: OrderFormValues['payment_method']; label: string; icon: string }>
+  Array<{ value: OrderFormValues['payment_method']; label: string }>
 >(() => [
-  { value: 'cash', label: t('order.form.cash'), icon: 'pi-wallet' },
-  { value: 'card_offline', label: t('order.form.card'), icon: 'pi-credit-card' },
-  { value: 'online', label: t('order.form.online'), icon: 'pi-mobile' },
+  { value: 'cash', label: t('order.payment.cash') },
+  { value: 'card_offline', label: t('order.payment.card_offline') },
+  { value: 'online', label: t('order.payment.online') },
 ])
 
 const paymentOptions = computed(() => {
@@ -113,6 +113,45 @@ watch(
   },
   { immediate: true },
 )
+
+const paymentOpen = ref(false)
+
+const paymentLabel = computed(() => t(`order.payment.${form.payment_method}`))
+
+function pickPayment(method: OrderFormValues['payment_method']) {
+  form.payment_method = method
+  paymentOpen.value = false
+}
+
+const headline = computed(() => {
+  if (fulfillmentType.value === 'delivery') return t('order.form.headlineDelivery')
+  return fulfillmentType.value === 'dine_in'
+    ? t('order.form.headlineDineIn')
+    : t('order.form.headlinePickup')
+})
+
+const addressCaption = computed(() =>
+  isDelivery.value ? t('order.form.addressDelivery') : t('order.form.addressPickup'),
+)
+
+const addressRow = computed(() => {
+  const choice = fulfillmentStore.current
+  if (!choice) return { title: t('fulfillment.summary.empty'), text: null }
+  if (choice.type === 'pickup') {
+    return {
+      title: fulfillmentType.value === 'dine_in' ? t('order.form.dineIn') : t('order.form.pickup'),
+      text: branchStore.activeBranch?.branch_info?.address ?? branchStore.activeBranch?.name,
+    }
+  }
+  return {
+    title: t('order.form.delivery'),
+    text: [formatAddress(choice.address), choice.address.comment].filter(Boolean).join(' · '),
+  }
+})
+
+function openAddressPicker() {
+  flowStore.openPicker(fulfillmentStore.current?.type ?? 'delivery')
+}
 
 const BANKNOTES = [500, 1000, 2000, 5000]
 const changeOpen = ref(false)
@@ -164,33 +203,30 @@ function handleSubmit() {
 </script>
 
 <template>
-  <form class="flex flex-col gap-3 sm:gap-4" @submit.prevent="handleSubmit">
-    <SurfaceCard icon="pi-user" :title="t('order.form.contacts')">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        <label class="flex flex-col gap-1.5">
-          <span class="text-sm font-medium text-gray-600">{{ t('order.form.name') }}</span>
-          <InputText
-            v-model="form.customer_name"
-            :placeholder="t('order.form.namePlaceholder')"
-            class="w-full"
-          />
-        </label>
-        <label class="flex flex-col gap-1.5">
-          <span class="text-sm font-medium text-gray-600">
-            {{ t('common.phone') }} <span class="text-red-500">*</span>
-          </span>
-          <PhoneInput
-            v-model="form.customer_phone"
-            required
-            :disabled="authStore.isAuthenticated"
-            class="w-full"
-          />
-        </label>
-      </div>
-    </SurfaceCard>
+  <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
+    <h2 class="text-2xl font-extrabold text-gray-950">{{ headline }}</h2>
 
-    <SurfaceCard icon="pi-send" :title="t('order.form.fulfillment')">
-      <FulfillmentSummary with-quote />
+    <div>
+      <p class="mb-2 text-sm font-semibold text-gray-500">{{ t('order.form.phoneCaption') }}</p>
+      <PhoneInput
+        v-model="form.customer_phone"
+        required
+        :disabled="authStore.isAuthenticated"
+        class="w-full"
+      />
+    </div>
+
+    <div>
+      <p class="mb-2 text-sm font-semibold text-gray-500">{{ addressCaption }}</p>
+      <OrderPickRow :title="addressRow.title" :text="addressRow.text" @click="openAddressPicker" />
+
+      <p
+        v-if="isDelivery && delivery.hint.value"
+        class="mt-2 text-sm font-medium"
+        :class="delivery.blocked.value ? 'text-red-500' : 'text-gray-700'"
+      >
+        {{ delivery.hint.value }}
+      </p>
 
       <OptionChips
         v-if="fulfillmentStore.current?.type === 'pickup'"
@@ -207,12 +243,13 @@ function handleSubmit() {
         <Checkbox v-model="form.call_operator_for_address" binary />
         <span class="text-sm text-gray-700">{{ t('order.form.callOperator') }}</span>
       </label>
-    </SurfaceCard>
+    </div>
 
     <OrderTimeSelect v-model="form.cook_by" :fulfillment="fulfillmentType" />
 
-    <SurfaceCard icon="pi-wallet" :title="t('order.payment.title')">
-      <OptionChips v-model="form.payment_method" :options="paymentOptions" :columns="2" />
+    <div>
+      <p class="mb-2 text-sm font-semibold text-gray-500">{{ t('order.form.paymentCaption') }}</p>
+      <OrderPickRow :title="paymentLabel" @click="paymentOpen = true" />
 
       <div v-if="form.payment_method === 'cash' && changeOptions.length" class="mt-3">
         <button
@@ -255,17 +292,47 @@ function handleSubmit() {
           </button>
         </div>
       </div>
+    </div>
 
-      <label class="mt-4 flex flex-col gap-1.5">
-        <span class="text-sm font-medium text-gray-600">{{ t('order.form.comment') }}</span>
-        <Textarea
-          v-model="form.comment"
-          rows="3"
-          :placeholder="t('order.form.commentPlaceholder')"
-          class="w-full resize-none"
-        />
-      </label>
-    </SurfaceCard>
+    <label class="flex flex-col gap-2">
+      <span class="text-sm font-semibold text-gray-500">{{ t('order.form.comment') }}</span>
+      <Textarea
+        v-model="form.comment"
+        rows="3"
+        :placeholder="t('order.form.commentPlaceholder')"
+        class="w-full resize-none"
+      />
+    </label>
+
+    <Dialog
+      v-model:visible="paymentOpen"
+      modal
+      :dismissableMask="true"
+      :draggable="false"
+      class="w-[min(92vw,420px)]"
+      :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
+    >
+      <template #header>
+        <h3 class="text-xl font-extrabold text-gray-950">{{ t('order.form.paymentCaption') }}</h3>
+      </template>
+      <div class="flex flex-col gap-2">
+        <button
+          v-for="option in paymentOptions"
+          :key="option.value"
+          type="button"
+          class="flex items-center justify-between rounded-2xl border px-4 py-3.5 text-left font-semibold transition-colors cursor-pointer"
+          :class="
+            form.payment_method === option.value
+              ? 'border-primary-fill bg-primary-fill text-white'
+              : 'border-gray-200 bg-white text-gray-800 hover:border-primary'
+          "
+          @click="pickPayment(option.value)"
+        >
+          <span>{{ option.label }}</span>
+          <i v-if="form.payment_method === option.value" class="pi pi-check text-sm" />
+        </button>
+      </div>
+    </Dialog>
 
     <p v-if="deliveryBlocked" class="text-center text-sm font-medium text-red-500">
       {{ delivery.hint.value }}
