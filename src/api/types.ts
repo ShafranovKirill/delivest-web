@@ -774,6 +774,7 @@ export interface components {
           max_quantity: number
           /** @example 35 см */
           name: string
+          photo_url?: string | null
           /** @example 20000 */
           price: number
           stopped: boolean
