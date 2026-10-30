@@ -65,7 +65,7 @@ export function useProductRoute(menu: Ref<MenuCategory[] | undefined>) {
     ([isOpen, product]) => {
       if (isOpen && product) {
         const key = productKey(product)
-        if (queryKey.value !== key) {
+        if (queryKey.value !== key && queryKey.value !== product.id) {
           pushedByUs = true
           router.push({ query: { ...route.query, [PRODUCT_QUERY_KEY]: key } })
         }
