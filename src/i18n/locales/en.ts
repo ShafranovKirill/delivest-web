@@ -21,6 +21,18 @@ export const en: typeof ru = {
     total: 'Total',
     withoutDiscount: 'Without discount',
   },
+  loyalty: {
+    stars: {
+      one: '{count} star',
+      few: '{count} stars',
+      many: '{count} stars',
+      other: '{count} stars',
+      zero: '{count} stars',
+      two: '{count} stars',
+    },
+    balance: 'Balance: {stars}',
+    afterCompleted: '{stars} once the order is completed',
+  },
   nav: {
     menu: 'Menu',
     promotions: 'Promotions',

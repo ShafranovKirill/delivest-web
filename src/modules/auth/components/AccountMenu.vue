@@ -7,17 +7,31 @@ import { useAccountLinks } from '../composables/useAccountLinks'
 import { useBranchNavigation } from '@/modules/branch/composables/useBranchNavigation'
 import { formatPhoneNumber } from '@/modules/widgets/contacts/utils/tel-format'
 import { useI18n } from 'vue-i18n'
+import { useLoyaltyQuery } from '@/modules/account/composables/useLoyaltyQuery'
+import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
 
 const authStore = useAuthStore()
 const links = useAccountLinks()
 const navigateTo = useBranchNavigation()
 const { t } = useI18n()
 const menu = ref<InstanceType<typeof Menu> | null>(null)
+const loyalty = useLoyaltyQuery()
+const starsLabel = useStarsLabel()
 
 const items = computed<MenuItem[]>(() => [
   {
     label: formatPhoneNumber(authStore.client?.phone ?? ''),
     items: [
+      ...(loyalty.data.value?.enabled
+        ? [
+            {
+              label: t('loyalty.balance', { stars: starsLabel(loyalty.data.value.balance) }),
+              icon: 'pi pi-star-fill',
+              disabled: true,
+              class: 'loyalty-balance',
+            },
+          ]
+        : []),
       ...links.value.map((link) => ({
         label: link.label,
         icon: link.icon,

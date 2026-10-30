@@ -1651,6 +1651,13 @@ export interface components {
       special_hours?: {
         [key: string]: unknown
       }
+      /** @description Бонусная система филиала: за каждые per_rubles ₽ начисляется stars звёзд */
+      loyalty?: {
+        enabled?: boolean
+        expire_days?: number | null
+        per_rubles?: number | null
+        stars?: number | null
+      }
       /** @description Способы оплаты, включённые на филиале */
       payment_methods?: ('cash' | 'card_offline' | 'online')[]
       /** @description Режим приёма: normal, load (добавка к времени) или paused (заказы закрыты) */

@@ -19,6 +19,18 @@ export const ru = {
     total: 'Итого',
     withoutDiscount: 'Без скидки',
   },
+  loyalty: {
+    stars: {
+      one: '{count} звезда',
+      few: '{count} звезды',
+      many: '{count} звёзд',
+      other: '{count} звезды',
+      zero: '{count} звёзд',
+      two: '{count} звезды',
+    },
+    balance: 'Баланс: {stars}',
+    afterCompleted: '{stars} после выполнения заказа',
+  },
   nav: {
     menu: 'Меню',
     promotions: 'Акции',
