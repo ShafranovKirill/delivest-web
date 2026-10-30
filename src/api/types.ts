@@ -1522,6 +1522,8 @@ export interface components {
       } | null
       /** Format: uuid */
       branch_id: string
+      /** @description Клиент ещё может отменить заказ сам */
+      can_cancel?: boolean
       comment?: string | null
       /** Format: date_time */
       cook_by?: string | null

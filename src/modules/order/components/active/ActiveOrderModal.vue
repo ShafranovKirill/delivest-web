@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
-import type { ActiveOrder } from '../../api/order.service'
+import { OrderService, type ActiveOrder } from '../../api/order.service'
+import { ACTIVE_ORDERS_KEY } from '../../composables/useActiveOrdersQuery'
 import { formatPrice } from '@/utils/money'
 import { formatTime, fulfillmentLabel, paymentLabel } from '../../utils/orderStatus'
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
@@ -23,6 +25,31 @@ const visible = computed({
   get: () => props.order !== null,
   set: (value) => !value && emit('close'),
 })
+
+const queryClient = useQueryClient()
+const confirmingCancel = ref(false)
+
+watch(
+  () => props.order?.id,
+  () => (confirmingCancel.value = false),
+)
+
+const cancel = useMutation({
+  mutationFn: (id: string) => OrderService.cancelOrder(id),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
+    emit('close')
+  },
+})
+
+function cancelOrder() {
+  if (!props.order) return
+  if (!confirmingCancel.value) {
+    confirmingCancel.value = true
+    return
+  }
+  cancel.mutate(props.order.id)
+}
 
 const address = computed(() => formatAddress(props.order?.address as AddressParts | null))
 </script>
@@ -157,6 +184,16 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
           icon="pi pi-replay"
           class="h-12 w-full rounded-full! font-semibold"
           @click="emit('repeat')"
+        />
+        <Button
+          v-if="!repeatable && order?.can_cancel"
+          :label="confirmingCancel ? t('order.cancel.confirm') : t('order.cancel.action')"
+          :loading="cancel.isPending.value"
+          icon="pi pi-times"
+          severity="danger"
+          variant="outlined"
+          class="h-12 w-full rounded-full! font-semibold"
+          @click="cancelOrder"
         />
         <Button
           v-if="contactsStore.phone"

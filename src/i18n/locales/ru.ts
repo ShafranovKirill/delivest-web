@@ -321,6 +321,7 @@ export const ru = {
     },
   },
   order: {
+    cancel: { action: 'Отменить заказ', confirm: 'Да, отменить' },
     checkout: 'Оформление заказа',
     summary: 'Ваш заказ',
     active: 'Ваши заказы',
