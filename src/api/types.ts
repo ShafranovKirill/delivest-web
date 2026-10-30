@@ -744,6 +744,17 @@ export interface components {
        * @enum {string}
        */
       measure_unit?: 'g' | 'ml'
+      /** @description КБЖУ на 100 г; пустые поля — null */
+      nutrition?: {
+        /** @example 250 */
+        calories?: number | null
+        /** @example 30 */
+        carbohydrates?: number | null
+        /** @example 9 */
+        fats?: number | null
+        /** @example 12.5 */
+        proteins?: number | null
+      } | null
       /** @description Группы модификаторов. `min`/`max` — сколько выбрать в группе, `is_size` — размер (переключатель) */
       modifier_groups?: {
         /** Format: uuid */

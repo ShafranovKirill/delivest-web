@@ -253,6 +253,15 @@ export const en: typeof ru = {
     },
   },
   menu: {
+    nutrition: {
+      per100: 'Per 100 g',
+      calories: 'Calories',
+      proteins: 'Proteins',
+      fats: 'Fats',
+      carbohydrates: 'Carbs',
+      kcal: 'kcal',
+      g: 'g',
+    },
     more: 'More',
     addToCart: 'Add to cart for {price}',
     soldOut: 'Sold out',

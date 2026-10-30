@@ -251,6 +251,15 @@ export const ru = {
     },
   },
   menu: {
+    nutrition: {
+      per100: 'На 100 г',
+      calories: 'Калории',
+      proteins: 'Белки',
+      fats: 'Жиры',
+      carbohydrates: 'Углеводы',
+      kcal: 'ккал',
+      g: 'г',
+    },
     more: 'Ещё',
     addToCart: 'В корзину за {price}',
     soldOut: 'Закончилось',

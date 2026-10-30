@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ProductNutrition from '../ProductNutrition.vue'
 import ProductImage from '../ProductImage.vue'
 import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
 import { storeToRefs } from 'pinia'
@@ -55,6 +56,8 @@ const weightKey = computed(() =>
                 {{ t('common.pieces', { count: activeProduct.quantity }) }}
               </span>
             </div>
+
+            <ProductNutrition :nutrition="activeProduct?.nutrition" />
 
             <p
               v-if="activeProduct?.description"
