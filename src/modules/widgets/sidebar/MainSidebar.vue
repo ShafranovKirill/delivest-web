@@ -53,7 +53,7 @@ const settingClass =
         <ThemeToggle labeled :class="settingClass" />
         <LocaleToggle :class="settingClass" />
       </div>
-      <PoweredByDelivest />
+      <PoweredByDelivest class="w-full justify-center" />
     </div>
   </Drawer>
 </template>
