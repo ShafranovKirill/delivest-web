@@ -80,7 +80,7 @@ const navigateToMenu = () => {
               @click="stepBack"
             />
 
-            <div class="h-8 w-px bg-gray-300 shrink-0" />
+            <div class="h-8 w-px bg-gray-300 shrink-0 ml-1" />
           </template>
 
           <button
