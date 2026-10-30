@@ -63,19 +63,19 @@ const navigateToMenu = () => {
             <Button
               icon="pi pi-times text-3xl!"
               variant="text"
-              class="p-1! text-gray-700 hover:text-black shrink-0"
+              class="size-11 p-0! -ml-3 mr-0 text-gray-700 hover:text-black shrink-0"
               :aria-label="t('common.close')"
               @click="modalStore.closeModal"
             />
 
-            <div class="h-6 w-px bg-gray-400 shrink-0" />
+            <div class="h-8 w-px bg-gray-300 shrink-0 -ml-1 mr-1" />
           </template>
 
           <template v-if="showStepBack && !modalStore.isOpen">
             <Button
               icon="pi pi-angle-left text-4xl!"
               variant="text"
-              class="p-1! -ml-3 mr-0 text-gray-700 hover:text-black shrink-0"
+              class="size-11 p-0! -ml-3 mr-0 text-gray-700 hover:text-black shrink-0"
               :aria-label="t('common.back')"
               @click="stepBack"
             />
