@@ -106,3 +106,13 @@ h4 {
   --color-red-600: #f87171;
   --color-red-700: #fca5a5;
 }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-gray-950);
+  box-shadow: 0 0 0 1000px var(--color-gray-50) inset;
+  caret-color: var(--color-gray-950);
+  transition: background-color 600000s 0s;
+}

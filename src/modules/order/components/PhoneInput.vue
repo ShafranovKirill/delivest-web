@@ -32,6 +32,7 @@ function handleInput(e: Event) {
 
   const cleanFormat = '+' + digits
   emit('update:modelValue', cleanFormat)
+  input.value = formatDisplayPhone(cleanFormat)
 }
 </script>
 
@@ -44,6 +45,7 @@ function handleInput(e: Event) {
     autocomplete="tel"
     inputmode="tel"
     @input="handleInput"
+    @change="handleInput"
     :placeholder="placeholder || '+7 (999) 000-00-00'"
     :required="required"
   />
