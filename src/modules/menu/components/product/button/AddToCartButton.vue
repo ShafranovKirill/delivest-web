@@ -39,6 +39,27 @@ const extra = computed(() =>
   modifiers.value.filter((m) => selected.value.includes(m.id)).reduce((sum, m) => sum + m.price, 0),
 )
 
+const lines = computed(() =>
+  cartStore.items.filter((i) => String(i.product_id) === String(props.product?.id) && !i.gift),
+)
+
+function modifierText(line: (typeof lines.value)[number]) {
+  const list = line.modifiers ?? []
+  if (!list.length) return t('menu.noModifiers')
+  return list.map((m) => (m.quantity > 1 ? `${m.name} × ${m.quantity}` : m.name)).join(', ')
+}
+
+function more(line: (typeof lines.value)[number]) {
+  const choice = (line.modifiers ?? [])
+    .filter((m) => m.id)
+    .map((m) => ({ id: m.id!, quantity: m.quantity }))
+  return cartStore.addItem(props.product!.id!, choice.length ? choice : undefined)
+}
+
+function less(line: (typeof lines.value)[number]) {
+  return line.quantity > 1 ? cartStore.removeItem(line.key) : cartStore.removeAllOfItem(line.key)
+}
+
 const handleAddToCart = async () => {
   if (!props.product || !(await flowStore.ensure())) return
   try {
@@ -60,6 +81,42 @@ const handleAddToCart = async () => {
 
 <template>
   <ModifierPicker v-if="groups.length && !product?.stopped" v-model="selected" :groups="groups" />
+  <div v-if="lines.length" class="rounded-2xl bg-gray-50 p-3">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+      {{ t('menu.inCart') }}
+    </p>
+    <ul class="flex flex-col gap-2">
+      <li v-for="line in lines" :key="line.key" class="flex items-center gap-3">
+        <span class="min-w-0 flex-1 text-sm leading-snug text-gray-800">
+          {{ modifierText(line) }}
+          <span class="block text-xs tabular-nums text-gray-500">
+            {{ formatPrice(line.total_price) }}
+          </span>
+        </span>
+        <div class="flex shrink-0 items-center gap-1 rounded-full bg-white p-0.5 shadow-xs">
+          <button
+            type="button"
+            class="grid size-7 place-items-center rounded-full text-gray-700 hover:bg-gray-100 cursor-pointer"
+            :disabled="cartStore.isLoading"
+            @click="less(line)"
+          >
+            <i class="pi pi-minus text-[10px]" />
+          </button>
+          <span class="min-w-6 text-center text-sm font-bold tabular-nums">{{
+            line.quantity
+          }}</span>
+          <button
+            type="button"
+            class="grid size-7 place-items-center rounded-full text-gray-700 hover:bg-gray-100 cursor-pointer"
+            :disabled="cartStore.isLoading || line.stopped"
+            @click="more(line)"
+          >
+            <i class="pi pi-plus text-[10px]" />
+          </button>
+        </div>
+      </li>
+    </ul>
+  </div>
   <SoldOutLabel v-if="product?.stopped" class="py-3.5!" />
   <Button
     v-else

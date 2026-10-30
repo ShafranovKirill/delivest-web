@@ -273,6 +273,8 @@ export const en: typeof ru = {
     },
   },
   menu: {
+    inCart: 'In your cart',
+    noModifiers: 'No extras',
     nutrition: {
       per100: 'Per 100 g',
       calories: 'Calories',
