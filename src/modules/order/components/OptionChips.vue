@@ -27,7 +27,7 @@ const model = defineModel<T>({ required: true })
       :class="[
         model === option.value
           ? 'bg-white text-gray-950 border-primary-fill'
-          : 'bg-white text-gray-700 border-gray-200 hover:border-primary',
+          : 'bg-gray-50 text-gray-700 border-gray-100 hover:border-primary',
         columns === 3 ? 'flex-col gap-1 px-2 sm:flex-row sm:gap-2 sm:px-3' : '',
       ]"
       @click="model = option.value"

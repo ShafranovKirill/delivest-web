@@ -78,7 +78,7 @@ function pick(value: string) {
 function chipClass(active: boolean) {
   return active
     ? 'bg-white text-gray-950 border-primary-fill'
-    : 'bg-white text-gray-700 border-gray-200 hover:border-primary'
+    : 'bg-gray-50 text-gray-700 border-gray-100 hover:border-primary'
 }
 </script>
 

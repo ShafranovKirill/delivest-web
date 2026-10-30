@@ -303,7 +303,7 @@ function handleSubmit() {
           :class="
             form.payment_method === option.value
               ? 'border-primary-fill bg-white text-gray-950'
-              : 'border-gray-200 bg-white text-gray-800 hover:border-primary'
+              : 'border-gray-100 bg-gray-50 text-gray-800 hover:border-primary'
           "
           @click="pickPayment(option.value)"
         >
