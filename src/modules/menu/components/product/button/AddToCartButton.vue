@@ -80,58 +80,60 @@ const handleAddToCart = async () => {
 </script>
 
 <template>
-  <ModifierPicker v-if="groups.length && !product?.stopped" v-model="selected" :groups="groups" />
-  <div v-if="lines.length" class="rounded-2xl bg-gray-50 p-3">
-    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
-      {{ t('menu.inCart') }}
-    </p>
-    <ul class="flex flex-col gap-2">
-      <li v-for="line in lines" :key="line.key" class="flex items-center gap-3">
-        <span class="min-w-0 flex-1 text-sm leading-snug text-gray-800">
-          {{ modifierText(line) }}
-          <span class="block text-xs tabular-nums text-gray-500">
-            {{ formatPrice(line.total_price) }}
+  <div class="flex flex-col gap-4">
+    <ModifierPicker v-if="groups.length && !product?.stopped" v-model="selected" :groups="groups" />
+    <div v-if="lines.length" class="rounded-2xl bg-gray-50 p-3">
+      <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+        {{ t('menu.inCart') }}
+      </p>
+      <ul class="flex flex-col gap-2">
+        <li v-for="line in lines" :key="line.key" class="flex items-center gap-3">
+          <span class="min-w-0 flex-1 text-sm leading-snug text-gray-800">
+            {{ modifierText(line) }}
+            <span class="block text-xs tabular-nums text-gray-500">
+              {{ formatPrice(line.total_price) }}
+            </span>
           </span>
-        </span>
-        <div class="flex shrink-0 items-center gap-1 rounded-full bg-white p-0.5 shadow-xs">
-          <button
-            type="button"
-            class="grid size-7 place-items-center rounded-full text-gray-700 hover:bg-gray-100 cursor-pointer"
-            :disabled="cartStore.isLoading"
-            @click="less(line)"
-          >
-            <i class="pi pi-minus text-[10px]" />
-          </button>
-          <span class="min-w-6 text-center text-sm font-bold tabular-nums">{{
-            line.quantity
-          }}</span>
-          <button
-            type="button"
-            class="grid size-7 place-items-center rounded-full text-gray-700 hover:bg-gray-100 cursor-pointer"
-            :disabled="cartStore.isLoading || line.stopped"
-            @click="more(line)"
-          >
-            <i class="pi pi-plus text-[10px]" />
-          </button>
-        </div>
-      </li>
-    </ul>
-  </div>
-  <SoldOutLabel v-if="product?.stopped" class="py-3.5!" />
-  <Button
-    v-else
-    @click="handleAddToCart"
-    :loading="cartStore.isLoading"
-    :disabled="!product || cartStore.isLoading"
-    class="whitespace-nowrap rounded-3xl! w-full! flex items-center justify-center gap-2 py-3.5! px-6 font-semibold transition-all hover:opacity-95"
-  >
-    <span>{{ t('menu.addToCart', { price: formatPrice((product?.price ?? 0) + extra) }) }}</span>
-
-    <span
-      v-if="product?.old_price && product.old_price > (product.price ?? 0)"
-      class="line-through text-xs opacity-70 font-normal"
+          <div class="flex shrink-0 items-center gap-1 rounded-full bg-white p-0.5 shadow-xs">
+            <button
+              type="button"
+              class="grid size-7 place-items-center rounded-full text-gray-700 hover:bg-gray-100 cursor-pointer"
+              :disabled="cartStore.isLoading"
+              @click="less(line)"
+            >
+              <i class="pi pi-minus text-[10px]" />
+            </button>
+            <span class="min-w-6 text-center text-sm font-bold tabular-nums">{{
+              line.quantity
+            }}</span>
+            <button
+              type="button"
+              class="grid size-7 place-items-center rounded-full text-gray-700 hover:bg-gray-100 cursor-pointer"
+              :disabled="cartStore.isLoading || line.stopped"
+              @click="more(line)"
+            >
+              <i class="pi pi-plus text-[10px]" />
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <SoldOutLabel v-if="product?.stopped" class="py-3.5!" />
+    <Button
+      v-else
+      @click="handleAddToCart"
+      :loading="cartStore.isLoading"
+      :disabled="!product || cartStore.isLoading"
+      class="whitespace-nowrap rounded-3xl! w-full! flex items-center justify-center gap-2 py-3.5! px-6 font-semibold transition-all hover:opacity-95"
     >
-      {{ formatPrice(product.old_price + extra) }}
-    </span>
-  </Button>
+      <span>{{ t('menu.addToCart', { price: formatPrice((product?.price ?? 0) + extra) }) }}</span>
+
+      <span
+        v-if="product?.old_price && product.old_price > (product.price ?? 0)"
+        class="line-through text-xs opacity-70 font-normal"
+      >
+        {{ formatPrice(product.old_price + extra) }}
+      </span>
+    </Button>
+  </div>
 </template>
