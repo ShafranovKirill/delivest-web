@@ -287,6 +287,7 @@ export const ru = {
     loadFailedHint: 'Попробуйте обновить страницу или повторить запрос позже.',
   },
   cart: {
+    edit: 'Изменить',
     removeShort: 'Убрать',
     decrease: 'Убавить',
     increase: 'Добавить',

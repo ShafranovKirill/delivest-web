@@ -4,6 +4,11 @@ import type { CartItem } from '@/modules/cart/api/cart.service.ts'
 import { useCartStore } from '../stores/cart.store.ts'
 import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store.ts'
+import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store.ts'
+import { PRODUCT_QUERY_KEY } from '@/modules/menu/composables/useProductRoute'
 
 const props = defineProps<{
   item: CartItem
@@ -11,6 +16,23 @@ const props = defineProps<{
 
 const cartStore = useCartStore()
 const { t } = useI18n()
+const router = useRouter()
+const branchStore = useBranchStore()
+const desktopModalStore = useDesktopModalStore()
+const mobileModalStore = useMobileModalStore()
+
+function handleEdit() {
+  const slug = branchStore.activeBranch?.slug
+  if (!slug) return
+
+  desktopModalStore.closeModal()
+  mobileModalStore.closeModal()
+  router.push({
+    name: 'menu',
+    params: { slug },
+    query: { [PRODUCT_QUERY_KEY]: props.item.product_id },
+  })
+}
 
 function handleDecrease() {
   if (props.item.quantity > 1) {
@@ -87,18 +109,21 @@ function handleIncrease() {
         </template>
 
         <template v-else>
-          <span />
+          <button
+            type="button"
+            class="rounded-full px-1 py-1.5 text-sm font-semibold text-primary cursor-pointer"
+            @click="handleEdit"
+          >
+            {{ t('cart.edit') }}
+          </button>
           <div class="flex items-center rounded-full bg-white p-1 shadow-xs">
             <button
               type="button"
               class="grid size-8 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
-              :aria-label="item.quantity > 1 ? t('cart.decrease') : t('cart.remove')"
+              :aria-label="t('cart.decrease')"
               @click="handleDecrease"
             >
-              <i
-                class="pi text-xs"
-                :class="item.quantity > 1 ? 'pi-minus' : 'pi-trash text-red-500'"
-              />
+              <i class="pi pi-minus text-xs" />
             </button>
             <span class="min-w-7 text-center text-sm font-bold tabular-nums">
               {{ item.quantity }}
