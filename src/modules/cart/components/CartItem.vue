@@ -118,7 +118,7 @@ function handleIncrease() {
             >
               {{ t('cart.edit') }}
             </button>
-            <div class="flex items-center rounded-full bg-white p-0.5 shadow-xs">
+            <div class="flex items-center gap-1 rounded-full bg-white p-0.5 shadow-xs">
               <button
                 type="button"
                 class="grid size-7 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
@@ -127,7 +127,7 @@ function handleIncrease() {
               >
                 <i class="pi pi-minus text-[10px]" />
               </button>
-              <span class="min-w-6 text-center text-sm font-bold tabular-nums">
+              <span class="min-w-8 text-center text-sm font-bold tabular-nums">
                 {{ item.quantity }}
               </span>
               <button
