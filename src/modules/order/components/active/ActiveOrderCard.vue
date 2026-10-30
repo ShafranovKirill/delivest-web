@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import type { ActiveOrder } from '../../api/order.service'
 import { formatPrice } from '@/utils/money'
-import { formatTime, fulfillmentLabel, statusIcon, statusLabel } from '../../utils/orderStatus'
+import {
+  formatTime,
+  fulfillmentLabel,
+  orderStatusIcon,
+  orderStatusLabel,
+} from '../../utils/orderStatus'
 import OrderStatusSteps from './OrderStatusSteps.vue'
 import { useI18n } from 'vue-i18n'
 
@@ -21,14 +26,14 @@ const { t } = useI18n()
       <span
         class="grid place-items-center size-11 shrink-0 rounded-2xl bg-primary-soft text-primary"
       >
-        <i :class="['pi', statusIcon(order.status), 'text-lg']" />
+        <i :class="['pi', orderStatusIcon(order), 'text-lg']" />
       </span>
       <div class="min-w-0 flex-1">
         <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
           {{ t('order.number', { number: order.short_number }) }} ·
           {{ fulfillmentLabel(order.fulfillment_type) }}
         </p>
-        <p class="font-extrabold text-gray-950">{{ statusLabel(order.status) }}</p>
+        <p class="font-extrabold text-gray-950">{{ orderStatusLabel(order) }}</p>
       </div>
       <i class="pi pi-chevron-right text-sm text-gray-400 group-hover:text-primary" />
     </div>

@@ -678,7 +678,7 @@ export interface components {
        * @example cash
        * @enum {string|null}
        */
-      payment_method?: 'cash' | 'card_offline' | null
+      payment_method?: 'cash' | 'card_offline' | 'online' | null
       /**
        * @description Количество приборов
        * @example 2
@@ -1069,7 +1069,14 @@ export interface components {
         /** @example 261029-MSK1-042 */
         number: string
         /** @enum {string} */
-        payment_method: 'cash' | 'card_offline'
+        payment_method: 'cash' | 'card_offline' | 'online'
+        /** @description Заказ ждёт онлайн-оплаты и ещё не принят в работу */
+        awaiting_payment?: boolean
+        /** @description Только в ответе на создание онлайн-заказа */
+        payment?: {
+          /** Format: uri */
+          confirmation_url?: string
+        } | null
         /** @example 2 */
         persons?: number | null
         promotions: components['schemas']['OrderPromotion'][]
@@ -1556,7 +1563,9 @@ export interface components {
       /** @example 261029-MSK1-042 */
       number: string
       /** @enum {string} */
-      payment_method: 'cash' | 'card_offline'
+      payment_method: 'cash' | 'card_offline' | 'online'
+      /** @description Заказ ждёт онлайн-оплаты и ещё не принят в работу */
+      awaiting_payment?: boolean
       promotions: components['schemas']['OrderPromotion'][]
       /** @example 42 */
       short_number: string
@@ -1623,6 +1632,8 @@ export interface components {
       special_hours?: {
         [key: string]: unknown
       }
+      /** @description Способы оплаты, включённые на филиале */
+      payment_methods?: ('cash' | 'card_offline' | 'online')[]
       /** @description Режим приёма: normal, load (добавка к времени) или paused (заказы закрыты) */
       intake?: {
         extra_minutes?: number

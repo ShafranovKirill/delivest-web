@@ -231,6 +231,10 @@ export const en: typeof ru = {
       sunday: 'Sunday',
     },
     info: {
+      openNow: 'Open',
+      openUntil: 'Open until {time}',
+      week: 'Whole week',
+      todayHours: 'Today',
       title: 'About us',
       subtitle: 'Address, contacts and opening hours',
       branch: 'Branch',
@@ -365,6 +369,9 @@ export const en: typeof ru = {
       done: 'Done',
     },
     status: {
+      awaitingPayment: 'Awaiting payment',
+      paidCreated: 'Paid, the operator will confirm the order',
+      paidAccepted: 'Order accepted, we started cooking',
       created: 'Awaiting confirmation',
       accepted: 'Confirmed',
       preparing: 'Preparing',
@@ -382,6 +389,11 @@ export const en: typeof ru = {
       title: 'Payment',
       cash: 'Cash',
       card_offline: 'Card on receipt',
+      online: 'Online, card or SBP',
+    },
+    pay: {
+      action: 'Pay',
+      failed: 'Could not open the payment page, please try again',
     },
     form: {
       contacts: 'Contact details',
@@ -393,6 +405,7 @@ export const en: typeof ru = {
       dineIn: 'Dine-in',
       cash: 'Cash',
       card: 'Card',
+      online: 'Online',
       callOperator: 'I will tell the address to the operator by phone',
       comment: 'Order comment',
       commentPlaceholder: 'For example: no onions',

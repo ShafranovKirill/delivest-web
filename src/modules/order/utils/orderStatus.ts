@@ -21,6 +21,21 @@ export function statusLabel(status: OrderStatus): string {
   return t(`order.status.${status}`)
 }
 
+type StatusSource = Pick<ActiveOrder, 'status' | 'payment_method' | 'awaiting_payment'>
+
+export function orderStatusLabel(order: StatusSource): string {
+  if (order.awaiting_payment) return t('order.status.awaitingPayment')
+  if (order.payment_method === 'online') {
+    if (order.status === 'created') return t('order.status.paidCreated')
+    if (order.status === 'accepted') return t('order.status.paidAccepted')
+  }
+  return statusLabel(order.status)
+}
+
+export function orderStatusIcon(order: StatusSource): string {
+  return order.awaiting_payment ? 'pi-credit-card' : statusIcon(order.status)
+}
+
 export function fulfillmentLabel(type: FulfillmentType): string {
   return t(`order.fulfillment.${type}`)
 }

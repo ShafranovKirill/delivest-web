@@ -229,6 +229,10 @@ export const ru = {
       sunday: 'Воскресенье',
     },
     info: {
+      openNow: 'Открыто',
+      openUntil: 'Работаем до {time}',
+      week: 'Вся неделя',
+      todayHours: 'Сегодня',
       title: 'О нас',
       subtitle: 'Адрес, контакты и режим работы заведения',
       branch: 'Филиал',
@@ -363,6 +367,9 @@ export const ru = {
       done: 'Готово',
     },
     status: {
+      awaitingPayment: 'Ожидает оплаты',
+      paidCreated: 'Оплачен, оператор подтвердит заказ',
+      paidAccepted: 'Заказ принят, начали готовить',
       created: 'Ждёт подтверждения',
       accepted: 'Подтверждён',
       preparing: 'Готовится',
@@ -380,6 +387,11 @@ export const ru = {
       title: 'Оплата',
       cash: 'Наличными',
       card_offline: 'Картой при получении',
+      online: 'Онлайн, картой или СБП',
+    },
+    pay: {
+      action: 'Оплатить',
+      failed: 'Не удалось открыть страницу оплаты, попробуйте ещё раз',
     },
     form: {
       contacts: 'Контактные данные',
@@ -391,6 +403,7 @@ export const ru = {
       dineIn: 'В зале',
       cash: 'Наличными',
       card: 'Картой',
+      online: 'Онлайн',
       callOperator: 'Назову адрес оператору по телефону',
       comment: 'Комментарий к заказу',
       commentPlaceholder: 'Например: без лука',

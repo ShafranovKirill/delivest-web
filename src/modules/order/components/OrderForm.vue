@@ -17,6 +17,7 @@ import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmen
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
 import { useI18n } from 'vue-i18n'
 import { formatPrice } from '@/utils/money'
@@ -25,7 +26,7 @@ export interface OrderFormValues {
   customer_name: string
   customer_phone: string
   fulfillment_type: 'delivery' | 'pickup' | 'dine_in'
-  payment_method: 'cash' | 'card_offline'
+  payment_method: 'cash' | 'card_offline' | 'online'
   cash_given: number | null
   comment: string
   cook_by: string | null
@@ -45,6 +46,7 @@ const toast = useToast()
 const { t } = useI18n()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
@@ -89,12 +91,28 @@ const pickupOptions = computed<Array<{ value: PickupKind; label: string; icon: s
   { value: 'dine_in', label: t('order.form.dineIn'), icon: 'pi-home' },
 ])
 
-const paymentOptions = computed<
+const allPaymentOptions = computed<
   Array<{ value: OrderFormValues['payment_method']; label: string; icon: string }>
 >(() => [
   { value: 'cash', label: t('order.form.cash'), icon: 'pi-wallet' },
   { value: 'card_offline', label: t('order.form.card'), icon: 'pi-credit-card' },
+  { value: 'online', label: t('order.form.online'), icon: 'pi-mobile' },
 ])
+
+const paymentOptions = computed(() => {
+  const enabled = branchStore.activeBranch?.branch_info?.payment_methods ?? ['cash', 'card_offline']
+  return allPaymentOptions.value.filter((option) => enabled.includes(option.value))
+})
+
+watch(
+  paymentOptions,
+  (options) => {
+    if (options.length && !options.some((option) => option.value === form.payment_method)) {
+      form.payment_method = options[0]!.value
+    }
+  },
+  { immediate: true },
+)
 
 const BANKNOTES = [500, 1000, 2000, 5000]
 const changeOpen = ref(false)

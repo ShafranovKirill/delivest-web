@@ -51,6 +51,11 @@ function cancelOrder() {
   cancel.mutate(props.order.id)
 }
 
+const pay = useMutation({
+  mutationFn: (id: string) => OrderService.getPaymentLink(id),
+  onSuccess: (url) => window.location.assign(url),
+})
+
 const address = computed(() => formatAddress(props.order?.address as AddressParts | null))
 </script>
 
@@ -185,6 +190,17 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
           class="h-12 w-full rounded-full! font-semibold"
           @click="emit('repeat')"
         />
+        <Button
+          v-if="!repeatable && order?.awaiting_payment"
+          :label="t('order.pay.action')"
+          :loading="pay.isPending.value"
+          icon="pi pi-credit-card"
+          class="h-12 w-full rounded-full! font-semibold"
+          @click="pay.mutate(order.id)"
+        />
+        <p v-if="pay.isError.value" class="text-center text-sm text-red-600">
+          {{ t('order.pay.failed') }}
+        </p>
         <Button
           v-if="!repeatable && order?.can_cancel"
           :label="confirmingCancel ? t('order.cancel.confirm') : t('order.cancel.action')"

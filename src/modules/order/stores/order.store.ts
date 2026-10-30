@@ -113,6 +113,9 @@ export const useOrderStore = defineStore('order', () => {
       queryClient.invalidateQueries({ queryKey: MY_ORDERS_KEY })
       queryClient.invalidateQueries({ queryKey: ADDRESSES_KEY })
 
+      const paymentUrl = order.payment?.confirmation_url
+      if (paymentUrl) window.location.assign(paymentUrl)
+
       return order
     } catch (error: unknown) {
       errorMessage.value = getApiErrorMessage(error, t('order.failed'))
