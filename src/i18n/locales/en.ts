@@ -448,7 +448,7 @@ export const en: typeof ru = {
     toProduct: 'Go to product',
     running: 'Running now',
     runningHint: 'The discount is applied in the cart, no promo code needed',
-    automatic: 'Automatic',
+    automatic: 'No promo code',
     until: 'until {date}',
     specials: 'Special offers',
     emptyTitle: 'No promotions right now',
