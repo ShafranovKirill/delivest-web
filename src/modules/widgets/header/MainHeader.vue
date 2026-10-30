@@ -75,7 +75,7 @@ const navigateToMenu = () => {
             <Button
               icon="pi pi-angle-left text-4xl!"
               variant="text"
-              class="p-1! -ml-1 text-gray-700 hover:text-black shrink-0"
+              class="p-1! -ml-2 mr-1 text-gray-700 hover:text-black shrink-0"
               :aria-label="t('common.back')"
               @click="stepBack"
             />
