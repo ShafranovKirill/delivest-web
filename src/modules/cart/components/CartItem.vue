@@ -118,25 +118,25 @@ function handleIncrease() {
             >
               {{ t('cart.edit') }}
             </button>
-            <div class="flex items-center rounded-full bg-white p-1 shadow-xs">
+            <div class="flex items-center rounded-full bg-white p-0.5 shadow-xs">
               <button
                 type="button"
-                class="grid size-8 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
+                class="grid size-7 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
                 :aria-label="t('cart.decrease')"
                 @click="handleDecrease"
               >
-                <i class="pi pi-minus text-xs" />
+                <i class="pi pi-minus text-[10px]" />
               </button>
-              <span class="min-w-7 text-center text-sm font-bold tabular-nums">
+              <span class="min-w-6 text-center text-sm font-bold tabular-nums">
                 {{ item.quantity }}
               </span>
               <button
                 type="button"
-                class="grid size-8 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
+                class="grid size-7 place-items-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
                 :aria-label="t('cart.increase')"
                 @click="handleIncrease"
               >
-                <i class="pi pi-plus text-xs" />
+                <i class="pi pi-plus text-[10px]" />
               </button>
             </div>
           </div>
