@@ -17,6 +17,7 @@ declare module 'vue' {
     Drawer: typeof import('primevue/drawer')['default']
     ITablerBell: typeof import('~icons/tabler/bell')['default']
     ITablerBellRinging: typeof import('~icons/tabler/bell-ringing')['default']
+    ITablerClockPause: typeof import('~icons/tabler/clock-pause')['default']
     ITablerMoon: typeof import('~icons/tabler/moon')['default']
     ITablerPlus: typeof import('~icons/tabler/plus')['default']
     ITablerRepeat: typeof import('~icons/tabler/repeat')['default']
