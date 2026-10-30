@@ -7,6 +7,7 @@ import CartButtonMobile from '@/modules/cart/components/CartButtonMobile.vue'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
 import StoryStrip from '@/modules/stock/components/StoryStrip.vue'
 import ClosedBanner from '@/modules/branch/components/ClosedBanner.vue'
+import PausedBanner from '@/modules/branch/components/PausedBanner.vue'
 import StoryViewer from '@/modules/stock/components/StoryViewer.vue'
 import FulfillmentSummary from '@/modules/fulfillment/components/FulfillmentSummary.vue'
 import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
@@ -44,6 +45,7 @@ onMounted(() => {
 
 <template>
   <div class="bg-gray-200">
+    <PausedBanner />
     <ClosedBanner />
     <StoryStrip />
     <div v-if="fulfillmentStore.current" class="w-full max-w-7xl mx-auto px-4 pb-4">

@@ -65,6 +65,7 @@ export const en: typeof ru = {
       price_changed: 'The order total has changed. Check your cart and place the order again',
       delivery_below_minimum: 'The order is below the minimum for delivery to this address',
       delivery_outside_zones: 'We do not deliver to this address, pick another one',
+      branch_paused: 'This branch is not taking orders for now. Please try again later',
       delivery_no_coordinates: 'Pick the delivery address on the map',
       promo_unavailable: 'The promotion has just ended. The cart has been recalculated',
       promo_not_found: 'Promo code not found',
@@ -205,6 +206,10 @@ export const en: typeof ru = {
       later: 'We open on {day} at {time}',
       hint: 'You can order ahead for when we open',
       noOpening: 'Orders are paused for now',
+    },
+    paused: {
+      title: 'Not taking orders for now',
+      until: 'until {time}',
     },
     schedule: {
       notSet: 'Schedule not specified',

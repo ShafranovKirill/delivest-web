@@ -1474,6 +1474,7 @@ export interface components {
         | 'price_changed'
         | 'delivery_below_minimum'
         | 'delivery_outside_zones'
+        | 'branch_paused'
         | 'delivery_no_coordinates'
         | 'promo_unavailable'
         | 'promo_not_found'
@@ -1584,7 +1585,10 @@ export interface components {
        * @example Тюмень
        */
       city?: string | null
-      /** @example 30 */
+      /**
+       * @description Минуты до готовности вместе с добавкой на загрузку
+       * @example 30
+       */
       delivery_time?: number | null
       /**
        * Format: uuid
@@ -1593,6 +1597,14 @@ export interface components {
       id: string
       /** @example https://instagram.com/profile_name */
       instagram_url?: string | null
+      /** @description Режим приёма: normal, load (добавка к времени) или paused (заказы закрыты) */
+      intake?: {
+        extra_minutes?: number
+        mode?: 'normal' | 'load' | 'paused'
+        reason?: string | null
+        /** Format: date-time */
+        until?: string | null
+      }
       /**
        * Format: float
        * @example 55.7558
