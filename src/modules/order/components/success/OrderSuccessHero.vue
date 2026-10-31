@@ -5,7 +5,6 @@ import type { Order } from '../../api/order.service'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
-import { starsFor } from '@/modules/account/utils/stars'
 
 const props = defineProps<{ order: Order | null }>()
 
@@ -17,7 +16,7 @@ const starsLabel = useStarsLabel()
 const earned = computed(() => {
   const rate = branchStore.activeBranch?.branch_info?.loyalty
   if (!props.order || !authStore.isAuthenticated || !rate?.enabled) return 0
-  return starsFor(props.order.total_amount, props.order.delivery_amount, rate)
+  return props.order.points_earned ?? 0
 })
 </script>
 

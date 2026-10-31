@@ -21,6 +21,8 @@ export const useCartStore = defineStore('cart', () => {
   const totalQuantity = computed<number>(() => cart.value?.total_quantity ?? 0)
   const totalAmount = computed<number>(() => cart.value?.total_amount ?? 0)
   const subtotalAmount = computed<number>(() => cart.value?.subtotal_amount ?? 0)
+  const baseStars = computed(() => cart.value?.base_stars ?? 0)
+  const productStars = computed(() => cart.value?.product_stars ?? 0)
   const discountAmount = computed<number>(() => cart.value?.discount_amount ?? 0)
   const promotions = computed<AppliedPromotion[]>(() => cart.value?.promotions ?? [])
   const hints = computed<PromoHint[]>(() => cart.value?.hints ?? [])
@@ -176,6 +178,8 @@ export const useCartStore = defineStore('cart', () => {
     totalAmount,
     subtotalAmount,
     discountAmount,
+    baseStars,
+    productStars,
     promotions,
     hints,
     promoCode,

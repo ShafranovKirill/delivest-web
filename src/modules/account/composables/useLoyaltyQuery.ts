@@ -20,6 +20,7 @@ export const useLoyaltyQuery = () => {
         !!branchId.value &&
         !!branchStore.activeBranch?.branch_info?.loyalty?.enabled,
     ),
-    staleTime: 60 * 1000,
+    staleTime: 10 * 1000,
+    refetchInterval: 15 * 1000,
   })
 }

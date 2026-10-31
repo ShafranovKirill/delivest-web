@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import LoyaltyEarnings from '@/modules/account/components/LoyaltyEarnings.vue'
+
 import { formatPrice } from '@/utils/money'
 import { computed } from 'vue'
 import { useCartStore } from '../stores/cart.store'
@@ -43,5 +45,6 @@ const total = computed(() => cartStore.totalAmount + (deliveryPrice.value ?? 0))
       <span>{{ t('common.total') }}</span>
       <span class="tabular-nums">{{ formatPrice(total) }}</span>
     </div>
+    <LoyaltyEarnings class="mt-2" />
   </div>
 </template>

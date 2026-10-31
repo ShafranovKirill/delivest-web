@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { intlLocale } from '@/i18n'
@@ -38,6 +40,7 @@ const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
             + {{ modifier.name
             }}<template v-if="modifier.quantity > 1"> × {{ modifier.quantity }}</template>
           </p>
+          <StarRewardBadge :amount="item.stars_reward" :quantity="item.quantity" />
           <p v-if="item.gift" class="text-xs font-medium text-green-700">
             {{ t('cart.promoGift') }}
           </p>

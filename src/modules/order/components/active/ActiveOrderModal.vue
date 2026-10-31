@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import OrderEarnings from '@/modules/account/components/OrderEarnings.vue'
+
 import { computed, ref, watch } from 'vue'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import Dialog from 'primevue/dialog'
@@ -121,6 +123,7 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
         </SurfaceCard>
       </div>
 
+      <OrderEarnings :amount="order.points_earned" :status="order.status" />
       <SurfaceCard v-if="order.comment" icon="pi-comment" :label="t('order.comment')">
         <template #value>{{ order.comment }}</template>
       </SurfaceCard>

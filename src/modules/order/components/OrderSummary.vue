@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+
 import { formatPrice } from '@/utils/money'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
@@ -46,6 +48,7 @@ const headline = useCartHeadline()
           >
             + {{ modifier.name }}
           </span>
+          <StarRewardBadge :amount="item.stars_reward" :quantity="item.quantity" />
           <span v-if="item.gift" class="block text-xs font-medium text-green-700">
             <i class="pi pi-gift text-xs" /> {{ t('order.giftCount', { count: item.quantity }) }}
           </span>

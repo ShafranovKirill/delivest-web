@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+
 import ProductNutrition from '../ProductNutrition.vue'
 import ProductImage from '../ProductImage.vue'
 import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
@@ -57,6 +59,7 @@ const weightKey = computed(() =>
               </span>
             </div>
 
+            <StarRewardBadge :amount="activeProduct?.stars_reward" />
             <ProductNutrition :nutrition="activeProduct?.nutrition" />
 
             <p

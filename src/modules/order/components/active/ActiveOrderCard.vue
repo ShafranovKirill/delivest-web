@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import OrderEarnings from '@/modules/account/components/OrderEarnings.vue'
+
 import type { ActiveOrder } from '../../api/order.service'
 import { formatPrice } from '@/utils/money'
 import {
@@ -39,6 +41,7 @@ const { t } = useI18n()
     </div>
 
     <OrderStatusSteps :order="order" />
+    <OrderEarnings :amount="order.points_earned" :status="order.status" />
 
     <div class="flex items-center justify-between text-sm">
       <span class="text-gray-500">

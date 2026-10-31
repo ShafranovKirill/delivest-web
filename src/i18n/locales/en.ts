@@ -22,6 +22,12 @@ export const en: typeof ru = {
     withoutDiscount: 'Without discount',
   },
   loyalty: {
+    itemBonus: 'Extra for this product: +{stars}',
+    earnTotal: 'Earn after completion',
+    fromAmount: 'For the order amount',
+    fromProducts: 'Extra for products',
+    earned: 'Credited: +{stars}',
+
     title: 'My stars',
     shop: 'Products for stars',
     add: 'Get for {stars}',

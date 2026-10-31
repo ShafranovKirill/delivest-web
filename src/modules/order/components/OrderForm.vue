@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import LoyaltyEarnings from '@/modules/account/components/LoyaltyEarnings.vue'
+
 import { reactive, computed, ref, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
@@ -404,6 +406,7 @@ function handleSubmit() {
       />
     </div>
 
+    <LoyaltyEarnings :spend-points="starsToSpend" />
     <OrderConsent />
   </form>
 </template>

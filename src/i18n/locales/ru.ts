@@ -20,6 +20,12 @@ export const ru = {
     withoutDiscount: 'Без скидки',
   },
   loyalty: {
+    itemBonus: 'Дополнительно за товар: +{stars}',
+    earnTotal: 'Получите после выполнения',
+    fromAmount: 'За сумму заказа',
+    fromProducts: 'Дополнительно за товары',
+    earned: 'Начислено: +{stars}',
+
     title: 'Мои звёзды',
     shop: 'Товары за звёзды',
     add: 'Забрать за {stars}',

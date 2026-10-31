@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+
 import { formatPrice } from '@/utils/money'
 import type { CartItem } from '@/modules/cart/api/cart.service.ts'
 import { useCartStore } from '../stores/cart.store.ts'
@@ -88,6 +90,7 @@ function handleIncrease() {
           </template>
         </p>
 
+        <StarRewardBadge :amount="item.stars_reward" :quantity="item.quantity" class="mt-2" />
         <span
           v-if="item.stopped"
           class="mt-1.5 inline-block rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600"

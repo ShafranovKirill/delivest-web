@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+
 import type { MenuProduct } from '../../api/menu.service'
 import ProductImage from './ProductImage.vue'
 import { useMenuStore } from '../../stores/menu.store'
@@ -27,6 +29,7 @@ const menuStore = useMenuStore()
           <p class="text-xl font-bold text-center mb-2">{{ product.name }}</p>
         </div>
 
+        <StarRewardBadge :amount="product.stars_reward" class="mb-2" />
         <AddToCartSwitch :product="product" />
       </div>
     </template>

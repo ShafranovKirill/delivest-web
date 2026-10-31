@@ -3,6 +3,7 @@ import type { Channel } from 'phoenix'
 import { queryClient } from '@/api/client'
 import { getSocket, reconnectSocket } from '@/api/socket'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { LOYALTY_KEY } from '@/modules/account/composables/useLoyaltyQuery'
 import { MY_ORDERS_KEY } from '@/modules/account/composables/useMyOrdersQuery'
 import type { ActiveOrder } from '../api/order.service'
 import { ACTIVE_ORDERS_KEY } from './useActiveOrdersQuery'
@@ -29,6 +30,7 @@ export function useLiveOrders() {
       channel = socket.channel('orders')
 
       channel.on('order', (event: OrderEvent) => {
+        queryClient.invalidateQueries({ queryKey: [LOYALTY_KEY] })
         queryClient.setQueryData<ActiveOrder[]>(ACTIVE_ORDERS_KEY, (list) =>
           upsertActive(list, event),
         )

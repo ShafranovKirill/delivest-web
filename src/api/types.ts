@@ -692,6 +692,7 @@ export interface components {
     }
     /** OrderItemResponse */
     OrderItemResponse: {
+      stars_reward?: number
       /**
        * @description Цена за единицу по меню
        * @example 59000
@@ -752,6 +753,7 @@ export interface components {
        */
       measure_unit?: 'g' | 'ml'
       /** @description КБЖУ на 100 г; пустые поля — null */
+      stars_reward?: number | null
       nutrition?: {
         /** @example 250 */
         calories?: number | null
@@ -893,6 +895,7 @@ export interface components {
     }
     /** CartItemResponse */
     CartItemResponse: {
+      stars_reward?: number
       stars?: boolean
       stars_price?: number | null
       /**
@@ -1030,6 +1033,9 @@ export interface components {
     /** OrderResponse */
     OrderResponse: {
       data: {
+        points_earned?: number
+        base_stars?: number
+        product_stars?: number
         address?: {
           [key: string]: unknown
         } | null
@@ -1303,6 +1309,9 @@ export interface components {
     /** CartResponse */
     CartResponse: {
       data: {
+        points_earned?: number
+        base_stars?: number
+        product_stars?: number
         /**
          * Format: uuid
          * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
@@ -1561,6 +1570,7 @@ export interface components {
     }
     /** ActiveOrder */
     ActiveOrder: {
+      points_earned?: number
       address?: {
         [key: string]: unknown
       } | null
