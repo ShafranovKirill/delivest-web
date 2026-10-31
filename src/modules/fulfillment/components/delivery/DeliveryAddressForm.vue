@@ -58,12 +58,6 @@ const details = ['entrance', 'intercom', 'floor'] as const
           class="w-full min-w-0"
         />
       </div>
-      <InputText
-        v-model="address.comment"
-        :placeholder="t('fulfillment.form.comment')"
-        :aria-label="t('fulfillment.form.comment')"
-        class="w-full"
-      />
     </template>
   </div>
 </template>
