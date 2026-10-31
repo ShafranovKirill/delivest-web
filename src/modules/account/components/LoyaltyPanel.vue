@@ -61,9 +61,9 @@ async function add(id: string) {
       <span class="mb-4 grid size-16 place-items-center rounded-full bg-primary-soft text-primary">
         <i class="pi pi-star-fill text-3xl" aria-hidden="true" />
       </span>
-      <p class="text-sm font-medium text-gray-500">{{ t('loyalty.yourBalance') }}</p>
-      <p class="mt-2 text-5xl font-extrabold tabular-nums tracking-tight text-gray-950 sm:text-6xl">
-        {{ auth.isAuthenticated ? (data?.balance ?? '—') : '—' }}
+      <p v-if="auth.isAuthenticated" class="text-sm font-medium text-gray-500">{{ t('loyalty.yourBalance') }}</p>
+      <p v-if="auth.isAuthenticated" class="mt-2 text-5xl font-extrabold tabular-nums tracking-tight text-gray-950 sm:text-6xl">
+        {{ data?.balance ?? '…' }}
         <span class="text-3xl text-primary">★</span>
       </p>
       <p class="mt-3 max-w-md text-sm text-gray-500">{{ t('loyalty.shopHint') }}</p>
