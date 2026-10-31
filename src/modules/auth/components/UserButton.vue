@@ -22,7 +22,7 @@ const starsLabel = useStarsLabel()
       />
       <span
         v-if="signedIn && loyalty.data.value?.enabled"
-        class="pointer-events-none absolute -top-1 right-1/2 inline-flex items-center gap-0.5 whitespace-nowrap text-[10px] font-bold leading-none tabular-nums text-amber-600"
+        class="pointer-events-none absolute -bottom-1 -left-1 inline-flex items-center gap-0.5 whitespace-nowrap rounded-full bg-amber-500 px-1.5 py-1 text-[10px] font-bold leading-none tabular-nums text-white"
         :title="starsLabel(loyalty.data.value.balance)"
       >
         {{ loyalty.data.value.balance }}<i class="pi pi-star-fill text-[8px]!" aria-hidden="true" />
