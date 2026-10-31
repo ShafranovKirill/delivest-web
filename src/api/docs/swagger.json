@@ -8,66 +8,48 @@
             "items": {
               "$ref": "#/components/schemas/ActiveOrder"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": ["data"],
         "title": "ActiveOrdersResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.ActiveOrdersResponse",
-        "x-validate": null
+        "type": "object"
       },
       "LegalDocumentResponse": {
         "properties": {
           "data": {
             "properties": {
               "body": {
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "kind": {
                 "enum": ["privacy", "consent", "offer", "terms"],
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "updated_at": {
                 "format": "date-time",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               }
             },
             "required": ["kind", "body", "updated_at"],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": ["data"],
         "title": "LegalDocumentResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.DocumentResponse",
-        "x-validate": null
+        "type": "object"
       },
       "StartCallRequest": {
         "properties": {
           "phone": {
             "example": "+79990000000",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["phone"],
         "title": "StartCallRequest",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.StartCallRequest",
-        "x-validate": null
+        "type": "object"
       },
       "CreateOrderRequest": {
         "properties": {
@@ -78,128 +60,115 @@
             "description": "UUID филиала",
             "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "cart_id": {
             "description": "UUID корзины",
             "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
+          },
+          "cash_given": {
+            "description": "Сдача с какой суммы, в копейках. Только для наличных",
+            "example": 500000,
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
           },
           "comment": {
             "example": "Без лука",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "cook_by": {
             "description": "Желаемое время приготовления. Если пусто — как можно скорее. Не более 30 дней от текущей даты",
             "example": "2026-10-05T18:30:00",
             "format": "date_time",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "customer_name": {
             "description": "Имя клиента",
             "example": "Иван",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "customer_phone": {
             "description": "Телефон клиента для поиска/создания клиента",
             "example": "+79990000000",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "expected_total": {
             "description": "Сумма, которую видел клиент. Если итог после пересчёта акций окажется больше — вернётся `price_changed`",
-            "example": 1500,
+            "example": 150000,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "fulfillment_type": {
             "enum": ["dine_in", "delivery", "pickup"],
             "example": "delivery",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "payment_method": {
             "enum": ["cash", "card_offline"],
             "example": "cash",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
+          },
+          "persons": {
+            "description": "Количество приборов",
+            "example": 2,
+            "maximum": 99,
+            "minimum": 0,
+            "nullable": true,
+            "type": "integer"
           }
         },
         "required": ["cart_id", "branch_id"],
         "title": "CreateOrderRequest",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.CreateOrderRequest",
-        "x-validate": null
+        "type": "object"
       },
       "OrderItemResponse": {
         "properties": {
           "base_price": {
             "description": "Цена за единицу по меню",
-            "example": 590,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 59000,
+            "type": "integer"
           },
           "gift": {
             "example": false,
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
+          },
+          "modifiers": {
+            "items": {
+              "$ref": "#/components/schemas/ItemModifier"
+            },
+            "type": "array"
           },
           "price": {
             "description": "Цена за единицу с учётом скидок",
-            "example": 531,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 53100,
+            "type": "integer"
           },
           "product_id": {
             "example": "c4a3b8e0-1234-5678-9abc-def012345678",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "quantity": {
             "example": 2,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "title": {
             "example": "Пицца Маргарита",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["product_id", "title", "price", "base_price", "gift", "quantity"],
         "title": "OrderItemResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.OrderItemResponse",
-        "x-validate": null
+        "type": "object"
       },
       "StartCallResponse": {
         "properties": {
@@ -208,123 +177,153 @@
               "call_number": {
                 "description": "Номер, на который нужно позвонить для подтверждения",
                 "example": "+78000000000",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "confirmation_id": {
                 "format": "uuid",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "expires_in": {
                 "description": "Секунды",
                 "example": 600,
-                "type": "integer",
-                "x-struct": null,
-                "x-validate": null
+                "type": "integer"
               }
             },
             "required": ["confirmation_id", "call_number", "expires_in"],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": ["data"],
         "title": "StartCallResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.StartCallResponse",
-        "x-validate": null
+        "type": "object"
       },
       "ProductResponse": {
         "properties": {
           "description": {
             "example": "Сочная пицца с колбасками",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "example": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "is_active": {
             "example": true,
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "measure_unit": {
             "description": "Единица измерения веса: граммы или миллилитры",
             "enum": ["g", "ml"],
             "example": "g",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
+          },
+          "modifier_groups": {
+            "description": "Группы модификаторов. `min`/`max` — сколько выбрать в группе, `is_size` — размер (переключатель)",
+            "items": {
+              "properties": {
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "is_size": {
+                  "type": "boolean"
+                },
+                "max": {
+                  "example": 1,
+                  "type": "integer"
+                },
+                "min": {
+                  "example": 1,
+                  "type": "integer"
+                },
+                "modifiers": {
+                  "items": {
+                    "properties": {
+                      "id": {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "is_default": {
+                        "type": "boolean"
+                      },
+                      "max_quantity": {
+                        "example": 1,
+                        "type": "integer"
+                      },
+                      "name": {
+                        "example": "35 см",
+                        "type": "string"
+                      },
+                      "price": {
+                        "example": 20000,
+                        "type": "integer"
+                      },
+                      "stopped": {
+                        "type": "boolean"
+                      },
+                      "weight": {
+                        "nullable": true,
+                        "type": "integer"
+                      }
+                    },
+                    "required": ["id", "name", "price", "max_quantity", "is_default", "stopped"],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "name": {
+                  "example": "Размер",
+                  "type": "string"
+                }
+              },
+              "required": ["id", "name", "min", "max", "is_size", "modifiers"],
+              "type": "object"
+            },
+            "type": "array"
           },
           "name": {
             "example": "Пипперони",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "old_price": {
             "description": "Цена без скидки, если на товар действует акция; `price` — цена со скидкой",
-            "example": 690,
+            "example": 69000,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "photo_url": {
             "description": "Ссылка на изображение товара",
             "example": "https://storage.example.com/images/pepperoni.jpg",
             "format": "uri",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "price": {
-            "description": "Цена в копейках/минимальных единицах",
-            "example": 590,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "description": "Цена в копейках",
+            "example": 59000,
+            "type": "integer"
           },
           "quantity": {
             "description": "Количество товара на складе (в шт)",
             "example": 10,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "slug": {
             "description": "Человекочитаемый идентификатор товара для URL (?product=hinkali)",
             "example": "hinkali",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "stopped": {
             "description": "Товар в стоп-листе: показывать, но не давать заказать",
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "suggested": {
             "description": "Предлагать в корзине в блоке «Добавить к заказу»",
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "tags": {
             "description": "Теги товара, которые админ настраивает во вкладке «Теги»",
@@ -334,45 +333,31 @@
                   "description": "Иконка тега: SVG из библиотеки или загруженный PNG 64×64",
                   "format": "uri",
                   "nullable": true,
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "string"
                 },
                 "id": {
                   "format": "uuid",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "string"
                 },
                 "name": {
                   "example": "Хит",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "string"
                 }
               },
               "required": ["id", "name", "icon_url"],
-              "type": "object",
-              "x-struct": null,
-              "x-validate": null
+              "type": "object"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "weight": {
             "description": "Вес товара (в граммах)",
             "example": 450,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           }
         },
         "title": "ProductResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.MenuSchemas.ProductResponse",
-        "x-validate": null
+        "type": "object"
       },
       "BranchListResponse": {
         "properties": {
@@ -380,87 +365,93 @@
             "items": {
               "$ref": "#/components/schemas/Branch"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": ["data"],
         "title": "BranchListResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.BranchListResponse",
-        "x-validate": null
+        "type": "object"
+      },
+      "ItemModifier": {
+        "properties": {
+          "group_name": {
+            "example": "Размер",
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "example": "35 см",
+            "type": "string"
+          },
+          "price": {
+            "description": "Цена за единицу, копейки",
+            "example": 20000,
+            "type": "integer"
+          },
+          "quantity": {
+            "example": 1,
+            "type": "integer"
+          }
+        },
+        "required": ["name", "price", "quantity"],
+        "title": "ItemModifier",
+        "type": "object"
       },
       "GeoAddress": {
         "properties": {
           "city": {
             "example": "Тюмень",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "district": {
             "example": "Центральный р-н",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "fias_id": {
             "description": "ФИАС дома",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "geo_precision": {
             "description": "Точность координат DaData qc_geo: 0 — точные, 5 — не определены",
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "house": {
             "example": "10",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "latitude": {
             "format": "float",
             "nullable": true,
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "longitude": {
             "format": "float",
             "nullable": true,
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "postal_code": {
             "example": "625000",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "street": {
             "example": "ул Республики",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "value": {
             "example": "ул Республики, д 10",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": [
@@ -476,9 +467,7 @@
           "geo_precision"
         ],
         "title": "GeoAddress",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.GeoSchemas.GeoAddress",
-        "x-validate": null
+        "type": "object"
       },
       "ClientSessionResponse": {
         "properties": {
@@ -488,110 +477,84 @@
         },
         "required": ["data"],
         "title": "ClientSessionResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.SessionResponse",
-        "x-validate": null
+        "type": "object"
       },
       "SocketTokenResponse": {
         "properties": {
           "data": {
             "properties": {
               "token": {
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               }
             },
             "required": ["token"],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": ["data"],
         "title": "SocketTokenResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.SocketSchemas.SocketTokenResponse",
-        "x-validate": null
+        "type": "object"
       },
       "CartItemResponse": {
         "properties": {
           "base_total": {
             "description": "Итог по строке без скидок",
-            "example": 1180,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 118000,
+            "type": "integer"
           },
           "gift": {
             "description": "Подарок по акции: количество менять нельзя",
             "example": false,
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "image_url": {
             "example": "https://example.com/images/pizza.jpg",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "key": {
-            "description": "Уникальный ключ строки: подарок и платный товар — разные строки",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "description": "Уникальный ключ строки: подарок, платный товар и товар с другими модификаторами — разные строки. Им же удаляется строка",
+            "type": "string"
+          },
+          "modifiers": {
+            "items": {
+              "$ref": "#/components/schemas/ItemModifier"
+            },
+            "type": "array"
           },
           "name": {
             "example": "Пицца Маргарита",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "price": {
             "description": "Цена за единицу по меню",
-            "example": 590,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 59000,
+            "type": "integer"
           },
           "product_id": {
             "example": "c4a3b8e0-1234-5678-9abc-def012345678",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "promotion_ids": {
             "items": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "quantity": {
             "example": 2,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "stopped": {
             "description": "Товар в стоп-листе: заказать нельзя",
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "total_price": {
             "description": "Итог по строке с учётом скидок",
-            "example": 1062,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 106200,
+            "type": "integer"
           }
         },
         "required": [
@@ -606,9 +569,7 @@
           "promotion_ids"
         ],
         "title": "CartItemResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.CartItemResponse",
-        "x-validate": null
+        "type": "object"
       },
       "Branch": {
         "properties": {
@@ -618,45 +579,31 @@
                 "$ref": "#/components/schemas/BranchInfoResponse"
               },
               {
-                "type": "null",
-                "x-struct": null,
-                "x-validate": null
+                "type": "null"
               }
-            ],
-            "x-struct": null,
-            "x-validate": null
+            ]
           },
           "id": {
             "example": "c4a3b8e0-1234-5678-9abc-def012345678",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "is_active": {
             "example": true,
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "name": {
             "example": "Центральный филиал",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "slug": {
             "example": "central",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["id", "name", "slug", "is_active"],
         "title": "Branch",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.Branch",
-        "x-validate": null
+        "type": "object"
       },
       "DeliveryQuoteResponse": {
         "properties": {
@@ -666,9 +613,7 @@
         },
         "required": ["data"],
         "title": "DeliveryQuoteResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.DeliverySchemas.DeliveryQuoteResponse",
-        "x-validate": null
+        "type": "object"
       },
       "ClientAddressRequest": {
         "allOf": [
@@ -681,234 +626,168 @@
                 "example": "Дом",
                 "maxLength": 30,
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               }
             },
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         ],
-        "title": "ClientAddressRequest",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.ClientAddressRequest",
-        "x-validate": null
+        "title": "ClientAddressRequest"
       },
       "PromoGift": {
         "properties": {
           "name": {
             "example": "Кола 0.5",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "product_id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "quantity": {
             "example": 1,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           }
         },
         "required": ["product_id", "name", "quantity"],
         "title": "PromoGift",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoGift",
-        "x-validate": null
+        "type": "object"
       },
       "AddressRequest": {
         "properties": {
           "apartment": {
             "example": "12",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "city": {
             "example": "Москва",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "comment": {
             "example": "Вход со двора",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "district": {
             "example": "Центральный р-н",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "entrance": {
             "example": "2",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "fias_id": {
             "description": "ФИАС дома",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "floor": {
             "example": "3",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "formatted": {
             "example": "г Тюмень, ул Республики, д 10",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "geo_precision": {
             "maximum": 5,
             "minimum": 0,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "house": {
             "example": "10",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "intercom": {
             "example": "42",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "latitude": {
             "example": 57.153,
             "format": "float",
             "nullable": true,
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "longitude": {
             "example": 65.534,
             "format": "float",
             "nullable": true,
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "postal_code": {
             "example": "625000",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "street": {
             "example": "Ленина",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "title": "AddressRequest",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.AddressRequest",
-        "x-validate": null
+        "type": "object"
       },
       "OrderPromotion": {
         "properties": {
           "code": {
             "example": "SUMMER2025",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "discount": {
-            "example": 150,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 15000,
+            "type": "integer"
           },
           "name": {
             "example": "Летняя скидка",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["name", "discount"],
         "title": "OrderPromotion",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.OrderPromotion",
-        "x-validate": null
+        "type": "object"
       },
       "PromoCodeRequest": {
         "properties": {
           "code": {
             "example": "SUMMER2025",
             "maxLength": 32,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["code"],
         "title": "PromoCodeRequest",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoCodeRequest",
-        "x-validate": null
+        "type": "object"
       },
       "ClientProfile": {
         "properties": {
           "id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "name": {
             "example": "Иван",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "phone": {
             "example": "+79990000000",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["id", "phone"],
         "title": "ClientProfile",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.ClientProfile",
-        "x-validate": null
+        "type": "object"
       },
       "OrderResponse": {
         "properties": {
@@ -917,114 +796,96 @@
               "address": {
                 "additionalProperties": true,
                 "nullable": true,
-                "type": "object",
-                "x-struct": null,
-                "x-validate": null
+                "type": "object"
               },
               "branch_id": {
                 "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
                 "format": "uuid",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "cart_id": {
                 "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
                 "format": "uuid",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "client_id": {
                 "example": "c4a3b8e0-1234-5678-9abc-def012345678",
                 "format": "uuid",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "comment": {
                 "example": "Без лука",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "cook_by": {
                 "example": "2026-10-05T18:30:00",
                 "format": "date_time",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "customer_name": {
                 "example": "Иван",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "customer_phone": {
                 "example": "+79990000000",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
+              },
+              "customer_phone_ext": {
+                "example": "1234",
+                "nullable": true,
+                "type": "string"
               },
               "delivery_amount": {
                 "description": "Стоимость доставки, входит в total_amount",
-                "example": 200,
-                "type": "integer",
-                "x-struct": null,
-                "x-validate": null
+                "example": 20000,
+                "type": "integer"
               },
               "discount_amount": {
-                "example": 150,
-                "type": "integer",
-                "x-struct": null,
-                "x-validate": null
+                "example": 15000,
+                "type": "integer"
               },
               "fulfillment_type": {
                 "enum": ["dine_in", "delivery", "pickup"],
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "id": {
                 "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
                 "format": "uuid",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "items": {
                 "items": {
                   "$ref": "#/components/schemas/OrderItemResponse"
                 },
-                "type": "array",
-                "x-struct": null,
-                "x-validate": null
+                "type": "array"
               },
               "number": {
-                "example": "ORD-1001",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "example": "261029-MSK1-042",
+                "type": "string"
               },
               "payment_method": {
                 "enum": ["cash", "card_offline"],
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
+              },
+              "persons": {
+                "example": 2,
+                "nullable": true,
+                "type": "integer"
               },
               "promotions": {
                 "items": {
                   "$ref": "#/components/schemas/OrderPromotion"
                 },
-                "type": "array",
-                "x-struct": null,
-                "x-validate": null
+                "type": "array"
+              },
+              "short_number": {
+                "example": "42",
+                "type": "string"
               },
               "status": {
                 "enum": [
@@ -1037,27 +898,22 @@
                   "cancelled"
                 ],
                 "example": "created",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "subtotal_amount": {
                 "description": "Сумма без скидок",
-                "example": 1330,
-                "type": "integer",
-                "x-struct": null,
-                "x-validate": null
+                "example": 133000,
+                "type": "integer"
               },
               "total_amount": {
-                "example": 1180,
-                "type": "integer",
-                "x-struct": null,
-                "x-validate": null
+                "example": 118000,
+                "type": "integer"
               }
             },
             "required": [
               "id",
               "number",
+              "short_number",
               "status",
               "fulfillment_type",
               "payment_method",
@@ -1070,52 +926,54 @@
               "cart_id",
               "items"
             ],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": ["data"],
         "title": "OrderResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.OrderResponse",
-        "x-validate": null
+        "type": "object"
+      },
+      "ModifierChoice": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quantity": {
+            "default": 1,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": ["id"],
+        "title": "ModifierChoice",
+        "type": "object"
       },
       "PromoHint": {
         "description": "Автоматическая акция, которая сработает при выполнении условий.",
         "properties": {
           "description": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "name": {
             "example": "Кола в подарок",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "promotion_id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "reasons": {
             "items": {
               "$ref": "#/components/schemas/PromoReason"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": ["promotion_id", "name", "reasons"],
         "title": "PromoHint",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoHint",
-        "x-validate": null
+        "type": "object"
       },
       "ProfileResponse": {
         "properties": {
@@ -1125,71 +983,51 @@
         },
         "required": ["data"],
         "title": "ProfileResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.ProfileResponse",
-        "x-validate": null
+        "type": "object"
       },
       "PromoReason": {
-        "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.",
+        "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.",
         "properties": {
           "allowed": {
             "items": {
               "enum": ["dine_in", "delivery", "pickup"],
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             },
             "nullable": true,
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "days": {
             "example": [1, 2],
             "items": {
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             },
             "nullable": true,
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "from": {
             "example": "11:00",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "missing": {
-            "example": 300,
+            "example": 30000,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "name": {
             "example": "Кола 0.5",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "product_id": {
             "format": "uuid",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "to": {
             "example": "16:00",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "type": {
             "enum": [
@@ -1201,16 +1039,12 @@
               "weekday",
               "requires_client"
             ],
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["type"],
         "title": "PromoReason",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoReason",
-        "x-validate": null
+        "type": "object"
       },
       "DeliveryZonesResponse": {
         "properties": {
@@ -1218,108 +1052,78 @@
             "items": {
               "$ref": "#/components/schemas/DeliveryZone"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": ["data"],
         "title": "DeliveryZonesResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.DeliverySchemas.DeliveryZonesResponse",
-        "x-validate": null
+        "type": "object"
       },
       "StockResponse": {
         "properties": {
           "id": {
             "example": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "is_active": {
             "description": "Флаг активности акции",
             "example": true,
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "order": {
             "example": 1.0,
             "format": "float",
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "photo_url": {
             "description": "Ссылка на медиафайл акции",
             "example": "https://storage.example.com/images/stock.jpg",
             "format": "uri",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "product_slug": {
             "description": "Slug товара, к которому ведёт акция (null — акция без товара)",
             "example": "hinkali",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "text": {
             "description": "Текст или описание акции",
             "example": "Скидка 20% на первую покупку",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "title": "StockResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.StockSchemas.StockResponse",
-        "x-validate": null
+        "type": "object"
       },
       "PushSubscriptionRequest": {
         "properties": {
           "endpoint": {
             "format": "uri",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "keys": {
             "properties": {
               "auth": {
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "p256dh": {
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               }
             },
             "required": ["p256dh", "auth"],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           },
           "locale": {
             "enum": ["ru", "en"],
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["endpoint", "keys"],
         "title": "PushSubscriptionRequest",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.PushSchemas.PushSubscriptionRequest",
-        "x-validate": null
+        "type": "object"
       },
       "BranchResponse": {
         "properties": {
@@ -1329,9 +1133,26 @@
         },
         "required": ["data"],
         "title": "BranchResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.BranchResponse",
-        "x-validate": null
+        "type": "object"
+      },
+      "AddItemRequest": {
+        "properties": {
+          "modifiers": {
+            "description": "Выбранные модификаторы. Пусто — модификаторы по умолчанию. Тот же товар с другими модификаторами — отдельная строка",
+            "items": {
+              "$ref": "#/components/schemas/ModifierChoice"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "quantity": {
+            "default": 1,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "title": "AddItemRequest",
+        "type": "object"
       },
       "FranchiseResponse": {
         "properties": {
@@ -1339,37 +1160,27 @@
             "properties": {
               "address_map": {
                 "description": "Адрес выбирается на карте с подсказками DaData",
-                "type": "boolean",
-                "x-struct": null,
-                "x-validate": null
+                "type": "boolean"
               },
               "client_auth": {
                 "description": "Клиенты могут войти по звонку; иначе все заказывают как гости",
-                "type": "boolean",
-                "x-struct": null,
-                "x-validate": null
+                "type": "boolean"
               },
               "dark_primary_color": {
                 "description": "Цвет для тёмной темы; если пусто, подбирается из основного",
                 "example": "#b86a69",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "description": {
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "documents": {
                 "items": {
                   "$ref": "#/components/schemas/LegalDocumentSummary"
                 },
-                "type": "array",
-                "x-struct": null,
-                "x-validate": null
+                "type": "array"
               },
               "legal": {
                 "$ref": "#/components/schemas/FranchiseLegal"
@@ -1377,28 +1188,20 @@
               "logo_dark_url": {
                 "format": "uri",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "logo_url": {
                 "format": "uri",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "name": {
                 "example": "Sushi Like",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "primary_color": {
                 "example": "#48010c",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               }
             },
             "required": [
@@ -1413,30 +1216,22 @@
               "legal",
               "documents"
             ],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": ["data"],
         "title": "FranchiseResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.FranchiseResponse",
-        "x-validate": null
+        "type": "object"
       },
       "RefreshRequest": {
         "properties": {
           "refresh_token": {
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["refresh_token"],
         "title": "RefreshRequest",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.RefreshRequest",
-        "x-validate": null
+        "type": "object"
       },
       "ClientAddressListResponse": {
         "properties": {
@@ -1444,16 +1239,12 @@
             "items": {
               "$ref": "#/components/schemas/ClientAddress"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": ["data"],
         "title": "ClientAddressListResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.AddressListResponse",
-        "x-validate": null
+        "type": "object"
       },
       "RunningPromotionsResponse": {
         "properties": {
@@ -1461,94 +1252,68 @@
             "items": {
               "$ref": "#/components/schemas/RunningPromotion"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": ["data"],
         "title": "RunningPromotionsResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.PromotionSchemas.RunningPromotionsResponse",
-        "x-validate": null
+        "type": "object"
       },
       "FranchiseLegal": {
         "properties": {
           "address": {
             "example": "г. Москва, ул. Пушкина, д. 10",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "email": {
             "example": "info@example.com",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "form": {
             "example": "ООО",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "inn": {
             "example": "7700000000",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "name": {
             "example": "Вкусная еда",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "ogrn": {
             "example": "1027700000000",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "phone": {
             "example": "+79990000000",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["form", "name", "inn", "ogrn", "address", "email", "phone"],
         "title": "FranchiseLegal",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.Legal",
-        "x-validate": null
+        "type": "object"
       },
       "DeliveryZone": {
         "properties": {
           "color": {
             "example": "#2563eb",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "name": {
             "example": "Центр",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "polygon": {
             "description": "GeoJSON Polygon, точки [долгота, широта]",
@@ -1557,40 +1322,26 @@
                 "items": {
                   "items": {
                     "items": {
-                      "type": "number",
-                      "x-struct": null,
-                      "x-validate": null
+                      "type": "number"
                     },
-                    "type": "array",
-                    "x-struct": null,
-                    "x-validate": null
+                    "type": "array"
                   },
-                  "type": "array",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "array"
                 },
-                "type": "array",
-                "x-struct": null,
-                "x-validate": null
+                "type": "array"
               },
               "type": {
                 "enum": ["Polygon"],
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               }
             },
             "required": ["type", "coordinates"],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": ["id", "name", "color", "polygon"],
         "title": "DeliveryZone",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.DeliverySchemas.DeliveryZone",
-        "x-validate": null
+        "type": "object"
       },
       "CartResponse": {
         "properties": {
@@ -1600,45 +1351,33 @@
                 "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
                 "format": "uuid",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "discount_amount": {
-                "example": 200,
-                "type": "integer",
-                "x-struct": null,
-                "x-validate": null
+                "example": 20000,
+                "type": "integer"
               },
               "fulfillment_type": {
                 "enum": ["dine_in", "delivery", "pickup"],
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "hints": {
                 "items": {
                   "$ref": "#/components/schemas/PromoHint"
                 },
-                "type": "array",
-                "x-struct": null,
-                "x-validate": null
+                "type": "array"
               },
               "id": {
                 "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
                 "format": "uuid",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "items": {
                 "items": {
                   "$ref": "#/components/schemas/CartItemResponse"
                 },
-                "type": "array",
-                "x-struct": null,
-                "x-validate": null
+                "type": "array"
               },
               "promo_code": {
                 "$ref": "#/components/schemas/PromoCodeState"
@@ -1647,36 +1386,26 @@
                 "items": {
                   "$ref": "#/components/schemas/AppliedPromotion"
                 },
-                "type": "array",
-                "x-struct": null,
-                "x-validate": null
+                "type": "array"
               },
               "session_id": {
                 "example": "eceaec3d-dd25-4e19-8afc-f1d0f1412c9c",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
               "subtotal_amount": {
                 "description": "Сумма без скидок",
-                "example": 1700,
-                "type": "integer",
-                "x-struct": null,
-                "x-validate": null
+                "example": 170000,
+                "type": "integer"
               },
               "total_amount": {
                 "description": "К оплате",
-                "example": 1500,
-                "type": "integer",
-                "x-struct": null,
-                "x-validate": null
+                "example": 150000,
+                "type": "integer"
               },
               "total_quantity": {
                 "example": 3,
-                "type": "integer",
-                "x-struct": null,
-                "x-validate": null
+                "type": "integer"
               }
             },
             "required": [
@@ -1689,93 +1418,67 @@
               "promotions",
               "hints"
             ],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": ["data"],
         "title": "CartResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.CartResponse",
-        "x-validate": null
+        "type": "object"
       },
       "DeliveryQuote": {
         "properties": {
           "free_from": {
-            "example": 1500,
+            "example": 150000,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "min_order": {
-            "example": 500,
+            "example": 50000,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "minutes": {
             "example": 45,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "price": {
-            "example": 150,
+            "example": 15000,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "status": {
             "enum": ["ok", "below_minimum", "outside_zones", "no_coordinates"],
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["status", "price", "min_order", "free_from", "minutes"],
         "title": "DeliveryQuote",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.DeliverySchemas.DeliveryQuote",
-        "x-validate": null
+        "type": "object"
       },
       "RunningPromotion": {
         "properties": {
           "description": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "ends_at": {
             "format": "date-time",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "name": {
             "example": "Скидка 10% на самовывоз",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["id", "name", "description", "ends_at"],
         "title": "RunningPromotion",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.PromotionSchemas.RunningPromotion",
-        "x-validate": null
+        "type": "object"
       },
       "GeoAddressListResponse": {
         "properties": {
@@ -1783,38 +1486,28 @@
             "items": {
               "$ref": "#/components/schemas/GeoAddress"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": ["data"],
         "title": "GeoAddressListResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.GeoSchemas.GeoAddressListResponse",
-        "x-validate": null
+        "type": "object"
       },
       "LegalDocumentSummary": {
         "properties": {
           "kind": {
             "enum": ["privacy", "consent", "offer", "terms"],
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "updated_at": {
             "format": "date-time",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["kind", "updated_at"],
         "title": "LegalDocumentSummary",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.FranchiseSchemas.DocumentSummary",
-        "x-validate": null
+        "type": "object"
       },
       "MenuResponse": {
         "properties": {
@@ -1822,15 +1515,11 @@
             "items": {
               "$ref": "#/components/schemas/CategoryResponse"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "title": "MenuResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.MenuSchemas.MenuResponse",
-        "x-validate": null
+        "type": "object"
       },
       "CartContextRequest": {
         "description": "Контекст корзины, от которого зависят условия акций.",
@@ -1839,15 +1528,11 @@
             "enum": ["dine_in", "delivery", "pickup"],
             "example": "delivery",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "title": "CartContextRequest",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.CartContextRequest",
-        "x-validate": null
+        "type": "object"
       },
       "ClientOrdersResponse": {
         "properties": {
@@ -1855,23 +1540,17 @@
             "items": {
               "$ref": "#/components/schemas/ActiveOrder"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": ["data"],
         "title": "ClientOrdersResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.ClientOrdersResponse",
-        "x-validate": null
+        "type": "object"
       },
       "ClientSession": {
         "properties": {
           "access_token": {
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "client": {
             "$ref": "#/components/schemas/ClientProfile"
@@ -1879,152 +1558,108 @@
           "expires_in": {
             "description": "Секунды",
             "example": 900,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "refresh_token": {
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "status": {
             "enum": ["pending", "confirmed"],
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["status"],
         "title": "ClientSession",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AuthSchemas.Session",
-        "x-validate": null
+        "type": "object"
       },
       "ClientAddress": {
         "properties": {
           "apartment": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "city": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "comment": {
             "example": "Вход со двора",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "district": {
             "example": "Центральный р-н",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "entrance": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "fias_id": {
             "description": "ФИАС дома",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "floor": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "formatted": {
             "example": "г Тюмень, ул Республики, д 10",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "geo_precision": {
             "maximum": 5,
             "minimum": 0,
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "house": {
             "example": "10",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "intercom": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "label": {
             "example": "Дом",
             "maxLength": 30,
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "latitude": {
             "example": 57.153,
             "format": "float",
             "nullable": true,
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "longitude": {
             "example": 65.534,
             "format": "float",
             "nullable": true,
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "postal_code": {
             "example": "625000",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "street": {
             "example": "Ленина",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["id", "street"],
         "title": "ClientAddress",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.ClientAddress",
-        "x-validate": null
+        "type": "object"
       },
       "ClientAddressResponse": {
         "properties": {
@@ -2034,9 +1669,7 @@
         },
         "required": ["data"],
         "title": "ClientAddressResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.AddressSchemas.AddressResponse",
-        "x-validate": null
+        "type": "object"
       },
       "PromoCodeState": {
         "description": "Введённый промокод: `applied` — применён, `pending` — условия пока не выполнены (см. `reasons`), `rejected` — не может быть применён (см. `reason`).",
@@ -2044,16 +1677,12 @@
         "properties": {
           "code": {
             "example": "SUMMER2025",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "name": {
             "example": "Летняя скидка",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "reason": {
             "enum": [
@@ -2069,30 +1698,22 @@
               "code_required"
             ],
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "reasons": {
             "items": {
               "$ref": "#/components/schemas/PromoReason"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "status": {
             "enum": ["applied", "pending", "rejected"],
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["code", "status", "reasons"],
         "title": "PromoCodeState",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.PromoCodeState",
-        "x-validate": null
+        "type": "object"
       },
       "ErrorResponse": {
         "description": "Ошибка API. `error` — стабильный машиночитаемый код, по нему клиент выбирает текст для пользователя.",
@@ -2104,9 +1725,7 @@
               "customer_phone": ["must be in format +7XXXXXXXXXX"]
             },
             "nullable": true,
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           },
           "error": {
             "enum": [
@@ -2135,6 +1754,7 @@
               "price_changed",
               "delivery_below_minimum",
               "delivery_outside_zones",
+              "branch_paused",
               "delivery_no_coordinates",
               "promo_unavailable",
               "promo_not_found",
@@ -2149,22 +1769,16 @@
               "promo_code_required"
             ],
             "example": "validation_failed",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "message": {
             "example": "Validation failed",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["error", "message"],
         "title": "ErrorResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.ErrorSchemas.ErrorResponse",
-        "x-validate": null
+        "type": "object"
       },
       "PushKeyResponse": {
         "properties": {
@@ -2172,151 +1786,114 @@
             "properties": {
               "public_key": {
                 "description": "VAPID public key, base64url",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               }
             },
             "required": ["public_key"],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": ["data"],
         "title": "PushKeyResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.PushSchemas.PushKeyResponse",
-        "x-validate": null
+        "type": "object"
       },
       "CategoryResponse": {
         "properties": {
           "id": {
             "example": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "is_active": {
             "example": true,
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "name": {
             "example": "Пиццы",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "order": {
             "example": 1.0,
             "format": "float",
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "products": {
             "items": {
               "$ref": "#/components/schemas/ProductResponse"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "title": "CategoryResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.MenuSchemas.CategoryResponse",
-        "x-validate": null
+        "type": "object"
       },
       "ActiveOrder": {
         "properties": {
           "address": {
             "additionalProperties": true,
             "nullable": true,
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           },
           "branch_id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "comment": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "cook_by": {
             "format": "date_time",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
+          },
+          "courier": {
+            "$ref": "#/components/schemas/OrderCourier"
           },
           "delivery_amount": {
             "description": "Стоимость доставки, входит в total_amount",
-            "example": 200,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 20000,
+            "type": "integer"
           },
           "discount_amount": {
-            "example": 150,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 15000,
+            "type": "integer"
           },
           "fulfillment_type": {
             "enum": ["dine_in", "delivery", "pickup"],
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "inserted_at": {
             "format": "date_time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "items": {
             "items": {
               "$ref": "#/components/schemas/OrderItemResponse"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "number": {
-            "example": "A042",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "example": "261029-MSK1-042",
+            "type": "string"
           },
           "payment_method": {
             "enum": ["cash", "card_offline"],
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "promotions": {
             "items": {
               "$ref": "#/components/schemas/OrderPromotion"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
+          },
+          "short_number": {
+            "example": "42",
+            "type": "string"
           },
           "status": {
             "enum": [
@@ -2329,27 +1906,22 @@
               "cancelled"
             ],
             "example": "preparing",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "subtotal_amount": {
             "description": "Сумма без скидок",
-            "example": 1330,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 133000,
+            "type": "integer"
           },
           "total_amount": {
-            "example": 1180,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "example": 118000,
+            "type": "integer"
           }
         },
         "required": [
           "id",
           "number",
+          "short_number",
           "status",
           "fulfillment_type",
           "payment_method",
@@ -2360,87 +1932,91 @@
           "promotions",
           "branch_id",
           "inserted_at",
+          "courier",
           "items"
         ],
         "title": "ActiveOrder",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.OrderSchemas.ActiveOrder",
-        "x-validate": null
+        "type": "object"
+      },
+      "OrderCourier": {
+        "description": "Курьер, который взял заказ. Есть с назначения курьера до вручения",
+        "nullable": true,
+        "properties": {
+          "name": {
+            "example": "Иван",
+            "nullable": true,
+            "type": "string"
+          },
+          "phone": {
+            "description": "У курьера Яндекса подменный номер, добавочный после ,,",
+            "example": "+79001112233",
+            "nullable": true,
+            "type": "string"
+          },
+          "tracking_url": {
+            "description": "Ссылка отслеживания Яндекс Доставки",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": ["name", "phone", "tracking_url"],
+        "title": "OrderCourier",
+        "type": "object"
       },
       "BranchInfoResponse": {
         "properties": {
           "address": {
             "example": "ул. Пушкина, д. 10",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "city": {
             "description": "Город доставки, в нём ищутся адреса",
             "example": "Тюмень",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "delivery_time": {
             "example": "30",
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "id": {
             "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "instagram_url": {
             "example": "https://instagram.com/profile_name",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "latitude": {
             "example": 55.7558,
             "format": "float",
             "nullable": true,
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "longitude": {
             "example": 37.6173,
             "format": "float",
             "nullable": true,
-            "type": "number",
-            "x-struct": null,
-            "x-validate": null
+            "type": "number"
           },
           "phone_number": {
             "example": "+79990000000",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "vk_url": {
             "example": "https://vk.com/group_name",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "whatsapp_url": {
             "example": "https://wa.me/79990000000",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "working_hours": {
             "additionalProperties": true,
@@ -2457,9 +2033,7 @@
               }
             },
             "nullable": true,
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           },
           "ycart_settings": {
             "additionalProperties": true,
@@ -2468,77 +2042,55 @@
               "enabled": {
                 "example": true,
                 "nullable": true,
-                "type": "boolean",
-                "x-struct": null,
-                "x-validate": null
+                "type": "boolean"
               },
               "yandex_org_id": {
                 "example": "123456789",
                 "nullable": true,
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               }
             },
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": ["id"],
         "title": "BranchInfoResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.BranchSchemas.BranchInfoResponse",
-        "x-validate": null
+        "type": "object"
       },
       "AppliedPromotion": {
         "properties": {
           "code": {
             "example": "SUMMER2025",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "description": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "discount": {
-            "description": "Скидка в рублях",
-            "example": 150,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "description": "Скидка в копейках",
+            "example": 15000,
+            "type": "integer"
           },
           "gifts": {
             "items": {
               "$ref": "#/components/schemas/PromoGift"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "name": {
             "example": "Летняя скидка",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "promotion_id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": ["promotion_id", "name", "discount", "gifts"],
         "title": "AppliedPromotion",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.CartSchemas.AppliedPromotion",
-        "x-validate": null
+        "type": "object"
       },
       "StocksListResponse": {
         "properties": {
@@ -2546,19 +2098,16 @@
             "items": {
               "$ref": "#/components/schemas/StockResponse"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "title": "StocksListResponse",
-        "type": "object",
-        "x-struct": "Elixir.DelivestWeb.Schemas.StockSchemas.StocksListResponse",
-        "x-validate": null
+        "type": "object"
       }
     }
   },
   "info": {
+    "description": "Все суммы — в копейках, целым числом.",
     "title": "My App",
     "version": "1.0"
   },
@@ -2656,9 +2205,7 @@
             "name": "id",
             "required": true,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2695,9 +2242,7 @@
             "name": "id",
             "required": true,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2828,9 +2373,7 @@
             "name": "id",
             "required": true,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2978,14 +2521,10 @@
                   "properties": {
                     "message": {
                       "example": "Active branch cleared",
-                      "type": "string",
-                      "x-struct": null,
-                      "x-validate": null
+                      "type": "string"
                     }
                   },
-                  "type": "object",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "object"
                 }
               }
             },
@@ -3009,9 +2548,7 @@
             "name": "slug",
             "required": true,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3055,9 +2592,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3101,9 +2636,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3146,9 +2679,7 @@
             "required": false,
             "schema": {
               "default": false,
-              "type": "boolean",
-              "x-struct": null,
-              "x-validate": null
+              "type": "boolean"
             }
           },
           {
@@ -3158,9 +2689,7 @@
             "required": false,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3203,9 +2732,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3248,9 +2775,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3314,21 +2839,16 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
-            "description": "UUID товара",
+            "description": "UUID товара или `key` строки корзины",
             "in": "path",
             "name": "product_id",
             "required": true,
             "schema": {
-              "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3338,9 +2858,7 @@
             "required": false,
             "schema": {
               "default": false,
-              "type": "boolean",
-              "x-struct": null,
-              "x-validate": null
+              "type": "boolean"
             }
           }
         ],
@@ -3381,9 +2899,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3393,12 +2909,21 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddItemRequest"
+              }
+            }
+          },
+          "description": "Количество и модификаторы",
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -3447,9 +2972,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3490,9 +3013,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3566,9 +3087,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3578,9 +3097,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3622,9 +3139,7 @@
             "name": "branch_id",
             "required": true,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3633,9 +3148,7 @@
             "name": "latitude",
             "required": false,
             "schema": {
-              "type": "number",
-              "x-struct": null,
-              "x-validate": null
+              "type": "number"
             }
           },
           {
@@ -3644,9 +3157,7 @@
             "name": "longitude",
             "required": false,
             "schema": {
-              "type": "number",
-              "x-struct": null,
-              "x-validate": null
+              "type": "number"
             }
           },
           {
@@ -3655,9 +3166,7 @@
             "name": "subtotal",
             "required": false,
             "schema": {
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           }
         ],
@@ -3699,9 +3208,7 @@
             "name": "branch_id",
             "required": true,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3766,9 +3273,7 @@
             "required": true,
             "schema": {
               "enum": ["privacy", "consent", "offer", "terms"],
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3810,9 +3315,7 @@
             "name": "latitude",
             "required": true,
             "schema": {
-              "type": "number",
-              "x-struct": null,
-              "x-validate": null
+              "type": "number"
             }
           },
           {
@@ -3821,9 +3324,7 @@
             "name": "longitude",
             "required": true,
             "schema": {
-              "type": "number",
-              "x-struct": null,
-              "x-validate": null
+              "type": "number"
             }
           }
         ],
@@ -3875,9 +3376,7 @@
             "name": "query",
             "required": true,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3886,9 +3385,7 @@
             "name": "city",
             "required": false,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -4077,9 +3574,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -4180,9 +3675,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -4216,9 +3709,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],

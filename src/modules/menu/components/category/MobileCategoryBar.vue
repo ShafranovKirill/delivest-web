@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LoyaltyCategoryButton from '@/modules/account/components/LoyaltyCategoryButton.vue'
 import { computed, ref } from 'vue'
 import { useMenuQuery } from '../../composables/useMenuQuery'
 import { useMobCatBarScroll } from '../../composables/useMobCatBarScroll'
@@ -21,10 +22,16 @@ useMobCatBarScroll(activeCategoryId, containerRef)
   <div class="bg-gray-200 w-full sticky top-15 z-50">
     <div class="py-4 bg-white rounded-t-4xl w-full overflow-hidden">
       <SkeletonCategoryBar v-if="isLoading" class="px-4" />
-      <div v-else ref="containerRef" class="flex overflow-x-auto scrollbar-none max-w-7xl mx-auto">
+      <div
+        v-else
+        ref="containerRef"
+        class="flex items-center overflow-x-auto scrollbar-none max-w-7xl mx-auto -my-4 py-4"
+      >
+        <LoyaltyCategoryButton class="ml-4" />
         <Button
           v-for="category in categories"
           :key="category.id"
+          :aria-current="menuStore.isActive(category.id) ? 'true' : undefined"
           :data-id="category.id"
           class="shrink-0 transition-all duration-200 border-none! ml-4"
           @click="menuStore.scrollToCategory(category.id)"

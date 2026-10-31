@@ -7,9 +7,32 @@ export type AddressPayload = components['schemas']['ClientAddressRequest']
 
 type Envelope<T> = { data: T }
 
+export type LoyaltyEntry = {
+  id: string
+  kind: 'accrual' | 'accrual_reversal' | 'expire' | 'adjust' | 'redeem' | 'refund'
+  amount: number
+  order_id: string | null
+  expires_at: string | null
+  inserted_at: string
+}
+
+export type Loyalty = {
+  products: { id: string; name: string; stars_price: number }[]
+  enabled: boolean
+  balance: number
+  history: LoyaltyEntry[]
+}
+
 export const AccountService = {
   async getOrders(): Promise<ActiveOrder[]> {
     const { data } = await api.get<Envelope<ActiveOrder[]>>('/client/orders')
+    return data.data
+  },
+
+  async getLoyalty(branchId: string): Promise<Loyalty> {
+    const { data } = await api.get<Envelope<Loyalty>>('/client/loyalty', {
+      params: { branch_id: branchId },
+    })
     return data.data
   },
 

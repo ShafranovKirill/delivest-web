@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+
+import { formatPrice } from '@/utils/money'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
@@ -6,6 +9,7 @@ import CartTotals from '@/modules/cart/components/CartTotals.vue'
 import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
 import CartSuggestions from '@/modules/cart/components/CartSuggestions.vue'
+import { useCartHeadline } from '@/modules/cart/composables/useCartHeadline'
 import { useI18n } from 'vue-i18n'
 
 withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
@@ -13,10 +17,14 @@ const emit = defineEmits<{ (e: 'next'): void }>()
 
 const cartStore = useCartStore()
 const { t } = useI18n()
+const headline = useCartHeadline()
 </script>
 
 <template>
-  <SurfaceCard icon="pi-shopping-cart" :title="t('order.summary')">
+  <SurfaceCard
+    :title="compact ? headline : t('order.summary')"
+    :icon="compact ? undefined : 'pi-shopping-cart'"
+  >
     <ul class="flex flex-col gap-2">
       <li
         v-for="item in cartStore.items"
@@ -33,6 +41,14 @@ const { t } = useI18n()
         />
         <span class="min-w-0 flex-1" :class="{ 'pl-2': compact }">
           <span class="block text-sm font-semibold text-gray-900 truncate">{{ item.name }}</span>
+          <span
+            v-for="modifier in item.modifiers ?? []"
+            :key="modifier.id ?? modifier.name"
+            class="block text-xs text-gray-500 truncate"
+          >
+            + {{ modifier.name }}
+          </span>
+          <StarRewardBadge :amount="item.stars_reward" :quantity="item.quantity" />
           <span v-if="item.gift" class="block text-xs font-medium text-green-700">
             <i class="pi pi-gift text-xs" /> {{ t('order.giftCount', { count: item.quantity }) }}
           </span>
@@ -40,7 +56,7 @@ const { t } = useI18n()
             {{ t('cart.soldOut') }}
           </span>
           <span v-else class="block text-xs text-gray-500 tabular-nums">
-            {{ item.quantity }} × {{ item.price }} ₽
+            {{ item.quantity }} × {{ formatPrice(item.price) }}
           </span>
         </span>
         <span class="shrink-0 text-right text-sm font-bold text-gray-900 tabular-nums">
@@ -48,9 +64,9 @@ const { t } = useI18n()
             v-if="item.base_total > item.total_price"
             class="block text-xs font-normal text-gray-400 line-through"
           >
-            {{ item.base_total }} ₽
+            {{ formatPrice(item.base_total) }}
           </span>
-          {{ item.gift ? t('common.free') : `${item.total_price} ₽` }}
+          {{ item.gift ? t('common.free') : formatPrice(item.total_price) }}
         </span>
       </li>
     </ul>

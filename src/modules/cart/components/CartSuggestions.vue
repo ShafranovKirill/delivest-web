@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatPrice } from '@/utils/money'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
@@ -57,7 +58,7 @@ async function add(product: MenuProduct) {
         >
           <i v-if="pendingId === product.id" class="pi pi-spin pi-spinner text-xs" />
           <i-tabler-plus v-else class="size-4" />
-          {{ product.price }} ₽
+          {{ formatPrice(product.price) }}
         </button>
       </article>
     </div>

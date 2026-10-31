@@ -1,5 +1,6 @@
 import { computed, onScopeDispose, ref } from 'vue'
 import type { Channel } from 'phoenix'
+import axios from 'axios'
 import { getApiErrorCode, getApiErrorMessage } from '@/api/errors'
 import { getSocket } from '@/api/socket'
 import { t } from '@/i18n'
@@ -8,18 +9,21 @@ import { AuthService, type CallConfirmation, type ClientSession } from '../api/a
 type Failure = { code?: string }
 
 const POLL_INTERVAL_MS = 2000
-const FINAL_CODES = ['confirmation_not_found', 'client_blocked']
+const FINAL_CODES = ['confirmation_not_found', 'client_blocked', 'attempts_exhausted']
 
 export function useCallConfirmation(onConfirmed: (session: ClientSession) => void) {
   const confirmation = ref<CallConfirmation | null>(null)
   const isStarting = ref(false)
   const errorMessage = ref<string | null>(null)
   const secondsLeft = ref(0)
+  const attemptsLeft = ref<number | null>(null)
+  const isChecking = ref(false)
 
   let channel: Channel | null = null
   let countdownTimer: ReturnType<typeof setInterval> | undefined
   let pollTimer: ReturnType<typeof setTimeout> | undefined
   let checking = false
+  let generation = 0
 
   const isWaiting = computed(() => confirmation.value !== null)
 
@@ -35,8 +39,10 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   }
 
   function reset(message: string | null = null) {
+    generation += 1
     stop()
     confirmation.value = null
+    attemptsLeft.value = null
     errorMessage.value = message
   }
 
@@ -59,12 +65,15 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   }
 
   async function check(confirmationId: string) {
-    if (checking) return
+    if (checking || !waitingFor(confirmationId)) return
+    const requestGeneration = generation
     checking = true
     try {
       const session = await AuthService.checkCall(confirmationId)
+      if (requestGeneration !== generation) return
       if (session.status === 'confirmed') confirm(confirmationId, session)
     } catch (error) {
+      if (requestGeneration !== generation) return
       const code = getApiErrorCode(error)
       if (code && FINAL_CODES.includes(code) && waitingFor(confirmationId)) fail({ code })
     } finally {
@@ -111,6 +120,29 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     }
   }
 
+  async function submitCode(code: string) {
+    const confirmationId = confirmation.value?.confirmation_id
+    if (!confirmationId || isChecking.value) return false
+
+    isChecking.value = true
+    attemptsLeft.value = null
+    try {
+      await AuthService.confirmCode(confirmationId, code)
+      await check(confirmationId)
+      return true
+    } catch (error) {
+      const failedCode = getApiErrorCode(error)
+      if (failedCode === 'invalid_code' && axios.isAxiosError(error)) {
+        attemptsLeft.value = error.response?.data?.details?.attempts_left ?? 0
+      } else {
+        fail({ code: failedCode ?? undefined })
+      }
+      return false
+    } finally {
+      isChecking.value = false
+    }
+  }
+
   document.addEventListener('visibilitychange', checkOnReturn)
 
   onScopeDispose(() => {
@@ -118,5 +150,16 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     document.removeEventListener('visibilitychange', checkOnReturn)
   })
 
-  return { confirmation, isStarting, isWaiting, errorMessage, secondsLeft, start, reset }
+  return {
+    confirmation,
+    isStarting,
+    isWaiting,
+    isChecking,
+    errorMessage,
+    secondsLeft,
+    attemptsLeft,
+    start,
+    submitCode,
+    reset,
+  }
 }

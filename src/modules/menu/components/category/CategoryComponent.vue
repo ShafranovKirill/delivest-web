@@ -17,9 +17,9 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   <div
     :id="`category-${category.id}`"
     v-intersection-observer="[onIntersectionObserver, { rootMargin: '-20% 0px -60% 0px' }]"
-    class="my-4 scroll-mt-40"
+    class="my-4 scroll-mt-40 md:scroll-mt-44"
   >
-    <h2 class="mb-2 text-3xl font-bold!">{{ category.name }}</h2>
+    <h2 class="mb-2 px-2 text-3xl font-bold! sm:px-0">{{ category.name }}</h2>
     <div
       class="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-1 sm:gap-2 justify-items-center"
     >

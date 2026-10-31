@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import InputText from 'primevue/inputtext'
+import { formatDisplayPhone } from '@/modules/shared/utils/phoneFormat'
 
 const props = defineProps<{
   modelValue: string
@@ -12,34 +13,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
-
-function formatDisplayPhone(rawDigits: string): string {
-  let digits = rawDigits.replace(/\D/g, '')
-
-  if (digits.startsWith('8')) {
-    digits = '7' + digits.slice(1)
-  }
-  if (!digits.startsWith('7')) {
-    digits = '7' + digits
-  }
-  digits = digits.slice(0, 11)
-
-  let formatted = '+7'
-  if (digits.length > 1) {
-    formatted += ' (' + digits.slice(1, 4)
-  }
-  if (digits.length >= 5) {
-    formatted += ') ' + digits.slice(4, 7)
-  }
-  if (digits.length >= 8) {
-    formatted += '-' + digits.slice(7, 9)
-  }
-  if (digits.length >= 10) {
-    formatted += '-' + digits.slice(9, 11)
-  }
-
-  return formatted
-}
 
 const displayValue = computed(() => {
   return formatDisplayPhone(props.modelValue)
@@ -59,6 +32,7 @@ function handleInput(e: Event) {
 
   const cleanFormat = '+' + digits
   emit('update:modelValue', cleanFormat)
+  input.value = formatDisplayPhone(cleanFormat)
 }
 </script>
 
@@ -71,6 +45,7 @@ function handleInput(e: Event) {
     autocomplete="tel"
     inputmode="tel"
     @input="handleInput"
+    @change="handleInput"
     :placeholder="placeholder || '+7 (999) 000-00-00'"
     :required="required"
   />

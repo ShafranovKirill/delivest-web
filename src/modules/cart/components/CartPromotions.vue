@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatPrice } from '@/utils/money'
 import { useCartStore } from '../stores/cart.store'
 import { reasonsText } from '../utils/promoText'
 import { useI18n } from 'vue-i18n'
@@ -26,7 +27,7 @@ const { t } = useI18n()
         </span>
       </span>
       <span v-if="promotion.discount > 0" class="shrink-0 font-semibold tabular-nums">
-        −{{ promotion.discount }} ₽
+        −{{ formatPrice(promotion.discount) }}
       </span>
     </div>
 

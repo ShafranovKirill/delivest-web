@@ -21,6 +21,18 @@ export const OrderService = {
     return data.data
   },
 
+  async cancelOrder(id: string): Promise<Order> {
+    const { data } = await api.post<OrderResponse>(`/client/orders/${id}/cancel`)
+    return data.data
+  },
+
+  async getPaymentLink(id: string): Promise<string> {
+    const { data } = await api.post<{ data: { confirmation_url: string } }>(
+      `/client/orders/${id}/pay`,
+    )
+    return data.data.confirmation_url
+  },
+
   async getActiveOrders(): Promise<ActiveOrder[]> {
     const { data } = await api.get<ActiveOrdersResponse>('/client/orders/active')
     return data.data

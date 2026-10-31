@@ -9,7 +9,7 @@ const { t } = useI18n()
 <template>
   <AccountMenu v-slot="{ open, signedIn }">
     <Button
-      icon="pi pi-user text-xl!"
+      icon="pi pi-user text-2xl!"
       variant="text"
       :class="{ 'text-primary!': signedIn }"
       :aria-label="signedIn ? t('auth.profile') : t('auth.signIn')"

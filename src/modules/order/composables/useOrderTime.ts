@@ -73,8 +73,14 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
     return hours as unknown as WorkingHoursMap
   })
 
+  const specialHours = computed(() => {
+    const hours = branchStore.activeBranch?.branch_info?.special_hours
+    if (!hours || typeof hours !== 'object' || Object.keys(hours).length === 0) return null
+    return hours as unknown as WorkingHoursMap
+  })
+
   function dayWindow(day: Date) {
-    return workWindow(workingHours.value, day, LAST_SLOT_MINUTE)
+    return workWindow(workingHours.value, day, LAST_SLOT_MINUTE, specialHours.value)
   }
 
   function dayLabel(day: Date): string {
@@ -88,7 +94,7 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
     })
   }
 
-  const openNow = computed(() => isOpenAt(workingHours.value, now.value))
+  const openNow = computed(() => isOpenAt(workingHours.value, now.value, specialHours.value))
 
   const days = computed<SlotDay[]>(() => {
     const earliest = roundUp(addMinutes(now.value, leadMinutes.value))

@@ -2,7 +2,8 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Order } from '../../api/order.service'
-import { formatPrice, formatTime, fulfillmentLabel, paymentLabel } from '../../utils/orderStatus'
+import { formatPrice } from '@/utils/money'
+import { formatTime, fulfillmentLabel, paymentLabel } from '../../utils/orderStatus'
 import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 

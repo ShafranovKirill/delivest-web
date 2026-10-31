@@ -2,6 +2,7 @@
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
+import Textarea from 'primevue/textarea'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import { getApiErrorMessage } from '@/api/errors'
@@ -86,6 +87,15 @@ async function submit() {
       </template>
 
       <template #default="{ ready, locating }">
+        <Textarea
+          v-model="draft.comment"
+          :placeholder="t('fulfillment.form.comment')"
+          :aria-label="t('fulfillment.form.comment')"
+          maxlength="255"
+          rows="2"
+          auto-resize
+          class="w-full"
+        />
         <Button
           :label="t('common.save')"
           :disabled="!ready"

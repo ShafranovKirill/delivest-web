@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { formatPrice } from '@/utils/money'
 import { computed } from 'vue'
 import Button from 'primevue/button'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useOpenCart } from '@/modules/cart/composables/useOpenCart'
-import { intlLocale } from '@/i18n'
 import { useI18n } from 'vue-i18n'
 
 const openCartModal = useOpenCart()
@@ -12,7 +12,7 @@ const { t } = useI18n()
 
 const buttonLabel = computed(() => {
   if (cartStore.totalAmount > 0) {
-    return `${cartStore.totalAmount.toLocaleString(intlLocale())} ₽`
+    return formatPrice(cartStore.totalAmount)
   }
   return t('cart.title')
 })

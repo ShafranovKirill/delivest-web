@@ -25,6 +25,14 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+html {
+  scrollbar-gutter: stable;
+}
+
+body.p-overflow-hidden {
+  padding-right: 0 !important;
+}
+
 body {
   @apply bg-gray-200 text-slate-900 antialiased font-sans;
 }
@@ -105,4 +113,14 @@ h4 {
   --color-red-200: color-mix(in srgb, #ef4444 32%, transparent);
   --color-red-600: #f87171;
   --color-red-700: #fca5a5;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-gray-950);
+  box-shadow: 0 0 0 1000px var(--color-gray-50) inset;
+  caret-color: var(--color-gray-950);
+  transition: background-color 600000s 0s;
 }

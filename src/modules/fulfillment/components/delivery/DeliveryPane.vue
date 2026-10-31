@@ -40,11 +40,7 @@ function confirm() {
 <template>
   <AddressEditor v-model="address" :city="city" :zones="zones" :pin-note="pinNote">
     <template #default="{ ready, locating }">
-      <p
-        v-if="ready && delivery.hint.value"
-        class="text-sm font-medium"
-        :class="delivery.blocked.value ? 'text-red-500' : 'text-gray-600'"
-      >
+      <p v-if="ready && delivery.notDelivered.value" class="text-sm font-medium text-red-500">
         {{ delivery.hint.value }}
       </p>
       <Button

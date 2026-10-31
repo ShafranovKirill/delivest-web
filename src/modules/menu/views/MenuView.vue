@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import LoyaltyModal from '@/modules/account/components/LoyaltyModal.vue'
+import { computed, onMounted, watch } from 'vue'
+import { useEventListener } from '@vueuse/core'
+import { useMenuStore } from '../stores/menu.store'
 import { useMenuQuery } from '../composables/useMenuQuery'
 import { useProductRoute } from '../composables/useProductRoute'
 
@@ -7,6 +10,7 @@ import CartButtonMobile from '@/modules/cart/components/CartButtonMobile.vue'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store.ts'
 import StoryStrip from '@/modules/stock/components/StoryStrip.vue'
 import ClosedBanner from '@/modules/branch/components/ClosedBanner.vue'
+import PausedBanner from '@/modules/branch/components/PausedBanner.vue'
 import StoryViewer from '@/modules/stock/components/StoryViewer.vue'
 import FulfillmentSummary from '@/modules/fulfillment/components/FulfillmentSummary.vue'
 import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
@@ -31,6 +35,26 @@ const menu = computed(() => {
   return menuData.value?.filter((category) => category.products && category.products.length > 0)
 })
 
+const menuStore = useMenuStore()
+
+watch(
+  menu,
+  (categories) => {
+    const first = categories?.[0]
+    if (first && !categories.some((category) => category.id === menuStore.activeCategoryId)) {
+      menuStore.setActiveCategory(first.id)
+    }
+  },
+  { immediate: true },
+)
+
+useEventListener(window, 'scroll', () => {
+  const first = menu.value?.[0]
+  if (!first || menuStore.isManualScroll) return
+  const top = document.getElementById(`category-${first.id}`)?.getBoundingClientRect().top
+  if (top !== undefined && top > window.innerHeight * 0.2) menuStore.setActiveCategory(first.id)
+})
+
 useProductRoute(menuData)
 
 onMounted(() => {
@@ -44,6 +68,7 @@ onMounted(() => {
 
 <template>
   <div class="bg-gray-200">
+    <PausedBanner />
     <ClosedBanner />
     <StoryStrip />
     <div v-if="fulfillmentStore.current" class="w-full max-w-7xl mx-auto px-4 pb-4">
@@ -62,6 +87,7 @@ onMounted(() => {
   <div v-else class="px-2 sm:px-4 max-w-7xl mx-auto">
     <CategoryComponent v-for="category in menu" :key="category.id" :category="category" />
   </div>
+  <LoyaltyModal />
   <ProductModal />
   <StoryViewer />
   <CartButtonMobile v-if="viewportStore.isMobile" />

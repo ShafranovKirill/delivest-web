@@ -6,8 +6,9 @@ import Message from 'primevue/message'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useOrderStore } from '../stores/order.store'
+import { useOpenCart } from '@/modules/cart/composables/useOpenCart'
 import OrderForm from '../components/OrderForm.vue'
-import OrderSummary from '../components/OrderSummary.vue'
+import OrderComposition from '../components/OrderComposition.vue'
 import OrderSuccess from '../components/OrderSuccess.vue'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
@@ -15,28 +16,13 @@ import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const openCart = useOpenCart()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
 const orderStore = useOrderStore()
 const { t } = useI18n()
 
-const steps = computed(() => [
-  { value: 1, label: t('cart.title'), icon: 'pi-shopping-cart' },
-  { value: 2, label: t('order.steps.details'), icon: 'pi-user' },
-  { value: 3, label: t('order.steps.done'), icon: 'pi-check' },
-])
-
 const step = computed(() => Number(orderStore.activeStep))
-
-function canOpen(value: number) {
-  if (orderStore.createdOrderId) return value === 3
-  if (value === 2) return !cartStore.isEmpty
-  return value === 1
-}
-
-function goTo(value: number) {
-  if (canOpen(value)) orderStore.handleStepChange(value)
-}
 
 function jumpToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
@@ -63,34 +49,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <PageShell :title="t('order.checkout')" width="default">
-    <ol
-      class="mb-6 sm:mb-8 grid grid-cols-3 gap-2 rounded-full bg-gray-50 border border-gray-100 p-1.5"
-    >
-      <li v-for="item in steps" :key="item.value">
-        <button
-          type="button"
-          class="flex w-full items-center justify-center gap-2 rounded-full px-2 py-2.5 text-sm font-semibold transition-colors"
-          :class="[
-            step === item.value
-              ? 'bg-primary-fill text-white shadow-sm'
-              : step > item.value
-                ? 'text-primary'
-                : 'text-gray-400',
-            canOpen(item.value) && step !== item.value
-              ? 'cursor-pointer hover:bg-white'
-              : 'cursor-default',
-          ]"
-          :disabled="!canOpen(item.value)"
-          :aria-current="step === item.value ? 'step' : undefined"
-          @click="goTo(item.value)"
-        >
-          <i :class="['pi', step > item.value ? 'pi-check-circle' : item.icon, 'text-sm']" />
-          <span>{{ item.label }}</span>
-        </button>
-      </li>
-    </ol>
-
+  <PageShell width="wide">
     <Message
       v-if="orderStore.errorMessage"
       severity="error"
@@ -115,17 +74,17 @@ onUnmounted(() => {
       <Button :label="t('cart.toMenu')" rounded @click="router.push('/')" />
     </EmptyState>
 
-    <div v-else-if="step === 1" class="mx-auto max-w-2xl">
-      <OrderSummary @next="orderStore.handleStepChange(2)" />
-    </div>
-
     <div
-      v-else-if="step === 2"
-      class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-3 sm:gap-4 items-start"
+      v-else-if="step !== 3"
+      class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-3 sm:gap-4 items-start"
     >
-      <OrderForm :isLoading="orderStore.isLoading" @submit="orderStore.createOrder" />
+      <OrderForm
+        :isLoading="orderStore.isLoading"
+        @submit="orderStore.createOrder"
+        @back="openCart"
+      />
       <aside class="hidden lg:block sticky top-28">
-        <OrderSummary compact />
+        <OrderComposition />
       </aside>
     </div>
 

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+
+import ProductNutrition from '../ProductNutrition.vue'
 import ProductImage from '../ProductImage.vue'
 import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
 import { storeToRefs } from 'pinia'
@@ -55,6 +58,9 @@ const weightKey = computed(() =>
                 {{ t('common.pieces', { count: activeProduct.quantity }) }}
               </span>
             </div>
+
+            <StarRewardBadge :amount="activeProduct?.stars_reward" />
+            <ProductNutrition :nutrition="activeProduct?.nutrition" />
 
             <p
               v-if="activeProduct?.description"

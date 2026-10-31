@@ -641,6 +641,11 @@ export interface components {
        * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
        */
       cart_id: string
+      /**
+       * @description Сдача с какой суммы, в копейках. Только для наличных
+       * @example 500000
+       */
+      cash_given?: number | null
       /** @example Без лука */
       comment?: string | null
       /**
@@ -661,9 +666,14 @@ export interface components {
       customer_phone?: string | null
       /**
        * @description Сумма, которую видел клиент. Если итог после пересчёта акций окажется больше — вернётся `price_changed`
-       * @example 1500
+       * @example 150000
        */
       expected_total?: number | null
+      /**
+       * @description Сколько звёзд списать с суммы заказа (1 звезда = 1 ₽). Только для вошедшего клиента в филиале с включённым списанием
+       * @example 100
+       */
+      spend_points?: number | null
       /**
        * @example delivery
        * @enum {string|null}
@@ -673,20 +683,27 @@ export interface components {
        * @example cash
        * @enum {string|null}
        */
-      payment_method?: 'cash' | 'card_offline' | null
+      payment_method?: 'cash' | 'card_offline' | 'online' | null
+      /**
+       * @description Количество приборов
+       * @example 2
+       */
+      persons?: number | null
     }
     /** OrderItemResponse */
     OrderItemResponse: {
+      stars_reward?: number
       /**
        * @description Цена за единицу по меню
-       * @example 590
+       * @example 59000
        */
       base_price: number
       /** @example false */
       gift: boolean
+      modifiers?: components['schemas']['ItemModifier'][]
       /**
        * @description Цена за единицу с учётом скидок
-       * @example 531
+       * @example 53100
        */
       price: number
       /**
@@ -703,10 +720,12 @@ export interface components {
     StartCallResponse: {
       data: {
         /**
-         * @description Номер, на который нужно позвонить для подтверждения
+         * @description Режим inbound: номер, на который нужно позвонить. Режим flash: null, клиенту позвонят сами
          * @example +78000000000
          */
-        call_number: string
+        call_number: string | null
+        /** @enum {string} */
+        mode: 'inbound' | 'flash'
         /** Format: uuid */
         confirmation_id: string
         /**
@@ -733,11 +752,49 @@ export interface components {
        * @enum {string}
        */
       measure_unit?: 'g' | 'ml'
+      /** @description КБЖУ на 100 г; пустые поля — null */
+      stars_reward?: number | null
+      nutrition?: {
+        /** @example 250 */
+        calories?: number | null
+        /** @example 30 */
+        carbohydrates?: number | null
+        /** @example 9 */
+        fats?: number | null
+        /** @example 12.5 */
+        proteins?: number | null
+      } | null
+      /** @description Группы модификаторов. `min`/`max` — сколько выбрать в группе, `is_size` — размер (переключатель) */
+      modifier_groups?: {
+        /** Format: uuid */
+        id: string
+        is_size: boolean
+        /** @example 1 */
+        max: number
+        /** @example 1 */
+        min: number
+        modifiers: {
+          /** Format: uuid */
+          id: string
+          is_default: boolean
+          /** @example 1 */
+          max_quantity: number
+          /** @example 35 см */
+          name: string
+          photo_url?: string | null
+          /** @example 20000 */
+          price: number
+          stopped: boolean
+          weight?: number | null
+        }[]
+        /** @example Размер */
+        name: string
+      }[]
       /** @example Пипперони */
       name?: string
       /**
        * @description Цена без скидки, если на товар действует акция; `price` — цена со скидкой
-       * @example 690
+       * @example 69000
        */
       old_price?: number | null
       /**
@@ -747,8 +804,8 @@ export interface components {
        */
       photo_url?: string | null
       /**
-       * @description Цена в копейках/минимальных единицах
-       * @example 590
+       * @description Цена в копейках
+       * @example 59000
        */
       price?: number
       /**
@@ -787,6 +844,22 @@ export interface components {
     BranchListResponse: {
       data: components['schemas']['Branch'][]
     }
+    /** ItemModifier */
+    ItemModifier: {
+      /** @example Размер */
+      group_name?: string | null
+      /** Format: uuid */
+      id?: string | null
+      /** @example 35 см */
+      name: string
+      /**
+       * @description Цена за единицу, копейки
+       * @example 20000
+       */
+      price: number
+      /** @example 1 */
+      quantity: number
+    }
     /** GeoAddress */
     GeoAddress: {
       /** @example Тюмень */
@@ -822,9 +895,12 @@ export interface components {
     }
     /** CartItemResponse */
     CartItemResponse: {
+      stars_reward?: number
+      stars?: boolean
+      stars_price?: number | null
       /**
        * @description Итог по строке без скидок
-       * @example 1180
+       * @example 118000
        */
       base_total: number
       /**
@@ -834,13 +910,14 @@ export interface components {
       gift: boolean
       /** @example https://example.com/images/pizza.jpg */
       image_url?: string | null
-      /** @description Уникальный ключ строки: подарок и платный товар — разные строки */
+      /** @description Уникальный ключ строки: подарок, платный товар и товар с другими модификаторами — разные строки. Им же удаляется строка */
       key: string
+      modifiers?: components['schemas']['ItemModifier'][]
       /** @example Пицца Маргарита */
       name: string
       /**
        * @description Цена за единицу по меню
-       * @example 590
+       * @example 59000
        */
       price: number
       /**
@@ -855,7 +932,7 @@ export interface components {
       stopped?: boolean
       /**
        * @description Итог по строке с учётом скидок
-       * @example 1062
+       * @example 106200
        */
       total_price: number
     }
@@ -934,7 +1011,7 @@ export interface components {
     OrderPromotion: {
       /** @example SUMMER2025 */
       code?: string | null
-      /** @example 150 */
+      /** @example 15000 */
       discount: number
       /** @example Летняя скидка */
       name: string
@@ -956,6 +1033,9 @@ export interface components {
     /** OrderResponse */
     OrderResponse: {
       data: {
+        points_earned?: number
+        base_stars?: number
+        product_stars?: number
         address?: {
           [key: string]: unknown
         } | null
@@ -985,12 +1065,14 @@ export interface components {
         customer_name?: string | null
         /** @example +79990000000 */
         customer_phone?: string | null
+        /** @example 1234 */
+        customer_phone_ext?: string | null
         /**
          * @description Стоимость доставки, входит в total_amount
-         * @example 200
+         * @example 20000
          */
         delivery_amount: number
-        /** @example 150 */
+        /** @example 15000 */
         discount_amount: number
         /** @enum {string} */
         fulfillment_type: 'dine_in' | 'delivery' | 'pickup'
@@ -1000,11 +1082,22 @@ export interface components {
          */
         id: string
         items: components['schemas']['OrderItemResponse'][]
-        /** @example ORD-1001 */
+        /** @example 261029-MSK1-042 */
         number: string
         /** @enum {string} */
-        payment_method: 'cash' | 'card_offline'
+        payment_method: 'cash' | 'card_offline' | 'online'
+        /** @description Заказ ждёт онлайн-оплаты и ещё не принят в работу */
+        awaiting_payment?: boolean
+        /** @description Только в ответе на создание онлайн-заказа */
+        payment?: {
+          /** Format: uri */
+          confirmation_url?: string
+        } | null
+        /** @example 2 */
+        persons?: number | null
         promotions: components['schemas']['OrderPromotion'][]
+        /** @example 42 */
+        short_number: string
         /**
          * @example created
          * @enum {string}
@@ -1013,12 +1106,19 @@ export interface components {
           'created' | 'accepted' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
         /**
          * @description Сумма без скидок
-         * @example 1330
+         * @example 133000
          */
         subtotal_amount: number
-        /** @example 1180 */
+        /** @example 118000 */
         total_amount: number
       }
+    }
+    /** ModifierChoice */
+    ModifierChoice: {
+      /** Format: uuid */
+      id: string
+      /** @default 1 */
+      quantity: number
     }
     /**
      * PromoHint
@@ -1038,7 +1138,7 @@ export interface components {
     }
     /**
      * PromoReason
-     * @description Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.
+     * @description Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.
      */
     PromoReason: {
       allowed?: ('dine_in' | 'delivery' | 'pickup')[] | null
@@ -1051,7 +1151,7 @@ export interface components {
       days?: number[] | null
       /** @example 11:00 */
       from?: string | null
-      /** @example 300 */
+      /** @example 30000 */
       missing?: number | null
       /** @example Кола 0.5 */
       name?: string | null
@@ -1116,6 +1216,13 @@ export interface components {
     BranchResponse: {
       data: components['schemas']['Branch']
     }
+    /** AddItemRequest */
+    AddItemRequest: {
+      /** @description Выбранные модификаторы. Пусто — модификаторы по умолчанию. Тот же товар с другими модификаторами — отдельная строка */
+      modifiers?: components['schemas']['ModifierChoice'][] | null
+      /** @default 1 */
+      quantity: number
+    }
     /** FranchiseResponse */
     FranchiseResponse: {
       data: {
@@ -1123,6 +1230,20 @@ export interface components {
         address_map: boolean
         /** @description Клиенты могут войти по звонку; иначе все заказывают как гости */
         client_auth: boolean
+        /**
+         * @description inbound: клиент звонит сам; flash: клиенту звонят, он вводит 4 цифры
+         * @enum {string}
+         */
+        login_call_mode: 'inbound' | 'flash'
+        /** @description Оценка Яндекса; null, если не настроено или данные старше 7 дней */
+        rating: {
+          /** @example 4.8 */
+          value: number
+          /** @example 120 */
+          count: number
+          /** Format: uri */
+          url: string | null
+        } | null
         /**
          * @description Цвет для тёмной темы; если пусто, подбирается из основного
          * @example #b86a69
@@ -1188,12 +1309,15 @@ export interface components {
     /** CartResponse */
     CartResponse: {
       data: {
+        points_earned?: number
+        base_stars?: number
+        product_stars?: number
         /**
          * Format: uuid
          * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
          */
         branch_id?: string | null
-        /** @example 200 */
+        /** @example 20000 */
         discount_amount: number
         /** @enum {string|null} */
         fulfillment_type?: 'dine_in' | 'delivery' | 'pickup' | null
@@ -1210,12 +1334,12 @@ export interface components {
         session_id?: string | null
         /**
          * @description Сумма без скидок
-         * @example 1700
+         * @example 170000
          */
         subtotal_amount: number
         /**
          * @description К оплате
-         * @example 1500
+         * @example 150000
          */
         total_amount: number
         /** @example 3 */
@@ -1224,13 +1348,13 @@ export interface components {
     }
     /** DeliveryQuote */
     DeliveryQuote: {
-      /** @example 1500 */
+      /** @example 150000 */
       free_from: number | null
-      /** @example 500 */
+      /** @example 50000 */
       min_order: number | null
       /** @example 45 */
       minutes: number | null
-      /** @example 150 */
+      /** @example 15000 */
       price: number | null
       /** @enum {string} */
       status: 'ok' | 'below_minimum' | 'outside_zones' | 'no_coordinates'
@@ -1395,12 +1519,15 @@ export interface components {
         | 'invalid_phone'
         | 'call_failed'
         | 'confirmation_not_found'
+        | 'invalid_code'
+        | 'attempts_exhausted'
         | 'invalid_refresh_token'
         | 'address_not_found'
         | 'internal_error'
         | 'price_changed'
         | 'delivery_below_minimum'
         | 'delivery_outside_zones'
+        | 'branch_paused'
         | 'delivery_no_coordinates'
         | 'promo_unavailable'
         | 'promo_not_found'
@@ -1443,20 +1570,24 @@ export interface components {
     }
     /** ActiveOrder */
     ActiveOrder: {
+      points_earned?: number
       address?: {
         [key: string]: unknown
       } | null
       /** Format: uuid */
       branch_id: string
+      /** @description Клиент ещё может отменить заказ сам */
+      can_cancel?: boolean
       comment?: string | null
       /** Format: date_time */
       cook_by?: string | null
+      courier: components['schemas']['OrderCourier']
       /**
        * @description Стоимость доставки, входит в total_amount
-       * @example 200
+       * @example 20000
        */
       delivery_amount: number
-      /** @example 150 */
+      /** @example 15000 */
       discount_amount: number
       /** @enum {string} */
       fulfillment_type: 'dine_in' | 'delivery' | 'pickup'
@@ -1465,11 +1596,15 @@ export interface components {
       /** Format: date_time */
       inserted_at: string
       items: components['schemas']['OrderItemResponse'][]
-      /** @example A042 */
+      /** @example 261029-MSK1-042 */
       number: string
       /** @enum {string} */
-      payment_method: 'cash' | 'card_offline'
+      payment_method: 'cash' | 'card_offline' | 'online'
+      /** @description Заказ ждёт онлайн-оплаты и ещё не принят в работу */
+      awaiting_payment?: boolean
       promotions: components['schemas']['OrderPromotion'][]
+      /** @example 42 */
+      short_number: string
       /**
        * @example preparing
        * @enum {string}
@@ -1478,12 +1613,27 @@ export interface components {
         'created' | 'accepted' | 'preparing' | 'ready' | 'delivering' | 'completed' | 'cancelled'
       /**
        * @description Сумма без скидок
-       * @example 1330
+       * @example 133000
        */
       subtotal_amount: number
-      /** @example 1180 */
+      /** @example 118000 */
       total_amount: number
     }
+    /**
+     * OrderCourier
+     * @description Курьер, который взял заказ. Есть с назначения курьера до вручения
+     */
+    OrderCourier: {
+      /** @example Иван */
+      name: string | null
+      /**
+       * @description У курьера Яндекса подменный номер, добавочный после ,,
+       * @example +79001112233
+       */
+      phone: string | null
+      /** @description Ссылка отслеживания Яндекс Доставки */
+      tracking_url: string | null
+    } | null
     /** BranchInfoResponse */
     BranchInfoResponse: {
       /** @example ул. Пушкина, д. 10 */
@@ -1493,7 +1643,10 @@ export interface components {
        * @example Тюмень
        */
       city?: string | null
-      /** @example 30 */
+      /**
+       * @description Минуты до готовности вместе с добавкой на загрузку
+       * @example 30
+       */
       delivery_time?: number | null
       /**
        * Format: uuid
@@ -1502,6 +1655,38 @@ export interface components {
       id: string
       /** @example https://instagram.com/profile_name */
       instagram_url?: string | null
+      /**
+       * @description Исключения по датам (ISO-дата → enabled, open, close) поверх недели
+       * @example {
+       *       "2026-12-31": {
+       *         "close": "18:00",
+       *         "enabled": true,
+       *         "open": "10:00"
+       *       }
+       *     }
+       */
+      special_hours?: {
+        [key: string]: unknown
+      }
+      /** @description Бонусная система филиала: за каждые per_rubles ₽ начисляется stars звёзд */
+      loyalty?: {
+        enabled?: boolean
+        expire_days?: number | null
+        max_percent?: number | null
+        per_rubles?: number | null
+        spend_enabled?: boolean
+        stars?: number | null
+      }
+      /** @description Способы оплаты, включённые на филиале */
+      payment_methods?: ('cash' | 'card_offline' | 'online')[]
+      /** @description Режим приёма: normal, load (добавка к времени) или paused (заказы закрыты) */
+      intake?: {
+        extra_minutes?: number
+        mode?: 'normal' | 'load' | 'paused'
+        reason?: string | null
+        /** Format: date-time */
+        until?: string | null
+      }
       /**
        * Format: float
        * @example 55.7558
@@ -1552,8 +1737,8 @@ export interface components {
       code?: string | null
       description?: string | null
       /**
-       * @description Скидка в рублях
-       * @example 150
+       * @description Скидка в копейках
+       * @example 15000
        */
       discount: number
       gifts: components['schemas']['PromoGift'][]
@@ -2139,7 +2324,12 @@ export interface operations {
       }
       cookie?: never
     }
-    requestBody?: never
+    /** @description Количество и модификаторы */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['AddItemRequest']
+      }
+    }
     responses: {
       /** @description Обновленная корзина */
       200: {
@@ -2180,7 +2370,7 @@ export interface operations {
       path: {
         /** @description UUID корзины */
         cart_id: string
-        /** @description UUID товара */
+        /** @description UUID товара или `key` строки корзины */
         product_id: string
       }
       cookie?: never

@@ -36,6 +36,12 @@ defineEmits<{ edit: [address: ClientAddress]; remove: [address: ClientAddress] }
         <span v-if="address.intercom" class="block text-sm text-gray-500">
           {{ t('account.address.intercom', { value: address.intercom }) }}
         </span>
+        <span
+          v-if="address.comment"
+          class="mt-1 block whitespace-pre-line break-words text-sm text-gray-500"
+        >
+          {{ address.comment }}
+        </span>
       </span>
     </button>
     <button

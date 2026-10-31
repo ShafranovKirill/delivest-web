@@ -2,6 +2,8 @@
 import { computed, onMounted, ref } from 'vue'
 import Button from 'primevue/button'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
+import AuthConsent from './AuthConsent.vue'
+import { PHONE_MASK, formatDisplayPhone } from '@/modules/shared/utils/phoneFormat'
 import { useAuthStore } from '../stores/auth.store'
 import { formatPhoneNumber } from '@/modules/widgets/contacts/utils/tel-format'
 import { useI18n } from 'vue-i18n'
@@ -13,6 +15,8 @@ const authStore = useAuthStore()
 
 const phone = ref('+7')
 const field = ref<HTMLElement | null>(null)
+const display = computed(() => formatDisplayPhone(phone.value))
+const ghost = computed(() => PHONE_MASK.slice(display.value.length))
 const isComplete = computed(() => phone.value.length === 12)
 
 const suggestion = computed(() => {
@@ -31,7 +35,7 @@ onMounted(() => field.value?.querySelector('input')?.focus())
 
 <template>
   <form class="flex flex-col gap-4" @submit.prevent="isComplete && emit('submit', phone)">
-    <p class="text-sm text-gray-500 leading-relaxed">{{ t('auth.phone.hint') }}</p>
+    <p class="text-sm leading-relaxed text-gray-500">{{ t('auth.phone.hint') }}</p>
 
     <button
       v-if="suggestion"
@@ -49,33 +53,29 @@ onMounted(() => field.value?.querySelector('input')?.focus())
       <i class="pi pi-arrow-right text-primary text-sm" />
     </button>
 
-    <div ref="field" class="flex flex-col gap-1.5">
-      <span class="text-sm font-medium text-gray-600">{{ t('common.phone') }}</span>
-      <div class="relative">
-        <span
-          class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 grid place-items-center size-8 rounded-xl bg-gray-100 text-gray-500"
-        >
-          <i class="pi pi-phone text-sm" />
-        </span>
-        <PhoneInput
-          v-model="phone"
-          class="w-full h-14 rounded-2xl! pl-15! pr-12! text-lg! font-semibold tracking-wide tabular-nums"
-        />
-        <i
-          v-if="isComplete"
-          class="pi pi-check-circle absolute right-4 top-1/2 -translate-y-1/2 text-xl text-green-700"
-        />
+    <div ref="field" class="relative">
+      <div
+        class="pointer-events-none absolute inset-0 flex items-center whitespace-pre px-[calc(1rem+1px)] text-xl font-semibold tabular-nums"
+        aria-hidden="true"
+      >
+        <span class="invisible">{{ display }}</span>
+        <span class="text-gray-300">{{ ghost }}</span>
       </div>
+      <PhoneInput
+        v-model="phone"
+        placeholder=" "
+        class="h-14 w-full rounded-2xl! bg-transparent! px-4! text-xl! font-semibold tabular-nums"
+      />
     </div>
 
     <Button
       type="submit"
       :label="t('common.continue')"
-      icon="pi pi-arrow-right"
-      icon-pos="right"
       :loading="loading"
       :disabled="!isComplete"
-      class="h-12 w-full rounded-full! font-semibold"
+      class="h-14 w-full rounded-2xl! text-base font-semibold"
     />
+
+    <AuthConsent />
   </form>
 </template>

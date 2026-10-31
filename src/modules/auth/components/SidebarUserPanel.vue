@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useLoyaltyQuery } from '@/modules/account/composables/useLoyaltyQuery'
 import { computed } from 'vue'
 import { useAuthStore } from '../stores/auth.store'
 import { useSidebarStore } from '@/modules/widgets/sidebar/sidebar.store'
@@ -7,6 +8,7 @@ import { formatPhoneNumber } from '@/modules/widgets/contacts/utils/tel-format'
 import SidebarTile from '@/modules/widgets/sidebar/SidebarTile.vue'
 import { useI18n } from 'vue-i18n'
 
+const loyalty = useLoyaltyQuery()
 const authStore = useAuthStore()
 const sidebarStore = useSidebarStore()
 const navigateTo = useBranchNavigation()
@@ -35,6 +37,12 @@ function signIn() {
     @click="openOrders"
   >
     <template #trailing>
+      <span
+        v-if="loyalty.data.value?.enabled"
+        class="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-sm font-bold text-amber-700"
+      >
+        <i class="pi pi-star-fill text-xs" aria-hidden="true" />{{ loyalty.data.value.balance }}
+      </span>
       <button
         type="button"
         class="size-9 shrink-0 rounded-full grid place-items-center text-gray-400 hover:text-red-500 hover:bg-white transition-colors cursor-pointer"

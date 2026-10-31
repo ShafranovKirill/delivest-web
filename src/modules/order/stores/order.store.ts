@@ -91,6 +91,8 @@ export const useOrderStore = defineStore('order', () => {
       customer_phone: form.customer_phone.length === 12 ? form.customer_phone : null,
       fulfillment_type: form.fulfillment_type,
       payment_method: form.payment_method,
+      cash_given: form.cash_given,
+      spend_points: form.spend_points > 0 ? form.spend_points : null,
       comment,
       cook_by: form.cook_by || null,
       address: toAddressPayload(
@@ -111,6 +113,9 @@ export const useOrderStore = defineStore('order', () => {
       queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
       queryClient.invalidateQueries({ queryKey: MY_ORDERS_KEY })
       queryClient.invalidateQueries({ queryKey: ADDRESSES_KEY })
+
+      const paymentUrl = order.payment?.confirmation_url
+      if (paymentUrl) window.location.assign(paymentUrl)
 
       return order
     } catch (error: unknown) {

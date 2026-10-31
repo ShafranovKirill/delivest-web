@@ -10,11 +10,15 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDesktopModalStore } from '@/modules/widgets/modal/desktop-modal/stores/modal.store.ts'
 import { useMobileModalStore } from '@/modules/widgets/modal/mobile-modal/stores/modal.store.ts'
 import { useI18n } from 'vue-i18n'
+import { useCartHeadline } from '../composables/useCartHeadline'
+import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
 
 const cartStore = useCartStore()
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
+const delivery = useDeliveryQuote()
+const headline = useCartHeadline()
 
 const desktopModalStore = useDesktopModalStore()
 const mobileModalStore = useMobileModalStore()
@@ -87,7 +91,9 @@ function goToCatalog() {
     </div>
 
     <template v-else>
-      <div class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 pr-1">
+      <div class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <p class="text-lg font-extrabold text-gray-950">{{ headline }}</p>
+
         <div class="flex flex-col gap-3">
           <CartItemCard v-for="item in cartStore.items" :key="item.key" :item="item" />
         </div>
@@ -104,6 +110,12 @@ function goToCatalog() {
       <div class="pt-3 pb-[calc(env(safe-area-inset-bottom))] bg-white z-20">
         <p v-if="cartStore.hasStopped" class="mb-2 text-center text-sm text-red-500">
           {{ t('cart.removeSoldOut') }}
+        </p>
+        <p
+          v-else-if="delivery.blocked.value"
+          class="mb-2 text-center text-sm font-medium text-red-500"
+        >
+          {{ delivery.hint.value }}
         </p>
         <button
           type="button"

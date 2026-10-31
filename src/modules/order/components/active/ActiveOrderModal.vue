@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import OrderEarnings from '@/modules/account/components/OrderEarnings.vue'
+
+import { computed, ref, watch } from 'vue'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
-import type { ActiveOrder } from '../../api/order.service'
-import { formatPrice, formatTime, fulfillmentLabel, paymentLabel } from '../../utils/orderStatus'
+import { OrderService, type ActiveOrder } from '../../api/order.service'
+import { ACTIVE_ORDERS_KEY } from '../../composables/useActiveOrdersQuery'
+import { formatPrice } from '@/utils/money'
+import { formatTime, fulfillmentLabel, paymentLabel } from '../../utils/orderStatus'
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import OrderStatusSteps from './OrderStatusSteps.vue'
+import OrderCourierCard from './OrderCourierCard.vue'
 import OrderPushPrompt from '@/modules/pwa/components/OrderPushPrompt.vue'
 import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
 import { useI18n } from 'vue-i18n'
@@ -20,6 +26,36 @@ const { t } = useI18n()
 const visible = computed({
   get: () => props.order !== null,
   set: (value) => !value && emit('close'),
+})
+
+const queryClient = useQueryClient()
+const confirmingCancel = ref(false)
+
+watch(
+  () => props.order?.id,
+  () => (confirmingCancel.value = false),
+)
+
+const cancel = useMutation({
+  mutationFn: (id: string) => OrderService.cancelOrder(id),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
+    emit('close')
+  },
+})
+
+function cancelOrder() {
+  if (!props.order) return
+  if (!confirmingCancel.value) {
+    confirmingCancel.value = true
+    return
+  }
+  cancel.mutate(props.order.id)
+}
+
+const pay = useMutation({
+  mutationFn: (id: string) => OrderService.getPaymentLink(id),
+  onSuccess: (url) => window.location.assign(url),
 })
 
 const address = computed(() => formatAddress(props.order?.address as AddressParts | null))
@@ -37,7 +73,7 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
     <template #header>
       <div v-if="order">
         <h2 class="text-xl font-extrabold text-gray-950">
-          {{ t('order.number', { number: order.number }) }}
+          {{ t('order.number', { number: order.short_number }) }}
         </h2>
         <p class="text-sm text-gray-500">
           {{ t('order.placedAt', { time: formatTime(order.inserted_at) }) }}
@@ -49,6 +85,12 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
       <SurfaceCard>
         <OrderStatusSteps :order="order" detailed />
       </SurfaceCard>
+
+      <OrderCourierCard
+        v-if="!repeatable && order.courier"
+        :courier="order.courier"
+        :status="order.status"
+      />
 
       <OrderPushPrompt v-if="!repeatable" :order-id="order.id" />
 
@@ -81,6 +123,7 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
         </SurfaceCard>
       </div>
 
+      <OrderEarnings :amount="order.points_earned" :status="order.status" />
       <SurfaceCard v-if="order.comment" icon="pi-comment" :label="t('order.comment')">
         <template #value>{{ order.comment }}</template>
       </SurfaceCard>
@@ -95,6 +138,13 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
             <span class="text-gray-800">
               <i v-if="item.gift" class="pi pi-gift text-xs text-green-700" />
               {{ item.title }}
+              <span
+                v-for="modifier in item.modifiers ?? []"
+                :key="modifier.id ?? modifier.name"
+                class="block text-xs text-gray-500"
+              >
+                + {{ modifier.name }}
+              </span>
             </span>
             <span v-if="item.gift" class="shrink-0 text-green-700">
               {{ t('order.giftCount', { count: item.quantity }) }}
@@ -142,6 +192,27 @@ const address = computed(() => formatAddress(props.order?.address as AddressPart
           icon="pi pi-replay"
           class="h-12 w-full rounded-full! font-semibold"
           @click="emit('repeat')"
+        />
+        <Button
+          v-if="!repeatable && order?.awaiting_payment"
+          :label="t('order.pay.action')"
+          :loading="pay.isPending.value"
+          icon="pi pi-credit-card"
+          class="h-12 w-full rounded-full! font-semibold"
+          @click="pay.mutate(order.id)"
+        />
+        <p v-if="pay.isError.value" class="text-center text-sm text-red-600">
+          {{ t('order.pay.failed') }}
+        </p>
+        <Button
+          v-if="!repeatable && order?.can_cancel"
+          :label="confirmingCancel ? t('order.cancel.confirm') : t('order.cancel.action')"
+          :loading="cancel.isPending.value"
+          icon="pi pi-times"
+          severity="danger"
+          variant="outlined"
+          class="h-12 w-full rounded-full! font-semibold"
+          @click="cancelOrder"
         />
         <Button
           v-if="contactsStore.phone"

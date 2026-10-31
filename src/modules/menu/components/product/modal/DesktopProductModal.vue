@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+
+import ProductNutrition from '../ProductNutrition.vue'
 import { storeToRefs } from 'pinia'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
@@ -64,6 +67,9 @@ const weightKey = computed(() =>
                   </span>
                 </div>
               </div>
+
+              <StarRewardBadge :amount="activeProduct?.stars_reward" />
+              <ProductNutrition :nutrition="activeProduct?.nutrition" />
 
               <p
                 v-if="activeProduct?.description"

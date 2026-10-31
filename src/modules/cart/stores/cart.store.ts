@@ -6,6 +6,7 @@ import {
   type Cart,
   type CartItem,
   type FulfillmentType,
+  type ModifierChoice,
   type PromoHint,
 } from '../api/cart.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
@@ -20,6 +21,8 @@ export const useCartStore = defineStore('cart', () => {
   const totalQuantity = computed<number>(() => cart.value?.total_quantity ?? 0)
   const totalAmount = computed<number>(() => cart.value?.total_amount ?? 0)
   const subtotalAmount = computed<number>(() => cart.value?.subtotal_amount ?? 0)
+  const baseStars = computed(() => cart.value?.base_stars ?? 0)
+  const productStars = computed(() => cart.value?.product_stars ?? 0)
   const discountAmount = computed<number>(() => cart.value?.discount_amount ?? 0)
   const promotions = computed<AppliedPromotion[]>(() => cart.value?.promotions ?? [])
   const hints = computed<PromoHint[]>(() => cart.value?.hints ?? [])
@@ -90,40 +93,54 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  async function addItem(productId: string): Promise<Cart> {
+  async function addStarItem(productId: string): Promise<Cart> {
+    return withCart((cartId) => CartService.addStarItem(cartId, productId))
+  }
+
+  async function addItem(productId: string, modifiers?: ModifierChoice[]): Promise<Cart> {
     try {
-      return await withCart((cartId) => CartService.addItem(cartId, productId))
+      return await withCart((cartId) => CartService.addItem(cartId, productId, modifiers))
     } catch (error) {
       console.error(`[CartStore] Failed to add product ${productId}:`, error)
       throw error
     }
   }
 
-  async function removeItem(productId: string): Promise<Cart> {
-    if (!cart.value?.id) return fetchCart()
-
+  async function replaceItem(key: string, modifiers: ModifierChoice[]): Promise<Cart> {
     try {
-      return await withCart((cartId) => CartService.removeItem(cartId, productId, false))
+      return await withCart((cartId) => CartService.replaceItem(cartId, key, modifiers))
     } catch (error) {
-      console.error(`[CartStore] Failed to remove product ${productId}:`, error)
+      console.error(`[CartStore] Failed to replace item ${key}:`, error)
       throw error
     }
   }
 
-  async function removeAllOfItem(productId: string): Promise<Cart> {
+  async function removeItem(key: string): Promise<Cart> {
     if (!cart.value?.id) return fetchCart()
 
     try {
-      return await withCart((cartId) => CartService.removeItem(cartId, productId, true))
+      return await withCart((cartId) => CartService.removeItem(cartId, key, false))
     } catch (error) {
-      console.error(`[CartStore] Failed to remove all items for product ${productId}:`, error)
+      console.error(`[CartStore] Failed to remove item ${key}:`, error)
+      throw error
+    }
+  }
+
+  async function removeAllOfItem(key: string): Promise<Cart> {
+    if (!cart.value?.id) return fetchCart()
+
+    try {
+      return await withCart((cartId) => CartService.removeItem(cartId, key, true))
+    } catch (error) {
+      console.error(`[CartStore] Failed to remove all items ${key}:`, error)
       throw error
     }
   }
 
   function getItemQuantity(productId: string): number {
-    const item = items.value.find((i) => i.product_id === productId && !i.gift)
-    return item?.quantity ?? 0
+    return items.value
+      .filter((i) => i.product_id === productId && !i.gift)
+      .reduce((sum, i) => sum + i.quantity, 0)
   }
 
   async function repeatOrder(orderId: string): Promise<Cart> {
@@ -161,6 +178,8 @@ export const useCartStore = defineStore('cart', () => {
     totalAmount,
     subtotalAmount,
     discountAmount,
+    baseStars,
+    productStars,
     promotions,
     hints,
     promoCode,
@@ -171,7 +190,9 @@ export const useCartStore = defineStore('cart', () => {
 
     fetchCart,
     initBranchSync,
+    addStarItem,
     addItem,
+    replaceItem,
     removeItem,
     removeAllOfItem,
     clearCart,

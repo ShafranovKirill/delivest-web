@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import InputText from 'primevue/inputtext'
 import { useI18n } from 'vue-i18n'
 import AddressSuggestInput from './AddressSuggestInput.vue'
@@ -15,7 +16,10 @@ function clearHouse() {
   address.value = withoutGeo(address.value)
 }
 
-const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
+const hasHouse = computed(() =>
+  Boolean(address.value.street?.trim() && address.value.house?.trim()),
+)
+const details = ['entrance', 'intercom', 'floor'] as const
 </script>
 
 <template>
@@ -37,20 +41,23 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
       <InputText v-model="address.house" :placeholder="t('address.house')" class="w-full" />
     </div>
 
-    <div class="grid grid-cols-2 gap-2">
+    <template v-if="hasHouse">
       <InputText
-        v-for="field in details"
-        :key="field"
-        v-model="address[field]"
-        :placeholder="t(`fulfillment.form.${field}`)"
+        v-model="address.apartment"
+        :placeholder="t('fulfillment.form.apartment')"
+        :aria-label="t('fulfillment.form.apartment')"
         class="w-full"
       />
-    </div>
-
-    <InputText
-      v-model="address.comment"
-      :placeholder="t('fulfillment.form.comment')"
-      class="w-full"
-    />
+      <div class="grid grid-cols-3 gap-2">
+        <InputText
+          v-for="field in details"
+          :key="field"
+          v-model="address[field]"
+          :placeholder="t(`fulfillment.form.${field}`)"
+          :aria-label="t(`fulfillment.form.${field}`)"
+          class="w-full min-w-0"
+        />
+      </div>
+    </template>
   </div>
 </template>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+
 import type { MenuProduct } from '../../api/menu.service'
 import ProductImage from './ProductImage.vue'
 import { useMenuStore } from '../../stores/menu.store'
@@ -17,7 +19,10 @@ const menuStore = useMenuStore()
     <template #content>
       <div class="flex flex-col h-full items-center justify-between">
         <div class="relative flex flex-col items-center w-full">
-          <ProductTagBadges :tags="product.tags ?? []" class="absolute left-2 top-2 z-10" />
+          <div class="absolute left-2 top-2 z-10 flex items-start gap-1">
+            <ProductTagBadges :tags="product.tags ?? []" />
+            <StarRewardBadge :amount="product.stars_reward" compact />
+          </div>
           <ProductImage
             :src="product.photo_url"
             :alt="product.name"

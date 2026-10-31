@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatPrice } from '@/utils/money'
 import { computed, ref } from 'vue'
 import ProgressSpinner from 'primevue/progressspinner'
 import { useToast } from 'primevue/usetoast'
@@ -8,12 +9,16 @@ import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
 import SoldOutLabel from './SoldOutLabel.vue'
 import { useI18n } from 'vue-i18n'
+import { useMenuStore } from '@/modules/menu/stores/menu.store'
 
 const props = defineProps<{ product: MenuProduct }>()
 const cartStore = useCartStore()
 const flowStore = useFulfillmentFlowStore()
 const toast = useToast()
 const { t } = useI18n()
+const menuStore = useMenuStore()
+
+const hasModifiers = computed(() => (props.product.modifier_groups ?? []).length > 0)
 
 function showError(error: unknown) {
   toast.add({
@@ -26,18 +31,17 @@ function showError(error: unknown) {
 
 const isPending = ref(false)
 
-const quantity = computed(() => {
-  const productId = props.product?.id
-  if (!productId || !cartStore.items) return 0
+const lines = computed(() =>
+  cartStore.items.filter((i) => String(i.product_id) === String(props.product?.id) && !i.gift),
+)
 
-  const item = cartStore.items.find((i) => String(i.product_id) === String(productId) && !i.gift)
-
-  return item?.quantity ?? 0
-})
+const quantity = computed(() => lines.value.reduce((sum, i) => sum + i.quantity, 0))
 
 const handleAdd = async (event: Event) => {
   event.stopPropagation()
-  if (!props.product?.id || isPending.value || !(await flowStore.ensure())) return
+  if (!props.product?.id || isPending.value) return
+  if (hasModifiers.value) return menuStore.openProductModal(props.product)
+  if (!(await flowStore.ensure())) return
 
   isPending.value = true
   try {
@@ -52,11 +56,12 @@ const handleAdd = async (event: Event) => {
 
 const handleRemove = async (event: Event) => {
   event.stopPropagation()
-  if (!props.product?.id || isPending.value) return
+  const line = lines.value[lines.value.length - 1]
+  if (!line || isPending.value) return
 
   isPending.value = true
   try {
-    await cartStore.removeItem(String(props.product.id))
+    await cartStore.removeItem(line.key)
   } catch (error) {
     console.error('[AddToCartSwitch] Failed to remove item:', error)
     showError(error)
@@ -120,12 +125,12 @@ const handleRemove = async (event: Event) => {
           class="white-spinner"
         />
         <template v-else>
-          <span>{{ `${product.price} ₽` }}</span>
+          <span>{{ formatPrice(product.price) }}</span>
           <span
             v-if="product.old_price && product.old_price > (product.price ?? 0)"
             class="text-sm opacity-70 line-through"
           >
-            {{ product.old_price }} ₽
+            {{ formatPrice(product.old_price) }}
           </span>
         </template>
       </button>

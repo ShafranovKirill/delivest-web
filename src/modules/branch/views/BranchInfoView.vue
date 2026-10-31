@@ -6,6 +6,7 @@ import BaseMap from '@/modules/fulfillment/components/map/BaseMap.vue'
 import { useBranchStore } from '../stores/branch.store.ts'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
+import BranchScheduleCard from '../components/BranchScheduleCard.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
 import { formatPhoneNumber } from '@/modules/widgets/contacts/utils/tel-format'
 import { useI18n } from 'vue-i18n'
@@ -15,8 +16,7 @@ const { t } = useI18n()
 const branchStore = useBranchStore()
 const mapStore = useMapStore()
 
-const { activeBranch, isOpenNow, closingTimeToday, formattedScheduleList, workingHours } =
-  storeToRefs(branchStore)
+const { activeBranch } = storeToRefs(branchStore)
 const { isMapEnabled, coordinates, yandexOrgUrl } = storeToRefs(mapStore)
 
 const info = computed(() => activeBranch.value?.branch_info ?? null)
@@ -57,24 +57,7 @@ const socials = computed(() =>
     </template>
 
     <div v-if="activeBranch" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-      <SurfaceCard icon="pi-clock" :label="t('branch.info.now')" class="md:col-span-2">
-        <template #value>
-          <span class="inline-flex items-center gap-2">
-            <span
-              class="size-2.5 rounded-full"
-              :class="isOpenNow ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'"
-            />
-            {{ isOpenNow ? t('branch.info.open') : t('branch.info.closed') }}
-          </span>
-        </template>
-        <template v-if="workingHours" #aside>
-          <span
-            class="hidden sm:inline-flex rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-600 shadow-xs"
-          >
-            {{ t('branch.info.today', { time: closingTimeToday }) }}
-          </span>
-        </template>
-      </SurfaceCard>
+      <BranchScheduleCard class="md:col-span-2" />
 
       <SurfaceCard icon="pi-map-marker" :label="t('branch.info.address')" class="md:col-span-2">
         <template #value>{{ info?.address || t('branch.info.noAddress') }}</template>
@@ -125,34 +108,6 @@ const socials = computed(() =>
               : t('branch.info.noDeliveryTime')
           }}
         </template>
-      </SurfaceCard>
-
-      <SurfaceCard icon="pi-calendar" :label="t('branch.info.hours')" class="md:col-span-2">
-        <template #value>{{ t('branch.info.hoursHint') }}</template>
-
-        <ul
-          v-if="workingHours && formattedScheduleList.length"
-          class="grid grid-cols-1 sm:grid-cols-2 gap-2"
-        >
-          <li
-            v-for="item in formattedScheduleList"
-            :key="item.day"
-            class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm border"
-            :class="item.isToday ? 'bg-primary-soft border-primary/20' : 'bg-white border-gray-100'"
-          >
-            <span class="font-medium" :class="item.isToday ? 'text-primary' : 'text-gray-700'">
-              {{ item.day }}
-              <span v-if="item.isToday" class="ml-1 text-xs font-semibold"
-                >· {{ t('branch.info.todayMark') }}</span
-              >
-            </span>
-            <span v-if="item.enabled" class="font-semibold text-gray-900 tabular-nums">
-              {{ item.open }} — {{ item.close }}
-            </span>
-            <span v-else class="font-medium text-gray-400">{{ t('branch.schedule.dayOff') }}</span>
-          </li>
-        </ul>
-        <p v-else class="text-sm text-gray-500">{{ t('branch.schedule.notSet') }}</p>
       </SurfaceCard>
 
       <SurfaceCard

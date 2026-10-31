@@ -1,5 +1,6 @@
 import type { PromoCodeState, PromoReason } from '../api/cart.service'
 import { t } from '@/i18n'
+import { formatPrice } from '@/utils/money'
 
 const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 
@@ -14,7 +15,7 @@ function weekdays(reason: PromoReason): string {
 export function reasonText(reason: PromoReason): string {
   switch (reason.type) {
     case 'subtotal':
-      return t('promo.reason.subtotal', { amount: reason.missing })
+      return t('promo.reason.subtotal', { amount: formatPrice(reason.missing) })
     case 'quantity':
       return t('promo.reason.quantity', { count: reason.missing })
     case 'product':
