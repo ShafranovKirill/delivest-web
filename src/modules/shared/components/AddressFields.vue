@@ -9,6 +9,7 @@ export interface AddressForm {
   entrance: string
   floor: string
   intercom: string
+  comment: string
 }
 
 const address = defineModel<AddressForm>({ required: true })

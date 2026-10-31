@@ -3,7 +3,15 @@ import type { AddressForm } from '../components/AddressFields.vue'
 type NullableAddress = { [K in keyof AddressForm]?: string | null }
 
 export function emptyAddressForm(): AddressForm {
-  return { street: '', house: '', apartment: '', entrance: '', floor: '', intercom: '' }
+  return {
+    street: '',
+    house: '',
+    apartment: '',
+    entrance: '',
+    floor: '',
+    intercom: '',
+    comment: '',
+  }
 }
 
 export function toAddressForm(address: NullableAddress): AddressForm {
@@ -14,6 +22,7 @@ export function toAddressForm(address: NullableAddress): AddressForm {
     entrance: address.entrance ?? '',
     floor: address.floor ?? '',
     intercom: address.intercom ?? '',
+    comment: address.comment ?? '',
   }
 }
 
@@ -25,5 +34,6 @@ export function toAddressPayload(form: AddressForm): Required<NullableAddress> {
     entrance: form.entrance.trim() || null,
     floor: form.floor.trim() || null,
     intercom: form.intercom.trim() || null,
+    comment: form.comment.trim() || null,
   }
 }
