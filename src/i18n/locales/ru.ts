@@ -1,5 +1,6 @@
 export const ru = {
   common: {
+    edit: 'Изменить',
     back: 'Назад',
     add: 'Добавить',
     call: 'Позвонить',
