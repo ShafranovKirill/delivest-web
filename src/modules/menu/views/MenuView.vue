@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LoyaltyModal from '@/modules/account/components/LoyaltyModal.vue'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import { useMenuStore } from '../stores/menu.store'
 import { useMenuQuery } from '../composables/useMenuQuery'
@@ -36,6 +36,17 @@ const menu = computed(() => {
 })
 
 const menuStore = useMenuStore()
+
+watch(
+  menu,
+  (categories) => {
+    const first = categories?.[0]
+    if (first && !categories.some((category) => category.id === menuStore.activeCategoryId)) {
+      menuStore.setActiveCategory(first.id)
+    }
+  },
+  { immediate: true },
+)
 
 useEventListener(window, 'scroll', () => {
   const first = menu.value?.[0]

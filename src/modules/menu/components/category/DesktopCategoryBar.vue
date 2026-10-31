@@ -88,6 +88,7 @@ watch(categories, updateVisibleCount, { deep: true })
         <Button
           v-for="(category, index) in categories.slice(0, visibleCount)"
           :key="category.id"
+          :aria-current="menuStore.isActive(category.id) ? 'true' : undefined"
           :ref="(el) => (itemRefs[index] = el as any)"
           :severity="activeCategoryId === category.id ? 'primary' : 'secondary'"
           :outlined="activeCategoryId !== category.id"

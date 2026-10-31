@@ -13,11 +13,15 @@ export function useMobCatBarScroll(
     const activeButton = container.querySelector(`[data-id="${newId}"]`) as HTMLElement
 
     if (activeButton) {
-      activeButton.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      })
+      const firstButton = container.querySelector('[data-id]')
+      const left =
+        activeButton === firstButton
+          ? 0
+          : container.scrollLeft +
+            activeButton.getBoundingClientRect().left -
+            container.getBoundingClientRect().left -
+            (container.clientWidth - activeButton.offsetWidth) / 2
+      container.scrollTo({ left: Math.max(0, left), behavior: 'smooth' })
     }
   })
 }

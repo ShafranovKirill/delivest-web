@@ -31,6 +31,7 @@ useMobCatBarScroll(activeCategoryId, containerRef)
         <Button
           v-for="category in categories"
           :key="category.id"
+          :aria-current="menuStore.isActive(category.id) ? 'true' : undefined"
           :data-id="category.id"
           class="shrink-0 transition-all duration-200 border-none! ml-4"
           @click="menuStore.scrollToCategory(category.id)"
