@@ -38,6 +38,14 @@ export const CartService = {
     return data.data
   },
 
+  async addStarItem(cartId: string, productId: string): Promise<Cart> {
+    const { data } = await api.post<CartResponse>(`/client/cart/${cartId}/items/${productId}`, {
+      quantity: 1,
+      stars: true,
+    })
+    return data.data
+  },
+
   async replaceItem(cartId: string, key: string, modifiers: ModifierChoice[]): Promise<Cart> {
     const { data } = await api.put<CartResponse>(`/client/cart/${cartId}/items/${key}`, {
       modifiers,

@@ -20,6 +20,11 @@ export const ru = {
     withoutDiscount: 'Без скидки',
   },
   loyalty: {
+    title: 'Мои звёзды',
+    shop: 'Товары за звёзды',
+    add: 'Забрать за {stars}',
+    history: 'История звёзд',
+    insufficient: 'Не хватает звёзд',
     stars: {
       one: '{count} звезда',
       few: '{count} звезды',

@@ -22,6 +22,11 @@ export const en: typeof ru = {
     withoutDiscount: 'Without discount',
   },
   loyalty: {
+    title: 'My stars',
+    shop: 'Products for stars',
+    add: 'Get for {stars}',
+    history: 'Star history',
+    insufficient: 'Not enough stars',
     stars: {
       one: '{count} star',
       few: '{count} stars',

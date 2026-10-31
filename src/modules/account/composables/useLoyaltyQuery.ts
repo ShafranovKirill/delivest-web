@@ -12,7 +12,7 @@ export const useLoyaltyQuery = () => {
   const branchId = computed(() => branchStore.activeBranch?.id)
 
   return useQuery({
-    queryKey: [LOYALTY_KEY, branchId],
+    queryKey: [LOYALTY_KEY, branchId, computed(() => authStore.client?.id)],
     queryFn: () => AccountService.getLoyalty(branchId.value!),
     enabled: computed(
       () =>

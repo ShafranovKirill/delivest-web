@@ -50,7 +50,8 @@ function handleIncrease() {
   const modifiers = (props.item.modifiers ?? [])
     .filter((m) => m.id)
     .map((m) => ({ id: m.id!, quantity: m.quantity }))
-  cartStore.addItem(props.item.product_id, modifiers)
+  if (props.item.stars) cartStore.addStarItem(props.item.product_id)
+  else cartStore.addItem(props.item.product_id, modifiers)
 }
 </script>
 
@@ -105,7 +106,11 @@ function handleIncrease() {
           class="text-base font-bold"
           :class="item.base_total > item.total_price ? 'text-green-700' : 'text-gray-950'"
         >
-          {{ formatPrice(item.total_price) }}
+          {{
+            item.stars
+              ? '★ ' + (item.stars_price ?? 0) * item.quantity
+              : formatPrice(item.total_price)
+          }}
         </span>
         <span v-if="item.base_total > item.total_price" class="text-xs text-gray-400 line-through">
           {{ formatPrice(item.base_total) }}

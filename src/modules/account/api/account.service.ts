@@ -9,7 +9,7 @@ type Envelope<T> = { data: T }
 
 export type LoyaltyEntry = {
   id: string
-  kind: 'accrual' | 'accrual_reversal' | 'expire' | 'adjust'
+  kind: 'accrual' | 'accrual_reversal' | 'expire' | 'adjust' | 'redeem' | 'refund'
   amount: number
   order_id: string | null
   expires_at: string | null
@@ -17,6 +17,7 @@ export type LoyaltyEntry = {
 }
 
 export type Loyalty = {
+  products: { id: string; name: string; stars_price: number }[]
   enabled: boolean
   balance: number
   history: LoyaltyEntry[]

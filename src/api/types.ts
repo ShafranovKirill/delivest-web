@@ -893,6 +893,8 @@ export interface components {
     }
     /** CartItemResponse */
     CartItemResponse: {
+      stars?: boolean
+      stars_price?: number | null
       /**
        * @description Итог по строке без скидок
        * @example 118000

@@ -168,7 +168,17 @@ const maxStars = computed(() => {
   const rate = loyaltyRate.value
   if (!rate?.spend_enabled || !rate.max_percent || !loyalty.data.value?.enabled) return 0
   const cap = Math.floor(Math.floor((cartStore.totalAmount * rate.max_percent) / 100) / 100)
-  return Math.max(Math.min(cap, loyalty.data.value.balance), 0)
+  return Math.max(
+    Math.min(
+      cap,
+      Math.max(
+        loyalty.data.value.balance -
+          cartStore.items.reduce((sum, item) => sum + (item.stars_price ?? 0) * item.quantity, 0),
+        0,
+      ),
+    ),
+    0,
+  )
 })
 const starsToSpend = computed(() => (useStars.value ? maxStars.value : 0))
 const orderTotal = computed(

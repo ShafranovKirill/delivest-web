@@ -46,6 +46,11 @@ const router = createRouter({
           component: () => import('@/modules/account/views/MyOrdersView.vue'),
         },
         {
+          path: 'stars',
+          name: 'my-stars',
+          component: () => import('@/modules/account/views/StarsView.vue'),
+        },
+        {
           path: 'addresses',
           name: 'my-addresses',
           component: () => import('@/modules/account/views/AddressesView.vue'),

@@ -91,6 +91,10 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  async function addStarItem(productId: string): Promise<Cart> {
+    return withCart((cartId) => CartService.addStarItem(cartId, productId))
+  }
+
   async function addItem(productId: string, modifiers?: ModifierChoice[]): Promise<Cart> {
     try {
       return await withCart((cartId) => CartService.addItem(cartId, productId, modifiers))
@@ -182,6 +186,7 @@ export const useCartStore = defineStore('cart', () => {
 
     fetchCart,
     initBranchSync,
+    addStarItem,
     addItem,
     replaceItem,
     removeItem,
