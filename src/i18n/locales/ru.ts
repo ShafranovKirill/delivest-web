@@ -20,6 +20,7 @@ export const ru = {
     withoutDiscount: 'Без скидки',
   },
   loyalty: {
+    categoryLabel: 'Бонусы',
     yourBalance: 'Ваш баланс',
     shopHint: 'Обменивайте звёзды на любимые блюда — без доплаты.',
     signInHint: 'Войдите, чтобы увидеть баланс и выбрать товары за звёзды.',

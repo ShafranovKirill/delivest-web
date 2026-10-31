@@ -19,7 +19,10 @@ const menuStore = useMenuStore()
     <template #content>
       <div class="flex flex-col h-full items-center justify-between">
         <div class="relative flex flex-col items-center w-full">
-          <ProductTagBadges :tags="product.tags ?? []" class="absolute left-2 top-2 z-10" />
+          <div class="absolute left-2 top-2 z-10 flex items-start gap-1">
+            <ProductTagBadges :tags="product.tags ?? []" />
+            <StarRewardBadge :amount="product.stars_reward" compact />
+          </div>
           <ProductImage
             :src="product.photo_url"
             :alt="product.name"
@@ -29,7 +32,6 @@ const menuStore = useMenuStore()
           <p class="text-xl font-bold text-center mb-2">{{ product.name }}</p>
         </div>
 
-        <StarRewardBadge :amount="product.stars_reward" class="mb-2" />
         <AddToCartSwitch :product="product" />
       </div>
     </template>

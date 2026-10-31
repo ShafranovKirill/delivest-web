@@ -22,6 +22,7 @@ export const en: typeof ru = {
     withoutDiscount: 'Without discount',
   },
   loyalty: {
+    categoryLabel: 'Rewards',
     yourBalance: 'Your balance',
     shopHint: 'Exchange stars for your favourite dishes at no extra cost.',
     signInHint: 'Sign in to see your balance and choose rewards.',
