@@ -20,6 +20,15 @@ export const ru = {
     withoutDiscount: 'Без скидки',
   },
   loyalty: {
+    yourBalance: 'Ваш баланс',
+    shopHint: 'Обменивайте звёзды на любимые блюда — без доплаты.',
+    signInHint: 'Войдите, чтобы увидеть баланс и выбрать товары за звёзды.',
+    available: 'Доступно: {stars}',
+    noProducts: 'Товары за звёзды скоро появятся.',
+    inCart: 'В корзине: {count}',
+    take: 'Забрать за звёзды',
+    continueShopping: 'Продолжить выбор',
+
     itemBonus: 'Дополнительно за товар: +{stars}',
     earnTotal: 'Получите после выполнения',
     fromAmount: 'За сумму заказа',

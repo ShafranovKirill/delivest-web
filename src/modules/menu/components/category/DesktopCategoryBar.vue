@@ -1,16 +1,21 @@
 <script setup lang="ts">
+import LoyaltyCategoryButton from '@/modules/account/components/LoyaltyCategoryButton.vue'
 import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useMenuQuery } from '../../composables/useMenuQuery'
 import { storeToRefs } from 'pinia'
 import { useMenuStore } from '../../stores/menu.store'
 import SkeletonCategoryBar from './SkeletonCategoryBar.vue'
 import { useI18n } from 'vue-i18n'
+import { useResizeObserver } from '@vueuse/core'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 
 const { data: menu, isLoading } = useMenuQuery()
 const menuStore = useMenuStore()
+const branchStore = useBranchStore()
 const { t } = useI18n()
 const { activeCategoryId } = storeToRefs(menuStore)
 
+const loyaltyRef = ref<HTMLElement | null>(null)
 const containerRef = ref<HTMLElement | null>(null)
 const itemRefs = ref<HTMLElement[]>([])
 const visibleCount = ref(999)
@@ -25,7 +30,7 @@ const updateVisibleCount = async () => {
   if (!containerRef.value || itemRefs.value.length === 0) return
 
   const containerWidth = containerRef.value.offsetWidth
-  let currentWidth = 0
+  let currentWidth = (loyaltyRef.value?.offsetWidth ?? 0) + 16
   let count = 0
   const moreBtnWidth = 120
 
@@ -41,8 +46,7 @@ const updateVisibleCount = async () => {
     count++
   }
 
-  visibleCount.value =
-    count > 0 && count < categories.value.length ? count - 1 : categories.value.length
+  visibleCount.value = count
 }
 
 const activeCategoryName = computed(() => {
@@ -54,6 +58,8 @@ const isHiddenActive = computed(() => {
   const hiddenCategories = categories.value.slice(visibleCount.value)
   return hiddenCategories.some((c) => c.id === activeCategoryId.value)
 })
+
+useResizeObserver(loyaltyRef, updateVisibleCount)
 
 onMounted(() => {
   window.addEventListener('resize', updateVisibleCount)
@@ -71,6 +77,13 @@ watch(categories, updateVisibleCount, { deep: true })
         ref="containerRef"
         class="whitespace-nowrap flex gap-4 max-w-7xl mx-auto py-6 px-12 2xl:px-2 items-center"
       >
+        <div
+          v-if="branchStore.activeBranch?.branch_info?.loyalty?.enabled"
+          ref="loyaltyRef"
+          class="shrink-0"
+        >
+          <LoyaltyCategoryButton />
+        </div>
         <SkeletonCategoryBar v-if="isLoading" />
         <Button
           v-for="(category, index) in categories.slice(0, visibleCount)"

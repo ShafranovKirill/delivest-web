@@ -22,6 +22,15 @@ export const en: typeof ru = {
     withoutDiscount: 'Without discount',
   },
   loyalty: {
+    yourBalance: 'Your balance',
+    shopHint: 'Exchange stars for your favourite dishes at no extra cost.',
+    signInHint: 'Sign in to see your balance and choose rewards.',
+    available: 'Available: {stars}',
+    noProducts: 'Rewards are coming soon.',
+    inCart: 'In cart: {count}',
+    take: 'Get with stars',
+    continueShopping: 'Continue shopping',
+
     itemBonus: 'Extra for this product: +{stars}',
     earnTotal: 'Earn after completion',
     fromAmount: 'For the order amount',

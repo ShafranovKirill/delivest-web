@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LoyaltyModal from '@/modules/account/components/LoyaltyModal.vue'
 import { computed, onMounted } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import { useMenuStore } from '../stores/menu.store'
@@ -75,6 +76,7 @@ onMounted(() => {
   <div v-else class="px-2 sm:px-4 max-w-7xl mx-auto">
     <CategoryComponent v-for="category in menu" :key="category.id" :category="category" />
   </div>
+  <LoyaltyModal />
   <ProductModal />
   <StoryViewer />
   <CartButtonMobile v-if="viewportStore.isMobile" />
