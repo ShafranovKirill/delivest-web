@@ -23,6 +23,7 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   let countdownTimer: ReturnType<typeof setInterval> | undefined
   let pollTimer: ReturnType<typeof setTimeout> | undefined
   let checking = false
+  let generation = 0
 
   const isWaiting = computed(() => confirmation.value !== null)
 
@@ -38,6 +39,7 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   }
 
   function reset(message: string | null = null) {
+    generation += 1
     stop()
     confirmation.value = null
     attemptsLeft.value = null
@@ -63,12 +65,15 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   }
 
   async function check(confirmationId: string) {
-    if (checking) return
+    if (checking || !waitingFor(confirmationId)) return
+    const requestGeneration = generation
     checking = true
     try {
       const session = await AuthService.checkCall(confirmationId)
+      if (requestGeneration !== generation) return
       if (session.status === 'confirmed') confirm(confirmationId, session)
     } catch (error) {
+      if (requestGeneration !== generation) return
       const code = getApiErrorCode(error)
       if (code && FINAL_CODES.includes(code) && waitingFor(confirmationId)) fail({ code })
     } finally {
