@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
+import Textarea from 'primevue/textarea'
 import Message from 'primevue/message'
 import { getApiErrorMessage } from '@/api/errors'
 import AddressFields from '@/modules/shared/components/AddressFields.vue'
@@ -63,6 +64,15 @@ async function submit() {
       </Message>
 
       <AddressFields v-model="form" />
+      <Textarea
+        v-model="form.comment"
+        :placeholder="t('fulfillment.form.comment')"
+        :aria-label="t('fulfillment.form.comment')"
+        maxlength="255"
+        rows="2"
+        auto-resize
+        class="w-full"
+      />
 
       <Button
         type="submit"
