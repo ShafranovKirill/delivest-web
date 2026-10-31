@@ -215,7 +215,6 @@ export const ru = {
       title: 'Куда привезти?',
     },
     form: {
-      extraDetails: 'Подъезд, этаж, домофон и комментарий',
       streetAndHouse: 'Улица и дом',
       entrance: 'Подъезд',
       intercom: 'Код двери',
