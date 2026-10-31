@@ -12,25 +12,21 @@ const starsLabel = useStarsLabel()
 
 <template>
   <AccountMenu v-slot="{ open, signedIn }">
-    <Button
-      variant="text"
-      :class="{ 'text-primary!': signedIn }"
-      :aria-label="signedIn ? t('auth.profile') : t('auth.signIn')"
-      @click="open"
-    >
-      <span
-        class="relative grid size-9 place-items-center rounded-full"
-        :class="signedIn ? 'bg-primary-soft text-primary' : ''"
-      >
-        <i class="pi pi-user text-xl" aria-hidden="true" />
-      </span>
+    <span class="relative inline-flex">
+      <Button
+        icon="pi pi-user text-2xl!"
+        variant="text"
+        :class="{ 'text-primary!': signedIn }"
+        :aria-label="signedIn ? t('auth.profile') : t('auth.signIn')"
+        @click="open"
+      />
       <span
         v-if="signedIn && loyalty.data.value?.enabled"
-        class="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-sm font-bold tabular-nums text-amber-700"
+        class="pointer-events-none absolute -top-1 right-1/2 inline-flex items-center gap-0.5 whitespace-nowrap text-[10px] font-bold leading-none tabular-nums text-amber-600"
         :title="starsLabel(loyalty.data.value.balance)"
       >
-        <i class="pi pi-star-fill text-xs" aria-hidden="true" />{{ loyalty.data.value.balance }}
+        {{ loyalty.data.value.balance }}<i class="pi pi-star-fill text-[8px]!" aria-hidden="true" />
       </span>
-    </Button>
+    </span>
   </AccountMenu>
 </template>
