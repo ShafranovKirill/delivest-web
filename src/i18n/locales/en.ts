@@ -2,6 +2,7 @@ import type { ru } from './ru'
 
 export const en: typeof ru = {
   common: {
+    edit: 'Edit',
     back: 'Back',
     add: 'Add',
     call: 'Call',
