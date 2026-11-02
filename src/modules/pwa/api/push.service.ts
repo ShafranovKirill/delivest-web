@@ -20,4 +20,12 @@ export const PushService = {
   async subscribe(orderId: string, payload: PushSubscriptionPayload): Promise<void> {
     await api.post(`/client/orders/${orderId}/push`, payload)
   },
+
+  async subscribeClient(payload: PushSubscriptionPayload): Promise<void> {
+    await api.post('/client/push', payload)
+  },
+
+  async unsubscribeClient(endpoint: string): Promise<void> {
+    await api.delete('/client/push', { params: { endpoint } })
+  },
 }
