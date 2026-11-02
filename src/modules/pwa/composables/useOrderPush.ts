@@ -2,27 +2,10 @@ import { computed, ref, toValue, type MaybeRefOrGetter } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import { useLocaleStore } from '@/modules/settings/stores/locale.store'
 import { PushService } from '../api/push.service'
-import { base64UrlToBytes } from '../utils/base64'
 import { isIos, isStandalone, pushSupported } from '../utils/platform'
+import { subscriptionKeys } from '../utils/subscription'
 
 const subscribedOrders = useLocalStorage<string[]>('delivest-push-orders', [])
-
-function sameKey(current: ArrayBuffer | null, expected: Uint8Array) {
-  if (!current) return false
-  const bytes = new Uint8Array(current)
-  return bytes.length === expected.length && bytes.every((byte, i) => byte === expected[i])
-}
-
-async function browserSubscription(): Promise<PushSubscription> {
-  const registration = await navigator.serviceWorker.ready
-  const key = base64UrlToBytes(await PushService.getPublicKey())
-  const existing = await registration.pushManager.getSubscription()
-
-  if (existing && sameKey(existing.options.applicationServerKey, key)) return existing
-  await existing?.unsubscribe()
-
-  return registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key })
-}
 
 export function useOrderPush(orderId: MaybeRefOrGetter<string | null | undefined>) {
   const localeStore = useLocaleStore()
@@ -38,12 +21,16 @@ export function useOrderPush(orderId: MaybeRefOrGetter<string | null | undefined
   })
 
   async function send(id: string) {
-    const { endpoint, keys } = (await browserSubscription()).toJSON()
-    await PushService.subscribe(id, {
-      endpoint: endpoint!,
-      keys: { p256dh: keys!.p256dh!, auth: keys!.auth! },
-      locale: localeStore.locale,
-    })
+    const { endpoint, keys } = await subscriptionKeys()
+    const payload = { endpoint, keys, locale: localeStore.locale }
+
+    await PushService.subscribe(id, payload)
+
+    // The same browser subscription also covers loyalty reminders.
+    await PushService.subscribeClient(payload).catch((error) =>
+      console.error('[PWA] Client push subscription failed:', error),
+    )
+
     subscribedOrders.value = [...subscribedOrders.value.slice(-19), id]
   }
 

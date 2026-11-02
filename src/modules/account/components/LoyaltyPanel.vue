@@ -8,6 +8,7 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { useLoyaltyQuery } from '../composables/useLoyaltyQuery'
 import { useStarsLabel } from '../composables/useStarsLabel'
+import { useLoyaltyPush } from '@/modules/pwa/composables/useLoyaltyPush'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { getApiErrorMessage } from '@/api/errors'
 import AuthRequired from '@/modules/auth/components/AuthRequired.vue'
@@ -19,6 +20,12 @@ const cart = useCartStore()
 const toast = useToast()
 const busy = ref(false)
 const auth = useAuthStore()
+const {
+  supported: pushSupported,
+  enabled: pushEnabled,
+  pending: pushPending,
+  enable: enablePush,
+} = useLoyaltyPush(() => auth.isAuthenticated)
 const modal = useLoyaltyModalStore()
 const { data: menu } = useMenuQuery()
 const menuProducts = computed(
@@ -41,6 +48,16 @@ const available = computed(() =>
       ),
     0,
   ),
+)
+
+const nextReward = computed(() =>
+  [...(data.value?.products ?? [])]
+    .filter((product) => product.stars_price > available.value)
+    .sort((a, b) => a.stars_price - b.stars_price)
+    .at(0),
+)
+const missing = computed(() =>
+  nextReward.value ? nextReward.value.stars_price - available.value : 0,
 )
 
 async function add(id: string) {
@@ -88,6 +105,30 @@ async function add(id: string) {
               t('loyalty.available', { stars: label(available) })
             }}</span>
           </div>
+          <p v-if="nextReward" class="text-sm text-gray-500">
+            {{
+              t('loyalty.moreToReward', {
+                stars: label(missing),
+                product: nextReward.name,
+              })
+            }}
+          </p>
+          <div
+            v-if="pushSupported && auth.isAuthenticated && !pushEnabled"
+            class="flex flex-wrap items-center gap-3 rounded-2xl bg-gray-50 px-4 py-3"
+          >
+            <span class="text-sm text-gray-600">{{ t('loyalty.reminders.hint') }}</span>
+            <Button
+              :disabled="pushPending"
+              :label="t('loyalty.reminders.enable')"
+              rounded
+              class="!text-xs"
+              @click="enablePush"
+            />
+          </div>
+          <p v-else-if="pushEnabled && pushSupported" class="text-xs text-gray-500">
+            {{ t('loyalty.reminders.enabled') }}
+          </p>
           <p v-if="!products.length" class="rounded-3xl bg-gray-50 p-8 text-center text-gray-500">
             {{ t('loyalty.noProducts') }}
           </p>

@@ -26,6 +26,12 @@ export const en: typeof ru = {
     categoryLabel: 'Rewards',
     yourBalance: 'Your balance',
     shopHint: 'Exchange stars for your favourite dishes at no extra cost.',
+    moreToReward: '{stars} more to “{product}”',
+    reminders: {
+      hint: 'We will remind you before your stars expire.',
+      enable: 'Enable reminders',
+      enabled: 'Expiry reminders are on',
+    },
     signInHint: 'Sign in to see your balance and choose rewards.',
     available: 'Available: {stars}',
     noProducts: 'Rewards are coming soon.',
