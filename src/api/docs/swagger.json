@@ -182,6 +182,14 @@
         "title": "OrderItemResponse",
         "type": "object"
       },
+      "PromoGiftChoiceRequest": {
+        "properties": {
+          "product_ids": { "items": { "format": "uuid", "type": "string" }, "type": "array" }
+        },
+        "required": ["product_ids"],
+        "title": "PromoGiftChoiceRequest",
+        "type": "object"
+      },
       "StartCallResponse": {
         "properties": {
           "data": {
@@ -535,6 +543,17 @@
         "title": "PromoGift",
         "type": "object"
       },
+      "PromoGiftOption": {
+        "properties": {
+          "image_url": { "nullable": true, "type": "string" },
+          "name": { "type": "string" },
+          "price": { "type": "integer" },
+          "product_id": { "format": "uuid", "type": "string" }
+        },
+        "required": ["product_id", "name", "price"],
+        "title": "PromoGiftOption",
+        "type": "object"
+      },
       "AddressRequest": {
         "properties": {
           "apartment": { "example": "12", "nullable": true, "type": "string" },
@@ -742,13 +761,16 @@
           "from": { "example": "11:00", "nullable": true, "type": "string" },
           "missing": { "example": 30000, "nullable": true, "type": "integer" },
           "name": { "example": "Кола 0.5", "nullable": true, "type": "string" },
+          "names": { "items": { "type": "string" }, "type": "array" },
           "product_id": { "format": "uuid", "nullable": true, "type": "string" },
+          "product_ids": { "items": { "format": "uuid", "type": "string" }, "type": "array" },
           "to": { "example": "16:00", "nullable": true, "type": "string" },
           "type": {
             "enum": [
               "subtotal",
               "quantity",
               "product",
+              "products",
               "fulfillment",
               "time",
               "weekday",
@@ -1231,8 +1253,11 @@
               "delivery_below_minimum",
               "delivery_outside_zones",
               "branch_paused",
+              "fulfillment_unavailable",
               "delivery_no_coordinates",
               "promo_unavailable",
+              "promo_gift_not_available",
+              "promo_gift_invalid",
               "points_unavailable",
               "insufficient_points",
               "points_over_limit",
@@ -1364,6 +1389,21 @@
         "title": "ActiveOrder",
         "type": "object"
       },
+      "PromoGiftChoice": {
+        "nullable": true,
+        "properties": {
+          "available": { "type": "boolean" },
+          "options": {
+            "items": { "$ref": "#/components/schemas/PromoGiftOption" },
+            "type": "array"
+          },
+          "required": { "type": "integer" },
+          "selected": { "items": { "format": "uuid", "type": "string" }, "type": "array" }
+        },
+        "required": ["required", "available", "selected", "options"],
+        "title": "PromoGiftChoice",
+        "type": "object"
+      },
       "OrderCourier": {
         "description": "Курьер, который взял заказ. Есть с назначения курьера до вручения",
         "nullable": true,
@@ -1399,6 +1439,11 @@
             "example": "30",
             "nullable": true,
             "type": "integer"
+          },
+          "fulfillment_methods": {
+            "description": "Включённые способы получения заказа",
+            "items": { "enum": ["delivery", "pickup", "dine_in"], "type": "string" },
+            "type": "array"
           },
           "id": {
             "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
@@ -1492,6 +1537,7 @@
           "code": { "example": "SUMMER2025", "nullable": true, "type": "string" },
           "description": { "nullable": true, "type": "string" },
           "discount": { "description": "Скидка в копейках", "example": 15000, "type": "integer" },
+          "gift_choice": { "$ref": "#/components/schemas/PromoGiftChoice" },
           "gifts": { "items": { "$ref": "#/components/schemas/PromoGift" }, "type": "array" },
           "name": { "example": "Летняя скидка", "type": "string" },
           "promotion_id": { "format": "uuid", "type": "string" }
@@ -1827,6 +1873,59 @@
         },
         "summary": "Ссылка на оплату",
         "tags": ["Orders"]
+      }
+    },
+    "/client/cart/{cart_id}/promotions/{promotion_id}/gifts": {
+      "put": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Cart.CartController.choose_promotion_gifts",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "promotion_id",
+            "required": true,
+            "schema": { "format": "uuid", "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PromoGiftChoiceRequest" }
+            }
+          },
+          "description": "Выбор подарков",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
+            },
+            "description": "Корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Корзина или подарок недоступны"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Некорректный выбор"
+          }
+        },
+        "summary": "Выбрать подарки по акции",
+        "tags": ["Cart"]
       }
     },
     "/client/{branch_id}/stocks": {

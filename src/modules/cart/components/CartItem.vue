@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useOpenPromoGiftChoice } from '../composables/useOpenPromoGiftChoice'
 import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
 
 import { formatPrice } from '@/utils/money'
@@ -18,6 +20,16 @@ const props = defineProps<{
 }>()
 
 const cartStore = useCartStore()
+const openGiftChoice = useOpenPromoGiftChoice()
+const giftPromotion = computed(() =>
+  props.item.gift
+    ? cartStore.promotions.find(
+        (p) =>
+          props.item.promotion_ids.includes(p.promotion_id) &&
+          p.gift_choice?.selected.includes(props.item.product_id),
+      )
+    : undefined,
+)
 const { t } = useI18n()
 const router = useRouter()
 const menuStore = useMenuStore()
@@ -126,6 +138,16 @@ function handleIncrease() {
       >
         <i class="pi pi-gift text-xs" /> {{ t('cart.promoGift') }} · {{ item.quantity }}
       </span>
+
+      <button
+        v-if="giftPromotion"
+        type="button"
+        class="rounded-full px-3 py-2 text-sm font-semibold text-green-700 transition-colors hover:bg-green-100 disabled:opacity-40 cursor-pointer"
+        :disabled="cartStore.isLoading"
+        @click="openGiftChoice(giftPromotion.promotion_id)"
+      >
+        {{ t('promo.giftChoice.change') }}
+      </button>
 
       <div v-if="!item.stopped && !item.gift" class="flex items-center gap-2">
         <button

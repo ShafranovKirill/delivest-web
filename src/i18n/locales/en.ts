@@ -107,9 +107,13 @@ export const en: typeof ru = {
       invalid_refresh_token: 'Session expired. Please sign in again',
       address_not_found: 'Address not found',
       internal_error: 'Server error. Try again later',
+      promo_gift_not_available: 'Your gift is unavailable. Choose again or remove it in the cart',
+      promo_gift_invalid: 'Choose the required number of different gifts from the list',
       price_changed: 'The order total has changed. Check your cart and place the order again',
       delivery_below_minimum: 'The order is below the minimum for delivery to this address',
       delivery_outside_zones: 'We do not deliver to this address, pick another one',
+      fulfillment_unavailable:
+        'This fulfillment method is unavailable. Choose another method or branch',
       branch_paused: 'This branch is not taking orders for now. Please try again later',
       delivery_no_coordinates: 'Pick the delivery address on the map',
       promo_unavailable: 'The promotion has just ended. The cart has been recalculated',
@@ -212,6 +216,8 @@ export const en: typeof ru = {
   },
   fulfillment: {
     prompt: {
+      unavailable: 'Ordering unavailable',
+
       title: "What's your address?",
       text: "We want to make sure you're in the delivery area. We'll save the address for future orders.",
       delivery: 'Set delivery address',
@@ -363,6 +369,24 @@ export const en: typeof ru = {
     discount: 'Discount',
   },
   promo: {
+    giftChoice: {
+      backToCart: 'Back to cart',
+      cardHint: 'Choose {count} different products',
+
+      title: 'Choose a gift',
+      hint: 'Choose the required number of different products.',
+      counter: 'Selected {count} of {required}',
+      choose: 'Choose',
+      change: 'Change',
+      confirm: 'Confirm',
+      free: 'Free',
+      error: 'Could not save your gift. Check the available options and try again.',
+      unavailable: 'Gift temporarily unavailable',
+      clear: 'Remove gift',
+      available: 'Gift available',
+      selected: 'Gift selected',
+    },
+
     placeholder: 'Promo code',
     apply: 'Apply',
     remove: 'Remove promo code',
@@ -384,6 +408,7 @@ export const en: typeof ru = {
       sun: 'Sun',
     },
     reason: {
+      products: 'add {count} more from: {names}',
       subtotal: 'add {amount} more',
       quantity: 'add {count} more pcs',
       product: 'add “{name}”',

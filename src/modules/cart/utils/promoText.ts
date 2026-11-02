@@ -18,6 +18,8 @@ export function reasonText(reason: PromoReason): string {
       return t('promo.reason.subtotal', { amount: formatPrice(reason.missing) })
     case 'quantity':
       return t('promo.reason.quantity', { count: reason.missing })
+    case 'products':
+      return t('promo.reason.products', { count: reason.missing, names: reason.names?.join(', ') })
     case 'product':
       return (reason.missing ?? 1) > 1
         ? t('promo.reason.productMany', { name: reason.name, count: reason.missing })

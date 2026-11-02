@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useFulfillmentStore } from '../stores/fulfillment.store'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import { useI18n } from 'vue-i18n'
@@ -10,6 +11,7 @@ const { t } = useI18n()
 const viewportStore = useViewportStore()
 const authStore = useAuthStore()
 const flowStore = useFulfillmentFlowStore()
+const fulfillment = useFulfillmentStore()
 </script>
 
 <template>
@@ -18,20 +20,34 @@ const flowStore = useFulfillmentFlowStore()
     modal
     dismissable-mask
     :position="viewportStore.isMobile ? 'bottom' : 'center'"
-    :header="t('fulfillment.prompt.title')"
+    :header="
+      t(fulfillment.canOrder ? 'fulfillment.prompt.title' : 'fulfillment.prompt.unavailable')
+    "
     class="w-full max-w-md"
     @hide="flowStore.dismiss"
   >
-    <p class="text-gray-600">{{ t('fulfillment.prompt.text') }}</p>
+    <p class="text-gray-600">
+      {{
+        t(fulfillment.canOrder ? 'fulfillment.prompt.text' : 'errors.codes.fulfillment_unavailable')
+      }}
+    </p>
 
     <div class="mt-5 flex flex-col gap-2">
       <Button
+        v-if="fulfillment.availableModes.includes('delivery')"
         :label="t('fulfillment.prompt.delivery')"
         class="h-12 rounded-full! font-semibold"
         @click="flowStore.openPicker('delivery')"
       />
       <Button
-        :label="t('fulfillment.prompt.pickup')"
+        v-if="fulfillment.availableModes.includes('pickup')"
+        :label="
+          t(
+            fulfillment.methods.includes('pickup')
+              ? 'fulfillment.prompt.pickup'
+              : 'order.form.dineIn',
+          )
+        "
         severity="secondary"
         class="h-12 rounded-full! font-semibold"
         @click="flowStore.openPicker('pickup')"

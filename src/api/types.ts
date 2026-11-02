@@ -181,6 +181,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/cart/{cart_id}/promotions/{promotion_id}/gifts': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** Выбрать подарки по акции */
+    put: operations['DelivestWeb.Client.Cart.CartController.choose_promotion_gifts']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/{branch_id}/stocks': {
     parameters: {
       query?: never
@@ -847,6 +864,10 @@ export interface components {
       /** @example Пицца Маргарита */
       title: string
     }
+    /** PromoGiftChoiceRequest */
+    PromoGiftChoiceRequest: {
+      product_ids: string[]
+    }
     /** StartCallResponse */
     StartCallResponse: {
       data: {
@@ -1117,6 +1138,14 @@ export interface components {
       /** @example 1 */
       quantity: number
     }
+    /** PromoGiftOption */
+    PromoGiftOption: {
+      image_url?: string | null
+      name: string
+      price: number
+      /** Format: uuid */
+      product_id: string
+    }
     /** AddressRequest */
     AddressRequest: {
       /** @example 12 */
@@ -1302,13 +1331,22 @@ export interface components {
       missing?: number | null
       /** @example Кола 0.5 */
       name?: string | null
+      names?: string[]
       /** Format: uuid */
       product_id?: string | null
+      product_ids?: string[]
       /** @example 16:00 */
       to?: string | null
       /** @enum {string} */
       type:
-        'subtotal' | 'quantity' | 'product' | 'fulfillment' | 'time' | 'weekday' | 'requires_client'
+        | 'subtotal'
+        | 'quantity'
+        | 'product'
+        | 'products'
+        | 'fulfillment'
+        | 'time'
+        | 'weekday'
+        | 'requires_client'
     }
     /** DeliveryZonesResponse */
     DeliveryZonesResponse: {
@@ -1685,8 +1723,11 @@ export interface components {
         | 'delivery_below_minimum'
         | 'delivery_outside_zones'
         | 'branch_paused'
+        | 'fulfillment_unavailable'
         | 'delivery_no_coordinates'
         | 'promo_unavailable'
+        | 'promo_gift_not_available'
+        | 'promo_gift_invalid'
         | 'points_unavailable'
         | 'insufficient_points'
         | 'points_over_limit'
@@ -1780,6 +1821,13 @@ export interface components {
       /** @example 118000 */
       total_amount: number
     }
+    /** PromoGiftChoice */
+    PromoGiftChoice: {
+      available: boolean
+      options: components['schemas']['PromoGiftOption'][]
+      required: number
+      selected: string[]
+    } | null
     /**
      * OrderCourier
      * @description Курьер, который взял заказ. Есть с назначения курьера до вручения
@@ -1809,6 +1857,8 @@ export interface components {
        * @example 30
        */
       delivery_time?: number | null
+      /** @description Включённые способы получения заказа */
+      fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
       /**
        * Format: uuid
        * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
@@ -1905,6 +1955,7 @@ export interface components {
        * @example 15000
        */
       discount: number
+      gift_choice?: components['schemas']['PromoGiftChoice']
       gifts: components['schemas']['PromoGift'][]
       /** @example Летняя скидка */
       name: string
@@ -2232,6 +2283,52 @@ export interface operations {
         }
       }
       /** @description Заказ не ждёт оплаты */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.choose_promotion_gifts': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        cart_id: string
+        promotion_id: string
+      }
+      cookie?: never
+    }
+    /** @description Выбор подарков */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PromoGiftChoiceRequest']
+      }
+    }
+    responses: {
+      /** @description Корзина */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Корзина или подарок недоступны */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Некорректный выбор */
       422: {
         headers: {
           [name: string]: unknown

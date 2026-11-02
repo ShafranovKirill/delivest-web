@@ -147,6 +147,10 @@ export const useCartStore = defineStore('cart', () => {
     return withCart((cartId) => CartService.repeatOrder(cartId, orderId))
   }
 
+  async function choosePromoGifts(promotionId: string, productIds: string[]): Promise<Cart> {
+    return withCart((cartId) => CartService.choosePromoGifts(cartId, promotionId, productIds))
+  }
+
   async function applyPromoCode(code: string): Promise<Cart> {
     return withCart((cartId) => CartService.applyPromoCode(cartId, code))
   }
@@ -198,6 +202,7 @@ export const useCartStore = defineStore('cart', () => {
     clearCart,
     getItemQuantity,
     repeatOrder,
+    choosePromoGifts,
     applyPromoCode,
     removePromoCode,
     setFulfillment,
