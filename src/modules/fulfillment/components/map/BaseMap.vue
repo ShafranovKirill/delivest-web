@@ -65,6 +65,8 @@ const isLoaded = ref(false)
 let rendered: Marker[] = []
 
 function markerElement(marker: MapMarker) {
+  // MapLibre owns the wrapper's transform; animate and scale only its child.
+  const wrapper = document.createElement('div')
   const element = document.createElement('button')
   element.type = 'button'
   element.className = [
@@ -74,7 +76,8 @@ function markerElement(marker: MapMarker) {
   element.title = marker.title ?? ''
   element.innerHTML = `<i class="pi ${marker.icon ?? 'pi-shop'}"></i>`
   element.addEventListener('click', () => emit('markerClick', marker.id))
-  return element
+  wrapper.appendChild(element)
+  return wrapper
 }
 
 function renderMarkers() {

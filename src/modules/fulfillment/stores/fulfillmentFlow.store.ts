@@ -23,13 +23,29 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
   function ensure(): Promise<boolean> {
     if (fulfillmentStore.current) return Promise.resolve(true)
 
+    if (!fulfillmentStore.canOrder) {
+      isPromptOpen.value = true
+      return Promise.resolve(false)
+    }
     settle(false)
-    isPromptOpen.value = true
-    return new Promise((resolve) => (pending = resolve))
+    return new Promise((resolve) => {
+      pending = resolve
+      if (fulfillmentStore.availableModes.length === 1)
+        openPicker(fulfillmentStore.availableModes[0]!)
+      else isPromptOpen.value = true
+    })
   }
 
   function openPicker(mode: PickerMode) {
-    pickerMode.value = mode
+    if (!fulfillmentStore.canOrder) {
+      isPromptOpen.value = true
+      isPickerOpen.value = false
+      settle(false)
+      return
+    }
+    pickerMode.value = fulfillmentStore.availableModes.includes(mode)
+      ? mode
+      : fulfillmentStore.availableModes[0]!
     isPickerOpen.value = true
     isPromptOpen.value = false
   }

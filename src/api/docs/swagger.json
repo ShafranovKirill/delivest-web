@@ -4,12 +4,7 @@
     "schemas": {
       "ActiveOrdersResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/ActiveOrder"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" }
         },
         "required": ["data"],
         "title": "ActiveOrdersResponse",
@@ -19,18 +14,9 @@
         "properties": {
           "data": {
             "properties": {
-              "body": {
-                "type": "string"
-              },
-              "kind": {
-                "enum": ["privacy", "consent", "offer", "terms"],
-                "type": "string"
-              },
-              "updated_at": {
-                "format": "date-time",
-                "nullable": true,
-                "type": "string"
-              }
+              "body": { "type": "string" },
+              "kind": { "enum": ["privacy", "consent", "offer", "terms"], "type": "string" },
+              "updated_at": { "format": "date-time", "nullable": true, "type": "string" }
             },
             "required": ["kind", "body", "updated_at"],
             "type": "object"
@@ -41,21 +27,44 @@
         "type": "object"
       },
       "StartCallRequest": {
-        "properties": {
-          "phone": {
-            "example": "+79990000000",
-            "type": "string"
-          }
-        },
+        "properties": { "phone": { "example": "+79990000000", "type": "string" } },
         "required": ["phone"],
         "title": "StartCallRequest",
         "type": "object"
       },
+      "LoyaltyResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "balance": { "type": "integer" },
+              "enabled": { "type": "boolean" },
+              "history": {
+                "items": { "$ref": "#/components/schemas/LoyaltyEntry" },
+                "type": "array"
+              },
+              "products": {
+                "items": {
+                  "properties": {
+                    "id": { "format": "uuid", "type": "string" },
+                    "name": { "type": "string" },
+                    "stars_price": { "type": "integer" }
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": ["enabled", "balance", "history"],
+            "type": "object"
+          }
+        },
+        "required": ["data"],
+        "title": "LoyaltyResponse",
+        "type": "object"
+      },
       "CreateOrderRequest": {
         "properties": {
-          "address": {
-            "$ref": "#/components/schemas/AddressRequest"
-          },
+          "address": { "$ref": "#/components/schemas/AddressRequest" },
           "branch_id": {
             "description": "UUID филиала",
             "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
@@ -75,11 +84,7 @@
             "nullable": true,
             "type": "integer"
           },
-          "comment": {
-            "example": "Без лука",
-            "nullable": true,
-            "type": "string"
-          },
+          "comment": { "example": "Без лука", "nullable": true, "type": "string" },
           "cook_by": {
             "description": "Желаемое время приготовления. Если пусто — как можно скорее. Не более 30 дней от текущей даты",
             "example": "2026-10-05T18:30:00",
@@ -112,7 +117,7 @@
             "type": "string"
           },
           "payment_method": {
-            "enum": ["cash", "card_offline"],
+            "enum": ["cash", "card_offline", "online"],
             "example": "cash",
             "nullable": true,
             "type": "string"
@@ -124,10 +129,24 @@
             "minimum": 0,
             "nullable": true,
             "type": "integer"
+          },
+          "spend_points": {
+            "description": "Сколько звёзд списать с суммы заказа (1 звезда = 1 ₽). Только для вошедшего клиента в филиале с включённым списанием",
+            "example": 100,
+            "nullable": true,
+            "type": "integer"
           }
         },
         "required": ["cart_id", "branch_id"],
         "title": "CreateOrderRequest",
+        "type": "object"
+      },
+      "ConfirmCodeRequest": {
+        "properties": {
+          "code": { "description": "Последние 4 цифры номера", "example": "1234", "type": "string" }
+        },
+        "required": ["code"],
+        "title": "ConfirmCodeRequest",
         "type": "object"
       },
       "OrderItemResponse": {
@@ -137,14 +156,9 @@
             "example": 59000,
             "type": "integer"
           },
-          "gift": {
-            "example": false,
-            "type": "boolean"
-          },
+          "gift": { "example": false, "type": "boolean" },
           "modifiers": {
-            "items": {
-              "$ref": "#/components/schemas/ItemModifier"
-            },
+            "items": { "$ref": "#/components/schemas/ItemModifier" },
             "type": "array"
           },
           "price": {
@@ -157,17 +171,23 @@
             "format": "uuid",
             "type": "string"
           },
-          "quantity": {
-            "example": 2,
+          "quantity": { "example": 2, "type": "integer" },
+          "stars_reward": {
+            "description": "Дополнительные звёзды за единицу товара",
             "type": "integer"
           },
-          "title": {
-            "example": "Пицца Маргарита",
-            "type": "string"
-          }
+          "title": { "example": "Пицца Маргарита", "type": "string" }
         },
         "required": ["product_id", "title", "price", "base_price", "gift", "quantity"],
         "title": "OrderItemResponse",
+        "type": "object"
+      },
+      "PromoGiftChoiceRequest": {
+        "properties": {
+          "product_ids": { "items": { "format": "uuid", "type": "string" }, "type": "array" }
+        },
+        "required": ["product_ids"],
+        "title": "PromoGiftChoiceRequest",
         "type": "object"
       },
       "StartCallResponse": {
@@ -175,21 +195,16 @@
           "data": {
             "properties": {
               "call_number": {
-                "description": "Номер, на который нужно позвонить для подтверждения",
+                "description": "Режим inbound: номер, на который нужно позвонить. Режим flash: null, клиенту позвонят сами",
                 "example": "+78000000000",
+                "nullable": true,
                 "type": "string"
               },
-              "confirmation_id": {
-                "format": "uuid",
-                "type": "string"
-              },
-              "expires_in": {
-                "description": "Секунды",
-                "example": 600,
-                "type": "integer"
-              }
+              "confirmation_id": { "format": "uuid", "type": "string" },
+              "expires_in": { "description": "Секунды", "example": 600, "type": "integer" },
+              "mode": { "enum": ["inbound", "flash"], "type": "string" }
             },
-            "required": ["confirmation_id", "call_number", "expires_in"],
+            "required": ["confirmation_id", "mode", "call_number", "expires_in"],
             "type": "object"
           }
         },
@@ -209,10 +224,7 @@
             "format": "uuid",
             "type": "string"
           },
-          "is_active": {
-            "example": true,
-            "type": "boolean"
-          },
+          "is_active": { "example": true, "type": "boolean" },
           "measure_unit": {
             "description": "Единица измерения веса: граммы или миллилитры",
             "enum": ["g", "ml"],
@@ -223,69 +235,45 @@
             "description": "Группы модификаторов. `min`/`max` — сколько выбрать в группе, `is_size` — размер (переключатель)",
             "items": {
               "properties": {
-                "id": {
-                  "format": "uuid",
-                  "type": "string"
-                },
-                "is_size": {
-                  "type": "boolean"
-                },
-                "max": {
-                  "example": 1,
-                  "type": "integer"
-                },
-                "min": {
-                  "example": 1,
-                  "type": "integer"
-                },
+                "id": { "format": "uuid", "type": "string" },
+                "is_size": { "type": "boolean" },
+                "max": { "example": 1, "type": "integer" },
+                "min": { "example": 1, "type": "integer" },
                 "modifiers": {
                   "items": {
                     "properties": {
-                      "id": {
-                        "format": "uuid",
-                        "type": "string"
-                      },
-                      "is_default": {
-                        "type": "boolean"
-                      },
-                      "max_quantity": {
-                        "example": 1,
-                        "type": "integer"
-                      },
-                      "name": {
-                        "example": "35 см",
-                        "type": "string"
-                      },
-                      "price": {
-                        "example": 20000,
-                        "type": "integer"
-                      },
-                      "stopped": {
-                        "type": "boolean"
-                      },
-                      "weight": {
-                        "nullable": true,
-                        "type": "integer"
-                      }
+                      "id": { "format": "uuid", "type": "string" },
+                      "is_default": { "type": "boolean" },
+                      "max_quantity": { "example": 1, "type": "integer" },
+                      "name": { "example": "35 см", "type": "string" },
+                      "photo_url": { "nullable": true, "type": "string" },
+                      "price": { "example": 20000, "type": "integer" },
+                      "stopped": { "type": "boolean" },
+                      "weight": { "nullable": true, "type": "integer" }
                     },
                     "required": ["id", "name", "price", "max_quantity", "is_default", "stopped"],
                     "type": "object"
                   },
                   "type": "array"
                 },
-                "name": {
-                  "example": "Размер",
-                  "type": "string"
-                }
+                "name": { "example": "Размер", "type": "string" }
               },
               "required": ["id", "name", "min", "max", "is_size", "modifiers"],
               "type": "object"
             },
             "type": "array"
           },
-          "name": {
-            "example": "Пипперони",
-            "type": "string"
+          "name": { "example": "Пипперони", "type": "string" },
+          "nutrition": {
+            "description": "КБЖУ на 100 г; пустые поля — null",
+            "nullable": true,
+            "properties": {
+              "calories": { "example": 250.0, "nullable": true, "type": "number" },
+              "carbohydrates": { "example": 30.0, "nullable": true, "type": "number" },
+              "fats": { "example": 9.0, "nullable": true, "type": "number" },
+              "proteins": { "example": 12.5, "nullable": true, "type": "number" }
+            },
+            "type": "object"
           },
           "old_price": {
             "description": "Цена без скидки, если на товар действует акция; `price` — цена со скидкой",
@@ -300,11 +288,7 @@
             "nullable": true,
             "type": "string"
           },
-          "price": {
-            "description": "Цена в копейках",
-            "example": 59000,
-            "type": "integer"
-          },
+          "price": { "description": "Цена в копейках", "example": 59000, "type": "integer" },
           "quantity": {
             "description": "Количество товара на складе (в шт)",
             "example": 10,
@@ -316,6 +300,11 @@
             "example": "hinkali",
             "nullable": true,
             "type": "string"
+          },
+          "stars_reward": {
+            "description": "Дополнительные звёзды за товар сверх общей ставки",
+            "nullable": true,
+            "type": "integer"
           },
           "stopped": {
             "description": "Товар в стоп-листе: показывать, но не давать заказать",
@@ -335,14 +324,8 @@
                   "nullable": true,
                   "type": "string"
                 },
-                "id": {
-                  "format": "uuid",
-                  "type": "string"
-                },
-                "name": {
-                  "example": "Хит",
-                  "type": "string"
-                }
+                "id": { "format": "uuid", "type": "string" },
+                "name": { "example": "Хит", "type": "string" }
               },
               "required": ["id", "name", "icon_url"],
               "type": "object"
@@ -361,12 +344,7 @@
       },
       "BranchListResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/Branch"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/Branch" }, "type": "array" }
         },
         "required": ["data"],
         "title": "BranchListResponse",
@@ -374,29 +352,15 @@
       },
       "ItemModifier": {
         "properties": {
-          "group_name": {
-            "example": "Размер",
-            "nullable": true,
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "nullable": true,
-            "type": "string"
-          },
-          "name": {
-            "example": "35 см",
-            "type": "string"
-          },
+          "group_name": { "example": "Размер", "nullable": true, "type": "string" },
+          "id": { "format": "uuid", "nullable": true, "type": "string" },
+          "name": { "example": "35 см", "type": "string" },
           "price": {
             "description": "Цена за единицу, копейки",
             "example": 20000,
             "type": "integer"
           },
-          "quantity": {
-            "example": 1,
-            "type": "integer"
-          }
+          "quantity": { "example": 1, "type": "integer" }
         },
         "required": ["name", "price", "quantity"],
         "title": "ItemModifier",
@@ -404,55 +368,20 @@
       },
       "GeoAddress": {
         "properties": {
-          "city": {
-            "example": "Тюмень",
-            "nullable": true,
-            "type": "string"
-          },
-          "district": {
-            "example": "Центральный р-н",
-            "nullable": true,
-            "type": "string"
-          },
-          "fias_id": {
-            "description": "ФИАС дома",
-            "nullable": true,
-            "type": "string"
-          },
+          "city": { "example": "Тюмень", "nullable": true, "type": "string" },
+          "district": { "example": "Центральный р-н", "nullable": true, "type": "string" },
+          "fias_id": { "description": "ФИАС дома", "nullable": true, "type": "string" },
           "geo_precision": {
             "description": "Точность координат DaData qc_geo: 0 — точные, 5 — не определены",
             "nullable": true,
             "type": "integer"
           },
-          "house": {
-            "example": "10",
-            "nullable": true,
-            "type": "string"
-          },
-          "latitude": {
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "longitude": {
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "postal_code": {
-            "example": "625000",
-            "nullable": true,
-            "type": "string"
-          },
-          "street": {
-            "example": "ул Республики",
-            "nullable": true,
-            "type": "string"
-          },
-          "value": {
-            "example": "ул Республики, д 10",
-            "type": "string"
-          }
+          "house": { "example": "10", "nullable": true, "type": "string" },
+          "latitude": { "format": "float", "nullable": true, "type": "number" },
+          "longitude": { "format": "float", "nullable": true, "type": "number" },
+          "postal_code": { "example": "625000", "nullable": true, "type": "string" },
+          "street": { "example": "ул Республики", "nullable": true, "type": "string" },
+          "value": { "example": "ул Республики, д 10", "type": "string" }
         },
         "required": [
           "value",
@@ -470,11 +399,7 @@
         "type": "object"
       },
       "ClientSessionResponse": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/ClientSession"
-          }
-        },
+        "properties": { "data": { "$ref": "#/components/schemas/ClientSession" } },
         "required": ["data"],
         "title": "ClientSessionResponse",
         "type": "object"
@@ -482,17 +407,29 @@
       "SocketTokenResponse": {
         "properties": {
           "data": {
-            "properties": {
-              "token": {
-                "type": "string"
-              }
-            },
+            "properties": { "token": { "type": "string" } },
             "required": ["token"],
             "type": "object"
           }
         },
         "required": ["data"],
         "title": "SocketTokenResponse",
+        "type": "object"
+      },
+      "LoyaltyEntry": {
+        "properties": {
+          "amount": { "description": "Звёзды со знаком", "type": "integer" },
+          "expires_at": { "format": "date-time", "nullable": true, "type": "string" },
+          "id": { "format": "uuid", "type": "string" },
+          "inserted_at": { "format": "date-time", "type": "string" },
+          "kind": {
+            "enum": ["accrual", "accrual_reversal", "expire", "adjust", "redeem", "refund"],
+            "type": "string"
+          },
+          "order_id": { "format": "uuid", "nullable": true, "type": "string" }
+        },
+        "required": ["id", "kind", "amount", "inserted_at"],
+        "title": "LoyaltyEntry",
         "type": "object"
       },
       "CartItemResponse": {
@@ -517,15 +454,10 @@
             "type": "string"
           },
           "modifiers": {
-            "items": {
-              "$ref": "#/components/schemas/ItemModifier"
-            },
+            "items": { "$ref": "#/components/schemas/ItemModifier" },
             "type": "array"
           },
-          "name": {
-            "example": "Пицца Маргарита",
-            "type": "string"
-          },
+          "name": { "example": "Пицца Маргарита", "type": "string" },
           "price": {
             "description": "Цена за единицу по меню",
             "example": 59000,
@@ -536,21 +468,15 @@
             "format": "uuid",
             "type": "string"
           },
-          "promotion_ids": {
-            "items": {
-              "format": "uuid",
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "quantity": {
-            "example": 2,
+          "promotion_ids": { "items": { "format": "uuid", "type": "string" }, "type": "array" },
+          "quantity": { "example": 2, "type": "integer" },
+          "stars": { "type": "boolean" },
+          "stars_price": { "nullable": true, "type": "integer" },
+          "stars_reward": {
+            "description": "Дополнительные звёзды за единицу товара",
             "type": "integer"
           },
-          "stopped": {
-            "description": "Товар в стоп-листе: заказать нельзя",
-            "type": "boolean"
-          },
+          "stopped": { "description": "Товар в стоп-листе: заказать нельзя", "type": "boolean" },
           "total_price": {
             "description": "Итог по строке с учётом скидок",
             "example": 106200,
@@ -574,60 +500,33 @@
       "Branch": {
         "properties": {
           "branch_info": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/BranchInfoResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/BranchInfoResponse" }, { "type": "null" }]
           },
           "id": {
             "example": "c4a3b8e0-1234-5678-9abc-def012345678",
             "format": "uuid",
             "type": "string"
           },
-          "is_active": {
-            "example": true,
-            "type": "boolean"
-          },
-          "name": {
-            "example": "Центральный филиал",
-            "type": "string"
-          },
-          "slug": {
-            "example": "central",
-            "type": "string"
-          }
+          "is_active": { "example": true, "type": "boolean" },
+          "name": { "example": "Центральный филиал", "type": "string" },
+          "slug": { "example": "central", "type": "string" }
         },
         "required": ["id", "name", "slug", "is_active"],
         "title": "Branch",
         "type": "object"
       },
       "DeliveryQuoteResponse": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/DeliveryQuote"
-          }
-        },
+        "properties": { "data": { "$ref": "#/components/schemas/DeliveryQuote" } },
         "required": ["data"],
         "title": "DeliveryQuoteResponse",
         "type": "object"
       },
       "ClientAddressRequest": {
         "allOf": [
-          {
-            "$ref": "#/components/schemas/AddressRequest"
-          },
+          { "$ref": "#/components/schemas/AddressRequest" },
           {
             "properties": {
-              "label": {
-                "example": "Дом",
-                "maxLength": 30,
-                "nullable": true,
-                "type": "string"
-              }
+              "label": { "example": "Дом", "maxLength": 30, "nullable": true, "type": "string" }
             },
             "type": "object"
           }
@@ -636,154 +535,71 @@
       },
       "PromoGift": {
         "properties": {
-          "name": {
-            "example": "Кола 0.5",
-            "type": "string"
-          },
-          "product_id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "quantity": {
-            "example": 1,
-            "type": "integer"
-          }
+          "name": { "example": "Кола 0.5", "type": "string" },
+          "product_id": { "format": "uuid", "type": "string" },
+          "quantity": { "example": 1, "type": "integer" }
         },
         "required": ["product_id", "name", "quantity"],
         "title": "PromoGift",
         "type": "object"
       },
+      "PromoGiftOption": {
+        "properties": {
+          "image_url": { "nullable": true, "type": "string" },
+          "name": { "type": "string" },
+          "price": { "type": "integer" },
+          "product_id": { "format": "uuid", "type": "string" }
+        },
+        "required": ["product_id", "name", "price"],
+        "title": "PromoGiftOption",
+        "type": "object"
+      },
       "AddressRequest": {
         "properties": {
-          "apartment": {
-            "example": "12",
-            "nullable": true,
-            "type": "string"
-          },
-          "city": {
-            "example": "Москва",
-            "nullable": true,
-            "type": "string"
-          },
-          "comment": {
-            "example": "Вход со двора",
-            "nullable": true,
-            "type": "string"
-          },
-          "district": {
-            "example": "Центральный р-н",
-            "nullable": true,
-            "type": "string"
-          },
-          "entrance": {
-            "example": "2",
-            "nullable": true,
-            "type": "string"
-          },
-          "fias_id": {
-            "description": "ФИАС дома",
-            "nullable": true,
-            "type": "string"
-          },
-          "floor": {
-            "example": "3",
-            "nullable": true,
-            "type": "string"
-          },
+          "apartment": { "example": "12", "nullable": true, "type": "string" },
+          "city": { "example": "Москва", "nullable": true, "type": "string" },
+          "comment": { "example": "Вход со двора", "nullable": true, "type": "string" },
+          "district": { "example": "Центральный р-н", "nullable": true, "type": "string" },
+          "entrance": { "example": "2", "nullable": true, "type": "string" },
+          "fias_id": { "description": "ФИАС дома", "nullable": true, "type": "string" },
+          "floor": { "example": "3", "nullable": true, "type": "string" },
           "formatted": {
             "example": "г Тюмень, ул Республики, д 10",
             "nullable": true,
             "type": "string"
           },
-          "geo_precision": {
-            "maximum": 5,
-            "minimum": 0,
-            "nullable": true,
-            "type": "integer"
-          },
-          "house": {
-            "example": "10",
-            "nullable": true,
-            "type": "string"
-          },
-          "intercom": {
-            "example": "42",
-            "nullable": true,
-            "type": "string"
-          },
-          "latitude": {
-            "example": 57.153,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "longitude": {
-            "example": 65.534,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "postal_code": {
-            "example": "625000",
-            "nullable": true,
-            "type": "string"
-          },
-          "street": {
-            "example": "Ленина",
-            "nullable": true,
-            "type": "string"
-          }
+          "geo_precision": { "maximum": 5, "minimum": 0, "nullable": true, "type": "integer" },
+          "house": { "example": "10", "nullable": true, "type": "string" },
+          "intercom": { "example": "42", "nullable": true, "type": "string" },
+          "latitude": { "example": 57.153, "format": "float", "nullable": true, "type": "number" },
+          "longitude": { "example": 65.534, "format": "float", "nullable": true, "type": "number" },
+          "postal_code": { "example": "625000", "nullable": true, "type": "string" },
+          "street": { "example": "Ленина", "nullable": true, "type": "string" }
         },
         "title": "AddressRequest",
         "type": "object"
       },
       "OrderPromotion": {
         "properties": {
-          "code": {
-            "example": "SUMMER2025",
-            "nullable": true,
-            "type": "string"
-          },
-          "discount": {
-            "example": 15000,
-            "type": "integer"
-          },
-          "name": {
-            "example": "Летняя скидка",
-            "type": "string"
-          }
+          "code": { "example": "SUMMER2025", "nullable": true, "type": "string" },
+          "discount": { "example": 15000, "type": "integer" },
+          "name": { "example": "Летняя скидка", "type": "string" }
         },
         "required": ["name", "discount"],
         "title": "OrderPromotion",
         "type": "object"
       },
       "PromoCodeRequest": {
-        "properties": {
-          "code": {
-            "example": "SUMMER2025",
-            "maxLength": 32,
-            "type": "string"
-          }
-        },
+        "properties": { "code": { "example": "SUMMER2025", "maxLength": 32, "type": "string" } },
         "required": ["code"],
         "title": "PromoCodeRequest",
         "type": "object"
       },
       "ClientProfile": {
         "properties": {
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "name": {
-            "example": "Иван",
-            "nullable": true,
-            "type": "string"
-          },
-          "phone": {
-            "example": "+79990000000",
-            "type": "string"
-          }
+          "id": { "format": "uuid", "type": "string" },
+          "name": { "example": "Иван", "nullable": true, "type": "string" },
+          "phone": { "example": "+79990000000", "type": "string" }
         },
         "required": ["id", "phone"],
         "title": "ClientProfile",
@@ -793,10 +609,10 @@
         "properties": {
           "data": {
             "properties": {
-              "address": {
-                "additionalProperties": true,
-                "nullable": true,
-                "type": "object"
+              "address": { "additionalProperties": true, "nullable": true, "type": "object" },
+              "awaiting_payment": {
+                "description": "Заказ ждёт онлайн-оплаты и ещё не принят в работу",
+                "type": "boolean"
               },
               "branch_id": {
                 "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
@@ -814,79 +630,50 @@
                 "nullable": true,
                 "type": "string"
               },
-              "comment": {
-                "example": "Без лука",
-                "nullable": true,
-                "type": "string"
-              },
+              "comment": { "example": "Без лука", "nullable": true, "type": "string" },
               "cook_by": {
                 "example": "2026-10-05T18:30:00",
                 "format": "date_time",
                 "nullable": true,
                 "type": "string"
               },
-              "customer_name": {
-                "example": "Иван",
-                "nullable": true,
-                "type": "string"
-              },
-              "customer_phone": {
-                "example": "+79990000000",
-                "nullable": true,
-                "type": "string"
-              },
-              "customer_phone_ext": {
-                "example": "1234",
-                "nullable": true,
-                "type": "string"
-              },
+              "customer_name": { "example": "Иван", "nullable": true, "type": "string" },
+              "customer_phone": { "example": "+79990000000", "nullable": true, "type": "string" },
+              "customer_phone_ext": { "example": "1234", "nullable": true, "type": "string" },
               "delivery_amount": {
                 "description": "Стоимость доставки, входит в total_amount",
                 "example": 20000,
                 "type": "integer"
               },
-              "discount_amount": {
-                "example": 15000,
-                "type": "integer"
-              },
-              "fulfillment_type": {
-                "enum": ["dine_in", "delivery", "pickup"],
-                "type": "string"
-              },
+              "discount_amount": { "example": 15000, "type": "integer" },
+              "fulfillment_type": { "enum": ["dine_in", "delivery", "pickup"], "type": "string" },
               "id": {
                 "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
                 "format": "uuid",
                 "type": "string"
               },
               "items": {
-                "items": {
-                  "$ref": "#/components/schemas/OrderItemResponse"
-                },
+                "items": { "$ref": "#/components/schemas/OrderItemResponse" },
                 "type": "array"
               },
-              "number": {
-                "example": "261029-MSK1-042",
-                "type": "string"
-              },
-              "payment_method": {
-                "enum": ["cash", "card_offline"],
-                "type": "string"
-              },
-              "persons": {
-                "example": 2,
+              "number": { "example": "261029-MSK1-042", "type": "string" },
+              "payment": {
+                "description": "Только в ответе на создание онлайн-заказа",
                 "nullable": true,
+                "properties": { "confirmation_url": { "format": "uri", "type": "string" } },
+                "type": "object"
+              },
+              "payment_method": { "enum": ["cash", "card_offline", "online"], "type": "string" },
+              "persons": { "example": 2, "nullable": true, "type": "integer" },
+              "points_earned": {
+                "description": "Звёзды после выполнения заказа, включая бонусы за товары",
                 "type": "integer"
               },
               "promotions": {
-                "items": {
-                  "$ref": "#/components/schemas/OrderPromotion"
-                },
+                "items": { "$ref": "#/components/schemas/OrderPromotion" },
                 "type": "array"
               },
-              "short_number": {
-                "example": "42",
-                "type": "string"
-              },
+              "short_number": { "example": "42", "type": "string" },
               "status": {
                 "enum": [
                   "created",
@@ -905,10 +692,7 @@
                 "example": 133000,
                 "type": "integer"
               },
-              "total_amount": {
-                "example": 118000,
-                "type": "integer"
-              }
+              "total_amount": { "example": 118000, "type": "integer" }
             },
             "required": [
               "id",
@@ -935,15 +719,8 @@
       },
       "ModifierChoice": {
         "properties": {
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "quantity": {
-            "default": 1,
-            "minimum": 1,
-            "type": "integer"
-          }
+          "id": { "format": "uuid", "type": "string" },
+          "quantity": { "default": 1, "minimum": 1, "type": "integer" }
         },
         "required": ["id"],
         "title": "ModifierChoice",
@@ -952,35 +729,17 @@
       "PromoHint": {
         "description": "Автоматическая акция, которая сработает при выполнении условий.",
         "properties": {
-          "description": {
-            "nullable": true,
-            "type": "string"
-          },
-          "name": {
-            "example": "Кола в подарок",
-            "type": "string"
-          },
-          "promotion_id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "reasons": {
-            "items": {
-              "$ref": "#/components/schemas/PromoReason"
-            },
-            "type": "array"
-          }
+          "description": { "nullable": true, "type": "string" },
+          "name": { "example": "Кола в подарок", "type": "string" },
+          "promotion_id": { "format": "uuid", "type": "string" },
+          "reasons": { "items": { "$ref": "#/components/schemas/PromoReason" }, "type": "array" }
         },
         "required": ["promotion_id", "name", "reasons"],
         "title": "PromoHint",
         "type": "object"
       },
       "ProfileResponse": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/ClientProfile"
-          }
-        },
+        "properties": { "data": { "$ref": "#/components/schemas/ClientProfile" } },
         "required": ["data"],
         "title": "ProfileResponse",
         "type": "object"
@@ -989,51 +748,29 @@
         "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.",
         "properties": {
           "allowed": {
-            "items": {
-              "enum": ["dine_in", "delivery", "pickup"],
-              "type": "string"
-            },
+            "items": { "enum": ["dine_in", "delivery", "pickup"], "type": "string" },
             "nullable": true,
             "type": "array"
           },
           "days": {
             "example": [1, 2],
-            "items": {
-              "type": "integer"
-            },
+            "items": { "type": "integer" },
             "nullable": true,
             "type": "array"
           },
-          "from": {
-            "example": "11:00",
-            "nullable": true,
-            "type": "string"
-          },
-          "missing": {
-            "example": 30000,
-            "nullable": true,
-            "type": "integer"
-          },
-          "name": {
-            "example": "Кола 0.5",
-            "nullable": true,
-            "type": "string"
-          },
-          "product_id": {
-            "format": "uuid",
-            "nullable": true,
-            "type": "string"
-          },
-          "to": {
-            "example": "16:00",
-            "nullable": true,
-            "type": "string"
-          },
+          "from": { "example": "11:00", "nullable": true, "type": "string" },
+          "missing": { "example": 30000, "nullable": true, "type": "integer" },
+          "name": { "example": "Кола 0.5", "nullable": true, "type": "string" },
+          "names": { "items": { "type": "string" }, "type": "array" },
+          "product_id": { "format": "uuid", "nullable": true, "type": "string" },
+          "product_ids": { "items": { "format": "uuid", "type": "string" }, "type": "array" },
+          "to": { "example": "16:00", "nullable": true, "type": "string" },
           "type": {
             "enum": [
               "subtotal",
               "quantity",
               "product",
+              "products",
               "fulfillment",
               "time",
               "weekday",
@@ -1048,12 +785,7 @@
       },
       "DeliveryZonesResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/DeliveryZone"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/DeliveryZone" }, "type": "array" }
         },
         "required": ["data"],
         "title": "DeliveryZonesResponse",
@@ -1071,11 +803,7 @@
             "example": true,
             "type": "boolean"
           },
-          "order": {
-            "example": 1.0,
-            "format": "float",
-            "type": "number"
-          },
+          "order": { "example": 1.0, "format": "float", "type": "number" },
           "photo_url": {
             "description": "Ссылка на медиафайл акции",
             "example": "https://storage.example.com/images/stock.jpg",
@@ -1099,38 +827,20 @@
       },
       "PushSubscriptionRequest": {
         "properties": {
-          "endpoint": {
-            "format": "uri",
-            "type": "string"
-          },
+          "endpoint": { "format": "uri", "type": "string" },
           "keys": {
-            "properties": {
-              "auth": {
-                "type": "string"
-              },
-              "p256dh": {
-                "type": "string"
-              }
-            },
+            "properties": { "auth": { "type": "string" }, "p256dh": { "type": "string" } },
             "required": ["p256dh", "auth"],
             "type": "object"
           },
-          "locale": {
-            "enum": ["ru", "en"],
-            "nullable": true,
-            "type": "string"
-          }
+          "locale": { "enum": ["ru", "en"], "nullable": true, "type": "string" }
         },
         "required": ["endpoint", "keys"],
         "title": "PushSubscriptionRequest",
         "type": "object"
       },
       "BranchResponse": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/Branch"
-          }
-        },
+        "properties": { "data": { "$ref": "#/components/schemas/Branch" } },
         "required": ["data"],
         "title": "BranchResponse",
         "type": "object"
@@ -1139,17 +849,12 @@
         "properties": {
           "modifiers": {
             "description": "Выбранные модификаторы. Пусто — модификаторы по умолчанию. Тот же товар с другими модификаторами — отдельная строка",
-            "items": {
-              "$ref": "#/components/schemas/ModifierChoice"
-            },
+            "items": { "$ref": "#/components/schemas/ModifierChoice" },
             "nullable": true,
             "type": "array"
           },
-          "quantity": {
-            "default": 1,
-            "minimum": 1,
-            "type": "integer"
-          }
+          "quantity": { "default": 1, "minimum": 1, "type": "integer" },
+          "stars": { "description": "Купить за звёзды", "type": "boolean" }
         },
         "title": "AddItemRequest",
         "type": "object"
@@ -1172,36 +877,31 @@
                 "nullable": true,
                 "type": "string"
               },
-              "description": {
-                "nullable": true,
-                "type": "string"
-              },
+              "description": { "nullable": true, "type": "string" },
               "documents": {
-                "items": {
-                  "$ref": "#/components/schemas/LegalDocumentSummary"
-                },
+                "items": { "$ref": "#/components/schemas/LegalDocumentSummary" },
                 "type": "array"
               },
-              "legal": {
-                "$ref": "#/components/schemas/FranchiseLegal"
+              "legal": { "$ref": "#/components/schemas/FranchiseLegal" },
+              "login_call_mode": {
+                "description": "inbound: клиент звонит сам; flash: клиенту звонят, он вводит 4 цифры",
+                "enum": ["inbound", "flash"],
+                "type": "string"
               },
-              "logo_dark_url": {
-                "format": "uri",
+              "logo_dark_url": { "format": "uri", "nullable": true, "type": "string" },
+              "logo_url": { "format": "uri", "nullable": true, "type": "string" },
+              "name": { "example": "Sushi Like", "type": "string" },
+              "primary_color": { "example": "#48010c", "type": "string" },
+              "rating": {
+                "description": "Оценка Яндекса; null, если не настроено или данные старше 7 дней",
                 "nullable": true,
-                "type": "string"
-              },
-              "logo_url": {
-                "format": "uri",
-                "nullable": true,
-                "type": "string"
-              },
-              "name": {
-                "example": "Sushi Like",
-                "type": "string"
-              },
-              "primary_color": {
-                "example": "#48010c",
-                "type": "string"
+                "properties": {
+                  "count": { "example": 120, "type": "integer" },
+                  "url": { "format": "uri", "nullable": true, "type": "string" },
+                  "value": { "example": 4.8, "type": "number" }
+                },
+                "required": ["value", "count", "url"],
+                "type": "object"
               }
             },
             "required": [
@@ -1213,6 +913,8 @@
               "logo_dark_url",
               "address_map",
               "client_auth",
+              "login_call_mode",
+              "rating",
               "legal",
               "documents"
             ],
@@ -1224,23 +926,14 @@
         "type": "object"
       },
       "RefreshRequest": {
-        "properties": {
-          "refresh_token": {
-            "type": "string"
-          }
-        },
+        "properties": { "refresh_token": { "type": "string" } },
         "required": ["refresh_token"],
         "title": "RefreshRequest",
         "type": "object"
       },
       "ClientAddressListResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/ClientAddress"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/ClientAddress" }, "type": "array" }
         },
         "required": ["data"],
         "title": "ClientAddressListResponse",
@@ -1248,12 +941,7 @@
       },
       "RunningPromotionsResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/RunningPromotion"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/RunningPromotion" }, "type": "array" }
         },
         "required": ["data"],
         "title": "RunningPromotionsResponse",
@@ -1266,36 +954,12 @@
             "nullable": true,
             "type": "string"
           },
-          "email": {
-            "example": "info@example.com",
-            "nullable": true,
-            "type": "string"
-          },
-          "form": {
-            "example": "ООО",
-            "nullable": true,
-            "type": "string"
-          },
-          "inn": {
-            "example": "7700000000",
-            "nullable": true,
-            "type": "string"
-          },
-          "name": {
-            "example": "Вкусная еда",
-            "nullable": true,
-            "type": "string"
-          },
-          "ogrn": {
-            "example": "1027700000000",
-            "nullable": true,
-            "type": "string"
-          },
-          "phone": {
-            "example": "+79990000000",
-            "nullable": true,
-            "type": "string"
-          }
+          "email": { "example": "info@example.com", "nullable": true, "type": "string" },
+          "form": { "example": "ООО", "nullable": true, "type": "string" },
+          "inn": { "example": "7700000000", "nullable": true, "type": "string" },
+          "name": { "example": "Вкусная еда", "nullable": true, "type": "string" },
+          "ogrn": { "example": "1027700000000", "nullable": true, "type": "string" },
+          "phone": { "example": "+79990000000", "nullable": true, "type": "string" }
         },
         "required": ["form", "name", "inn", "ogrn", "address", "email", "phone"],
         "title": "FranchiseLegal",
@@ -1303,37 +967,20 @@
       },
       "DeliveryZone": {
         "properties": {
-          "color": {
-            "example": "#2563eb",
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "name": {
-            "example": "Центр",
-            "type": "string"
-          },
+          "color": { "example": "#2563eb", "type": "string" },
+          "id": { "format": "uuid", "type": "string" },
+          "name": { "example": "Центр", "type": "string" },
           "polygon": {
             "description": "GeoJSON Polygon, точки [долгота, широта]",
             "properties": {
               "coordinates": {
                 "items": {
-                  "items": {
-                    "items": {
-                      "type": "number"
-                    },
-                    "type": "array"
-                  },
+                  "items": { "items": { "type": "number" }, "type": "array" },
                   "type": "array"
                 },
                 "type": "array"
               },
-              "type": {
-                "enum": ["Polygon"],
-                "type": "string"
-              }
+              "type": { "enum": ["Polygon"], "type": "string" }
             },
             "required": ["type", "coordinates"],
             "type": "object"
@@ -1347,45 +994,34 @@
         "properties": {
           "data": {
             "properties": {
+              "base_stars": { "type": "integer" },
               "branch_id": {
                 "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
                 "format": "uuid",
                 "nullable": true,
                 "type": "string"
               },
-              "discount_amount": {
-                "example": 20000,
-                "type": "integer"
-              },
+              "discount_amount": { "example": 20000, "type": "integer" },
               "fulfillment_type": {
                 "enum": ["dine_in", "delivery", "pickup"],
                 "nullable": true,
                 "type": "string"
               },
-              "hints": {
-                "items": {
-                  "$ref": "#/components/schemas/PromoHint"
-                },
-                "type": "array"
-              },
+              "hints": { "items": { "$ref": "#/components/schemas/PromoHint" }, "type": "array" },
               "id": {
                 "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
                 "format": "uuid",
                 "type": "string"
               },
               "items": {
-                "items": {
-                  "$ref": "#/components/schemas/CartItemResponse"
-                },
+                "items": { "$ref": "#/components/schemas/CartItemResponse" },
                 "type": "array"
               },
-              "promo_code": {
-                "$ref": "#/components/schemas/PromoCodeState"
-              },
+              "points_earned": { "type": "integer" },
+              "product_stars": { "type": "integer" },
+              "promo_code": { "$ref": "#/components/schemas/PromoCodeState" },
               "promotions": {
-                "items": {
-                  "$ref": "#/components/schemas/AppliedPromotion"
-                },
+                "items": { "$ref": "#/components/schemas/AppliedPromotion" },
                 "type": "array"
               },
               "session_id": {
@@ -1398,15 +1034,8 @@
                 "example": 170000,
                 "type": "integer"
               },
-              "total_amount": {
-                "description": "К оплате",
-                "example": 150000,
-                "type": "integer"
-              },
-              "total_quantity": {
-                "example": 3,
-                "type": "integer"
-              }
+              "total_amount": { "description": "К оплате", "example": 150000, "type": "integer" },
+              "total_quantity": { "example": 3, "type": "integer" }
             },
             "required": [
               "id",
@@ -1427,26 +1056,10 @@
       },
       "DeliveryQuote": {
         "properties": {
-          "free_from": {
-            "example": 150000,
-            "nullable": true,
-            "type": "integer"
-          },
-          "min_order": {
-            "example": 50000,
-            "nullable": true,
-            "type": "integer"
-          },
-          "minutes": {
-            "example": 45,
-            "nullable": true,
-            "type": "integer"
-          },
-          "price": {
-            "example": 15000,
-            "nullable": true,
-            "type": "integer"
-          },
+          "free_from": { "example": 150000, "nullable": true, "type": "integer" },
+          "min_order": { "example": 50000, "nullable": true, "type": "integer" },
+          "minutes": { "example": 45, "nullable": true, "type": "integer" },
+          "price": { "example": 15000, "nullable": true, "type": "integer" },
           "status": {
             "enum": ["ok", "below_minimum", "outside_zones", "no_coordinates"],
             "type": "string"
@@ -1458,36 +1071,30 @@
       },
       "RunningPromotion": {
         "properties": {
-          "description": {
-            "nullable": true,
-            "type": "string"
-          },
-          "ends_at": {
-            "format": "date-time",
-            "nullable": true,
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "name": {
-            "example": "Скидка 10% на самовывоз",
-            "type": "string"
-          }
+          "description": { "nullable": true, "type": "string" },
+          "ends_at": { "format": "date-time", "nullable": true, "type": "string" },
+          "id": { "format": "uuid", "type": "string" },
+          "name": { "example": "Скидка 10% на самовывоз", "type": "string" }
         },
         "required": ["id", "name", "description", "ends_at"],
         "title": "RunningPromotion",
         "type": "object"
       },
-      "GeoAddressListResponse": {
+      "PaymentLinkResponse": {
         "properties": {
           "data": {
-            "items": {
-              "$ref": "#/components/schemas/GeoAddress"
-            },
-            "type": "array"
+            "properties": { "confirmation_url": { "format": "uri", "type": "string" } },
+            "required": ["confirmation_url"],
+            "type": "object"
           }
+        },
+        "required": ["data"],
+        "title": "PaymentLinkResponse",
+        "type": "object"
+      },
+      "GeoAddressListResponse": {
+        "properties": {
+          "data": { "items": { "$ref": "#/components/schemas/GeoAddress" }, "type": "array" }
         },
         "required": ["data"],
         "title": "GeoAddressListResponse",
@@ -1495,15 +1102,8 @@
       },
       "LegalDocumentSummary": {
         "properties": {
-          "kind": {
-            "enum": ["privacy", "consent", "offer", "terms"],
-            "type": "string"
-          },
-          "updated_at": {
-            "format": "date-time",
-            "nullable": true,
-            "type": "string"
-          }
+          "kind": { "enum": ["privacy", "consent", "offer", "terms"], "type": "string" },
+          "updated_at": { "format": "date-time", "nullable": true, "type": "string" }
         },
         "required": ["kind", "updated_at"],
         "title": "LegalDocumentSummary",
@@ -1511,12 +1111,7 @@
       },
       "MenuResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/CategoryResponse"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/CategoryResponse" }, "type": "array" }
         },
         "title": "MenuResponse",
         "type": "object"
@@ -1536,12 +1131,7 @@
       },
       "ClientOrdersResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/ActiveOrder"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" }
         },
         "required": ["data"],
         "title": "ClientOrdersResponse",
@@ -1549,24 +1139,11 @@
       },
       "ClientSession": {
         "properties": {
-          "access_token": {
-            "type": "string"
-          },
-          "client": {
-            "$ref": "#/components/schemas/ClientProfile"
-          },
-          "expires_in": {
-            "description": "Секунды",
-            "example": 900,
-            "type": "integer"
-          },
-          "refresh_token": {
-            "type": "string"
-          },
-          "status": {
-            "enum": ["pending", "confirmed"],
-            "type": "string"
-          }
+          "access_token": { "type": "string" },
+          "client": { "$ref": "#/components/schemas/ClientProfile" },
+          "expires_in": { "description": "Секунды", "example": 900, "type": "integer" },
+          "refresh_token": { "type": "string" },
+          "status": { "enum": ["pending", "confirmed"], "type": "string" }
         },
         "required": ["status"],
         "title": "ClientSession",
@@ -1574,99 +1151,34 @@
       },
       "ClientAddress": {
         "properties": {
-          "apartment": {
-            "nullable": true,
-            "type": "string"
-          },
-          "city": {
-            "nullable": true,
-            "type": "string"
-          },
-          "comment": {
-            "example": "Вход со двора",
-            "nullable": true,
-            "type": "string"
-          },
-          "district": {
-            "example": "Центральный р-н",
-            "nullable": true,
-            "type": "string"
-          },
-          "entrance": {
-            "nullable": true,
-            "type": "string"
-          },
-          "fias_id": {
-            "description": "ФИАС дома",
-            "nullable": true,
-            "type": "string"
-          },
-          "floor": {
-            "nullable": true,
-            "type": "string"
-          },
+          "apartment": { "nullable": true, "type": "string" },
+          "city": { "nullable": true, "type": "string" },
+          "comment": { "example": "Вход со двора", "nullable": true, "type": "string" },
+          "district": { "example": "Центральный р-н", "nullable": true, "type": "string" },
+          "entrance": { "nullable": true, "type": "string" },
+          "fias_id": { "description": "ФИАС дома", "nullable": true, "type": "string" },
+          "floor": { "nullable": true, "type": "string" },
           "formatted": {
             "example": "г Тюмень, ул Республики, д 10",
             "nullable": true,
             "type": "string"
           },
-          "geo_precision": {
-            "maximum": 5,
-            "minimum": 0,
-            "nullable": true,
-            "type": "integer"
-          },
-          "house": {
-            "example": "10",
-            "nullable": true,
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "intercom": {
-            "nullable": true,
-            "type": "string"
-          },
-          "label": {
-            "example": "Дом",
-            "maxLength": 30,
-            "nullable": true,
-            "type": "string"
-          },
-          "latitude": {
-            "example": 57.153,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "longitude": {
-            "example": 65.534,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
-          },
-          "postal_code": {
-            "example": "625000",
-            "nullable": true,
-            "type": "string"
-          },
-          "street": {
-            "example": "Ленина",
-            "type": "string"
-          }
+          "geo_precision": { "maximum": 5, "minimum": 0, "nullable": true, "type": "integer" },
+          "house": { "example": "10", "nullable": true, "type": "string" },
+          "id": { "format": "uuid", "type": "string" },
+          "intercom": { "nullable": true, "type": "string" },
+          "label": { "example": "Дом", "maxLength": 30, "nullable": true, "type": "string" },
+          "latitude": { "example": 57.153, "format": "float", "nullable": true, "type": "number" },
+          "longitude": { "example": 65.534, "format": "float", "nullable": true, "type": "number" },
+          "postal_code": { "example": "625000", "nullable": true, "type": "string" },
+          "street": { "example": "Ленина", "type": "string" }
         },
         "required": ["id", "street"],
         "title": "ClientAddress",
         "type": "object"
       },
       "ClientAddressResponse": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/ClientAddress"
-          }
-        },
+        "properties": { "data": { "$ref": "#/components/schemas/ClientAddress" } },
         "required": ["data"],
         "title": "ClientAddressResponse",
         "type": "object"
@@ -1675,15 +1187,8 @@
         "description": "Введённый промокод: `applied` — применён, `pending` — условия пока не выполнены (см. `reasons`), `rejected` — не может быть применён (см. `reason`).",
         "nullable": true,
         "properties": {
-          "code": {
-            "example": "SUMMER2025",
-            "type": "string"
-          },
-          "name": {
-            "example": "Летняя скидка",
-            "nullable": true,
-            "type": "string"
-          },
+          "code": { "example": "SUMMER2025", "type": "string" },
+          "name": { "example": "Летняя скидка", "nullable": true, "type": "string" },
           "reason": {
             "enum": [
               "not_found",
@@ -1700,16 +1205,8 @@
             "nullable": true,
             "type": "string"
           },
-          "reasons": {
-            "items": {
-              "$ref": "#/components/schemas/PromoReason"
-            },
-            "type": "array"
-          },
-          "status": {
-            "enum": ["applied", "pending", "rejected"],
-            "type": "string"
-          }
+          "reasons": { "items": { "$ref": "#/components/schemas/PromoReason" }, "type": "array" },
+          "status": { "enum": ["applied", "pending", "rejected"], "type": "string" }
         },
         "required": ["code", "status", "reasons"],
         "title": "PromoCodeState",
@@ -1721,9 +1218,7 @@
           "details": {
             "additionalProperties": true,
             "description": "Ошибки валидации по полям: {поле: [сообщения]}",
-            "example": {
-              "customer_phone": ["must be in format +7XXXXXXXXXX"]
-            },
+            "example": { "customer_phone": ["must be in format +7XXXXXXXXXX"] },
             "nullable": true,
             "type": "object"
           },
@@ -1743,11 +1238,14 @@
               "item_not_found",
               "validation_failed",
               "order_failed",
+              "order_not_found",
+              "order_not_cancellable",
               "too_many_requests",
               "unauthorized",
               "invalid_phone",
               "call_failed",
               "confirmation_not_found",
+              "invalid_code",
               "invalid_refresh_token",
               "address_not_found",
               "internal_error",
@@ -1755,8 +1253,14 @@
               "delivery_below_minimum",
               "delivery_outside_zones",
               "branch_paused",
+              "fulfillment_unavailable",
               "delivery_no_coordinates",
               "promo_unavailable",
+              "promo_gift_not_available",
+              "promo_gift_invalid",
+              "points_unavailable",
+              "insufficient_points",
+              "points_over_limit",
               "promo_not_found",
               "promo_inactive",
               "promo_not_started",
@@ -1771,10 +1275,7 @@
             "example": "validation_failed",
             "type": "string"
           },
-          "message": {
-            "example": "Validation failed",
-            "type": "string"
-          }
+          "message": { "example": "Validation failed", "type": "string" }
         },
         "required": ["error", "message"],
         "title": "ErrorResponse",
@@ -1784,10 +1285,7 @@
         "properties": {
           "data": {
             "properties": {
-              "public_key": {
-                "description": "VAPID public key, base64url",
-                "type": "string"
-              }
+              "public_key": { "description": "VAPID public key, base64url", "type": "string" }
             },
             "required": ["public_key"],
             "type": "object"
@@ -1804,23 +1302,11 @@
             "format": "uuid",
             "type": "string"
           },
-          "is_active": {
-            "example": true,
-            "type": "boolean"
-          },
-          "name": {
-            "example": "Пиццы",
-            "type": "string"
-          },
-          "order": {
-            "example": 1.0,
-            "format": "float",
-            "type": "number"
-          },
+          "is_active": { "example": true, "type": "boolean" },
+          "name": { "example": "Пиццы", "type": "string" },
+          "order": { "example": 1.0, "format": "float", "type": "number" },
           "products": {
-            "items": {
-              "$ref": "#/components/schemas/ProductResponse"
-            },
+            "items": { "$ref": "#/components/schemas/ProductResponse" },
             "type": "array"
           }
         },
@@ -1829,72 +1315,40 @@
       },
       "ActiveOrder": {
         "properties": {
-          "address": {
-            "additionalProperties": true,
-            "nullable": true,
-            "type": "object"
+          "address": { "additionalProperties": true, "nullable": true, "type": "object" },
+          "awaiting_payment": {
+            "description": "Заказ ждёт онлайн-оплаты и ещё не принят в работу",
+            "type": "boolean"
           },
-          "branch_id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "comment": {
-            "nullable": true,
-            "type": "string"
-          },
-          "cook_by": {
-            "format": "date_time",
-            "nullable": true,
-            "type": "string"
-          },
-          "courier": {
-            "$ref": "#/components/schemas/OrderCourier"
-          },
+          "branch_id": { "format": "uuid", "type": "string" },
+          "can_cancel": { "description": "Клиент ещё может отменить заказ сам", "type": "boolean" },
+          "comment": { "nullable": true, "type": "string" },
+          "cook_by": { "format": "date_time", "nullable": true, "type": "string" },
+          "courier": { "$ref": "#/components/schemas/OrderCourier" },
           "delivery_amount": {
             "description": "Стоимость доставки, входит в total_amount",
             "example": 20000,
             "type": "integer"
           },
-          "discount_amount": {
-            "example": 15000,
+          "discount_amount": { "example": 15000, "type": "integer" },
+          "fulfillment_type": { "enum": ["dine_in", "delivery", "pickup"], "type": "string" },
+          "id": { "format": "uuid", "type": "string" },
+          "inserted_at": { "format": "date_time", "type": "string" },
+          "items": {
+            "items": { "$ref": "#/components/schemas/OrderItemResponse" },
+            "type": "array"
+          },
+          "number": { "example": "261029-MSK1-042", "type": "string" },
+          "payment_method": { "enum": ["cash", "card_offline", "online"], "type": "string" },
+          "points_earned": {
+            "description": "Звёзды после выполнения заказа, включая бонусы за товары",
             "type": "integer"
           },
-          "fulfillment_type": {
-            "enum": ["dine_in", "delivery", "pickup"],
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "inserted_at": {
-            "format": "date_time",
-            "type": "string"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/OrderItemResponse"
-            },
-            "type": "array"
-          },
-          "number": {
-            "example": "261029-MSK1-042",
-            "type": "string"
-          },
-          "payment_method": {
-            "enum": ["cash", "card_offline"],
-            "type": "string"
-          },
           "promotions": {
-            "items": {
-              "$ref": "#/components/schemas/OrderPromotion"
-            },
+            "items": { "$ref": "#/components/schemas/OrderPromotion" },
             "type": "array"
           },
-          "short_number": {
-            "example": "42",
-            "type": "string"
-          },
+          "short_number": { "example": "42", "type": "string" },
           "status": {
             "enum": [
               "created",
@@ -1913,10 +1367,7 @@
             "example": 133000,
             "type": "integer"
           },
-          "total_amount": {
-            "example": 118000,
-            "type": "integer"
-          }
+          "total_amount": { "example": 118000, "type": "integer" }
         },
         "required": [
           "id",
@@ -1938,15 +1389,26 @@
         "title": "ActiveOrder",
         "type": "object"
       },
+      "PromoGiftChoice": {
+        "nullable": true,
+        "properties": {
+          "available": { "type": "boolean" },
+          "options": {
+            "items": { "$ref": "#/components/schemas/PromoGiftOption" },
+            "type": "array"
+          },
+          "required": { "type": "integer" },
+          "selected": { "items": { "format": "uuid", "type": "string" }, "type": "array" }
+        },
+        "required": ["required", "available", "selected", "options"],
+        "title": "PromoGiftChoice",
+        "type": "object"
+      },
       "OrderCourier": {
         "description": "Курьер, который взял заказ. Есть с назначения курьера до вручения",
         "nullable": true,
         "properties": {
-          "name": {
-            "example": "Иван",
-            "nullable": true,
-            "type": "string"
-          },
+          "name": { "example": "Иван", "nullable": true, "type": "string" },
           "phone": {
             "description": "У курьера Яндекса подменный номер, добавочный после ,,",
             "example": "+79001112233",
@@ -1965,11 +1427,7 @@
       },
       "BranchInfoResponse": {
         "properties": {
-          "address": {
-            "example": "ул. Пушкина, д. 10",
-            "nullable": true,
-            "type": "string"
-          },
+          "address": { "example": "ул. Пушкина, д. 10", "nullable": true, "type": "string" },
           "city": {
             "description": "Город доставки, в нём ищутся адреса",
             "example": "Тюмень",
@@ -1977,9 +1435,15 @@
             "type": "string"
           },
           "delivery_time": {
+            "description": "Минуты до готовности вместе с добавкой на загрузку",
             "example": "30",
             "nullable": true,
             "type": "integer"
+          },
+          "fulfillment_methods": {
+            "description": "Включённые способы получения заказа",
+            "items": { "enum": ["delivery", "pickup", "dine_in"], "type": "string" },
+            "type": "array"
           },
           "id": {
             "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
@@ -1991,28 +1455,55 @@
             "nullable": true,
             "type": "string"
           },
-          "latitude": {
-            "example": 55.7558,
-            "format": "float",
-            "nullable": true,
-            "type": "number"
+          "intake": {
+            "description": "Режим приёма: normal, load (добавка к времени) или paused (заказы закрыты)",
+            "properties": {
+              "extra_minutes": { "type": "integer" },
+              "mode": { "enum": ["normal", "load", "paused"], "type": "string" },
+              "reason": { "nullable": true, "type": "string" },
+              "until": { "format": "date-time", "nullable": true, "type": "string" }
+            },
+            "type": "object"
           },
+          "latitude": { "example": 55.7558, "format": "float", "nullable": true, "type": "number" },
           "longitude": {
             "example": 37.6173,
             "format": "float",
             "nullable": true,
             "type": "number"
           },
-          "phone_number": {
-            "example": "+79990000000",
-            "nullable": true,
-            "type": "string"
+          "loyalty": {
+            "description": "Бонусная система филиала: за каждые per_rubles ₽ начисляется stars звёзд",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "expire_days": { "nullable": true, "type": "integer" },
+              "max_percent": {
+                "description": "Максимальная доля заказа в процентах, которую можно оплатить звёздами",
+                "nullable": true,
+                "type": "integer"
+              },
+              "per_rubles": { "nullable": true, "type": "integer" },
+              "spend_enabled": {
+                "description": "Можно списывать звёзды с суммы заказа",
+                "type": "boolean"
+              },
+              "stars": { "nullable": true, "type": "integer" }
+            },
+            "type": "object"
           },
-          "vk_url": {
-            "example": "https://vk.com/group_name",
-            "nullable": true,
-            "type": "string"
+          "payment_methods": {
+            "description": "Способы оплаты, включённые на филиале",
+            "items": { "enum": ["cash", "card_offline", "online"], "type": "string" },
+            "type": "array"
           },
+          "phone_number": { "example": "+79990000000", "nullable": true, "type": "string" },
+          "special_hours": {
+            "additionalProperties": true,
+            "description": "Исключения по датам (ISO-дата → enabled, open, close) поверх недели",
+            "example": { "2026-12-31": { "close": "18:00", "enabled": true, "open": "10:00" } },
+            "type": "object"
+          },
+          "vk_url": { "example": "https://vk.com/group_name", "nullable": true, "type": "string" },
           "whatsapp_url": {
             "example": "https://wa.me/79990000000",
             "nullable": true,
@@ -2021,16 +1512,8 @@
           "working_hours": {
             "additionalProperties": true,
             "example": {
-              "monday": {
-                "close": "22:00",
-                "enabled": true,
-                "open": "09:00"
-              },
-              "sunday": {
-                "close": null,
-                "enabled": false,
-                "open": null
-              }
+              "monday": { "close": "22:00", "enabled": true, "open": "09:00" },
+              "sunday": { "close": null, "enabled": false, "open": null }
             },
             "nullable": true,
             "type": "object"
@@ -2039,16 +1522,8 @@
             "additionalProperties": true,
             "nullable": true,
             "properties": {
-              "enabled": {
-                "example": true,
-                "nullable": true,
-                "type": "boolean"
-              },
-              "yandex_org_id": {
-                "example": "123456789",
-                "nullable": true,
-                "type": "string"
-              }
+              "enabled": { "example": true, "nullable": true, "type": "boolean" },
+              "yandex_org_id": { "example": "123456789", "nullable": true, "type": "string" }
             },
             "type": "object"
           }
@@ -2059,34 +1534,13 @@
       },
       "AppliedPromotion": {
         "properties": {
-          "code": {
-            "example": "SUMMER2025",
-            "nullable": true,
-            "type": "string"
-          },
-          "description": {
-            "nullable": true,
-            "type": "string"
-          },
-          "discount": {
-            "description": "Скидка в копейках",
-            "example": 15000,
-            "type": "integer"
-          },
-          "gifts": {
-            "items": {
-              "$ref": "#/components/schemas/PromoGift"
-            },
-            "type": "array"
-          },
-          "name": {
-            "example": "Летняя скидка",
-            "type": "string"
-          },
-          "promotion_id": {
-            "format": "uuid",
-            "type": "string"
-          }
+          "code": { "example": "SUMMER2025", "nullable": true, "type": "string" },
+          "description": { "nullable": true, "type": "string" },
+          "discount": { "description": "Скидка в копейках", "example": 15000, "type": "integer" },
+          "gift_choice": { "$ref": "#/components/schemas/PromoGiftChoice" },
+          "gifts": { "items": { "$ref": "#/components/schemas/PromoGift" }, "type": "array" },
+          "name": { "example": "Летняя скидка", "type": "string" },
+          "promotion_id": { "format": "uuid", "type": "string" }
         },
         "required": ["promotion_id", "name", "discount", "gifts"],
         "title": "AppliedPromotion",
@@ -2094,12 +1548,7 @@
       },
       "StocksListResponse": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/StockResponse"
-            },
-            "type": "array"
-          }
+          "data": { "items": { "$ref": "#/components/schemas/StockResponse" }, "type": "array" }
         },
         "title": "StocksListResponse",
         "type": "object"
@@ -2113,314 +1562,37 @@
   },
   "openapi": "3.0.0",
   "paths": {
-    "/client/addresses": {
+    "/client/loyalty": {
       "get": {
         "callbacks": {},
-        "operationId": "DelivestWeb.Client.Address.AddressController.index",
-        "parameters": [],
+        "description": "Баланс звёзд и последние движения. В филиале без бонусной системы `enabled` равен false.",
+        "operationId": "DelivestWeb.Client.Loyalty.LoyaltyController.show",
+        "parameters": [
+          {
+            "description": "UUID филиала",
+            "in": "query",
+            "name": "branch_id",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientAddressListResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/LoyaltyResponse" } }
             },
-            "description": "Адреса"
+            "description": "Бонусы"
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Нужна авторизация"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Адреса доставки клиента",
-        "tags": ["Addresses"]
-      },
-      "post": {
-        "callbacks": {},
-        "operationId": "DelivestWeb.Client.Address.AddressController.create",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClientAddressRequest"
-              }
-            }
-          },
-          "description": "Адрес",
-          "required": false
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientAddressResponse"
-                }
-              }
-            },
-            "description": "Адрес"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Ошибка валидации"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Добавить адрес",
-        "tags": ["Addresses"]
-      }
-    },
-    "/client/addresses/{id}": {
-      "delete": {
-        "callbacks": {},
-        "operationId": "DelivestWeb.Client.Address.AddressController.delete",
-        "parameters": [
-          {
-            "description": "UUID адреса",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Удалён"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Адрес не найден"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Удалить адрес",
-        "tags": ["Addresses"]
-      },
-      "put": {
-        "callbacks": {},
-        "operationId": "DelivestWeb.Client.Address.AddressController.update",
-        "parameters": [
-          {
-            "description": "UUID адреса",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClientAddressRequest"
-              }
-            }
-          },
-          "description": "Адрес",
-          "required": false
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientAddressResponse"
-                }
-              }
-            },
-            "description": "Адрес"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Адрес не найден"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Ошибка валидации"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Изменить адрес",
-        "tags": ["Addresses"]
-      }
-    },
-    "/client/auth/call": {
-      "post": {
-        "callbacks": {},
-        "description": "Клиент должен позвонить с указанного номера на `call_number`.",
-        "operationId": "DelivestWeb.Client.Auth.AuthController.start",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartCallRequest"
-              }
-            }
-          },
-          "description": "Номер телефона",
-          "required": false
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StartCallResponse"
-                }
-              }
-            },
-            "description": "Ожидается звонок"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Некорректный номер"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Слишком много запросов"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Сервис звонков недоступен"
-          }
-        },
-        "summary": "Запросить подтверждение номера звонком",
-        "tags": ["Auth"]
-      }
-    },
-    "/client/auth/call/{id}/complete": {
-      "post": {
-        "callbacks": {},
-        "description": "Пока звонка не было — 202 и `status: pending`. После звонка — токены.",
-        "operationId": "DelivestWeb.Client.Auth.AuthController.complete",
-        "parameters": [
-          {
-            "description": "confirmation_id",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientSessionResponse"
-                }
-              }
-            },
-            "description": "Номер подтверждён"
-          },
-          "202": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientSessionResponse"
-                }
-              }
-            },
-            "description": "Ожидается звонок"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Клиент заблокирован"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Подтверждение не найдено или истекло"
-          }
-        },
-        "summary": "Проверить подтверждение и войти",
-        "tags": ["Auth"]
+        "security": [{ "bearer": [] }],
+        "summary": "Бонусы клиента",
+        "tags": ["Loyalty"]
       }
     },
     "/client/auth/refresh": {
@@ -2430,11 +1602,7 @@
         "parameters": [],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshRequest"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/RefreshRequest" } }
           },
           "description": "Refresh-токен",
           "required": false
@@ -2443,30 +1611,20 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientSessionResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientSessionResponse" }
               }
             },
             "description": "Новые токены"
           },
           "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Токен недействителен"
           },
           "403": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Клиент заблокирован"
           }
@@ -2475,151 +1633,66 @@
         "tags": ["Auth"]
       }
     },
-    "/client/branches": {
+    "/client/socket_token": {
       "get": {
         "callbacks": {},
-        "description": "Возвращает список всех активных филиалов.",
-        "operationId": "DelivestWeb.Client.Branch.BranchController.index",
+        "description": "Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (событие `confirmed`, после него токены забираются через `/client/auth/call/{id}/complete`).",
+        "operationId": "DelivestWeb.Client.Socket.SocketController.token",
         "parameters": [],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BranchListResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/SocketTokenResponse" }
               }
             },
-            "description": "Список филиалов"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Ошибка получения списка"
+            "description": "Токен"
           }
         },
-        "summary": "Получить список филиалов",
-        "tags": ["Branches"]
+        "summary": "Токен для подключения к сокету",
+        "tags": ["Socket"]
       }
     },
-    "/client/branches/active": {
-      "delete": {
-        "callbacks": {},
-        "description": "Удаляет куку active_branch_id.",
-        "operationId": "DelivestWeb.Client.Branch.BranchController.clear_active",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "example": "Active branch cleared",
-                      "type": "string"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Кука активного филиала удалена"
-          }
-        },
-        "summary": "Очистить активный филиал",
-        "tags": ["Branches"]
-      }
-    },
-    "/client/branches/slug/{slug}/select": {
+    "/client/orders/{order_id}/push": {
       "post": {
         "callbacks": {},
-        "description": "Возвращает детальную информацию о филиале по его slug и устанавливает cookie.",
-        "operationId": "DelivestWeb.Client.Branch.BranchController.select_by_slug",
+        "description": "Сохраняет push-подписку браузера для активного заказа текущей сессии или клиента.",
+        "operationId": "DelivestWeb.Client.Push.PushController.subscribe",
         "parameters": [
           {
-            "description": "Slug филиала",
-            "example": "centralny-filial",
+            "description": "",
             "in": "path",
-            "name": "slug",
+            "name": "order_id",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BranchResponse"
-                }
-              }
-            },
-            "description": "Детальная информация о филиале"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PushSubscriptionRequest" }
+            }
           },
+          "description": "Подписка браузера",
+          "required": false
+        },
+        "responses": {
+          "204": { "description": "Подписка сохранена" },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Филиал не найден"
-          }
-        },
-        "summary": "Выбрать филиал по Slug",
-        "tags": ["Branches"]
-      }
-    },
-    "/client/branches/{branch_id}/menu": {
-      "get": {
-        "callbacks": {},
-        "description": "Возвращает список категорий с предзагруженными товарами для филиала из кеша или БД.",
-        "operationId": "DelivestWeb.Client.Menu.MenuController.index",
-        "parameters": [
-          {
-            "description": "UUID филиала",
-            "example": "c4a3b8e0-1234-5678-9abc-def012345678",
-            "in": "path",
-            "name": "branch_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MenuResponse"
-                }
-              }
-            },
-            "description": "Меню филиала с категориями и товарами"
+            "description": "Заказ не найден"
           },
-          "400": {
+          "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Ошибка получения меню"
+            "description": "Неверная подписка"
           }
         },
-        "summary": "Получить меню филиала",
-        "tags": ["Menu"]
+        "summary": "Подписаться на статус заказа",
+        "tags": ["Push"]
       }
     },
     "/client/branches/{id}/select": {
@@ -2634,30 +1707,19 @@
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BranchResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/BranchResponse" } }
             },
             "description": "Детальная информация о филиале"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Филиал не найден"
           }
@@ -2666,412 +1728,290 @@
         "tags": ["Branches"]
       }
     },
-    "/client/cart": {
+    "/client/franchise/documents/{kind}": {
       "get": {
         "callbacks": {},
-        "description": "Извлекает branch_id из query или кук и возвращает состав текущей корзины.",
-        "operationId": "DelivestWeb.Client.Cart.CartController.show",
+        "description": "Текст документа с подставленными реквизитами.",
+        "operationId": "DelivestWeb.Client.Franchise.FranchiseController.document",
         "parameters": [
           {
-            "description": "Принудительно пересчитать и обновить кэш корзины",
-            "in": "query",
-            "name": "force",
-            "required": false,
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "ID активного филиала",
-            "in": "query",
-            "name": "branch_id",
-            "required": false,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
-            },
-            "description": "Данные корзины"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Ошибка создания корзины"
-          }
-        },
-        "summary": "Получить корзину пользователя",
-        "tags": ["Cart"]
-      }
-    },
-    "/client/cart/{cart_id}/clear": {
-      "delete": {
-        "callbacks": {},
-        "description": "Удаляет все товары из указанной корзины.",
-        "operationId": "DelivestWeb.Client.Cart.CartController.clear",
-        "parameters": [
-          {
-            "description": "UUID корзины",
+            "description": "",
             "in": "path",
-            "name": "cart_id",
+            "name": "kind",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "enum": ["privacy", "consent", "offer", "terms"], "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/LegalDocumentResponse" }
               }
             },
-            "description": "Очищенная корзина"
+            "description": "Документ"
           },
           "404": {
             "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Документ не найден"
+          }
+        },
+        "summary": "Юридический документ",
+        "tags": ["Franchise"]
+      }
+    },
+    "/client/branches/active": {
+      "delete": {
+        "callbacks": {},
+        "description": "Удаляет куку active_branch_id.",
+        "operationId": "DelivestWeb.Client.Branch.BranchController.clear_active",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "properties": {
+                    "message": { "example": "Active branch cleared", "type": "string" }
+                  },
+                  "type": "object"
                 }
               }
             },
-            "description": "Корзина не найдена"
+            "description": "Кука активного филиала удалена"
           }
         },
-        "summary": "Очистить корзину",
-        "tags": ["Cart"]
+        "summary": "Очистить активный филиал",
+        "tags": ["Branches"]
       }
     },
-    "/client/cart/{cart_id}/context": {
+    "/client/auth/call/{id}/complete": {
+      "post": {
+        "callbacks": {},
+        "description": "Пока звонка не было — 202 и `status: pending`. После звонка — токены.",
+        "operationId": "DelivestWeb.Client.Auth.AuthController.complete",
+        "parameters": [
+          {
+            "description": "confirmation_id",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ClientSessionResponse" }
+              }
+            },
+            "description": "Номер подтверждён"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ClientSessionResponse" }
+              }
+            },
+            "description": "Ожидается звонок"
+          },
+          "403": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Клиент заблокирован"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Подтверждение не найдено или истекло"
+          }
+        },
+        "summary": "Проверить подтверждение и войти",
+        "tags": ["Auth"]
+      }
+    },
+    "/client/orders/{id}/pay": {
+      "post": {
+        "callbacks": {},
+        "description": "Для заказа, который ждёт онлайн-оплаты: возвращает страницу оплаты ЮKassa, чтобы клиент мог вернуться и оплатить.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.pay",
+        "parameters": [
+          {
+            "description": "ID заказа",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaymentLinkResponse" }
+              }
+            },
+            "description": "Страница оплаты"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Заказ не найден"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Заказ не ждёт оплаты"
+          }
+        },
+        "summary": "Ссылка на оплату",
+        "tags": ["Orders"]
+      }
+    },
+    "/client/cart/{cart_id}/promotions/{promotion_id}/gifts": {
       "put": {
         "callbacks": {},
-        "description": "Способ получения влияет на условия акций, поэтому корзина пересчитывается.",
-        "operationId": "DelivestWeb.Client.Cart.CartController.update_context",
+        "operationId": "DelivestWeb.Client.Cart.CartController.choose_promotion_gifts",
         "parameters": [
           {
             "description": "",
             "in": "path",
             "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "promotion_id",
+            "required": true,
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CartContextRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/PromoGiftChoiceRequest" }
             }
           },
-          "description": "Контекст корзины",
+          "description": "Выбор подарков",
           "required": false
         },
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
-            "description": "Обновлённая корзина"
+            "description": "Корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Корзина не найдена"
+            "description": "Корзина или подарок недоступны"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Некорректный способ получения"
+            "description": "Некорректный выбор"
           }
         },
-        "summary": "Обновить способ получения",
+        "summary": "Выбрать подарки по акции",
         "tags": ["Cart"]
       }
     },
-    "/client/cart/{cart_id}/items/{product_id}": {
-      "delete": {
+    "/client/{branch_id}/stocks": {
+      "get": {
         "callbacks": {},
-        "description": "Уменьшает количество товара на 1 или удаляет его полностью из корзины.",
-        "operationId": "DelivestWeb.Client.Cart.CartController.remove_item",
+        "description": "Возвращает список всех активных акций, привязанных к данному branch_id",
+        "operationId": "DelivestWeb.Client.Stock.StockController.index",
         "parameters": [
           {
-            "description": "UUID корзины",
+            "description": "UUID филиала",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
             "in": "path",
-            "name": "cart_id",
+            "name": "branch_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "description": "UUID товара или `key` строки корзины",
-            "in": "path",
-            "name": "product_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Удалить все единицы товара из корзины",
-            "in": "query",
-            "name": "all",
-            "required": false,
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/StocksListResponse" }
               }
             },
-            "description": "Обновленная корзина"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Корзина или товар не найдены"
+            "description": "Список акций"
           }
         },
-        "summary": "Удалить товар из корзины",
-        "tags": ["Cart"]
-      },
-      "post": {
-        "callbacks": {},
-        "description": "Добавляет товар в корзину по cart_id и product_id.",
-        "operationId": "DelivestWeb.Client.Cart.CartController.add_item",
-        "parameters": [
-          {
-            "description": "UUID корзины",
-            "in": "path",
-            "name": "cart_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "description": "UUID товара",
-            "in": "path",
-            "name": "product_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddItemRequest"
-              }
-            }
-          },
-          "description": "Количество и модификаторы",
-          "required": false
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
-            },
-            "description": "Обновленная корзина"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Корзина не найдена"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Ошибка добавления товара"
-          }
-        },
-        "summary": "Добавить товар в корзину",
-        "tags": ["Cart"]
+        "summary": "Получить список активных акций филиала",
+        "tags": []
       }
     },
-    "/client/cart/{cart_id}/promo_code": {
-      "delete": {
+    "/client/me": {
+      "get": {
         "callbacks": {},
-        "operationId": "DelivestWeb.Client.Cart.CartController.remove_promo_code",
+        "operationId": "DelivestWeb.Client.Profile.ProfileController.show",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ProfileResponse" } }
+            },
+            "description": "Профиль"
+          },
+          "401": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Нужна авторизация"
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Текущий клиент",
+        "tags": ["Auth"]
+      }
+    },
+    "/client/branches/{branch_id}/menu": {
+      "get": {
+        "callbacks": {},
+        "description": "Возвращает список категорий с предзагруженными товарами для филиала из кеша или БД.",
+        "operationId": "DelivestWeb.Client.Menu.MenuController.index",
         "parameters": [
           {
-            "description": "",
+            "description": "UUID филиала",
+            "example": "c4a3b8e0-1234-5678-9abc-def012345678",
             "in": "path",
-            "name": "cart_id",
+            "name": "branch_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/MenuResponse" } }
             },
-            "description": "Обновлённая корзина"
+            "description": "Меню филиала с категориями и товарами"
           },
-          "404": {
+          "400": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Корзина не найдена"
+            "description": "Ошибка получения меню"
           }
         },
-        "summary": "Убрать промокод",
-        "tags": ["Cart"]
-      },
-      "post": {
-        "callbacks": {},
-        "description": "Проверяет промокод и прикрепляет его к корзине. Если условия акции ещё не выполнены, код сохраняется со статусом `pending` и применится автоматически, когда условия выполнятся.",
-        "operationId": "DelivestWeb.Client.Cart.CartController.apply_promo_code",
-        "parameters": [
-          {
-            "description": "",
-            "in": "path",
-            "name": "cart_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PromoCodeRequest"
-              }
-            }
-          },
-          "description": "Промокод",
-          "required": false
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
-            },
-            "description": "Обновлённая корзина"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Корзина не найдена"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Промокод не может быть применён"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Слишком много попыток"
-          }
-        },
-        "summary": "Применить промокод",
-        "tags": ["Cart"]
+        "summary": "Получить меню филиала",
+        "tags": ["Menu"]
       }
     },
     "/client/cart/{cart_id}/repeat/{order_id}": {
@@ -3085,40 +2025,26 @@
             "in": "path",
             "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           },
           {
             "description": "",
             "in": "path",
             "name": "order_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
             "description": "Обновленная корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Корзина или заказ не найдены"
           }
@@ -3138,56 +2064,42 @@
             "in": "query",
             "name": "branch_id",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           },
           {
             "description": "",
             "in": "query",
             "name": "latitude",
             "required": false,
-            "schema": {
-              "type": "number"
-            }
+            "schema": { "type": "number" }
           },
           {
             "description": "",
             "in": "query",
             "name": "longitude",
             "required": false,
-            "schema": {
-              "type": "number"
-            }
+            "schema": { "type": "number" }
           },
           {
             "description": "Сумма корзины со скидками",
             "in": "query",
             "name": "subtotal",
             "required": false,
-            "schema": {
-              "type": "integer"
-            }
+            "schema": { "type": "integer" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DeliveryQuoteResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/DeliveryQuoteResponse" }
               }
             },
             "description": "Стоимость"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Нет филиала"
           }
@@ -3196,46 +2108,240 @@
         "tags": ["Delivery"]
       }
     },
-    "/client/delivery/zones": {
+    "/client/cart/{cart_id}/items/{product_id}": {
+      "delete": {
+        "callbacks": {},
+        "description": "Уменьшает количество товара на 1 или удаляет его полностью из корзины.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.remove_item",
+        "parameters": [
+          {
+            "description": "UUID корзины",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          {
+            "description": "UUID товара или `key` строки корзины",
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "description": "Удалить все единицы товара из корзины",
+            "in": "query",
+            "name": "all",
+            "required": false,
+            "schema": { "default": false, "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
+            },
+            "description": "Обновленная корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Корзина или товар не найдены"
+          }
+        },
+        "summary": "Удалить товар из корзины",
+        "tags": ["Cart"]
+      },
+      "post": {
+        "callbacks": {},
+        "description": "Добавляет товар в корзину по cart_id и product_id.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.add_item",
+        "parameters": [
+          {
+            "description": "UUID корзины",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          {
+            "description": "UUID товара",
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": { "format": "uuid", "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/AddItemRequest" } }
+          },
+          "description": "Количество и модификаторы",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
+            },
+            "description": "Обновленная корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Корзина не найдена"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Ошибка добавления товара"
+          }
+        },
+        "summary": "Добавить товар в корзину",
+        "tags": ["Cart"]
+      },
+      "put": {
+        "callbacks": {},
+        "description": "Одна единица позиции с ключом `key` получает новый набор модификаторов. Если в позиции одна штука, она остаётся на месте в списке.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.replace_item",
+        "parameters": [
+          {
+            "description": "UUID корзины",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": { "format": "uuid", "type": "string" }
+          },
+          {
+            "description": "`key` строки корзины",
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/AddItemRequest" } }
+          },
+          "description": "Новые модификаторы",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
+            },
+            "description": "Обновленная корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Корзина или позиция не найдены"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Ошибка замены"
+          }
+        },
+        "summary": "Заменить модификаторы одной единицы позиции",
+        "tags": ["Cart"]
+      }
+    },
+    "/client/{branch_id}/promotions": {
       "get": {
         "callbacks": {},
-        "description": "Зоны доставки филиала для показа на карте. Пустой список, если доставка без зон или в админке не стоит галочка показывать зоны клиенту.",
-        "operationId": "DelivestWeb.Client.Delivery.DeliveryController.zones",
+        "description": "Автоматические акции с описанием, которые сейчас применяются к корзине без промокода. Акции без описания в список не попадают.",
+        "operationId": "DelivestWeb.Client.Promotion.PromotionController.index",
         "parameters": [
           {
             "description": "",
-            "in": "query",
+            "in": "path",
             "name": "branch_id",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DeliveryZonesResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/RunningPromotionsResponse" }
               }
             },
-            "description": "Зоны"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Нет филиала"
+            "description": "Список акций"
           }
         },
-        "summary": "Зоны доставки",
-        "tags": ["Delivery"]
+        "summary": "Действующие акции филиала",
+        "tags": ["Promotions"]
+      }
+    },
+    "/client/orders": {
+      "get": {
+        "callbacks": {},
+        "description": "Все заказы авторизованного клиента, новые сначала.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ClientOrdersResponse" }
+              }
+            },
+            "description": "Заказы клиента"
+          },
+          "401": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Нужна авторизация"
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Мои заказы",
+        "tags": ["Orders"]
+      },
+      "post": {
+        "callbacks": {},
+        "description": "Создаёт заказ по cart_id и branch_id из тела запроса.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateOrderRequest" } }
+          },
+          "description": "Создание заказа",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/OrderResponse" } }
+            },
+            "description": "Созданный заказ"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Ошибка создания заказа"
+          },
+          "429": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Слишком много запросов"
+          }
+        },
+        "summary": "Создать заказ",
+        "tags": ["Orders"]
       }
     },
     "/client/franchise": {
@@ -3247,11 +2353,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FranchiseResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/FranchiseResponse" } }
             },
             "description": "Настройки франшизы"
           }
@@ -3260,108 +2362,187 @@
         "tags": ["Franchise"]
       }
     },
-    "/client/franchise/documents/{kind}": {
-      "get": {
+    "/client/cart/{cart_id}/clear": {
+      "delete": {
         "callbacks": {},
-        "description": "Текст документа с подставленными реквизитами.",
-        "operationId": "DelivestWeb.Client.Franchise.FranchiseController.document",
+        "description": "Удаляет все товары из указанной корзины.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.clear",
+        "parameters": [
+          {
+            "description": "UUID корзины",
+            "in": "path",
+            "name": "cart_id",
+            "required": true,
+            "schema": { "format": "uuid", "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
+            },
+            "description": "Очищенная корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Корзина не найдена"
+          }
+        },
+        "summary": "Очистить корзину",
+        "tags": ["Cart"]
+      }
+    },
+    "/client/push": {
+      "delete": {
+        "callbacks": {},
+        "description": "Удаляет push-подписку браузера текущего клиента.",
+        "operationId": "DelivestWeb.Client.Push.PushController.unsubscribe_client",
+        "parameters": [
+          {
+            "description": "",
+            "in": "query",
+            "name": "endpoint",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "204": { "description": "Подписка удалена" } },
+        "security": [{ "bearer": [] }],
+        "summary": "Отписаться от уведомлений клиента",
+        "tags": ["Push"]
+      },
+      "post": {
+        "callbacks": {},
+        "description": "Сохраняет push-подписку браузера для текущего клиента: напоминания о сгорании звёзд.",
+        "operationId": "DelivestWeb.Client.Push.PushController.subscribe_client",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PushSubscriptionRequest" }
+            }
+          },
+          "description": "Подписка браузера",
+          "required": false
+        },
+        "responses": {
+          "204": { "description": "Подписка сохранена" },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Неверная подписка"
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Подписаться на уведомления клиента",
+        "tags": ["Push"]
+      }
+    },
+    "/client/cart/{cart_id}/context": {
+      "put": {
+        "callbacks": {},
+        "description": "Способ получения влияет на условия акций, поэтому корзина пересчитывается.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.update_context",
         "parameters": [
           {
             "description": "",
             "in": "path",
-            "name": "kind",
+            "name": "cart_id",
             "required": true,
-            "schema": {
-              "enum": ["privacy", "consent", "offer", "terms"],
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CartContextRequest" } }
+          },
+          "description": "Контекст корзины",
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LegalDocumentResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
-            "description": "Документ"
+            "description": "Обновлённая корзина"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Документ не найден"
+            "description": "Корзина не найдена"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Некорректный способ получения"
           }
         },
-        "summary": "Юридический документ",
-        "tags": ["Franchise"]
+        "summary": "Обновить способ получения",
+        "tags": ["Cart"]
       }
     },
-    "/client/geo/reverse": {
+    "/client/addresses": {
       "get": {
         "callbacks": {},
-        "description": "Ближайший дом к точке на карте.",
-        "operationId": "DelivestWeb.Client.Geo.GeoController.reverse",
-        "parameters": [
-          {
-            "description": "",
-            "in": "query",
-            "name": "latitude",
-            "required": true,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "description": "",
-            "in": "query",
-            "name": "longitude",
-            "required": true,
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
+        "operationId": "DelivestWeb.Client.Address.AddressController.index",
+        "parameters": [],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GeoAddressListResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientAddressListResponse" }
               }
             },
             "description": "Адреса"
           },
-          "422": {
+          "401": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Неверные координаты"
-          },
-          "503": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Подсказки выключены"
+            "description": "Нужна авторизация"
           }
         },
-        "summary": "Адрес по координатам",
-        "tags": ["Geo"]
+        "security": [{ "bearer": [] }],
+        "summary": "Адреса доставки клиента",
+        "tags": ["Addresses"]
+      },
+      "post": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ClientAddressRequest" }
+            }
+          },
+          "description": "Адрес",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ClientAddressResponse" }
+              }
+            },
+            "description": "Адрес"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Ошибка валидации"
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Добавить адрес",
+        "tags": ["Addresses"]
       }
     },
     "/client/geo/suggest": {
@@ -3375,38 +2556,28 @@
             "in": "query",
             "name": "query",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           },
           {
             "description": "Город филиала",
             "in": "query",
             "name": "city",
             "required": false,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GeoAddressListResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/GeoAddressListResponse" }
               }
             },
             "description": "Адреса"
           },
           "503": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Подсказки выключены"
           }
@@ -3415,128 +2586,287 @@
         "tags": ["Geo"]
       }
     },
-    "/client/me": {
+    "/client/cart": {
       "get": {
         "callbacks": {},
-        "operationId": "DelivestWeb.Client.Profile.ProfileController.show",
-        "parameters": [],
+        "description": "Извлекает branch_id из query или кук и возвращает состав текущей корзины.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.show",
+        "parameters": [
+          {
+            "description": "Принудительно пересчитать и обновить кэш корзины",
+            "in": "query",
+            "name": "force",
+            "required": false,
+            "schema": { "default": false, "type": "boolean" }
+          },
+          {
+            "description": "ID активного филиала",
+            "in": "query",
+            "name": "branch_id",
+            "required": false,
+            "schema": { "format": "uuid", "type": "string" }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProfileResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
-            "description": "Профиль"
+            "description": "Данные корзины"
           },
-          "401": {
+          "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Нужна авторизация"
+            "description": "Ошибка создания корзины"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Текущий клиент",
-        "tags": ["Auth"]
+        "summary": "Получить корзину пользователя",
+        "tags": ["Cart"]
       }
     },
-    "/client/orders": {
+    "/client/geo/reverse": {
       "get": {
         "callbacks": {},
-        "description": "Все заказы авторизованного клиента, новые сначала.",
-        "operationId": "DelivestWeb.Client.Order.OrderController.index",
-        "parameters": [],
+        "description": "Ближайший дом к точке на карте.",
+        "operationId": "DelivestWeb.Client.Geo.GeoController.reverse",
+        "parameters": [
+          {
+            "description": "",
+            "in": "query",
+            "name": "latitude",
+            "required": true,
+            "schema": { "type": "number" }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "longitude",
+            "required": true,
+            "schema": { "type": "number" }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientOrdersResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/GeoAddressListResponse" }
               }
             },
-            "description": "Заказы клиента"
+            "description": "Адреса"
           },
-          "401": {
+          "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Нужна авторизация"
+            "description": "Неверные координаты"
+          },
+          "503": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Подсказки выключены"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Мои заказы",
-        "tags": ["Orders"]
-      },
+        "summary": "Адрес по координатам",
+        "tags": ["Geo"]
+      }
+    },
+    "/client/orders/{id}/cancel": {
       "post": {
         "callbacks": {},
-        "description": "Создаёт заказ по cart_id и branch_id из тела запроса.",
-        "operationId": "DelivestWeb.Client.Order.OrderController.create",
-        "parameters": [],
+        "description": "Только пока заказ в статусе created, без CRM и канала, оплата не онлайн. Дальше отмена — звонком в филиал.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.cancel",
+        "parameters": [
+          {
+            "description": "ID заказа",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/OrderResponse" } }
+            },
+            "description": "Отменённый заказ"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Заказ не найден"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Заказ уже нельзя отменить"
+          }
+        },
+        "summary": "Отменить заказ",
+        "tags": ["Orders"]
+      }
+    },
+    "/client/delivery/zones": {
+      "get": {
+        "callbacks": {},
+        "description": "Зоны доставки филиала для показа на карте. Пустой список, если доставка без зон или в админке не стоит галочка показывать зоны клиенту.",
+        "operationId": "DelivestWeb.Client.Delivery.DeliveryController.zones",
+        "parameters": [
+          {
+            "description": "",
+            "in": "query",
+            "name": "branch_id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeliveryZonesResponse" }
+              }
+            },
+            "description": "Зоны"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Нет филиала"
+          }
+        },
+        "summary": "Зоны доставки",
+        "tags": ["Delivery"]
+      }
+    },
+    "/client/branches/slug/{slug}/select": {
+      "post": {
+        "callbacks": {},
+        "description": "Возвращает детальную информацию о филиале по его slug и устанавливает cookie.",
+        "operationId": "DelivestWeb.Client.Branch.BranchController.select_by_slug",
+        "parameters": [
+          {
+            "description": "Slug филиала",
+            "example": "centralny-filial",
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BranchResponse" } }
+            },
+            "description": "Детальная информация о филиале"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Филиал не найден"
+          }
+        },
+        "summary": "Выбрать филиал по Slug",
+        "tags": ["Branches"]
+      }
+    },
+    "/client/addresses/{id}": {
+      "delete": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.delete",
+        "parameters": [
+          {
+            "description": "UUID адреса",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Удалён" },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Адрес не найден"
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Удалить адрес",
+        "tags": ["Addresses"]
+      },
+      "put": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Address.AddressController.update",
+        "parameters": [
+          {
+            "description": "UUID адреса",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateOrderRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/ClientAddressRequest" }
             }
           },
-          "description": "Создание заказа",
+          "description": "Адрес",
           "required": false
         },
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrderResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ClientAddressResponse" }
               }
             },
-            "description": "Созданный заказ"
+            "description": "Адрес"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Адрес не найден"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Ошибка создания заказа"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Слишком много запросов"
+            "description": "Ошибка валидации"
           }
         },
-        "summary": "Создать заказ",
-        "tags": ["Orders"]
+        "security": [{ "bearer": [] }],
+        "summary": "Изменить адрес",
+        "tags": ["Addresses"]
+      }
+    },
+    "/client/push/key": {
+      "get": {
+        "callbacks": {},
+        "description": "Публичный VAPID-ключ для подписки браузера на уведомления.",
+        "operationId": "DelivestWeb.Client.Push.PushController.key",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/PushKeyResponse" } }
+            },
+            "description": "Ключ"
+          }
+        },
+        "summary": "Ключ для push-уведомлений",
+        "tags": ["Push"]
       }
     },
     "/client/orders/active": {
@@ -3549,9 +2879,7 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ActiveOrdersResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ActiveOrdersResponse" }
               }
             },
             "description": "Активные заказы"
@@ -3561,181 +2889,210 @@
         "tags": ["Orders"]
       }
     },
-    "/client/orders/{order_id}/push": {
+    "/client/auth/call": {
       "post": {
         "callbacks": {},
-        "description": "Сохраняет push-подписку браузера для активного заказа текущей сессии или клиента.",
-        "operationId": "DelivestWeb.Client.Push.PushController.subscribe",
+        "description": "Клиент должен позвонить с указанного номера на `call_number`.",
+        "operationId": "DelivestWeb.Client.Auth.AuthController.start",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/StartCallRequest" } }
+          },
+          "description": "Номер телефона",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/StartCallResponse" } }
+            },
+            "description": "Ожидается звонок"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Некорректный номер"
+          },
+          "429": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Слишком много запросов"
+          },
+          "503": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Сервис звонков недоступен"
+          }
+        },
+        "summary": "Запросить подтверждение номера звонком",
+        "tags": ["Auth"]
+      }
+    },
+    "/client/auth/call/{id}/confirm": {
+      "post": {
+        "callbacks": {},
+        "description": "Режим flash: клиенту позвонили, код — последние 4 цифры входящего номера. Три попытки, потом нужен новый звонок.",
+        "operationId": "DelivestWeb.Client.Auth.AuthController.confirm_code",
         "parameters": [
           {
-            "description": "",
+            "description": "confirmation_id",
             "in": "path",
-            "name": "order_id",
+            "name": "id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PushSubscriptionRequest"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/ConfirmCodeRequest" } }
           },
-          "description": "Подписка браузера",
+          "description": "Код",
           "required": false
         },
         "responses": {
-          "204": {
-            "description": "Подписка сохранена"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ClientSessionResponse" }
+              }
+            },
+            "description": "Код верный, можно вызывать complete"
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Заказ не найден"
+            "description": "Подтверждение не найдено или истекло"
           },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Неверная подписка"
+            "description": "Неверный код"
+          },
+          "429": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Попытки закончились"
           }
         },
-        "summary": "Подписаться на статус заказа",
-        "tags": ["Push"]
+        "summary": "Подтвердить номер кодом флеш-звонка",
+        "tags": ["Auth"]
       }
     },
-    "/client/push/key": {
+    "/client/branches": {
       "get": {
         "callbacks": {},
-        "description": "Публичный VAPID-ключ для подписки браузера на уведомления.",
-        "operationId": "DelivestWeb.Client.Push.PushController.key",
+        "description": "Возвращает список всех активных филиалов.",
+        "operationId": "DelivestWeb.Client.Branch.BranchController.index",
         "parameters": [],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PushKeyResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/BranchListResponse" }
               }
             },
-            "description": "Ключ"
-          }
-        },
-        "summary": "Ключ для push-уведомлений",
-        "tags": ["Push"]
-      }
-    },
-    "/client/socket_token": {
-      "get": {
-        "callbacks": {},
-        "description": "Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (событие `confirmed`, после него токены забираются через `/client/auth/call/{id}/complete`).",
-        "operationId": "DelivestWeb.Client.Socket.SocketController.token",
-        "parameters": [],
-        "responses": {
-          "200": {
+            "description": "Список филиалов"
+          },
+          "500": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SocketTokenResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
-            "description": "Токен"
+            "description": "Ошибка получения списка"
           }
         },
-        "summary": "Токен для подключения к сокету",
-        "tags": ["Socket"]
+        "summary": "Получить список филиалов",
+        "tags": ["Branches"]
       }
     },
-    "/client/{branch_id}/promotions": {
-      "get": {
+    "/client/cart/{cart_id}/promo_code": {
+      "delete": {
         "callbacks": {},
-        "description": "Автоматические акции, которые сейчас применяются к корзине без промокода.",
-        "operationId": "DelivestWeb.Client.Promotion.PromotionController.index",
+        "operationId": "DelivestWeb.Client.Cart.CartController.remove_promo_code",
         "parameters": [
           {
             "description": "",
             "in": "path",
-            "name": "branch_id",
+            "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunningPromotionsResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
-            "description": "Список акций"
+            "description": "Обновлённая корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Корзина не найдена"
           }
         },
-        "summary": "Действующие акции филиала",
-        "tags": ["Promotions"]
-      }
-    },
-    "/client/{branch_id}/stocks": {
-      "get": {
+        "summary": "Убрать промокод",
+        "tags": ["Cart"]
+      },
+      "post": {
         "callbacks": {},
-        "description": "Возвращает список всех активных акций, привязанных к данному branch_id",
-        "operationId": "DelivestWeb.Client.Stock.StockController.index",
+        "description": "Проверяет промокод и прикрепляет его к корзине. Если условия акции ещё не выполнены, код сохраняется со статусом `pending` и применится автоматически, когда условия выполнятся.",
+        "operationId": "DelivestWeb.Client.Cart.CartController.apply_promo_code",
         "parameters": [
           {
-            "description": "UUID филиала",
-            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "",
             "in": "path",
-            "name": "branch_id",
+            "name": "cart_id",
             "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
+            "schema": { "format": "uuid", "type": "string" }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/PromoCodeRequest" } }
+          },
+          "description": "Промокод",
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StocksListResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/CartResponse" } }
             },
-            "description": "Список акций"
+            "description": "Обновлённая корзина"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Корзина не найдена"
+          },
+          "422": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Промокод не может быть применён"
+          },
+          "429": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Слишком много попыток"
           }
         },
-        "summary": "Получить список активных акций филиала",
-        "tags": []
+        "summary": "Применить промокод",
+        "tags": ["Cart"]
       }
     }
   },
   "security": [],
-  "servers": [
-    {
-      "url": "http://localhost:4000",
-      "variables": {}
-    }
-  ],
+  "servers": [{ "url": "http://localhost:4000", "variables": {} }],
   "tags": []
 }

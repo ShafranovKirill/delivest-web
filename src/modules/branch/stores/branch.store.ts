@@ -39,6 +39,13 @@ export const useBranchStore = defineStore('branch', () => {
     isModalOpen.value = !isModalOpen.value
   }
 
+  async function refreshBranches() {
+    branches.value = await BranchService.getBranches()
+    if (activeBranch.value)
+      activeBranch.value = branches.value.find((b) => b.id === activeBranch.value?.id) ?? null
+    isInitialized.value = true
+  }
+
   async function initBranches() {
     if (isInitialized.value) return
     try {
@@ -103,6 +110,7 @@ export const useBranchStore = defineStore('branch', () => {
     closeModal,
     toggleModal,
     initBranches,
+    refreshBranches,
     selectBranch,
     selectBranchBySlug,
     clearActiveBranch,

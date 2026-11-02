@@ -4,76 +4,20 @@
  */
 
 export interface paths {
-  '/client/addresses': {
+  '/client/loyalty': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    /** Адреса доставки клиента */
-    get: operations['DelivestWeb.Client.Address.AddressController.index']
+    /**
+     * Бонусы клиента
+     * @description Баланс звёзд и последние движения. В филиале без бонусной системы `enabled` равен false.
+     */
+    get: operations['DelivestWeb.Client.Loyalty.LoyaltyController.show']
     put?: never
-    /** Добавить адрес */
-    post: operations['DelivestWeb.Client.Address.AddressController.create']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/addresses/{id}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    /** Изменить адрес */
-    put: operations['DelivestWeb.Client.Address.AddressController.update']
     post?: never
-    /** Удалить адрес */
-    delete: operations['DelivestWeb.Client.Address.AddressController.delete']
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/auth/call': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /**
-     * Запросить подтверждение номера звонком
-     * @description Клиент должен позвонить с указанного номера на `call_number`.
-     */
-    post: operations['DelivestWeb.Client.Auth.AuthController.start']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/auth/call/{id}/complete': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /**
-     * Проверить подтверждение и войти
-     * @description Пока звонка не было — 202 и `status: pending`. После звонка — токены.
-     */
-    post: operations['DelivestWeb.Client.Auth.AuthController.complete']
     delete?: never
     options?: never
     head?: never
@@ -97,7 +41,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/branches': {
+  '/client/socket_token': {
     parameters: {
       query?: never
       header?: never
@@ -105,10 +49,70 @@ export interface paths {
       cookie?: never
     }
     /**
-     * Получить список филиалов
-     * @description Возвращает список всех активных филиалов.
+     * Токен для подключения к сокету
+     * @description Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (событие `confirmed`, после него токены забираются через `/client/auth/call/{id}/complete`).
      */
-    get: operations['DelivestWeb.Client.Branch.BranchController.index']
+    get: operations['DelivestWeb.Client.Socket.SocketController.token']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/orders/{order_id}/push': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Подписаться на статус заказа
+     * @description Сохраняет push-подписку браузера для активного заказа текущей сессии или клиента.
+     */
+    post: operations['DelivestWeb.Client.Push.PushController.subscribe']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/branches/{id}/select': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Выбрать филиал по ID
+     * @description Возвращает детальную информацию о филиале и устанавливает cookie.
+     */
+    post: operations['DelivestWeb.Client.Branch.BranchController.select']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/franchise/documents/{kind}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Юридический документ
+     * @description Текст документа с подставленными реквизитами.
+     */
+    get: operations['DelivestWeb.Client.Franchise.FranchiseController.document']
     put?: never
     post?: never
     delete?: never
@@ -137,7 +141,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/branches/slug/{slug}/select': {
+  '/client/auth/call/{id}/complete': {
     parameters: {
       query?: never
       header?: never
@@ -147,10 +151,84 @@ export interface paths {
     get?: never
     put?: never
     /**
-     * Выбрать филиал по Slug
-     * @description Возвращает детальную информацию о филиале по его slug и устанавливает cookie.
+     * Проверить подтверждение и войти
+     * @description Пока звонка не было — 202 и `status: pending`. После звонка — токены.
      */
-    post: operations['DelivestWeb.Client.Branch.BranchController.select_by_slug']
+    post: operations['DelivestWeb.Client.Auth.AuthController.complete']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/orders/{id}/pay': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Ссылка на оплату
+     * @description Для заказа, который ждёт онлайн-оплаты: возвращает страницу оплаты ЮKassa, чтобы клиент мог вернуться и оплатить.
+     */
+    post: operations['DelivestWeb.Client.Order.OrderController.pay']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/cart/{cart_id}/promotions/{promotion_id}/gifts': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** Выбрать подарки по акции */
+    put: operations['DelivestWeb.Client.Cart.CartController.choose_promotion_gifts']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/{branch_id}/stocks': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Получить список активных акций филиала
+     * @description Возвращает список всех активных акций, привязанных к данному branch_id
+     */
+    get: operations['DelivestWeb.Client.Stock.StockController.index']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/me': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Текущий клиент */
+    get: operations['DelivestWeb.Client.Profile.ProfileController.show']
+    put?: never
+    post?: never
     delete?: never
     options?: never
     head?: never
@@ -172,131 +250,6 @@ export interface paths {
     put?: never
     post?: never
     delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/branches/{id}/select': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /**
-     * Выбрать филиал по ID
-     * @description Возвращает детальную информацию о филиале и устанавливает cookie.
-     */
-    post: operations['DelivestWeb.Client.Branch.BranchController.select']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/cart': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Получить корзину пользователя
-     * @description Извлекает branch_id из query или кук и возвращает состав текущей корзины.
-     */
-    get: operations['DelivestWeb.Client.Cart.CartController.show']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/cart/{cart_id}/clear': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    post?: never
-    /**
-     * Очистить корзину
-     * @description Удаляет все товары из указанной корзины.
-     */
-    delete: operations['DelivestWeb.Client.Cart.CartController.clear']
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/cart/{cart_id}/context': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    /**
-     * Обновить способ получения
-     * @description Способ получения влияет на условия акций, поэтому корзина пересчитывается.
-     */
-    put: operations['DelivestWeb.Client.Cart.CartController.update_context']
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/cart/{cart_id}/items/{product_id}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /**
-     * Добавить товар в корзину
-     * @description Добавляет товар в корзину по cart_id и product_id.
-     */
-    post: operations['DelivestWeb.Client.Cart.CartController.add_item']
-    /**
-     * Удалить товар из корзины
-     * @description Уменьшает количество товара на 1 или удаляет его полностью из корзины.
-     */
-    delete: operations['DelivestWeb.Client.Cart.CartController.remove_item']
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/cart/{cart_id}/promo_code': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /**
-     * Применить промокод
-     * @description Проверяет промокод и прикрепляет его к корзине. Если условия акции ещё не выполнены, код сохраняется со статусом `pending` и применится автоматически, когда условия выполнятся.
-     */
-    post: operations['DelivestWeb.Client.Cart.CartController.apply_promo_code']
-    /** Убрать промокод */
-    delete: operations['DelivestWeb.Client.Cart.CartController.remove_promo_code']
     options?: never
     head?: never
     patch?: never
@@ -342,7 +295,35 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/delivery/zones': {
+  '/client/cart/{cart_id}/items/{product_id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /**
+     * Заменить модификаторы одной единицы позиции
+     * @description Одна единица позиции с ключом `key` получает новый набор модификаторов. Если в позиции одна штука, она остаётся на месте в списке.
+     */
+    put: operations['DelivestWeb.Client.Cart.CartController.replace_item']
+    /**
+     * Добавить товар в корзину
+     * @description Добавляет товар в корзину по cart_id и product_id.
+     */
+    post: operations['DelivestWeb.Client.Cart.CartController.add_item']
+    /**
+     * Удалить товар из корзины
+     * @description Уменьшает количество товара на 1 или удаляет его полностью из корзины.
+     */
+    delete: operations['DelivestWeb.Client.Cart.CartController.remove_item']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/{branch_id}/promotions': {
     parameters: {
       query?: never
       header?: never
@@ -350,107 +331,10 @@ export interface paths {
       cookie?: never
     }
     /**
-     * Зоны доставки
-     * @description Зоны доставки филиала для показа на карте. Пустой список, если доставка без зон или в админке не стоит галочка показывать зоны клиенту.
+     * Действующие акции филиала
+     * @description Автоматические акции с описанием, которые сейчас применяются к корзине без промокода. Акции без описания в список не попадают.
      */
-    get: operations['DelivestWeb.Client.Delivery.DeliveryController.zones']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/franchise': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Настройки франшизы
-     * @description Название, описание, основной цвет, логотипы, реквизиты продавца и список документов.
-     */
-    get: operations['DelivestWeb.Client.Franchise.FranchiseController.show']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/franchise/documents/{kind}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Юридический документ
-     * @description Текст документа с подставленными реквизитами.
-     */
-    get: operations['DelivestWeb.Client.Franchise.FranchiseController.document']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/geo/reverse': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Адрес по координатам
-     * @description Ближайший дом к точке на карте.
-     */
-    get: operations['DelivestWeb.Client.Geo.GeoController.reverse']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/geo/suggest': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Подсказки адресов
-     * @description Адреса DaData по введённой строке, в пределах города, если он передан.
-     */
-    get: operations['DelivestWeb.Client.Geo.GeoController.suggest']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/client/me': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /** Текущий клиент */
-    get: operations['DelivestWeb.Client.Profile.ProfileController.show']
+    get: operations['DelivestWeb.Client.Promotion.PromotionController.index']
     put?: never
     post?: never
     delete?: never
@@ -483,7 +367,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/orders/active': {
+  '/client/franchise': {
     parameters: {
       query?: never
       header?: never
@@ -491,10 +375,10 @@ export interface paths {
       cookie?: never
     }
     /**
-     * Активные заказы
-     * @description Заказы текущей сессии, которые ещё не завершены и созданы не раньше нескольких часов назад. Статус берётся из CRM, если заказ обрабатывается в ней.
+     * Настройки франшизы
+     * @description Название, описание, основной цвет, логотипы, реквизиты продавца и список документов.
      */
-    get: operations['DelivestWeb.Client.Order.OrderController.active']
+    get: operations['DelivestWeb.Client.Franchise.FranchiseController.show']
     put?: never
     post?: never
     delete?: never
@@ -503,7 +387,27 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/orders/{order_id}/push': {
+  '/client/cart/{cart_id}/clear': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /**
+     * Очистить корзину
+     * @description Удаляет все товары из указанной корзины.
+     */
+    delete: operations['DelivestWeb.Client.Cart.CartController.clear']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/push': {
     parameters: {
       query?: never
       header?: never
@@ -513,11 +417,191 @@ export interface paths {
     get?: never
     put?: never
     /**
-     * Подписаться на статус заказа
-     * @description Сохраняет push-подписку браузера для активного заказа текущей сессии или клиента.
+     * Подписаться на уведомления клиента
+     * @description Сохраняет push-подписку браузера для текущего клиента: напоминания о сгорании звёзд.
      */
-    post: operations['DelivestWeb.Client.Push.PushController.subscribe']
+    post: operations['DelivestWeb.Client.Push.PushController.subscribe_client']
+    /**
+     * Отписаться от уведомлений клиента
+     * @description Удаляет push-подписку браузера текущего клиента.
+     */
+    delete: operations['DelivestWeb.Client.Push.PushController.unsubscribe_client']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/cart/{cart_id}/context': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /**
+     * Обновить способ получения
+     * @description Способ получения влияет на условия акций, поэтому корзина пересчитывается.
+     */
+    put: operations['DelivestWeb.Client.Cart.CartController.update_context']
+    post?: never
     delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/addresses': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Адреса доставки клиента */
+    get: operations['DelivestWeb.Client.Address.AddressController.index']
+    put?: never
+    /** Добавить адрес */
+    post: operations['DelivestWeb.Client.Address.AddressController.create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/geo/suggest': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Подсказки адресов
+     * @description Адреса DaData по введённой строке, в пределах города, если он передан.
+     */
+    get: operations['DelivestWeb.Client.Geo.GeoController.suggest']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/cart': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Получить корзину пользователя
+     * @description Извлекает branch_id из query или кук и возвращает состав текущей корзины.
+     */
+    get: operations['DelivestWeb.Client.Cart.CartController.show']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/geo/reverse': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Адрес по координатам
+     * @description Ближайший дом к точке на карте.
+     */
+    get: operations['DelivestWeb.Client.Geo.GeoController.reverse']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/orders/{id}/cancel': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Отменить заказ
+     * @description Только пока заказ в статусе created, без CRM и канала, оплата не онлайн. Дальше отмена — звонком в филиал.
+     */
+    post: operations['DelivestWeb.Client.Order.OrderController.cancel']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/delivery/zones': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Зоны доставки
+     * @description Зоны доставки филиала для показа на карте. Пустой список, если доставка без зон или в админке не стоит галочка показывать зоны клиенту.
+     */
+    get: operations['DelivestWeb.Client.Delivery.DeliveryController.zones']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/branches/slug/{slug}/select': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Выбрать филиал по Slug
+     * @description Возвращает детальную информацию о филиале по его slug и устанавливает cookie.
+     */
+    post: operations['DelivestWeb.Client.Branch.BranchController.select_by_slug']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/addresses/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** Изменить адрес */
+    put: operations['DelivestWeb.Client.Address.AddressController.update']
+    post?: never
+    /** Удалить адрес */
+    delete: operations['DelivestWeb.Client.Address.AddressController.delete']
     options?: never
     head?: never
     patch?: never
@@ -543,7 +627,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/socket_token': {
+  '/client/orders/active': {
     parameters: {
       query?: never
       header?: never
@@ -551,10 +635,10 @@ export interface paths {
       cookie?: never
     }
     /**
-     * Токен для подключения к сокету
-     * @description Подключение: `/socket/websocket?token=...`. Каналы `orders` (событие `order`) и `auth:<confirmation_id>` (событие `confirmed`, после него токены забираются через `/client/auth/call/{id}/complete`).
+     * Активные заказы
+     * @description Заказы текущей сессии, которые ещё не завершены и созданы не раньше нескольких часов назад. Статус берётся из CRM, если заказ обрабатывается в ней.
      */
-    get: operations['DelivestWeb.Client.Socket.SocketController.token']
+    get: operations['DelivestWeb.Client.Order.OrderController.active']
     put?: never
     post?: never
     delete?: never
@@ -563,7 +647,47 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/{branch_id}/promotions': {
+  '/client/auth/call': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Запросить подтверждение номера звонком
+     * @description Клиент должен позвонить с указанного номера на `call_number`.
+     */
+    post: operations['DelivestWeb.Client.Auth.AuthController.start']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/auth/call/{id}/confirm': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Подтвердить номер кодом флеш-звонка
+     * @description Режим flash: клиенту позвонили, код — последние 4 цифры входящего номера. Три попытки, потом нужен новый звонок.
+     */
+    post: operations['DelivestWeb.Client.Auth.AuthController.confirm_code']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/branches': {
     parameters: {
       query?: never
       header?: never
@@ -571,10 +695,10 @@ export interface paths {
       cookie?: never
     }
     /**
-     * Действующие акции филиала
-     * @description Автоматические акции, которые сейчас применяются к корзине без промокода.
+     * Получить список филиалов
+     * @description Возвращает список всех активных филиалов.
      */
-    get: operations['DelivestWeb.Client.Promotion.PromotionController.index']
+    get: operations['DelivestWeb.Client.Branch.BranchController.index']
     put?: never
     post?: never
     delete?: never
@@ -583,21 +707,22 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/{branch_id}/stocks': {
+  '/client/cart/{cart_id}/promo_code': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    /**
-     * Получить список активных акций филиала
-     * @description Возвращает список всех активных акций, привязанных к данному branch_id
-     */
-    get: operations['DelivestWeb.Client.Stock.StockController.index']
+    get?: never
     put?: never
-    post?: never
-    delete?: never
+    /**
+     * Применить промокод
+     * @description Проверяет промокод и прикрепляет его к корзине. Если условия акции ещё не выполнены, код сохраняется со статусом `pending` и применится автоматически, когда условия выполнятся.
+     */
+    post: operations['DelivestWeb.Client.Cart.CartController.apply_promo_code']
+    /** Убрать промокод */
+    delete: operations['DelivestWeb.Client.Cart.CartController.remove_promo_code']
     options?: never
     head?: never
     patch?: never
@@ -625,6 +750,20 @@ export interface components {
     StartCallRequest: {
       /** @example +79990000000 */
       phone: string
+    }
+    /** LoyaltyResponse */
+    LoyaltyResponse: {
+      data: {
+        balance: number
+        enabled: boolean
+        history: components['schemas']['LoyaltyEntry'][]
+        products?: {
+          /** Format: uuid */
+          id?: string
+          name?: string
+          stars_price?: number
+        }[]
+      }
     }
     /** CreateOrderRequest */
     CreateOrderRequest: {
@@ -670,11 +809,6 @@ export interface components {
        */
       expected_total?: number | null
       /**
-       * @description Сколько звёзд списать с суммы заказа (1 звезда = 1 ₽). Только для вошедшего клиента в филиале с включённым списанием
-       * @example 100
-       */
-      spend_points?: number | null
-      /**
        * @example delivery
        * @enum {string|null}
        */
@@ -689,10 +823,22 @@ export interface components {
        * @example 2
        */
       persons?: number | null
+      /**
+       * @description Сколько звёзд списать с суммы заказа (1 звезда = 1 ₽). Только для вошедшего клиента в филиале с включённым списанием
+       * @example 100
+       */
+      spend_points?: number | null
+    }
+    /** ConfirmCodeRequest */
+    ConfirmCodeRequest: {
+      /**
+       * @description Последние 4 цифры номера
+       * @example 1234
+       */
+      code: string
     }
     /** OrderItemResponse */
     OrderItemResponse: {
-      stars_reward?: number
       /**
        * @description Цена за единицу по меню
        * @example 59000
@@ -713,8 +859,14 @@ export interface components {
       product_id: string
       /** @example 2 */
       quantity: number
+      /** @description Дополнительные звёзды за единицу товара */
+      stars_reward?: number
       /** @example Пицца Маргарита */
       title: string
+    }
+    /** PromoGiftChoiceRequest */
+    PromoGiftChoiceRequest: {
+      product_ids: string[]
     }
     /** StartCallResponse */
     StartCallResponse: {
@@ -724,8 +876,6 @@ export interface components {
          * @example +78000000000
          */
         call_number: string | null
-        /** @enum {string} */
-        mode: 'inbound' | 'flash'
         /** Format: uuid */
         confirmation_id: string
         /**
@@ -733,6 +883,8 @@ export interface components {
          * @example 600
          */
         expires_in: number
+        /** @enum {string} */
+        mode: 'inbound' | 'flash'
       }
     }
     /** ProductResponse */
@@ -752,18 +904,6 @@ export interface components {
        * @enum {string}
        */
       measure_unit?: 'g' | 'ml'
-      /** @description КБЖУ на 100 г; пустые поля — null */
-      stars_reward?: number | null
-      nutrition?: {
-        /** @example 250 */
-        calories?: number | null
-        /** @example 30 */
-        carbohydrates?: number | null
-        /** @example 9 */
-        fats?: number | null
-        /** @example 12.5 */
-        proteins?: number | null
-      } | null
       /** @description Группы модификаторов. `min`/`max` — сколько выбрать в группе, `is_size` — размер (переключатель) */
       modifier_groups?: {
         /** Format: uuid */
@@ -792,6 +932,17 @@ export interface components {
       }[]
       /** @example Пипперони */
       name?: string
+      /** @description КБЖУ на 100 г; пустые поля — null */
+      nutrition?: {
+        /** @example 250 */
+        calories?: number | null
+        /** @example 30 */
+        carbohydrates?: number | null
+        /** @example 9 */
+        fats?: number | null
+        /** @example 12.5 */
+        proteins?: number | null
+      } | null
       /**
        * @description Цена без скидки, если на товар действует акция; `price` — цена со скидкой
        * @example 69000
@@ -818,6 +969,8 @@ export interface components {
        * @example hinkali
        */
       slug?: string | null
+      /** @description Дополнительные звёзды за товар сверх общей ставки */
+      stars_reward?: number | null
       /** @description Товар в стоп-листе: показывать, но не давать заказать */
       stopped?: boolean
       /** @description Предлагать в корзине в блоке «Добавить к заказу» */
@@ -893,11 +1046,23 @@ export interface components {
         token: string
       }
     }
+    /** LoyaltyEntry */
+    LoyaltyEntry: {
+      /** @description Звёзды со знаком */
+      amount: number
+      /** Format: date-time */
+      expires_at?: string | null
+      /** Format: uuid */
+      id: string
+      /** Format: date-time */
+      inserted_at: string
+      /** @enum {string} */
+      kind: 'accrual' | 'accrual_reversal' | 'expire' | 'adjust' | 'redeem' | 'refund'
+      /** Format: uuid */
+      order_id?: string | null
+    }
     /** CartItemResponse */
     CartItemResponse: {
-      stars_reward?: number
-      stars?: boolean
-      stars_price?: number | null
       /**
        * @description Итог по строке без скидок
        * @example 118000
@@ -928,6 +1093,10 @@ export interface components {
       promotion_ids: string[]
       /** @example 2 */
       quantity: number
+      stars?: boolean
+      stars_price?: number | null
+      /** @description Дополнительные звёзды за единицу товара */
+      stars_reward?: number
       /** @description Товар в стоп-листе: заказать нельзя */
       stopped?: boolean
       /**
@@ -968,6 +1137,14 @@ export interface components {
       product_id: string
       /** @example 1 */
       quantity: number
+    }
+    /** PromoGiftOption */
+    PromoGiftOption: {
+      image_url?: string | null
+      name: string
+      price: number
+      /** Format: uuid */
+      product_id: string
     }
     /** AddressRequest */
     AddressRequest: {
@@ -1033,12 +1210,11 @@ export interface components {
     /** OrderResponse */
     OrderResponse: {
       data: {
-        points_earned?: number
-        base_stars?: number
-        product_stars?: number
         address?: {
           [key: string]: unknown
         } | null
+        /** @description Заказ ждёт онлайн-оплаты и ещё не принят в работу */
+        awaiting_payment?: boolean
         /**
          * Format: uuid
          * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
@@ -1084,17 +1260,17 @@ export interface components {
         items: components['schemas']['OrderItemResponse'][]
         /** @example 261029-MSK1-042 */
         number: string
-        /** @enum {string} */
-        payment_method: 'cash' | 'card_offline' | 'online'
-        /** @description Заказ ждёт онлайн-оплаты и ещё не принят в работу */
-        awaiting_payment?: boolean
         /** @description Только в ответе на создание онлайн-заказа */
         payment?: {
           /** Format: uri */
           confirmation_url?: string
         } | null
+        /** @enum {string} */
+        payment_method: 'cash' | 'card_offline' | 'online'
         /** @example 2 */
         persons?: number | null
+        /** @description Звёзды после выполнения заказа, включая бонусы за товары */
+        points_earned?: number
         promotions: components['schemas']['OrderPromotion'][]
         /** @example 42 */
         short_number: string
@@ -1155,13 +1331,22 @@ export interface components {
       missing?: number | null
       /** @example Кола 0.5 */
       name?: string | null
+      names?: string[]
       /** Format: uuid */
       product_id?: string | null
+      product_ids?: string[]
       /** @example 16:00 */
       to?: string | null
       /** @enum {string} */
       type:
-        'subtotal' | 'quantity' | 'product' | 'fulfillment' | 'time' | 'weekday' | 'requires_client'
+        | 'subtotal'
+        | 'quantity'
+        | 'product'
+        | 'products'
+        | 'fulfillment'
+        | 'time'
+        | 'weekday'
+        | 'requires_client'
     }
     /** DeliveryZonesResponse */
     DeliveryZonesResponse: {
@@ -1222,6 +1407,8 @@ export interface components {
       modifiers?: components['schemas']['ModifierChoice'][] | null
       /** @default 1 */
       quantity: number
+      /** @description Купить за звёзды */
+      stars?: boolean
     }
     /** FranchiseResponse */
     FranchiseResponse: {
@@ -1231,20 +1418,6 @@ export interface components {
         /** @description Клиенты могут войти по звонку; иначе все заказывают как гости */
         client_auth: boolean
         /**
-         * @description inbound: клиент звонит сам; flash: клиенту звонят, он вводит 4 цифры
-         * @enum {string}
-         */
-        login_call_mode: 'inbound' | 'flash'
-        /** @description Оценка Яндекса; null, если не настроено или данные старше 7 дней */
-        rating: {
-          /** @example 4.8 */
-          value: number
-          /** @example 120 */
-          count: number
-          /** Format: uri */
-          url: string | null
-        } | null
-        /**
          * @description Цвет для тёмной темы; если пусто, подбирается из основного
          * @example #b86a69
          */
@@ -1252,6 +1425,11 @@ export interface components {
         description: string | null
         documents: components['schemas']['LegalDocumentSummary'][]
         legal: components['schemas']['FranchiseLegal']
+        /**
+         * @description inbound: клиент звонит сам; flash: клиенту звонят, он вводит 4 цифры
+         * @enum {string}
+         */
+        login_call_mode: 'inbound' | 'flash'
         /** Format: uri */
         logo_dark_url: string | null
         /** Format: uri */
@@ -1260,6 +1438,15 @@ export interface components {
         name: string
         /** @example #48010c */
         primary_color: string
+        /** @description Оценка Яндекса; null, если не настроено или данные старше 7 дней */
+        rating: {
+          /** @example 120 */
+          count: number
+          /** Format: uri */
+          url: string | null
+          /** @example 4.8 */
+          value: number
+        } | null
       }
     }
     /** RefreshRequest */
@@ -1309,9 +1496,7 @@ export interface components {
     /** CartResponse */
     CartResponse: {
       data: {
-        points_earned?: number
         base_stars?: number
-        product_stars?: number
         /**
          * Format: uuid
          * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
@@ -1328,6 +1513,8 @@ export interface components {
          */
         id: string
         items: components['schemas']['CartItemResponse'][]
+        points_earned?: number
+        product_stars?: number
         promo_code?: components['schemas']['PromoCodeState']
         promotions: components['schemas']['AppliedPromotion'][]
         /** @example eceaec3d-dd25-4e19-8afc-f1d0f1412c9c */
@@ -1368,6 +1555,13 @@ export interface components {
       id: string
       /** @example Скидка 10% на самовывоз */
       name: string
+    }
+    /** PaymentLinkResponse */
+    PaymentLinkResponse: {
+      data: {
+        /** Format: uri */
+        confirmation_url: string
+      }
     }
     /** GeoAddressListResponse */
     GeoAddressListResponse: {
@@ -1514,13 +1708,14 @@ export interface components {
         | 'item_not_found'
         | 'validation_failed'
         | 'order_failed'
+        | 'order_not_found'
+        | 'order_not_cancellable'
         | 'too_many_requests'
         | 'unauthorized'
         | 'invalid_phone'
         | 'call_failed'
         | 'confirmation_not_found'
         | 'invalid_code'
-        | 'attempts_exhausted'
         | 'invalid_refresh_token'
         | 'address_not_found'
         | 'internal_error'
@@ -1528,8 +1723,14 @@ export interface components {
         | 'delivery_below_minimum'
         | 'delivery_outside_zones'
         | 'branch_paused'
+        | 'fulfillment_unavailable'
         | 'delivery_no_coordinates'
         | 'promo_unavailable'
+        | 'promo_gift_not_available'
+        | 'promo_gift_invalid'
+        | 'points_unavailable'
+        | 'insufficient_points'
+        | 'points_over_limit'
         | 'promo_not_found'
         | 'promo_inactive'
         | 'promo_not_started'
@@ -1570,10 +1771,11 @@ export interface components {
     }
     /** ActiveOrder */
     ActiveOrder: {
-      points_earned?: number
       address?: {
         [key: string]: unknown
       } | null
+      /** @description Заказ ждёт онлайн-оплаты и ещё не принят в работу */
+      awaiting_payment?: boolean
       /** Format: uuid */
       branch_id: string
       /** @description Клиент ещё может отменить заказ сам */
@@ -1600,8 +1802,8 @@ export interface components {
       number: string
       /** @enum {string} */
       payment_method: 'cash' | 'card_offline' | 'online'
-      /** @description Заказ ждёт онлайн-оплаты и ещё не принят в работу */
-      awaiting_payment?: boolean
+      /** @description Звёзды после выполнения заказа, включая бонусы за товары */
+      points_earned?: number
       promotions: components['schemas']['OrderPromotion'][]
       /** @example 42 */
       short_number: string
@@ -1619,6 +1821,13 @@ export interface components {
       /** @example 118000 */
       total_amount: number
     }
+    /** PromoGiftChoice */
+    PromoGiftChoice: {
+      available: boolean
+      options: components['schemas']['PromoGiftOption'][]
+      required: number
+      selected: string[]
+    } | null
     /**
      * OrderCourier
      * @description Курьер, который взял заказ. Есть с назначения курьера до вручения
@@ -1648,6 +1857,8 @@ export interface components {
        * @example 30
        */
       delivery_time?: number | null
+      /** @description Включённые способы получения заказа */
+      fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
       /**
        * Format: uuid
        * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
@@ -1655,33 +1866,10 @@ export interface components {
       id: string
       /** @example https://instagram.com/profile_name */
       instagram_url?: string | null
-      /**
-       * @description Исключения по датам (ISO-дата → enabled, open, close) поверх недели
-       * @example {
-       *       "2026-12-31": {
-       *         "close": "18:00",
-       *         "enabled": true,
-       *         "open": "10:00"
-       *       }
-       *     }
-       */
-      special_hours?: {
-        [key: string]: unknown
-      }
-      /** @description Бонусная система филиала: за каждые per_rubles ₽ начисляется stars звёзд */
-      loyalty?: {
-        enabled?: boolean
-        expire_days?: number | null
-        max_percent?: number | null
-        per_rubles?: number | null
-        spend_enabled?: boolean
-        stars?: number | null
-      }
-      /** @description Способы оплаты, включённые на филиале */
-      payment_methods?: ('cash' | 'card_offline' | 'online')[]
       /** @description Режим приёма: normal, load (добавка к времени) или paused (заказы закрыты) */
       intake?: {
         extra_minutes?: number
+        /** @enum {string} */
         mode?: 'normal' | 'load' | 'paused'
         reason?: string | null
         /** Format: date-time */
@@ -1697,8 +1885,34 @@ export interface components {
        * @example 37.6173
        */
       longitude?: number | null
+      /** @description Бонусная система филиала: за каждые per_rubles ₽ начисляется stars звёзд */
+      loyalty?: {
+        enabled?: boolean
+        expire_days?: number | null
+        /** @description Максимальная доля заказа в процентах, которую можно оплатить звёздами */
+        max_percent?: number | null
+        per_rubles?: number | null
+        /** @description Можно списывать звёзды с суммы заказа */
+        spend_enabled?: boolean
+        stars?: number | null
+      }
+      /** @description Способы оплаты, включённые на филиале */
+      payment_methods?: ('cash' | 'card_offline' | 'online')[]
       /** @example +79990000000 */
       phone_number?: string | null
+      /**
+       * @description Исключения по датам (ISO-дата → enabled, open, close) поверх недели
+       * @example {
+       *       "2026-12-31": {
+       *         "close": "18:00",
+       *         "enabled": true,
+       *         "open": "10:00"
+       *       }
+       *     }
+       */
+      special_hours?: {
+        [key: string]: unknown
+      }
       /** @example https://vk.com/group_name */
       vk_url?: string | null
       /** @example https://wa.me/79990000000 */
@@ -1741,6 +1955,7 @@ export interface components {
        * @example 15000
        */
       discount: number
+      gift_choice?: components['schemas']['PromoGiftChoice']
       gifts: components['schemas']['PromoGift'][]
       /** @example Летняя скидка */
       name: string
@@ -1760,22 +1975,25 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
-  'DelivestWeb.Client.Address.AddressController.index': {
+  'DelivestWeb.Client.Loyalty.LoyaltyController.show': {
     parameters: {
-      query?: never
+      query?: {
+        /** @description UUID филиала */
+        branch_id?: string
+      }
       header?: never
       path?: never
       cookie?: never
     }
     requestBody?: never
     responses: {
-      /** @description Адреса */
+      /** @description Бонусы */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['ClientAddressListResponse']
+          'application/json': components['schemas']['LoyaltyResponse']
         }
       }
       /** @description Нужна авторизация */
@@ -1789,31 +2007,40 @@ export interface operations {
       }
     }
   }
-  'DelivestWeb.Client.Address.AddressController.create': {
+  'DelivestWeb.Client.Auth.AuthController.refresh': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    /** @description Адрес */
+    /** @description Refresh-токен */
     requestBody?: {
       content: {
-        'application/json': components['schemas']['ClientAddressRequest']
+        'application/json': components['schemas']['RefreshRequest']
       }
     }
     responses: {
-      /** @description Адрес */
+      /** @description Новые токены */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['ClientAddressResponse']
+          'application/json': components['schemas']['ClientSessionResponse']
         }
       }
-      /** @description Ошибка валидации */
-      422: {
+      /** @description Токен недействителен */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Клиент заблокирован */
+      403: {
         headers: {
           [name: string]: unknown
         }
@@ -1823,72 +2050,94 @@ export interface operations {
       }
     }
   }
-  'DelivestWeb.Client.Address.AddressController.update': {
+  'DelivestWeb.Client.Socket.SocketController.token': {
     parameters: {
       query?: never
       header?: never
-      path: {
-        /** @description UUID адреса */
-        id: string
-      }
-      cookie?: never
-    }
-    /** @description Адрес */
-    requestBody?: {
-      content: {
-        'application/json': components['schemas']['ClientAddressRequest']
-      }
-    }
-    responses: {
-      /** @description Адрес */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ClientAddressResponse']
-        }
-      }
-      /** @description Адрес не найден */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-      /** @description Ошибка валидации */
-      422: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Address.AddressController.delete': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        /** @description UUID адреса */
-        id: string
-      }
+      path?: never
       cookie?: never
     }
     requestBody?: never
     responses: {
-      /** @description Удалён */
+      /** @description Токен */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['SocketTokenResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Push.PushController.subscribe': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        order_id: string
+      }
+      cookie?: never
+    }
+    /** @description Подписка браузера */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PushSubscriptionRequest']
+      }
+    }
+    responses: {
+      /** @description Подписка сохранена */
       204: {
         headers: {
           [name: string]: unknown
         }
         content?: never
       }
-      /** @description Адрес не найден */
+      /** @description Заказ не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверная подписка */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Branch.BranchController.select': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /**
+         * @description UUID филиала
+         * @example c4a3b8e0-1234-5678-9abc-def012345678
+         */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Детальная информация о филиале */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['BranchResponse']
+        }
+      }
+      /** @description Филиал не найден */
       404: {
         headers: {
           [name: string]: unknown
@@ -1899,54 +2148,56 @@ export interface operations {
       }
     }
   }
-  'DelivestWeb.Client.Auth.AuthController.start': {
+  'DelivestWeb.Client.Franchise.FranchiseController.document': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        kind: 'privacy' | 'consent' | 'offer' | 'terms'
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Документ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['LegalDocumentResponse']
+        }
+      }
+      /** @description Документ не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Branch.BranchController.clear_active': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    /** @description Номер телефона */
-    requestBody?: {
-      content: {
-        'application/json': components['schemas']['StartCallRequest']
-      }
-    }
+    requestBody?: never
     responses: {
-      /** @description Ожидается звонок */
+      /** @description Кука активного филиала удалена */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['StartCallResponse']
-        }
-      }
-      /** @description Некорректный номер */
-      422: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-      /** @description Слишком много запросов */
-      429: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-      /** @description Сервис звонков недоступен */
-      503: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
+          'application/json': {
+            /** @example Active branch cleared */
+            message?: string
+          }
         }
       }
     }
@@ -2001,31 +2252,75 @@ export interface operations {
       }
     }
   }
-  'DelivestWeb.Client.Auth.AuthController.refresh': {
+  'DelivestWeb.Client.Order.OrderController.pay': {
     parameters: {
       query?: never
       header?: never
-      path?: never
+      path: {
+        /** @description ID заказа */
+        id: string
+      }
       cookie?: never
     }
-    /** @description Refresh-токен */
+    requestBody?: never
+    responses: {
+      /** @description Страница оплаты */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PaymentLinkResponse']
+        }
+      }
+      /** @description Заказ не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Заказ не ждёт оплаты */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.choose_promotion_gifts': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        cart_id: string
+        promotion_id: string
+      }
+      cookie?: never
+    }
+    /** @description Выбор подарков */
     requestBody?: {
       content: {
-        'application/json': components['schemas']['RefreshRequest']
+        'application/json': components['schemas']['PromoGiftChoiceRequest']
       }
     }
     responses: {
-      /** @description Новые токены */
+      /** @description Корзина */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['ClientSessionResponse']
+          'application/json': components['schemas']['CartResponse']
         }
       }
-      /** @description Токен недействителен */
-      401: {
+      /** @description Корзина или подарок недоступны */
+      404: {
         headers: {
           [name: string]: unknown
         }
@@ -2033,37 +2328,8 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Клиент заблокирован */
-      403: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Branch.BranchController.index': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Список филиалов */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['BranchListResponse']
-        }
-      }
-      /** @description Ошибка получения списка */
-      500: {
+      /** @description Некорректный выбор */
+      422: {
         headers: {
           [name: string]: unknown
         }
@@ -2073,55 +2339,52 @@ export interface operations {
       }
     }
   }
-  'DelivestWeb.Client.Branch.BranchController.clear_active': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Кука активного филиала удалена */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': {
-            /** @example Active branch cleared */
-            message?: string
-          }
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Branch.BranchController.select_by_slug': {
+  'DelivestWeb.Client.Stock.StockController.index': {
     parameters: {
       query?: never
       header?: never
       path: {
         /**
-         * @description Slug филиала
-         * @example centralny-filial
+         * @description UUID филиала
+         * @example 123e4567-e89b-12d3-a456-426614174000
          */
-        slug: string
+        branch_id: string
       }
       cookie?: never
     }
     requestBody?: never
     responses: {
-      /** @description Детальная информация о филиале */
+      /** @description Список акций */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['BranchResponse']
+          'application/json': components['schemas']['StocksListResponse']
         }
       }
-      /** @description Филиал не найден */
-      404: {
+    }
+  }
+  'DelivestWeb.Client.Profile.ProfileController.show': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Профиль */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ProfileResponse']
+        }
+      }
+      /** @description Нужна авторизация */
+      401: {
         headers: {
           [name: string]: unknown
         }
@@ -2166,31 +2429,28 @@ export interface operations {
       }
     }
   }
-  'DelivestWeb.Client.Branch.BranchController.select': {
+  'DelivestWeb.Client.Cart.CartController.repeat': {
     parameters: {
       query?: never
       header?: never
       path: {
-        /**
-         * @description UUID филиала
-         * @example c4a3b8e0-1234-5678-9abc-def012345678
-         */
-        id: string
+        cart_id: string
+        order_id: string
       }
       cookie?: never
     }
     requestBody?: never
     responses: {
-      /** @description Детальная информация о филиале */
+      /** @description Обновленная корзина */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['BranchResponse']
+          'application/json': components['schemas']['CartResponse']
         }
       }
-      /** @description Филиал не найден */
+      /** @description Корзина или заказ не найдены */
       404: {
         headers: {
           [name: string]: unknown
@@ -2201,13 +2461,14 @@ export interface operations {
       }
     }
   }
-  'DelivestWeb.Client.Cart.CartController.show': {
+  'DelivestWeb.Client.Delivery.DeliveryController.quote': {
     parameters: {
-      query?: {
-        /** @description Принудительно пересчитать и обновить кэш корзины */
-        force?: boolean
-        /** @description ID активного филиала */
-        branch_id?: string
+      query: {
+        branch_id: string
+        latitude?: number
+        longitude?: number
+        /** @description Сумма корзины со скидками */
+        subtotal?: number
       }
       header?: never
       path?: never
@@ -2215,17 +2476,17 @@ export interface operations {
     }
     requestBody?: never
     responses: {
-      /** @description Данные корзины */
+      /** @description Стоимость */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['CartResponse']
+          'application/json': components['schemas']['DeliveryQuoteResponse']
         }
       }
-      /** @description Ошибка создания корзины */
-      422: {
+      /** @description Нет филиала */
+      404: {
         headers: {
           [name: string]: unknown
         }
@@ -2235,55 +2496,26 @@ export interface operations {
       }
     }
   }
-  'DelivestWeb.Client.Cart.CartController.clear': {
+  'DelivestWeb.Client.Cart.CartController.replace_item': {
     parameters: {
       query?: never
       header?: never
       path: {
         /** @description UUID корзины */
         cart_id: string
+        /** @description `key` строки корзины */
+        product_id: string
       }
       cookie?: never
     }
-    requestBody?: never
-    responses: {
-      /** @description Очищенная корзина */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['CartResponse']
-        }
-      }
-      /** @description Корзина не найдена */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Cart.CartController.update_context': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        cart_id: string
-      }
-      cookie?: never
-    }
-    /** @description Контекст корзины */
+    /** @description Новые модификаторы */
     requestBody?: {
       content: {
-        'application/json': components['schemas']['CartContextRequest']
+        'application/json': components['schemas']['AddItemRequest']
       }
     }
     responses: {
-      /** @description Обновлённая корзина */
+      /** @description Обновленная корзина */
       200: {
         headers: {
           [name: string]: unknown
@@ -2292,7 +2524,7 @@ export interface operations {
           'application/json': components['schemas']['CartResponse']
         }
       }
-      /** @description Корзина не найдена */
+      /** @description Корзина или позиция не найдены */
       404: {
         headers: {
           [name: string]: unknown
@@ -2301,7 +2533,7 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Некорректный способ получения */
+      /** @description Ошибка замены */
       422: {
         headers: {
           [name: string]: unknown
@@ -2397,6 +2629,780 @@ export interface operations {
       }
     }
   }
+  'DelivestWeb.Client.Promotion.PromotionController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        branch_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список акций */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['RunningPromotionsResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Заказы клиента */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientOrdersResponse']
+        }
+      }
+      /** @description Нужна авторизация */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Создание заказа */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CreateOrderRequest']
+      }
+    }
+    responses: {
+      /** @description Созданный заказ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['OrderResponse']
+        }
+      }
+      /** @description Ошибка создания заказа */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Слишком много запросов */
+      429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Franchise.FranchiseController.show': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Настройки франшизы */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['FranchiseResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.clear': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description UUID корзины */
+        cart_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Очищенная корзина */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Корзина не найдена */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Push.PushController.subscribe_client': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Подписка браузера */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PushSubscriptionRequest']
+      }
+    }
+    responses: {
+      /** @description Подписка сохранена */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Неверная подписка */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Push.PushController.unsubscribe_client': {
+    parameters: {
+      query: {
+        endpoint: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Подписка удалена */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.update_context': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        cart_id: string
+      }
+      cookie?: never
+    }
+    /** @description Контекст корзины */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CartContextRequest']
+      }
+    }
+    responses: {
+      /** @description Обновлённая корзина */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Корзина не найдена */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Некорректный способ получения */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Address.AddressController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Адреса */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientAddressListResponse']
+        }
+      }
+      /** @description Нужна авторизация */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Address.AddressController.create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Адрес */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ClientAddressRequest']
+      }
+    }
+    responses: {
+      /** @description Адрес */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientAddressResponse']
+        }
+      }
+      /** @description Ошибка валидации */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Geo.GeoController.suggest': {
+    parameters: {
+      query: {
+        /** @description Введённый адрес */
+        query: string
+        /** @description Город филиала */
+        city?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Адреса */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['GeoAddressListResponse']
+        }
+      }
+      /** @description Подсказки выключены */
+      503: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Cart.CartController.show': {
+    parameters: {
+      query?: {
+        /** @description Принудительно пересчитать и обновить кэш корзины */
+        force?: boolean
+        /** @description ID активного филиала */
+        branch_id?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Данные корзины */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CartResponse']
+        }
+      }
+      /** @description Ошибка создания корзины */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Geo.GeoController.reverse': {
+    parameters: {
+      query: {
+        latitude: number
+        longitude: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Адреса */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['GeoAddressListResponse']
+        }
+      }
+      /** @description Неверные координаты */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Подсказки выключены */
+      503: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.cancel': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description ID заказа */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Отменённый заказ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['OrderResponse']
+        }
+      }
+      /** @description Заказ не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Заказ уже нельзя отменить */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Delivery.DeliveryController.zones': {
+    parameters: {
+      query: {
+        branch_id: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Зоны */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['DeliveryZonesResponse']
+        }
+      }
+      /** @description Нет филиала */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Branch.BranchController.select_by_slug': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /**
+         * @description Slug филиала
+         * @example centralny-filial
+         */
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Детальная информация о филиале */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['BranchResponse']
+        }
+      }
+      /** @description Филиал не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Address.AddressController.update': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description UUID адреса */
+        id: string
+      }
+      cookie?: never
+    }
+    /** @description Адрес */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ClientAddressRequest']
+      }
+    }
+    responses: {
+      /** @description Адрес */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientAddressResponse']
+        }
+      }
+      /** @description Адрес не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Ошибка валидации */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Address.AddressController.delete': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description UUID адреса */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Удалён */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Адрес не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Push.PushController.key': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Ключ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PushKeyResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.active': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Активные заказы */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ActiveOrdersResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Auth.AuthController.start': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Номер телефона */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['StartCallRequest']
+      }
+    }
+    responses: {
+      /** @description Ожидается звонок */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['StartCallResponse']
+        }
+      }
+      /** @description Некорректный номер */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Слишком много запросов */
+      429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Сервис звонков недоступен */
+      503: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Auth.AuthController.confirm_code': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description confirmation_id */
+        id: string
+      }
+      cookie?: never
+    }
+    /** @description Код */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ConfirmCodeRequest']
+      }
+    }
+    responses: {
+      /** @description Код верный, можно вызывать complete */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientSessionResponse']
+        }
+      }
+      /** @description Подтверждение не найдено или истекло */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный код */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Попытки закончились */
+      429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Branch.BranchController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список филиалов */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['BranchListResponse']
+        }
+      }
+      /** @description Ошибка получения списка */
+      500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   'DelivestWeb.Client.Cart.CartController.apply_promo_code': {
     parameters: {
       query?: never
@@ -2478,482 +3484,6 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Cart.CartController.repeat': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        cart_id: string
-        order_id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Обновленная корзина */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['CartResponse']
-        }
-      }
-      /** @description Корзина или заказ не найдены */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Delivery.DeliveryController.quote': {
-    parameters: {
-      query: {
-        branch_id: string
-        latitude?: number
-        longitude?: number
-        /** @description Сумма корзины со скидками */
-        subtotal?: number
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Стоимость */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['DeliveryQuoteResponse']
-        }
-      }
-      /** @description Нет филиала */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Delivery.DeliveryController.zones': {
-    parameters: {
-      query: {
-        branch_id: string
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Зоны */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['DeliveryZonesResponse']
-        }
-      }
-      /** @description Нет филиала */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Franchise.FranchiseController.show': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Настройки франшизы */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['FranchiseResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Franchise.FranchiseController.document': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        kind: 'privacy' | 'consent' | 'offer' | 'terms'
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Документ */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['LegalDocumentResponse']
-        }
-      }
-      /** @description Документ не найден */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Geo.GeoController.reverse': {
-    parameters: {
-      query: {
-        latitude: number
-        longitude: number
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Адреса */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['GeoAddressListResponse']
-        }
-      }
-      /** @description Неверные координаты */
-      422: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-      /** @description Подсказки выключены */
-      503: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Geo.GeoController.suggest': {
-    parameters: {
-      query: {
-        /** @description Введённый адрес */
-        query: string
-        /** @description Город филиала */
-        city?: string
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Адреса */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['GeoAddressListResponse']
-        }
-      }
-      /** @description Подсказки выключены */
-      503: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Profile.ProfileController.show': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Профиль */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ProfileResponse']
-        }
-      }
-      /** @description Нужна авторизация */
-      401: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Order.OrderController.index': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Заказы клиента */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ClientOrdersResponse']
-        }
-      }
-      /** @description Нужна авторизация */
-      401: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Order.OrderController.create': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /** @description Создание заказа */
-    requestBody?: {
-      content: {
-        'application/json': components['schemas']['CreateOrderRequest']
-      }
-    }
-    responses: {
-      /** @description Созданный заказ */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['OrderResponse']
-        }
-      }
-      /** @description Ошибка создания заказа */
-      422: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-      /** @description Слишком много запросов */
-      429: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Order.OrderController.active': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Активные заказы */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ActiveOrdersResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Push.PushController.subscribe': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        order_id: string
-      }
-      cookie?: never
-    }
-    /** @description Подписка браузера */
-    requestBody?: {
-      content: {
-        'application/json': components['schemas']['PushSubscriptionRequest']
-      }
-    }
-    responses: {
-      /** @description Подписка сохранена */
-      204: {
-        headers: {
-          [name: string]: unknown
-        }
-        content?: never
-      }
-      /** @description Заказ не найден */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-      /** @description Неверная подписка */
-      422: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Push.PushController.key': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Ключ */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['PushKeyResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Socket.SocketController.token': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Токен */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['SocketTokenResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Promotion.PromotionController.index': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        branch_id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Список акций */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['RunningPromotionsResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Stock.StockController.index': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        /**
-         * @description UUID филиала
-         * @example 123e4567-e89b-12d3-a456-426614174000
-         */
-        branch_id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Список акций */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['StocksListResponse']
         }
       }
     }

@@ -13,7 +13,7 @@ import { ADDRESSES_KEY } from '@/modules/account/composables/useAddressesQuery'
 import { t } from '@/i18n'
 import { emptyDeliveryAddress, toAddressPayload } from '@/modules/fulfillment/utils/deliveryAddress'
 
-const PRICE_ERRORS = ['price_changed', 'promo_unavailable']
+const PRICE_ERRORS = ['price_changed', 'promo_unavailable', 'promo_gift_not_available']
 
 export const useOrderStore = defineStore('order', () => {
   const branchStore = useBranchStore()
@@ -120,6 +120,9 @@ export const useOrderStore = defineStore('order', () => {
       return order
     } catch (error: unknown) {
       errorMessage.value = getApiErrorMessage(error, t('order.failed'))
+      if (getApiErrorCode(error) === 'fulfillment_unavailable') {
+        await branchStore.refreshBranches().catch(() => null)
+      }
       if (PRICE_ERRORS.includes(getApiErrorCode(error) ?? '')) {
         await cartStore.fetchCart(branchId, true).catch(() => null)
       }

@@ -21,7 +21,9 @@ const summary = computed(() => {
   if (choice.type === 'pickup') {
     return {
       icon: 'pi-shopping-bag',
-      title: t('order.form.pickup'),
+      title: t(
+        fulfillmentStore.methods.includes('pickup') ? 'order.form.pickup' : 'order.form.dineIn',
+      ),
       text: branchStore.activeBranch?.branch_info?.address ?? branchStore.activeBranch?.name,
     }
   }

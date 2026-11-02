@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
+import { hasOnsite } from '../../utils/fulfillmentMethods'
 import BaseMap, { type MapMarker } from '../map/BaseMap.vue'
 import PickupBranchList from './PickupBranchList.vue'
 import PickupBranchCard from './PickupBranchCard.vue'
@@ -23,10 +24,20 @@ const franchiseStore = useFranchiseStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 
-const branches = computed(() => branchStore.branches.filter((branch) => branch.is_active))
+const branches = computed(() =>
+  branchStore.branches.filter((branch) => branch.is_active && hasOnsite(branch)),
+)
 const selectedId = ref<string | null>(branchStore.activeBranch?.id ?? null)
 const selected = computed(() => branches.value.find((branch) => branch.id === selectedId.value))
 const isSwitching = ref(false)
+watch(
+  branches,
+  (available) => {
+    if (!available.some((b) => b.id === selectedId.value))
+      selectedId.value = available[0]?.id ?? null
+  },
+  { immediate: true },
+)
 
 const markers = computed<MapMarker[]>(() =>
   branches.value.flatMap((branch) => {
@@ -44,6 +55,7 @@ const mapCenter = computed<LngLat>(
 onMounted(() => branchStore.initBranches().catch(() => null))
 
 async function confirm(branch: Branch) {
+  if (!hasOnsite(branch)) return
   if (branch.id === branchStore.activeBranch?.id) {
     fulfillmentStore.choose(branch.id, { type: 'pickup' })
     flowStore.complete()

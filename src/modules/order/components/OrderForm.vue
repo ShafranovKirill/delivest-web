@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LoyaltyEarnings from '@/modules/account/components/LoyaltyEarnings.vue'
 
-import { reactive, computed, ref, watch } from 'vue'
+import { reactive, computed, ref, watch, onMounted } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import OrderConsent from './OrderConsent.vue'
@@ -95,14 +95,26 @@ watch(
   (phone) => phone && (form.customer_phone = phone),
 )
 
+const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() =>
+  (
+    [
+      { value: 'pickup', label: t('order.form.takeaway') },
+      { value: 'dine_in', label: t('order.form.dineIn') },
+    ] as Array<{ value: PickupKind; label: string }>
+  ).filter((option) => fulfillmentStore.methods.includes(option.value)),
+)
+watch(
+  pickupOptions,
+  (options) => {
+    if (!options.some((option) => option.value === pickupKind.value) && options[0])
+      pickupKind.value = options[0].value
+  },
+  { immediate: true },
+)
 watch(fulfillmentType, (type) => cartStore.setFulfillment(type).catch((e) => console.error(e)), {
   immediate: true,
 })
-
-const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() => [
-  { value: 'pickup', label: t('order.form.takeaway') },
-  { value: 'dine_in', label: t('order.form.dineIn') },
-])
+onMounted(() => branchStore.refreshBranches().catch(console.error))
 
 const allPaymentOptions = computed<
   Array<{ value: OrderFormValues['payment_method']; label: string }>
@@ -228,6 +240,8 @@ function handleSubmit() {
     return
   }
 
+  if (!fulfillmentStore.canOrder) return
+
   if (!fulfillmentStore.current) {
     flowStore.openPicker('delivery')
     return
@@ -277,7 +291,7 @@ function handleSubmit() {
       </p>
 
       <OptionChips
-        v-if="fulfillmentStore.current?.type === 'pickup'"
+        v-if="fulfillmentStore.current?.type === 'pickup' && pickupOptions.length > 1"
         v-model="pickupKind"
         :options="pickupOptions"
         :columns="2"
@@ -380,6 +394,9 @@ function handleSubmit() {
       </div>
     </div>
 
+    <p v-if="!fulfillmentStore.canOrder" class="text-center text-sm font-medium text-red-500">
+      {{ t('errors.codes.fulfillment_unavailable') }}
+    </p>
     <p v-if="deliveryBlocked" class="text-center text-sm font-medium text-red-500">
       {{ delivery.hint.value }}
     </p>
@@ -398,7 +415,7 @@ function handleSubmit() {
       <Button
         type="submit"
         :label="t('order.form.submit')"
-        :disabled="deliveryBlocked"
+        :disabled="deliveryBlocked || !fulfillmentStore.canOrder"
         icon="pi pi-check"
         iconPos="right"
         :loading="isLoading"

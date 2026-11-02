@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useOpenPromoGiftChoice } from '../composables/useOpenPromoGiftChoice'
 import { useCartStore } from '../stores/cart.store'
 import { getApiErrorMessage } from '@/api/errors'
 import { reasonsText, rejectedText } from '../utils/promoText'
 import { useI18n } from 'vue-i18n'
 
 const cartStore = useCartStore()
+const openGiftChoice = useOpenPromoGiftChoice()
 const { t } = useI18n()
 
 const code = ref('')
@@ -30,7 +32,14 @@ async function apply() {
   isPending.value = true
   error.value = null
   try {
-    await cartStore.applyPromoCode(value)
+    const updated = await cartStore.applyPromoCode(value)
+    const promotion = updated.promotions.find(
+      (p) =>
+        p.code === updated.promo_code?.code &&
+        p.gift_choice?.available &&
+        p.gift_choice.selected.length < p.gift_choice.required,
+    )
+    if (promotion) openGiftChoice(promotion.promotion_id)
     code.value = ''
   } catch (e) {
     error.value = getApiErrorMessage(e)

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
 import CartItemCard from './CartItem.vue'
+import CartGiftChoiceCards from './CartGiftChoiceCards.vue'
 import CartPromotions from './CartPromotions.vue'
 import CartSuggestions from './CartSuggestions.vue'
 import CartTotals from './CartTotals.vue'
@@ -14,6 +16,7 @@ import { useCartHeadline } from '../composables/useCartHeadline'
 import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
 
 const cartStore = useCartStore()
+const fulfillment = useFulfillmentStore()
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
@@ -91,11 +94,14 @@ function goToCatalog() {
     </div>
 
     <template v-else>
-      <div class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         <p class="text-lg font-extrabold text-gray-950">{{ headline }}</p>
 
         <div class="flex flex-col gap-3">
           <CartItemCard v-for="item in cartStore.items" :key="item.key" :item="item" />
+          <CartGiftChoiceCards />
         </div>
 
         <CartSuggestions class="pt-2" />
@@ -108,6 +114,9 @@ function goToCatalog() {
       </div>
 
       <div class="pt-3 pb-[calc(env(safe-area-inset-bottom))] bg-white z-20">
+        <p v-if="!fulfillment.canOrder" class="mb-2 text-center text-sm text-red-500">
+          {{ t('errors.codes.fulfillment_unavailable') }}
+        </p>
         <p v-if="cartStore.hasStopped" class="mb-2 text-center text-sm text-red-500">
           {{ t('cart.removeSoldOut') }}
         </p>
@@ -120,7 +129,7 @@ function goToCatalog() {
         <button
           type="button"
           @click="handleCheckout"
-          :disabled="cartStore.isLoading || cartStore.hasStopped"
+          :disabled="cartStore.isLoading || cartStore.hasStopped || !fulfillment.canOrder"
           class="w-full py-3.5 px-4 rounded-2xl bg-(--p-primary-500) text-white font-medium text-base transition-opacity hover:opacity-90 disabled:opacity-50 shadow-sm"
         >
           {{ t('cart.checkout') }}

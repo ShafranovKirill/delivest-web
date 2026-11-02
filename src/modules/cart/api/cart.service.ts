@@ -21,6 +21,13 @@ interface CartQueryParams {
 }
 
 export const CartService = {
+  async choosePromoGifts(cartId: string, promotionId: string, productIds: string[]): Promise<Cart> {
+    const { data } = await api.put<CartResponse>(
+      `/client/cart/${cartId}/promotions/${promotionId}/gifts`,
+      { product_ids: productIds },
+    )
+    return data.data
+  },
   async getCart(branchId?: string, force: boolean = false): Promise<Cart> {
     const params: CartQueryParams = {}
     if (force) params.force = true
