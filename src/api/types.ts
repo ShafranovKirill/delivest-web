@@ -1860,6 +1860,8 @@ export interface components {
        * @example 30
        */
       delivery_time?: number | null
+      /** Format: float */
+      manual_rating?: number | null
       /** @description Включённые способы получения заказа */
       fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
       /**

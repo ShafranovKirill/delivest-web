@@ -8,7 +8,10 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const branchStore = useBranchStore()
-const rating = computed(() => useFranchiseStore().rating)
+const franchiseStore = useFranchiseStore()
+const rating = computed(() =>
+  branchStore.activeBranch?.branch_info?.manual_rating ?? franchiseStore.rating?.value ?? null,
+)
 const sidebarStore = useSidebarStore()
 
 const deliveryTime = computed(() => branchStore.activeBranch?.branch_info?.delivery_time)
@@ -31,7 +34,7 @@ function openBranchModal() {
         <span v-if="rating">·</span>
       </template>
       <template v-if="rating">
-        <span>{{ rating.value.toFixed(1) }}</span>
+        <span>{{ rating.toFixed(1) }}</span>
         <i class="pi pi-star-fill text-amber-400 text-[10px] relative -top-[0.5px]" />
       </template>
     </template>

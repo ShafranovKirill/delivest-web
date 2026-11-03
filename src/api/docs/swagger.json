@@ -1446,6 +1446,7 @@
             "nullable": true,
             "type": "integer"
           },
+          "manual_rating": { "format": "float", "nullable": true, "type": "number" },
           "fulfillment_methods": {
             "description": "Включённые способы получения заказа",
             "items": { "enum": ["delivery", "pickup", "dine_in"], "type": "string" },
