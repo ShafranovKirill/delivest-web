@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import AutoComplete, { type AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
 import { useAddressSuggestions } from '../../composables/useAddressSuggestions'
 import type { GeoAddress } from '../../api/geo.service'
+import { shortAddressLabel } from '../../utils/deliveryAddress'
 
-const props = defineProps<{ value: string; city: string | null; placeholder: string; suggest: boolean }>()
+const props = defineProps<{
+  value: string
+  city: string | null
+  placeholder: string
+  suggest: boolean
+}>()
 const emit = defineEmits<{ select: [address: GeoAddress]; edit: [value: string] }>()
 
 const query = ref(props.value)
@@ -12,6 +18,12 @@ const { suggestions, search } = useAddressSuggestions(() => {
   const prefix = props.city && `${props.city},`.toLowerCase()
   return prefix && query.value.trimStart().toLowerCase().startsWith(prefix) ? props.city : null
 })
+const options = computed(() =>
+  suggestions.value.map((address) => ({
+    address,
+    label: shortAddressLabel(address, address.value),
+  })),
+)
 
 watch(
   () => props.value,
@@ -27,12 +39,12 @@ function onInput(value: unknown) {
 }
 
 function onSelect({ value }: AutoCompleteOptionSelectEvent) {
-  const address = value as GeoAddress
+  const { address, label } = value as { address: GeoAddress; label: string }
   if (address.house) {
-    query.value = address.value
+    query.value = label
     emit('select', address)
   } else {
-    query.value = `${address.value}, `
+    query.value = `${label}, `
     emit('edit', query.value)
   }
 }
@@ -41,8 +53,8 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
 <template>
   <AutoComplete
     :model-value="query"
-    :suggestions="suggestions"
-    option-label="value"
+    :suggestions="options"
+    option-label="label"
     :placeholder="placeholder"
     :delay="0"
     :min-length="4"

@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import AddressSuggestInput from './AddressSuggestInput.vue'
 import InputText from 'primevue/inputtext'
 import type { GeoAddress } from '../../api/geo.service'
-import type { DeliveryAddress } from '../../utils/deliveryAddress'
+import { shortAddressLabel, type DeliveryAddress } from '../../utils/deliveryAddress'
 
 const props = defineProps<{ suggest: boolean; city: string | null }>()
 const emit = defineEmits<{ select: [address: GeoAddress] }>()
@@ -13,7 +13,7 @@ const { t } = useI18n()
 
 function addressText(value: DeliveryAddress) {
   if (!value.street && !value.house && !value.geo) return ''
-  return value.geo?.formatted || [value.city, value.street, value.house].filter(Boolean).join(', ')
+  return shortAddressLabel(value, value.geo?.formatted)
 }
 
 const inputValue = ref(addressText(address.value))
@@ -68,7 +68,7 @@ function editAddress(value: string) {
 
 function selectAddress(value: GeoAddress) {
   editing = false
-  inputValue.value = value.value
+  inputValue.value = shortAddressLabel(value, value.value)
   emit('select', value)
 }
 

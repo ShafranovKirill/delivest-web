@@ -113,6 +113,32 @@ export function streetLine(address: Pick<DeliveryAddress, 'street' | 'house'>): 
   return [address.street, address.house].filter(Boolean).join(', ')
 }
 
+export function shortAddressLabel(
+  address: { city: string | null; street: string | null; house: string | null },
+  fallback = '',
+): string {
+  const city = address.city?.trim()
+  const street = address.street?.trim()
+  const settlement =
+    street && /^(?:п\.?|пос\.?|посёлок|поселок|с\.?|село|д\.?|деревня)\s/i.test(street)
+  const locality = settlement ? street : city
+  const road = settlement ? null : street
+  const house = address.house?.trim()
+
+  const label = [locality, road, house && `д ${house}`].filter(Boolean).join(', ')
+  if (label) return label
+
+  return fallback
+    .split(',')
+    .map((part) => part.trim())
+    .filter(
+      (part) =>
+        part && !/^(?:Россия$|.*(?:область|обл\.|край|республика|район|р-н|округ))/i.test(part),
+    )
+    .slice(-3)
+    .join(', ')
+}
+
 export function lngLatOf(address: DeliveryAddress): LngLat | null {
   if (address.latitude == null || address.longitude == null) return null
   return [address.longitude, address.latitude]
