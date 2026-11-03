@@ -108,9 +108,13 @@ const navigateToMenu = () => {
 
           <Button
             v-if="viewportStore.isMobile"
+            id="mobile-menu-button"
             icon="pi pi-bars text-3xl!"
             variant="text"
             class="p-2!"
+            :aria-label="t('nav.menu')"
+            :aria-expanded="sidebarStore.isSidebarVisible"
+            aria-controls="mobile-sidebar"
             @click="sidebarStore.toggleSidebar"
           />
         </div>

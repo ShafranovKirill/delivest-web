@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useSidebarStore } from './sidebar.store'
+import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import SidebarNav from './SidebarNav.vue'
 import BranchInfoBarMobile from '@/modules/branch/components/BranchInfoBarMobile.vue'
 import SidebarUserPanel from '@/modules/auth/components/SidebarUserPanel.vue'
@@ -14,9 +15,23 @@ import PoweredByDelivest from '@/modules/widgets/powered-by/PoweredByDelivest.vu
 import { useI18n } from 'vue-i18n'
 
 const sidebarStore = useSidebarStore()
+const viewportStore = useViewportStore()
 const authStore = useAuthStore()
 const accountLinks = useAccountLinks()
 const { t } = useI18n()
+
+watch(
+  () => viewportStore.isMobile,
+  (isMobile) => {
+    if (!isMobile) {
+      sidebarStore.setSidebarVisible(false)
+    }
+  },
+)
+
+function restoreMenuButtonFocus() {
+  document.getElementById('mobile-menu-button')?.focus()
+}
 
 const mainLinks = computed(() => [
   { route: 'menu', label: t('nav.menu'), icon: 'pi pi-list' },
@@ -32,7 +47,12 @@ const settingClass =
 <template>
   <Drawer
     v-model:visible="sidebarStore.isSidebarVisible"
-    :pt="{ content: { class: 'flex flex-col gap-6 pb-5' } }"
+    position="right"
+    :pt="{
+      root: { id: 'mobile-sidebar', class: '!w-[88vw] !max-w-[22rem]' },
+      content: { class: 'flex flex-col gap-6 pb-5' },
+    }"
+    @after-hide="restoreMenuButtonFocus"
   >
     <template #header>
       <BrandLogo class="h-8 max-w-48 text-2xl" />
