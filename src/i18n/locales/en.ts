@@ -372,6 +372,10 @@ export const en: typeof ru = {
     gift: 'Gift: {name}',
     items: 'Items',
     discount: 'Discount',
+    promotionHints: 'Promotion hints',
+    previousPromotion: 'Previous promotion',
+    nextPromotion: 'Next promotion',
+    promotionPosition: '{current} of {total}',
   },
   promo: {
     giftChoice: {

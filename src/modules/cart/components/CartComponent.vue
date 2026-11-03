@@ -107,7 +107,7 @@ function goToCatalog() {
         <CartSuggestions class="pt-2" />
 
         <div class="pt-4 pb-2 mt-auto border-t flex flex-col gap-3">
-          <CartPromotions />
+          <CartPromotions hints-mode="carousel" />
           <PromoCodeInput />
           <CartTotals />
         </div>

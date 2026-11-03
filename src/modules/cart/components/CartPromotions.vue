@@ -4,6 +4,9 @@ import { formatPrice } from '@/utils/money'
 import { useCartStore } from '../stores/cart.store'
 import { reasonsText } from '../utils/promoText'
 import { useI18n } from 'vue-i18n'
+import CartPromotionHints from './CartPromotionHints.vue'
+
+withDefaults(defineProps<{ hintsMode?: 'list' | 'carousel' }>(), { hintsMode: 'list' })
 
 const cartStore = useCartStore()
 const { t } = useI18n()
@@ -36,16 +39,20 @@ const summaries = computed(() =>
       </span>
     </div>
 
-    <div
-      v-for="hint in cartStore.hints"
-      :key="hint.promotion_id"
-      class="flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-amber-800"
-    >
-      <i class="pi pi-gift mt-0.5 text-xs" />
-      <span class="min-w-0 flex-1">
-        <span class="font-medium">{{ hint.name }}</span>
-        <span class="block text-xs">{{ reasonsText(hint.reasons) }}</span>
-      </span>
-    </div>
+    <CartPromotionHints v-if="hintsMode === 'carousel'" />
+
+    <template v-else>
+      <div
+        v-for="hint in cartStore.hints"
+        :key="hint.promotion_id"
+        class="flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-amber-800"
+      >
+        <i class="pi pi-gift mt-0.5 text-xs" />
+        <span class="min-w-0 flex-1">
+          <span class="font-medium">{{ hint.name }}</span>
+          <span class="block text-xs">{{ reasonsText(hint.reasons) }}</span>
+        </span>
+      </div>
+    </template>
   </div>
 </template>

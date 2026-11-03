@@ -371,6 +371,10 @@ export const ru = {
     gift: 'В подарок: {name}',
     items: 'Товаров',
     discount: 'Скидка',
+    promotionHints: 'Подсказки об акциях',
+    previousPromotion: 'Предыдущая акция',
+    nextPromotion: 'Следующая акция',
+    promotionPosition: '{current} из {total}',
   },
   promo: {
     giftChoice: {
