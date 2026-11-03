@@ -53,7 +53,7 @@ const extra = computed(() =>
 )
 
 const handleAddToCart = async () => {
-  if (!props.product || !(await flowStore.ensure())) return
+  if (!props.product) return
   try {
     const choice = groups.value.length
       ? selected.value.map((id) => ({ id, quantity: 1 }))
@@ -61,6 +61,7 @@ const handleAddToCart = async () => {
     if (editingLine.value) await cartStore.replaceItem(editingLine.value.key, choice ?? [])
     else await cartStore.addItem(props.product.id!, choice)
     emit('added')
+    if (!flowStore.isPromptOpen && !flowStore.isPickerOpen) void flowStore.ensure()
   } catch (error) {
     toast.add({
       severity: 'error',

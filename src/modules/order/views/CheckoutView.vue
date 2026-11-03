@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import Message from 'primevue/message'
 
 import { useCartStore } from '@/modules/cart/stores/cart.store'
@@ -16,6 +16,7 @@ import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const route = useRoute()
 const openCart = useOpenCart()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
@@ -30,12 +31,37 @@ function jumpToTop() {
 
 onMounted(async () => {
   jumpToTop()
+  if (route.params.orderId) {
+    await orderStore.loadOrder(String(route.params.orderId))
+    return
+  }
+  orderStore.resetOrderState()
   try {
     await cartStore.fetchCart(branchStore.activeBranch?.id, true)
   } catch (e) {
     console.error(e)
   }
 })
+
+watch(
+  () => [route.params.slug, route.params.orderId],
+  async ([slug, id], [oldSlug]) => {
+    if (slug !== oldSlug) orderStore.resetOrderState()
+    if (id) await orderStore.loadOrder(String(id))
+    else orderStore.resetOrderState()
+  },
+)
+onUnmounted(() => orderStore.resetOrderState())
+
+async function submitOrder(form: Parameters<typeof orderStore.createOrder>[0]) {
+  const order = await orderStore.createOrder(form)
+  if (order) {
+    await router.replace({
+      name: 'order-confirmation',
+      params: { slug: route.params.slug, orderId: order.id },
+    })
+  }
+}
 
 watch(() => orderStore.activeStep, jumpToTop, { flush: 'post' })
 watch(
@@ -50,14 +76,6 @@ watch(
     }
   },
 )
-
-onBeforeRouteLeave(() => {
-  if (orderStore.createdOrderId) orderStore.clearCreatedOrder()
-})
-
-onUnmounted(() => {
-  if (orderStore.createdOrderId) orderStore.clearCreatedOrder()
-})
 </script>
 
 <template>
@@ -72,10 +90,26 @@ onUnmounted(() => {
     </Message>
 
     <SkeletonList
-      v-if="cartStore.isLoading && !cartStore.isInitialized"
+      v-if="
+        (cartStore.isLoading && !cartStore.isInitialized && !route.params.orderId) ||
+        (route.params.orderId && orderStore.isLoading)
+      "
       class="flex flex-col gap-3 sm:gap-4"
       item-class="h-40 rounded-3xl!"
     />
+
+    <EmptyState
+      v-else-if="route.params.orderId && step !== 3"
+      icon="pi-exclamation-circle"
+      :title="t('order.success.loadFailed')"
+      :text="t('order.success.loadFailedHint')"
+    >
+      <Button
+        :label="t('common.callUs')"
+        rounded
+        @click="router.push({ name: 'contacts', params: { slug: route.params.slug } })"
+      />
+    </EmptyState>
 
     <EmptyState
       v-else-if="cartStore.isEmpty && step !== 3"
@@ -90,11 +124,7 @@ onUnmounted(() => {
       v-else-if="step !== 3"
       class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-3 sm:gap-4 items-start"
     >
-      <OrderForm
-        :isLoading="orderStore.isLoading"
-        @submit="orderStore.createOrder"
-        @back="openCart"
-      />
+      <OrderForm :isLoading="orderStore.isLoading" @submit="submitOrder" @back="openCart" />
       <aside class="hidden lg:block sticky top-28">
         <OrderComposition />
       </aside>

@@ -65,6 +65,11 @@ const router = createRouter({
           name: 'checkout',
           component: () => import('@/modules/order/views/CheckoutView.vue'),
         },
+        {
+          path: 'checkout/order/:orderId',
+          name: 'order-confirmation',
+          component: () => import('@/modules/order/views/CheckoutView.vue'),
+        },
       ],
     },
     {

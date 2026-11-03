@@ -8,6 +8,7 @@ const props = defineProps<{
   placeholder?: string
   required?: boolean
   class?: string
+  invalid?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -48,5 +49,6 @@ function handleInput(e: Event) {
     @change="handleInput"
     :placeholder="placeholder || '+7 (999) 000-00-00'"
     :required="required"
+    :invalid="invalid"
   />
 </template>

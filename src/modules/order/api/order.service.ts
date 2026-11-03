@@ -21,6 +21,11 @@ export const OrderService = {
     return data.data
   },
 
+  async getOrder(id: string): Promise<Order> {
+    const { data } = await api.get<OrderResponse>(`/client/orders/${id}`)
+    return data.data
+  },
+
   async cancelOrder(id: string): Promise<Order> {
     const { data } = await api.post<OrderResponse>(`/client/orders/${id}/cancel`)
     return data.data

@@ -231,10 +231,13 @@ export const en: typeof ru = {
     },
     form: {
       fullAddress: 'City, street, house',
+      streetHouse: 'Street and house',
+      addressRequired: 'Enter a street and house for delivery',
       entrance: 'Entrance',
       intercom: 'Door code',
       floor: 'Floor',
       apartment: 'Apartment',
+      optionalDetails: 'Courier details are optional',
       comment: 'Address comment',
     },
     summary: {
@@ -242,6 +245,7 @@ export const en: typeof ru = {
       choose: 'Choose',
     },
     deliverHere: 'Order here',
+    confirmAddress: 'Confirm address',
     pickupHere: 'Order here',
     outsideCity: 'This branch delivers only within {city}',
     notOnMap: 'not on the map',
@@ -514,6 +518,7 @@ export const en: typeof ru = {
       addressDelivery: 'Delivery address',
       addressPickup: 'Cafe address',
       phoneCaption: 'Phone number',
+      phoneError: 'Enter your full phone number',
       paymentCaption: 'Payment method',
       contacts: 'Contact details',
       name: 'Your name',
@@ -555,6 +560,8 @@ export const en: typeof ru = {
     },
     success: {
       title: 'Order placed!',
+      loadFailed: 'Could not open the order',
+      loadFailedHint: 'Contact the branch to check your order.',
       number: 'Order number',
       operatorCall: 'The operator will call to confirm',
       hint: 'It usually takes up to {time}. If there is no call, please call us.',

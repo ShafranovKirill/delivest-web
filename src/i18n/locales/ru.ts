@@ -230,10 +230,13 @@ export const ru = {
     },
     form: {
       fullAddress: 'Город, улица, дом',
+      streetHouse: 'Улица и дом',
+      addressRequired: 'Укажите улицу и дом для доставки',
       entrance: 'Подъезд',
       intercom: 'Код двери',
       floor: 'Этаж',
       apartment: 'Квартира',
+      optionalDetails: 'Детали для курьера необязательны',
       comment: 'Комментарий к адресу',
     },
     summary: {
@@ -241,6 +244,7 @@ export const ru = {
       choose: 'Выбрать',
     },
     deliverHere: 'Заказать сюда',
+    confirmAddress: 'Подтвердить адрес',
     pickupHere: 'Заказать сюда',
     outsideCity: 'Этот филиал доставляет только по городу {city}',
     notOnMap: 'нет на карте',
@@ -513,6 +517,7 @@ export const ru = {
       addressDelivery: 'Адрес доставки',
       addressPickup: 'Адрес кафе',
       phoneCaption: 'Номер телефона',
+      phoneError: 'Введите номер телефона полностью',
       paymentCaption: 'Способ оплаты',
       contacts: 'Контактные данные',
       name: 'Ваше имя',
@@ -554,6 +559,8 @@ export const ru = {
     },
     success: {
       title: 'Заказ оформлен!',
+      loadFailed: 'Не удалось открыть заказ',
+      loadFailedHint: 'Обратитесь в филиал, чтобы узнать состояние заказа.',
       number: 'Номер заказа',
       operatorCall: 'Оператор позвонит для подтверждения',
       hint: 'Обычно это занимает до {time}. Если звонка нет — позвоните нам сами.',

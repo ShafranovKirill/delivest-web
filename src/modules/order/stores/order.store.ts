@@ -27,6 +27,7 @@ export const useOrderStore = defineStore('order', () => {
   const activeStep = ref<number>(1)
   const createdOrderId = ref<string | number | null>(null)
   const errorMessage = ref<string | null>(null)
+  let loadVersion = 0
 
   function handleStepChange(step: string | number) {
     const numericStep = Number(step)
@@ -42,6 +43,8 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   function resetOrderState() {
+    loadVersion++
+    isLoading.value = false
     activeStep.value = 1
     createdOrderId.value = null
     lastCreatedOrder.value = null
@@ -49,10 +52,34 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   function clearCreatedOrder() {
+    loadVersion++
+    isLoading.value = false
     createdOrderId.value = null
     lastCreatedOrder.value = null
     activeStep.value = 1
     errorMessage.value = null
+  }
+
+  async function loadOrder(id: string) {
+    if (String(createdOrderId.value) === id && lastCreatedOrder.value) return
+    const version = ++loadVersion
+    isLoading.value = true
+    errorMessage.value = null
+    try {
+      const order = await OrderService.getOrder(id)
+      if (version !== loadVersion) return
+      lastCreatedOrder.value = order
+      createdOrderId.value = order.id
+      activeStep.value = 3
+    } catch {
+      if (version !== loadVersion) return
+      createdOrderId.value = null
+      lastCreatedOrder.value = null
+      activeStep.value = 1
+      errorMessage.value = t('order.success.loadFailed')
+    } finally {
+      if (version === loadVersion) isLoading.value = false
+    }
   }
 
   async function createOrder(form: OrderFormValues): Promise<Order | void> {
@@ -147,6 +174,7 @@ export const useOrderStore = defineStore('order', () => {
     handleStepChange,
     resetOrderState,
     clearCreatedOrder,
+    loadOrder,
     createOrder,
   }
 })

@@ -41,11 +41,10 @@ const handleAdd = async (event: Event) => {
   event.stopPropagation()
   if (!props.product?.id || isPending.value) return
   if (hasModifiers.value) return menuStore.openProductModal(props.product)
-  if (!(await flowStore.ensure())) return
-
   isPending.value = true
   try {
     await cartStore.addItem(String(props.product.id))
+    if (!flowStore.isPromptOpen && !flowStore.isPickerOpen) void flowStore.ensure()
   } catch (error) {
     console.error('[AddToCartSwitch] Failed to add item:', error)
     showError(error)

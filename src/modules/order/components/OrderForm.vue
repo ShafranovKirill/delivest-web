@@ -29,6 +29,7 @@ import { useI18n } from 'vue-i18n'
 import { formatPrice } from '@/utils/money'
 import { useLoyaltyQuery } from '@/modules/account/composables/useLoyaltyQuery'
 import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
+import OrderComposition from './OrderComposition.vue'
 
 export interface OrderFormValues {
   customer_name: string
@@ -60,6 +61,8 @@ const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
+const phoneError = ref(false)
+const compositionOpen = ref(false)
 
 type PickupKind = Extract<OrderFormValues['fulfillment_type'], 'pickup' | 'dine_in'>
 
@@ -94,6 +97,12 @@ const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
 watch(
   () => authStore.client?.phone,
   (phone) => phone && (form.customer_phone = phone),
+)
+watch(
+  () => form.customer_phone,
+  () => {
+    phoneError.value = false
+  },
 )
 
 const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() =>
@@ -288,11 +297,11 @@ function handleSubmit() {
   }
 
   if (!form.customer_phone || form.customer_phone.length < 12) {
-    toast.add({
-      severity: 'error',
-      summary: t('common.error'),
-      detail: t('order.form.required'),
-      life: 3000,
+    phoneError.value = true
+    requestAnimationFrame(() => {
+      const input = document.querySelector<HTMLInputElement>('input[name="phone"]')
+      input?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      input?.focus()
     })
     return
   }
@@ -328,7 +337,11 @@ function handleSubmit() {
         required
         :disabled="authStore.isAuthenticated"
         class="w-full lg:max-w-sm"
+        :invalid="phoneError"
       />
+      <p v-if="phoneError" class="text-sm font-medium text-red-600" role="alert">
+        {{ t('order.form.phoneError') }}
+      </p>
     </div>
 
     <div :class="sectionClass">
@@ -426,28 +439,40 @@ function handleSubmit() {
       <ToggleSwitch v-model="useStars" />
     </label>
 
-    <div class="flex flex-col gap-1.5 text-sm text-gray-600 lg:hidden">
-      <div class="flex justify-between">
+    <div class="lg:hidden">
+      <button
+        type="button"
+        class="mb-3 flex w-full items-center justify-between rounded-2xl bg-gray-100 px-4 py-3 text-left font-semibold"
+        :aria-expanded="compositionOpen"
+        @click="compositionOpen = !compositionOpen"
+      >
         <span>{{ goodsLabel }}</span>
-        <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
-      </div>
-      <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
-        <span>{{ t('cart.discount') }}</span>
-        <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
-      </div>
-      <div v-if="starsToSpend > 0" class="flex justify-between text-amber-700">
-        <span>{{ t('loyalty.spent') }}</span>
-        <span class="tabular-nums">−{{ formatPrice(starsToSpend * 100) }}</span>
-      </div>
-      <div v-if="deliveryFee !== null" class="flex justify-between">
-        <span>{{ t('delivery.line') }}</span>
-        <span class="tabular-nums">
-          {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
-        </span>
-      </div>
-      <div class="flex justify-between text-lg font-extrabold text-gray-950">
-        <span>{{ t('order.form.orderTotal') }}</span>
-        <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>
+        <i :class="compositionOpen ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" />
+      </button>
+      <OrderComposition v-if="compositionOpen" class="mb-3" />
+      <div class="flex flex-col gap-1.5 text-sm text-gray-600">
+        <div class="flex justify-between">
+          <span>{{ goodsLabel }}</span>
+          <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
+        </div>
+        <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
+          <span>{{ t('cart.discount') }}</span>
+          <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
+        </div>
+        <div v-if="starsToSpend > 0" class="flex justify-between text-amber-700">
+          <span>{{ t('loyalty.spent') }}</span>
+          <span class="tabular-nums">−{{ formatPrice(starsToSpend * 100) }}</span>
+        </div>
+        <div v-if="deliveryFee !== null" class="flex justify-between">
+          <span>{{ t('delivery.line') }}</span>
+          <span class="tabular-nums">
+            {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
+          </span>
+        </div>
+        <div class="flex justify-between text-lg font-extrabold text-gray-950">
+          <span>{{ t('order.form.orderTotal') }}</span>
+          <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>
+        </div>
       </div>
     </div>
 

@@ -77,6 +77,7 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
 
 <template>
   <div class="flex flex-col gap-2">
+    <label class="text-sm font-medium text-gray-700">{{ t('fulfillment.form.streetHouse') }}</label>
     <AddressSuggestInput
       :value="inputValue"
       :city="city"
@@ -86,14 +87,19 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
       @edit="editAddress"
     />
     <div class="grid grid-cols-2 gap-2">
-      <InputText
+      <label
         v-for="field in details"
         :key="field"
-        v-model="address[field]"
-        :placeholder="t(`fulfillment.form.${field}`)"
-        :aria-label="t(`fulfillment.form.${field}`)"
-        class="w-full min-w-0"
-      />
+        class="flex min-w-0 flex-col gap-1 text-xs text-gray-600"
+      >
+        {{ t(`fulfillment.form.${field}`) }}
+        <InputText
+          v-model="address[field]"
+          :placeholder="t(`fulfillment.form.${field}`)"
+          class="w-full min-w-0"
+        />
+      </label>
     </div>
+    <p class="text-xs text-gray-500">{{ t('fulfillment.form.optionalDetails') }}</p>
   </div>
 </template>

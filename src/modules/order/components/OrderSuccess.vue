@@ -23,7 +23,14 @@ function handleReturnHome() {
   <div class="mx-auto flex max-w-lg flex-col gap-3 sm:gap-4">
     <OrderSuccessHero :order="orderStore.lastCreatedOrder" />
 
-    <SurfaceCard icon="pi-phone" :title="t('order.success.operatorCall')">
+    <SurfaceCard
+      v-if="
+        orderStore.lastCreatedOrder?.status === 'created' &&
+        !orderStore.lastCreatedOrder.awaiting_payment
+      "
+      icon="pi-phone"
+      :title="t('order.success.operatorCall')"
+    >
       <i18n-t keypath="order.success.hint" tag="p" class="text-sm text-gray-500 leading-relaxed">
         <template #time>
           <span class="font-semibold text-gray-900">{{ t('order.success.hintTime') }}</span>

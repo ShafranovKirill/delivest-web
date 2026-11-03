@@ -5,6 +5,7 @@ import type { Order } from '../../api/order.service'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
+import { orderStatusLabel } from '../../utils/orderStatus'
 
 const props = defineProps<{ order: Order | null }>()
 
@@ -44,6 +45,9 @@ const earned = computed(() => {
         class="rounded-full bg-white px-4 py-1.5 text-sm font-bold text-gray-900 shadow-xs"
       >
         {{ t('order.number', { number: order.short_number }) }}
+      </span>
+      <span v-if="order" class="text-sm font-semibold text-gray-700">
+        {{ orderStatusLabel(order) }}
       </span>
       <span
         v-if="earned > 0"

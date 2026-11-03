@@ -110,15 +110,16 @@ function chipClass(active: boolean) {
       >
         {{ slotLabel(slot) }}
       </button>
-      <button
-        type="button"
-        class="shrink-0 snap-start whitespace-nowrap rounded-2xl border-2 px-4 py-3 text-sm font-semibold transition-colors cursor-pointer"
-        :class="chipClass(customSelected)"
-        @click="openDialog"
-      >
-        {{ customLabel }}
-      </button>
     </div>
+    <button
+      v-if="days.length"
+      type="button"
+      class="mt-2 rounded-2xl border-2 px-4 py-3 text-sm font-semibold transition-colors cursor-pointer"
+      :class="chipClass(customSelected)"
+      @click="openDialog"
+    >
+      {{ customLabel }}
+    </button>
     <p v-else class="text-sm text-gray-500">{{ t('order.timeSelect.noSlots') }}</p>
 
     <p v-if="days.length" class="mt-2 text-xs text-gray-500 flex flex-wrap gap-x-3 gap-y-1">

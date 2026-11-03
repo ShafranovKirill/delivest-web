@@ -40,11 +40,14 @@ function confirm() {
 <template>
   <AddressEditor v-model="address" :city="city" :zones="zones" :pin-note="pinNote">
     <template #default="{ ready, locating }">
+      <p v-if="!ready" class="text-sm font-medium text-red-500">
+        {{ t('fulfillment.form.addressRequired') }}
+      </p>
       <p v-if="ready && delivery.notDelivered.value" class="text-sm font-medium text-red-500">
         {{ delivery.hint.value }}
       </p>
       <Button
-        :label="t('fulfillment.deliverHere')"
+        :label="t('fulfillment.confirmAddress')"
         :disabled="!ready || delivery.notDelivered.value"
         :loading="locating"
         class="h-12 w-full rounded-full! font-semibold"
