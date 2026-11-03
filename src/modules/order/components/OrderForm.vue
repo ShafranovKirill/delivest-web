@@ -74,6 +74,7 @@ const form = reactive({
   cook_by: null as string | null,
   call_operator_for_address: false,
 })
+const draftKey = 'checkout-draft'
 
 const loyalty = useLoyaltyQuery()
 const starsLabel = useStarsLabel()
@@ -178,6 +179,48 @@ const goodsLabel = computed(() => {
 const deliveryFee = computed(() => (isDelivery.value ? delivery.price.value : null))
 const loyaltyRate = computed(() => branchStore.activeBranch?.branch_info?.loyalty)
 const useStars = ref(false)
+let restoredCartId: string | null = null
+watch(
+  [() => cartStore.cart?.id, () => branchStore.activeBranch?.id],
+  ([cartId, branchId]) => {
+    if (!authStore.isRequired || !cartId || !branchId || cartId === restoredCartId) return
+    restoredCartId = cartId
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(draftKey) ?? 'null')
+      if (saved?.branchId === branchId && saved?.cartId === cartId) {
+        Object.assign(form, saved.form)
+        if (saved.pickupKind === 'pickup' || saved.pickupKind === 'dine_in') {
+          pickupKind.value = saved.pickupKind
+        }
+        useStars.value = saved.useStars === true
+      }
+    } catch {
+      // Checkout remains available when storage is unavailable.
+    }
+  },
+  { immediate: true },
+)
+watch(
+  [form, pickupKind, useStars],
+  () => {
+    if (!authStore.isRequired || !cartStore.cart?.id || !branchStore.activeBranch?.id) return
+    try {
+      sessionStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          branchId: branchStore.activeBranch?.id,
+          cartId: cartStore.cart?.id,
+          form,
+          pickupKind: pickupKind.value,
+          useStars: useStars.value,
+        }),
+      )
+    } catch {
+      // Checkout remains available when storage is unavailable.
+    }
+  },
+  { deep: true },
+)
 const maxStars = computed(() => {
   const rate = loyaltyRate.value
   if (!rate?.spend_enabled || !rate.max_percent || !loyalty.data.value?.enabled) return 0
@@ -230,6 +273,20 @@ function openAddressPicker() {
 }
 
 function handleSubmit() {
+  if (authStore.isRequired && !authStore.isAuthenticated) {
+    if (authStore.isEnabled) {
+      authStore.openModal()
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: t('common.error'),
+        detail: t('order.authUnavailable'),
+        life: 5000,
+      })
+    }
+    return
+  }
+
   if (!form.customer_phone || form.customer_phone.length < 12) {
     toast.add({
       severity: 'error',

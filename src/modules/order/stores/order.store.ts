@@ -11,6 +11,7 @@ import { ACTIVE_ORDERS_KEY } from '../composables/useActiveOrdersQuery'
 import { MY_ORDERS_KEY } from '@/modules/account/composables/useMyOrdersQuery'
 import { ADDRESSES_KEY } from '@/modules/account/composables/useAddressesQuery'
 import { t } from '@/i18n'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { emptyDeliveryAddress, toAddressPayload } from '@/modules/fulfillment/utils/deliveryAddress'
 
 const PRICE_ERRORS = ['price_changed', 'promo_unavailable', 'promo_gift_not_available']
@@ -18,6 +19,7 @@ const PRICE_ERRORS = ['price_changed', 'promo_unavailable', 'promo_gift_not_avai
 export const useOrderStore = defineStore('order', () => {
   const branchStore = useBranchStore()
   const cartStore = useCartStore()
+  const authStore = useAuthStore()
 
   const isLoading = ref(false)
   const lastCreatedOrder = ref<Order | null>(null)
@@ -119,11 +121,15 @@ export const useOrderStore = defineStore('order', () => {
 
       return order
     } catch (error: unknown) {
+      const errorCode = getApiErrorCode(error)
       errorMessage.value = getApiErrorMessage(error, t('order.failed'))
-      if (getApiErrorCode(error) === 'fulfillment_unavailable') {
+      if (errorCode === 'client_auth_required' || errorCode === 'unauthorized') {
+        authStore.openModal()
+      }
+      if (errorCode === 'fulfillment_unavailable') {
         await branchStore.refreshBranches().catch(() => null)
       }
-      if (PRICE_ERRORS.includes(getApiErrorCode(error) ?? '')) {
+      if (PRICE_ERRORS.includes(errorCode ?? '')) {
         await cartStore.fetchCart(branchId, true).catch(() => null)
       }
       throw error

@@ -38,6 +38,18 @@ onMounted(async () => {
 })
 
 watch(() => orderStore.activeStep, jumpToTop, { flush: 'post' })
+watch(
+  () => orderStore.createdOrderId,
+  (id) => {
+    if (id) {
+      try {
+        sessionStorage.removeItem('checkout-draft')
+      } catch {
+        // Checkout remains available when storage is unavailable.
+      }
+    }
+  },
+)
 
 onBeforeRouteLeave(() => {
   if (orderStore.createdOrderId) orderStore.clearCreatedOrder()

@@ -871,6 +871,10 @@
                 "description": "Клиенты могут войти по звонку; иначе все заказывают как гости",
                 "type": "boolean"
               },
+              "client_auth_required": {
+                "description": "Клиенты должны войти перед оформлением заказа",
+                "type": "boolean"
+              },
               "dark_primary_color": {
                 "description": "Цвет для тёмной темы; если пусто, подбирается из основного",
                 "example": "#b86a69",
@@ -913,6 +917,7 @@
               "logo_dark_url",
               "address_map",
               "client_auth",
+              "client_auth_required",
               "login_call_mode",
               "rating",
               "legal",
@@ -1242,6 +1247,7 @@
               "order_not_cancellable",
               "too_many_requests",
               "unauthorized",
+              "client_auth_required",
               "invalid_phone",
               "call_failed",
               "confirmation_not_found",
@@ -2326,6 +2332,12 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/OrderResponse" } }
             },
             "description": "Созданный заказ"
+          },
+          "401": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Требуется вход"
           },
           "422": {
             "content": {

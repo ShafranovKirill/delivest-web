@@ -1417,6 +1417,8 @@ export interface components {
         address_map: boolean
         /** @description Клиенты могут войти по звонку; иначе все заказывают как гости */
         client_auth: boolean
+        /** @description Клиенты должны войти перед оформлением заказа */
+        client_auth_required: boolean
         /**
          * @description Цвет для тёмной темы; если пусто, подбирается из основного
          * @example #b86a69
@@ -1712,6 +1714,7 @@ export interface components {
         | 'order_not_cancellable'
         | 'too_many_requests'
         | 'unauthorized'
+        | 'client_auth_required'
         | 'invalid_phone'
         | 'call_failed'
         | 'confirmation_not_found'
@@ -2701,6 +2704,15 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['OrderResponse']
+        }
+      }
+      /** @description Требуется вход */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
         }
       }
       /** @description Ошибка создания заказа */

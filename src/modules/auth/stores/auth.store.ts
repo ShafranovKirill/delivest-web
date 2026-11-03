@@ -15,6 +15,7 @@ export const useAuthStore = defineStore(
     const franchiseStore = useFranchiseStore()
 
     const isEnabled = computed(() => franchiseStore.clientAuth)
+    const isRequired = computed(() => franchiseStore.clientAuthRequired)
     const isAuthenticated = computed(() =>
       Boolean(isEnabled.value && refreshToken.value && client.value),
     )
@@ -61,6 +62,7 @@ export const useAuthStore = defineStore(
       lastPhone,
       isModalOpen,
       isEnabled,
+      isRequired,
       isAuthenticated,
       setSession,
       signIn,

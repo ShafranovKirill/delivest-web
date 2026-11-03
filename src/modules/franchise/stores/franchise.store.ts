@@ -18,6 +18,7 @@ export const useFranchiseStore = defineStore(
     const rating = computed(() => franchise.value?.rating ?? null)
     const loginCallMode = computed(() => franchise.value?.login_call_mode ?? 'inbound')
     const clientAuth = computed(() => franchise.value?.client_auth ?? true)
+    const clientAuthRequired = computed(() => franchise.value?.client_auth_required ?? false)
 
     async function load() {
       try {
@@ -43,6 +44,7 @@ export const useFranchiseStore = defineStore(
       logoDarkUrl,
       addressMap,
       clientAuth,
+      clientAuthRequired,
       rating,
       loginCallMode,
       init,

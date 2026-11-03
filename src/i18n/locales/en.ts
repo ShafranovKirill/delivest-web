@@ -99,6 +99,7 @@ export const en: typeof ru = {
       order_failed: 'Failed to place the order. Please try again',
       too_many_requests: 'Too many requests. Wait a minute and try again',
       unauthorized: 'Please sign in',
+      client_auth_required: 'Sign in to place your order. Your cart and form are saved',
       invalid_phone: 'Check the phone number',
       call_failed: 'Failed to start verification. Try again later',
       invalid_code: 'Wrong code',
@@ -433,6 +434,7 @@ export const en: typeof ru = {
     },
   },
   order: {
+    authUnavailable: 'Sign-in is unavailable. Try again later or contact the restaurant',
     composition: 'Order contents',
     cancel: { action: 'Cancel the order', confirm: 'Yes, cancel' },
     checkout: 'Checkout',
