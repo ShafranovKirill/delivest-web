@@ -4,23 +4,26 @@ import AutoComplete, { type AutoCompleteOptionSelectEvent } from 'primevue/autoc
 import { useAddressSuggestions } from '../../composables/useAddressSuggestions'
 import type { GeoAddress } from '../../api/geo.service'
 
-const props = defineProps<{ value: string; city: string | null; placeholder: string }>()
-const emit = defineEmits<{ select: [address: GeoAddress]; edit: [] }>()
+const props = defineProps<{ value: string; city: string | null; placeholder: string; suggest: boolean }>()
+const emit = defineEmits<{ select: [address: GeoAddress]; edit: [value: string] }>()
 
 const query = ref(props.value)
-const { suggestions, search } = useAddressSuggestions(() => props.city)
+const { suggestions, search } = useAddressSuggestions(() => {
+  const prefix = props.city && `${props.city},`.toLowerCase()
+  return prefix && query.value.trimStart().toLowerCase().startsWith(prefix) ? props.city : null
+})
 
 watch(
   () => props.value,
   (value) => {
-    if (value) query.value = value
+    query.value = value
   },
 )
 
 function onInput(value: unknown) {
   if (typeof value !== 'string') return
   query.value = value
-  emit('edit')
+  emit('edit', value)
 }
 
 function onSelect({ value }: AutoCompleteOptionSelectEvent) {
@@ -30,6 +33,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
     emit('select', address)
   } else {
     query.value = `${address.value}, `
+    emit('edit', query.value)
   }
 }
 </script>
@@ -44,7 +48,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
     :min-length="4"
     fluid
     @update:model-value="onInput"
-    @complete="search($event.query)"
+    @complete="suggest && search($event.query)"
     @option-select="onSelect"
   />
 </template>

@@ -27,7 +27,7 @@ export function useAddressEditor(
   )
 
   const { isLocating, locate, remember } = useReverseGeocode((geo, [longitude, latitude]) => {
-    address.value = { ...withGeo(address.value, geo), longitude, latitude }
+    address.value = { ...(geo ? withGeo(address.value, geo) : address.value), longitude, latitude }
   })
 
   remember(lngLatOf(address.value))

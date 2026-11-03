@@ -18,8 +18,8 @@ export function useAddressSuggestions(city: () => string | null) {
   const cache = new Map<string, GeoAddress[]>()
   let lastKey = ''
 
-  async function fetch(key: string, query: string) {
-    if (!cache.has(key)) cache.set(key, await GeoService.suggest(query, city()).catch(() => []))
+  async function fetch(key: string, query: string, locality: string | null) {
+    if (!cache.has(key)) cache.set(key, await GeoService.suggest(query, locality).catch(() => []))
     if (key === lastKey) suggestions.value = cache.get(key)!
   }
 
@@ -27,12 +27,13 @@ export function useAddressSuggestions(city: () => string | null) {
 
   function search(query: string) {
     const normalized = normalize(query)
-    const key = `${city() ?? ''}|${normalized}`
+    const locality = city()
+    const key = `${locality ?? ''}|${normalized}`
     if (normalized.length < MIN_LENGTH || isUnfinished(query) || key === lastKey) return
 
     lastKey = key
     if (cache.has(key)) suggestions.value = cache.get(key)!
-    else request(key, query)
+    else request(key, query, locality)
   }
 
   return { suggestions, search }

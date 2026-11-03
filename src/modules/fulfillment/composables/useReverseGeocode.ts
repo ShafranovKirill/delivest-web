@@ -8,14 +8,14 @@ const DELAY_MS = 700
 const MIN_ZOOM = 15
 const MIN_SHIFT_M = 20
 
-export function useReverseGeocode(onFound: (address: GeoAddress, point: LngLat) => void) {
+export function useReverseGeocode(onFound: (address: GeoAddress | null, point: LngLat) => void) {
   const isLocating = ref(false)
   let lastPoint: LngLat | null = null
 
   async function fetch(point: LngLat) {
     try {
       const address = await GeoService.reverse(point[1], point[0])
-      if (address && point === lastPoint) onFound(address, point)
+      if (point === lastPoint) onFound(address, point)
     } catch {
       return
     } finally {

@@ -1,3 +1,4 @@
+import { sameCity } from '../utils/deliveryAddress'
 import { api } from '@/api/client'
 import type { components } from '@/api/types'
 
@@ -7,10 +8,18 @@ type Envelope<T> = { data: T }
 
 export const GeoService = {
   async suggest(query: string, city: string | null): Promise<GeoAddress[]> {
+    const scopedQuery = city && !query.toLowerCase().includes(city.toLowerCase())
+      ? `${city} ${query}`
+      : query
     const { data } = await api.get<Envelope<GeoAddress[]>>('/client/geo/suggest', {
-      params: { query, city: city ?? undefined },
+      params: { query: scopedQuery, city: city ?? undefined },
     })
-    return data.data
+    if (data.data.length || !city) return data.data
+
+    const { data: fallback } = await api.get<Envelope<GeoAddress[]>>('/client/geo/suggest', {
+      params: { query: scopedQuery },
+    })
+    return fallback.data.filter((address) => address.city && sameCity(address.city, city))
   },
 
   async reverse(latitude: number, longitude: number): Promise<GeoAddress | null> {

@@ -229,7 +229,7 @@ export const ru = {
       title: 'Куда привезти?',
     },
     form: {
-      streetAndHouse: 'Улица и дом',
+      fullAddress: 'Город, улица, дом',
       entrance: 'Подъезд',
       intercom: 'Код двери',
       floor: 'Этаж',

@@ -230,7 +230,7 @@ export const en: typeof ru = {
       title: 'Where to deliver?',
     },
     form: {
-      streetAndHouse: 'Street and house',
+      fullAddress: 'City, street, house',
       entrance: 'Entrance',
       intercom: 'Door code',
       floor: 'Floor',
