@@ -64,8 +64,11 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   async function loadOrder(id: string) {
-    if (String(createdOrderId.value) === id && lastCreatedOrder.value) return
+    const cached = String(createdOrderId.value) === id && lastCreatedOrder.value
+    const hadPendingRequest = isLoading.value
     const version = ++loadVersion
+    submitVersion++
+    if (cached && !hadPendingRequest) return
     isLoading.value = true
     errorMessage.value = null
     try {
