@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import Button from 'primevue/button'
 import { useI18n } from 'vue-i18n'
 import AddressEditor from './AddressEditor.vue'
@@ -18,8 +18,19 @@ const flowStore = useFulfillmentFlowStore()
 const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
 
 const address = ref<DeliveryAddress>({
-  ...(fulfillmentStore.deliveryAddress ?? emptyDeliveryAddress(city.value ?? '')),
+  ...(flowStore.addressDrafts[branchStore.activeBranch?.id ?? ''] ??
+    fulfillmentStore.deliveryAddress ??
+    emptyDeliveryAddress(city.value ?? '')),
 })
+
+watch(
+  address,
+  (value) => {
+    const branchId = branchStore.activeBranch?.id
+    if (branchId) flowStore.saveAddressDraft(branchId, value)
+  },
+  { deep: true },
+)
 
 const delivery = useDeliveryQuote(address)
 const zones = useDeliveryZones()
@@ -33,6 +44,7 @@ function confirm() {
   if (!branchId) return
 
   fulfillmentStore.choose(branchId, { type: 'delivery', address: { ...address.value } })
+  flowStore.clearAddressDraft(branchId)
   flowStore.complete()
 }
 </script>

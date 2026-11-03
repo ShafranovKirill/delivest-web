@@ -61,6 +61,7 @@ const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
+const phoneSection = ref<HTMLElement | null>(null)
 const phoneError = ref(false)
 const compositionOpen = ref(false)
 
@@ -299,7 +300,7 @@ function handleSubmit() {
   if (!form.customer_phone || form.customer_phone.length < 12) {
     phoneError.value = true
     requestAnimationFrame(() => {
-      const input = document.querySelector<HTMLInputElement>('input[name="phone"]')
+      const input = phoneSection.value?.querySelector<HTMLInputElement>('input[name="phone"]')
       input?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       input?.focus()
     })
@@ -327,10 +328,10 @@ function handleSubmit() {
 </script>
 
 <template>
-  <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
+  <form class="flex flex-col gap-6" novalidate @submit.prevent="handleSubmit">
     <h2 class="text-2xl font-extrabold text-gray-950">{{ headline }}</h2>
 
-    <div :class="sectionClass">
+    <div ref="phoneSection" :class="sectionClass">
       <p :class="captionClass">{{ t('order.form.phoneCaption') }}</p>
       <PhoneInput
         v-model="form.customer_phone"

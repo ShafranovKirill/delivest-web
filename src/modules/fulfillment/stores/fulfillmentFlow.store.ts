@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useFulfillmentStore } from './fulfillment.store'
+import type { DeliveryAddress } from '../utils/deliveryAddress'
 
 export type PickerMode = 'delivery' | 'pickup'
 
@@ -12,6 +13,15 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
   const isPromptOpen = ref(false)
   const isPickerOpen = ref(false)
   const pickerMode = ref<PickerMode>('delivery')
+  const addressDrafts = ref<Record<string, DeliveryAddress>>({})
+
+  function saveAddressDraft(branchId: string, address: DeliveryAddress) {
+    addressDrafts.value[branchId] = { ...address }
+  }
+
+  function clearAddressDraft(branchId: string) {
+    delete addressDrafts.value[branchId]
+  }
 
   let pending: ((chosen: boolean) => void) | null = null
 
@@ -74,6 +84,9 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
     isPromptOpen,
     isPickerOpen,
     pickerMode,
+    addressDrafts,
+    saveAddressDraft,
+    clearAddressDraft,
     ensure,
     openPicker,
     complete,

@@ -54,12 +54,15 @@ watch(
 onUnmounted(() => orderStore.resetOrderState())
 
 async function submitOrder(form: Parameters<typeof orderStore.createOrder>[0]) {
+  const checkoutPath = route.fullPath
+  const slug = route.params.slug
   const order = await orderStore.createOrder(form)
-  if (order) {
+  if (order && route.fullPath === checkoutPath) {
     await router.replace({
       name: 'order-confirmation',
-      params: { slug: route.params.slug, orderId: order.id },
+      params: { slug, orderId: order.id },
     })
+    if (order.payment?.confirmation_url) window.location.assign(order.payment.confirmation_url)
   }
 }
 

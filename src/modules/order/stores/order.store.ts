@@ -28,6 +28,7 @@ export const useOrderStore = defineStore('order', () => {
   const createdOrderId = ref<string | number | null>(null)
   const errorMessage = ref<string | null>(null)
   let loadVersion = 0
+  let submitVersion = 0
 
   function handleStepChange(step: string | number) {
     const numericStep = Number(step)
@@ -44,6 +45,7 @@ export const useOrderStore = defineStore('order', () => {
 
   function resetOrderState() {
     loadVersion++
+    submitVersion++
     isLoading.value = false
     activeStep.value = 1
     createdOrderId.value = null
@@ -53,6 +55,7 @@ export const useOrderStore = defineStore('order', () => {
 
   function clearCreatedOrder() {
     loadVersion++
+    submitVersion++
     isLoading.value = false
     createdOrderId.value = null
     lastCreatedOrder.value = null
@@ -105,6 +108,7 @@ export const useOrderStore = defineStore('order', () => {
     }
 
     isLoading.value = true
+    const version = ++submitVersion
 
     const shouldSendAddress =
       form.fulfillment_type === 'delivery' && !form.call_operator_for_address && form.address
@@ -134,20 +138,28 @@ export const useOrderStore = defineStore('order', () => {
 
     try {
       const order = await OrderService.createOrder(payload)
+      if (version !== submitVersion) {
+        if (branchStore.activeBranch?.id === branchId) {
+          void cartStore.fetchCart(branchId, true).catch(console.error)
+        }
+        queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
+        queryClient.invalidateQueries({ queryKey: MY_ORDERS_KEY })
+        return
+      }
       lastCreatedOrder.value = order
       createdOrderId.value = order.id
       activeStep.value = 3
 
-      await cartStore.fetchCart(branchId, true)
+      void cartStore.fetchCart(branchId, true).catch((error) => {
+        console.error('[OrderStore] Failed to refresh cart after order creation:', error)
+      })
       queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
       queryClient.invalidateQueries({ queryKey: MY_ORDERS_KEY })
       queryClient.invalidateQueries({ queryKey: ADDRESSES_KEY })
 
-      const paymentUrl = order.payment?.confirmation_url
-      if (paymentUrl) window.location.assign(paymentUrl)
-
       return order
     } catch (error: unknown) {
+      if (version !== submitVersion) return
       const errorCode = getApiErrorCode(error)
       errorMessage.value = getApiErrorMessage(error, t('order.failed'))
       if (errorCode === 'client_auth_required' || errorCode === 'unauthorized') {
@@ -161,7 +173,7 @@ export const useOrderStore = defineStore('order', () => {
       }
       throw error
     } finally {
-      isLoading.value = false
+      if (version === submitVersion) isLoading.value = false
     }
   }
 
