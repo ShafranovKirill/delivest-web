@@ -565,11 +565,8 @@ export const en: typeof ru = {
   stock: {
     title: 'Promotions',
     single: 'Promotion',
-    subtitle: 'Discounts and special offers',
     toProduct: 'Go to product',
     running: 'Running now',
-    runningHint: 'The discount is applied in the cart, no promo code needed',
-    automatic: 'No promo code',
     until: 'until {date}',
     specials: 'Special offers',
     emptyTitle: 'No promotions right now',

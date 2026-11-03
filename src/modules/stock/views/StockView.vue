@@ -23,7 +23,7 @@ const isEmpty = computed(() => !stocks.value.length && !promotions.value.length)
 </script>
 
 <template>
-  <PageShell :title="t('stock.title')" :subtitle="t('stock.subtitle')" width="wide">
+  <PageShell :title="t('stock.title')" width="wide">
     <SkeletonList
       v-if="isLoading"
       :count="2"
@@ -38,27 +38,24 @@ const isEmpty = computed(() => !stocks.value.length && !promotions.value.length)
       :text="t('stock.emptyText')"
     />
 
-    <div v-else class="flex flex-col gap-8 sm:gap-10">
-      <section v-if="promotions.length">
-        <h2 class="text-xl sm:text-2xl font-extrabold text-gray-950">{{ t('stock.running') }}</h2>
-        <p class="mt-1 text-sm text-gray-500">{{ t('stock.runningHint') }}</p>
-        <div class="mt-4 grid gap-3 sm:grid-cols-2">
-          <RunningPromotionCard
-            v-for="promotion in promotions"
-            :key="promotion.id"
-            :promotion="promotion"
-          />
-        </div>
-      </section>
-
-      <section v-if="stocks.length">
-        <h2 class="text-xl sm:text-2xl font-extrabold text-gray-950">{{ t('stock.specials') }}</h2>
-        <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-1">
+    <div v-else class="flex flex-col gap-6 sm:gap-8">
+      <section v-if="stocks.length" :aria-label="t('stock.specials')">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-1">
           <StoryCard
             v-for="stock in stocks"
             :key="stock.id"
             :story="stock"
             @open="open(stock.id!)"
+          />
+        </div>
+      </section>
+
+      <section v-if="promotions.length" :aria-label="t('stock.running')">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <RunningPromotionCard
+            v-for="promotion in promotions"
+            :key="promotion.id"
+            :promotion="promotion"
           />
         </div>
       </section>

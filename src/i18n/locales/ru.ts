@@ -564,11 +564,8 @@ export const ru = {
   stock: {
     title: 'Акции',
     single: 'Акция',
-    subtitle: 'Скидки и спецпредложения',
     toProduct: 'Перейти к товару',
     running: 'Действуют сейчас',
-    runningHint: 'Скидка применится в корзине сама, промокод вводить не нужно',
-    automatic: 'Без промокода',
     until: 'до {date}',
     specials: 'Спецпредложения',
     emptyTitle: 'Сейчас акций нет',

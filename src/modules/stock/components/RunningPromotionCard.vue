@@ -27,14 +27,9 @@ const endsAt = computed(() =>
       <p v-if="promotion.description" class="mt-1 text-sm text-gray-600 leading-relaxed">
         {{ promotion.description }}
       </p>
-      <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-        <span class="rounded-full bg-green-50 px-2.5 py-1 text-green-700">
-          {{ t('stock.automatic') }}
-        </span>
-        <span v-if="endsAt" class="rounded-full bg-white px-2.5 py-1 text-gray-600 shadow-xs">
-          {{ t('stock.until', { date: endsAt }) }}
-        </span>
-      </div>
+      <span v-if="endsAt" class="mt-3 inline-block rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 shadow-xs">
+        {{ t('stock.until', { date: endsAt }) }}
+      </span>
     </div>
   </article>
 </template>
