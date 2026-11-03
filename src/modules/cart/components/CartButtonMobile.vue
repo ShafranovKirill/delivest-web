@@ -20,6 +20,6 @@ const formattedTotal = computed(() => {
     @click="openCartModal"
   >
     <i class="pi pi-shopping-bag text-xl! shrink-0"></i>
-    <span class="font-medium whitespace-nowrap text-base">{{ formattedTotal }}</span>
+    <span class="font-brand font-medium whitespace-nowrap text-[15px]">{{ formattedTotal }}</span>
   </Button>
 </template>
