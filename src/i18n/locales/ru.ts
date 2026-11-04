@@ -231,12 +231,10 @@ export const ru = {
     form: {
       fullAddress: 'Город, улица, дом',
       streetHouse: 'Улица и дом',
-      addressRequired: 'Укажите улицу и дом для доставки',
       entrance: 'Подъезд',
       intercom: 'Код двери',
       floor: 'Этаж',
       apartment: 'Квартира',
-      optionalDetails: 'Детали для курьера необязательны',
       comment: 'Комментарий к адресу',
     },
     summary: {
@@ -258,10 +256,11 @@ export const ru = {
     minutes: '{minutes} мин',
     select: {
       title: 'Выберите филиал',
-      subtitle: 'Меню и время доставки зависят от заведения',
       empty: 'Сейчас нет доступных филиалов',
       loadFailed: 'Не удалось загрузить список филиалов',
       selectFailed: 'Не удалось сменить филиал. Попробуйте ещё раз',
+      retry: 'Повторить',
+      current: 'Текущий филиал',
     },
     closed: {
       until: 'Закрыто до {time}',

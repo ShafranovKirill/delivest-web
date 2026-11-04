@@ -232,12 +232,10 @@ export const en: typeof ru = {
     form: {
       fullAddress: 'City, street, house',
       streetHouse: 'Street and house',
-      addressRequired: 'Enter a street and house for delivery',
       entrance: 'Entrance',
       intercom: 'Door code',
       floor: 'Floor',
       apartment: 'Apartment',
-      optionalDetails: 'Courier details are optional',
       comment: 'Address comment',
     },
     summary: {
@@ -259,10 +257,11 @@ export const en: typeof ru = {
     minutes: '{minutes} min',
     select: {
       title: 'Choose a branch',
-      subtitle: 'The menu and delivery time depend on the restaurant',
       empty: 'No branches available right now',
       loadFailed: 'Failed to load the list of branches',
       selectFailed: 'Failed to change the branch. Please try again',
+      retry: 'Try again',
+      current: 'Current branch',
     },
     closed: {
       until: 'Closed until {time}',

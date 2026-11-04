@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
 import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
+import BranchSelectRow from './BranchSelectRow.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -14,34 +15,36 @@ const toast = useToast()
 const branchStore = useBranchStore()
 
 const loading = ref(false)
+const loadFailed = ref(false)
 const selectingId = ref<string | null>(null)
-
-const activeBranches = computed(() => {
-  return branchStore.branches.filter((b) => b.is_active)
-})
 
 function isSelected(branch: Branch) {
   return branchStore.activeBranch?.id === branch.id
 }
 
+async function load() {
+  loading.value = true
+  loadFailed.value = false
+
+  try {
+    await branchStore.refreshBranches()
+  } catch {
+    loadFailed.value = true
+    toast.add({
+      severity: 'error',
+      summary: t('common.error'),
+      detail: t('branch.select.loadFailed'),
+      life: 3000,
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
 watch(
   () => branchStore.isModalOpen,
-  async (isOpen) => {
-    if (isOpen && !branchStore.isInitialized) {
-      loading.value = true
-      try {
-        await branchStore.initBranches()
-      } catch {
-        toast.add({
-          severity: 'error',
-          summary: t('common.error'),
-          detail: t('branch.select.loadFailed'),
-          life: 3000,
-        })
-      } finally {
-        loading.value = false
-      }
-    }
+  (isOpen) => {
+    if (isOpen) void load()
   },
 )
 
@@ -51,6 +54,7 @@ async function handleSelect(branch: Branch) {
     return
   }
 
+  if (selectingId.value) return
   selectingId.value = branch.id
 
   try {
@@ -74,56 +78,44 @@ async function handleSelect(branch: Branch) {
   <Dialog
     v-model:visible="branchStore.isModalOpen"
     :dismissable-mask="true"
+    :close-on-escape="true"
     modal
     :header="t('branch.select.title')"
     class="w-[90vw] max-w-lg"
   >
-    <div class="space-y-2 pt-2">
-      <SkeletonList v-if="loading" class="flex flex-col gap-2" item-class="h-16 rounded-2xl!" />
+    <div class="max-h-[70vh] overflow-y-auto pt-1">
+      <SkeletonList v-if="loading" class="flex flex-col gap-2" item-class="h-14 rounded-2xl!" />
 
-      <template v-else-if="activeBranches.length > 0">
-        <button
-          v-for="branch in activeBranches"
+      <div v-else-if="branchStore.branches.length" class="flex flex-col gap-2">
+        <BranchSelectRow
+          v-for="branch in branchStore.branches.filter((item) => item.is_active)"
           :key="branch.id"
-          type="button"
-          :disabled="selectingId === branch.id"
-          @click="handleSelect(branch)"
-          class="w-full text-left p-3.5 rounded-xl border border-gray-200 hover:border-(--p-primary-500) transition-all flex items-center justify-between group disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-          :class="{
-            'border-(--p-primary-500) bg-(--p-primary-50)/20 font-semibold': isSelected(branch),
-          }"
-        >
-          <div class="flex items-center space-x-2 min-w-0 pr-3">
-            <i
-              class="pi pi-map-marker shrink-0 transition-colors"
-              :class="
-                isSelected(branch)
-                  ? 'text-[var(--p-primary-500)]'
-                  : 'text-gray-400 group-hover:text-[var(--p-primary-500)]'
-              "
-            ></i>
-
-            <span class="text-sm truncate shrink-0">
-              {{ branch.name }}
-            </span>
-          </div>
-
-          <div class="shrink-0 flex items-center">
-            <i
-              v-if="selectingId === branch.id"
-              class="pi pi-spin pi-spinner text-sm text-(--p-primary-500)"
-            ></i>
-            <i
-              v-else-if="isSelected(branch)"
-              class="pi pi-check text-sm text-(--p-primary-500)"
-            ></i>
-          </div>
-        </button>
-      </template>
-
-      <div v-else class="text-center py-6 text-gray-500 text-sm">
-        {{ t('branch.select.empty') }}
+          :branch="branch"
+          :selected="isSelected(branch)"
+          :selecting="selectingId === branch.id"
+          @select="handleSelect(branch)"
+        />
       </div>
+
+      <div v-else class="py-6 text-center">
+        <p class="text-sm text-gray-500">{{ t('branch.select.empty') }}</p>
+        <Button
+          :label="t('branch.select.retry')"
+          class="mt-4 rounded-full! font-semibold"
+          @click="load"
+        />
+      </div>
+
+      <p v-if="loadFailed" class="mt-3 text-center text-sm text-red-500">
+        {{ t('branch.select.loadFailed') }}
+        <button
+          type="button"
+          class="ml-1 cursor-pointer font-semibold underline underline-offset-2"
+          @click="load"
+        >
+          {{ t('branch.select.retry') }}
+        </button>
+      </p>
     </div>
   </Dialog>
 </template>

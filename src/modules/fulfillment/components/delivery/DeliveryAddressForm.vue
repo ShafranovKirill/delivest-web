@@ -100,6 +100,5 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
         />
       </label>
     </div>
-    <p class="text-xs text-gray-500">{{ t('fulfillment.form.optionalDetails') }}</p>
   </div>
 </template>
