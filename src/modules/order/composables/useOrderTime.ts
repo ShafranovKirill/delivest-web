@@ -1,7 +1,8 @@
-import { ref, computed, onMounted, onUnmounted, type Ref } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, type Ref } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { WorkingHoursMap } from '@/modules/branch/composables/useBranchSchedule'
 import { addDays, isOpenAt, workWindow } from '@/modules/branch/utils/workWindow'
+import { zonedDate } from '@/modules/branch/utils/zonedTime'
 import { intlLocale, t } from '@/i18n'
 
 export type Fulfillment = 'delivery' | 'pickup' | 'dine_in'
@@ -48,13 +49,16 @@ function sameDay(a: Date, b: Date): boolean {
 
 export function useOrderTime(fulfillment: Ref<Fulfillment>) {
   const branchStore = useBranchStore()
-  const now = ref(new Date())
+  const timezone = computed(() => branchStore.activeBranch?.branch_info?.timezone ?? null)
+  const now = ref(zonedDate(timezone.value))
   let timer: ReturnType<typeof setInterval> | undefined
 
   onMounted(() => {
-    timer = setInterval(() => (now.value = new Date()), 30_000)
+    timer = setInterval(() => (now.value = zonedDate(timezone.value)), 30_000)
   })
   onUnmounted(() => clearInterval(timer))
+
+  watch(timezone, (zone) => (now.value = zonedDate(zone)))
 
   const deliveryMinutes = computed(() => {
     const minutes = branchStore.activeBranch?.branch_info?.delivery_time

@@ -1855,6 +1855,8 @@ export interface components {
        * @example Тюмень
        */
       city?: string | null
+      /** @description Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки */
+      timezone?: string
       /**
        * @description Минуты до готовности вместе с добавкой на загрузку
        * @example 30
