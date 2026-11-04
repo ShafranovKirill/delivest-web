@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
+import FloatLabel from 'primevue/floatlabel'
 import AutoComplete, { type AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
 import { useAddressSuggestions } from '../../composables/useAddressSuggestions'
 import type { GeoAddress } from '../../api/geo.service'
@@ -8,11 +9,12 @@ import { shortAddressLabel } from '../../utils/deliveryAddress'
 const props = defineProps<{
   value: string
   city: string | null
-  placeholder: string
+  label: string
   suggest: boolean
 }>()
 const emit = defineEmits<{ select: [address: GeoAddress]; edit: [value: string] }>()
 
+const inputId = useId()
 const query = ref(props.value)
 const { suggestions, search } = useAddressSuggestions(() => {
   const prefix = props.city && `${props.city},`.toLowerCase()
@@ -51,16 +53,19 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
 </script>
 
 <template>
-  <AutoComplete
-    :model-value="query"
-    :suggestions="options"
-    option-label="label"
-    :placeholder="placeholder"
-    :delay="0"
-    :min-length="4"
-    fluid
-    @update:model-value="onInput"
-    @complete="suggest && search($event.query)"
-    @option-select="onSelect"
-  />
+  <FloatLabel variant="in">
+    <AutoComplete
+      :model-value="query"
+      :suggestions="options"
+      option-label="label"
+      :input-id="inputId"
+      :delay="0"
+      :min-length="4"
+      fluid
+      @update:model-value="onInput"
+      @complete="suggest && search($event.query)"
+      @option-select="onSelect"
+    />
+    <label :for="inputId">{{ label }}</label>
+  </FloatLabel>
 </template>

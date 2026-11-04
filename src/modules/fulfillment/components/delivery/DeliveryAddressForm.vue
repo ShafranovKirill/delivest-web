@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AddressSuggestInput from './AddressSuggestInput.vue'
+import FloatLabel from 'primevue/floatlabel'
 import InputText from 'primevue/inputtext'
 import type { GeoAddress } from '../../api/geo.service'
 import { shortAddressLabel, type DeliveryAddress } from '../../utils/deliveryAddress'
@@ -72,33 +73,29 @@ function selectAddress(value: GeoAddress) {
   emit('select', value)
 }
 
+const detailsId = useId()
 const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
 </script>
 
 <template>
   <div class="flex flex-col gap-2">
-    <label class="text-sm font-medium text-gray-700">{{ t('fulfillment.form.streetHouse') }}</label>
     <AddressSuggestInput
       :value="inputValue"
       :city="city"
       :suggest="suggest"
-      :placeholder="t('fulfillment.form.fullAddress')"
+      :label="t('fulfillment.form.fullAddress')"
       @select="selectAddress"
       @edit="editAddress"
     />
     <div class="grid grid-cols-2 gap-2">
-      <label
-        v-for="field in details"
-        :key="field"
-        class="flex min-w-0 flex-col gap-1 text-xs text-gray-600"
-      >
-        {{ t(`fulfillment.form.${field}`) }}
+      <FloatLabel v-for="field in details" :key="field" variant="in" class="min-w-0">
         <InputText
+          :id="`${detailsId}-${field}`"
           v-model="address[field]"
-          :placeholder="t(`fulfillment.form.${field}`)"
           class="w-full min-w-0"
         />
-      </label>
+        <label :for="`${detailsId}-${field}`">{{ t(`fulfillment.form.${field}`) }}</label>
+      </FloatLabel>
     </div>
   </div>
 </template>
