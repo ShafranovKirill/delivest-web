@@ -6,16 +6,17 @@ import { intlLocale } from '@/i18n'
 import { useBranchStore } from '../stores/branch.store'
 import { useBranchOpening } from '../composables/useBranchOpening'
 import { addDays } from '../utils/workWindow'
+import { formatClock, sameDay, type WallClock } from '../utils/zonedTime'
 
 const { t } = useI18n()
 const branchStore = useBranchStore()
 const { workingHours, formattedScheduleList, closingTimeToday } = storeToRefs(branchStore)
-const { isOpen, opensAt, closesAt, now } = useBranchOpening()
+const { isOpen, isPaused, opensAt, closesAt, now } = useBranchOpening()
 
 const expanded = ref(false)
 
-function clock(date: Date) {
-  return date.toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' })
+function clock(date: WallClock) {
+  return formatClock(date, intlLocale(), { hour: '2-digit', minute: '2-digit' })
 }
 
 const status = computed(() => {
@@ -27,17 +28,21 @@ const status = computed(() => {
   }
   if (isOpen.value) return { title: t('branch.info.openNow'), hint: closingTimeToday.value }
 
+  if (isPaused.value) {
+    return { title: t('branch.info.closed'), hint: t('branch.closed.noOpening') }
+  }
+
   const date = opensAt.value
   if (!date) return { title: t('branch.info.closed'), hint: t('branch.schedule.notSet') }
 
   const time = clock(date)
-  if (date.toDateString() === now.value.toDateString()) {
+  if (sameDay(date, now.value)) {
     return { title: t('branch.info.closed'), hint: t('branch.closed.today', { time }) }
   }
-  if (date.toDateString() === addDays(now.value, 1).toDateString()) {
+  if (sameDay(date, addDays(now.value, 1))) {
     return { title: t('branch.info.closed'), hint: t('branch.closed.tomorrow', { time }) }
   }
-  const day = date.toLocaleDateString(intlLocale(), { weekday: 'long' })
+  const day = formatClock(date, intlLocale(), { weekday: 'long' })
   return { title: t('branch.info.closed'), hint: t('branch.closed.later', { day, time }) }
 })
 

@@ -15,6 +15,7 @@ import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
 import Dialog from 'primevue/dialog'
 import { useBranchOpening } from '@/modules/branch/composables/useBranchOpening'
 import { addDays } from '@/modules/branch/utils/workWindow'
+import { formatClock, sameDay } from '@/modules/branch/utils/zonedTime'
 import { intlLocale } from '@/i18n'
 import { formatAddress } from '@/modules/shared/utils/address'
 import type { DeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
@@ -159,20 +160,22 @@ function pickPayment(method: OrderFormValues['payment_method']) {
   paymentOpen.value = false
 }
 
-const { isOpen, opensAt, now } = useBranchOpening()
+const { isOpen, isPaused, opensAt, now } = useBranchOpening()
 
 const closedNotice = computed(() => {
-  const date = opensAt.value
-  if (isOpen.value || !date) return null
+  if (isOpen.value || isPaused.value) return null
 
-  const time = date.toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' })
-  if (date.toDateString() === now.value.toDateString()) {
+  const date = opensAt.value
+  if (!date) return null
+
+  const time = formatClock(date, intlLocale(), { hour: '2-digit', minute: '2-digit' })
+  if (sameDay(date, now.value)) {
     return t('order.form.closed.today', { time })
   }
-  if (date.toDateString() === addDays(now.value, 1).toDateString()) {
+  if (sameDay(date, addDays(now.value, 1))) {
     return t('order.form.closed.tomorrow', { time })
   }
-  const day = date.toLocaleDateString(intlLocale(), {
+  const day = formatClock(date, intlLocale(), {
     weekday: 'short',
     day: 'numeric',
     month: 'long',

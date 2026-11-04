@@ -4,23 +4,22 @@ import { useI18n } from 'vue-i18n'
 import { intlLocale } from '@/i18n'
 import { useBranchOpening } from '../composables/useBranchOpening'
 import { addDays } from '../utils/workWindow'
+import { formatClock, sameDay } from '../utils/zonedTime'
 
 const { t } = useI18n()
-const { isOpen, opensAt, now } = useBranchOpening()
-
-function sameDay(a: Date, b: Date) {
-  return a.toDateString() === b.toDateString()
-}
+const { isOpen, isPaused, opensAt, now } = useBranchOpening()
 
 const opening = computed(() => {
+  if (isPaused.value) return t('branch.closed.noOpening')
+
   const date = opensAt.value
   if (!date) return t('branch.closed.noOpening')
 
-  const time = date.toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' })
+  const time = formatClock(date, intlLocale(), { hour: '2-digit', minute: '2-digit' })
   if (sameDay(date, now.value)) return t('branch.closed.today', { time })
   if (sameDay(date, addDays(now.value, 1))) return t('branch.closed.tomorrow', { time })
 
-  const day = date.toLocaleDateString(intlLocale(), {
+  const day = formatClock(date, intlLocale(), {
     weekday: 'short',
     day: 'numeric',
     month: 'long',

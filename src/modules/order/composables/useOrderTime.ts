@@ -2,14 +2,23 @@ import { ref, computed, onMounted, onUnmounted, watch, type Ref } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { WorkingHoursMap } from '@/modules/branch/composables/useBranchSchedule'
 import { addDays, isOpenAt, workWindow } from '@/modules/branch/utils/workWindow'
-import { zonedDate } from '@/modules/branch/utils/zonedTime'
+import {
+  addMinutes as addWallMinutes,
+  clockMinutes,
+  formatClock,
+  fromClockMinutes,
+  sameDay,
+  slotValue,
+  wallClock,
+  type WallClock,
+} from '@/modules/branch/utils/zonedTime'
 import { intlLocale, t } from '@/i18n'
 
 export type Fulfillment = 'delivery' | 'pickup' | 'dine_in'
 
 export interface TimeSlot {
   value: string
-  date: Date
+  date: WallClock
 }
 
 export interface SlotDay {
@@ -26,39 +35,31 @@ const MAX_DAYS = 3
 const SUGGESTION_OFFSETS = [30, 60, 120]
 const LAST_SLOT_MINUTE = 24 * 60 - STEP_MINUTES
 
-function pad(value: number) {
-  return String(value).padStart(2, '0')
+function addMinutes(date: WallClock, minutes: number): WallClock {
+  return addWallMinutes(date, minutes)
 }
 
-function formatDateTime(date: Date): string {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`
+function roundUp(date: WallClock): WallClock {
+  const minutes = clockMinutes(date)
+  return fromClockMinutes(Math.ceil(minutes / STEP_MINUTES) * STEP_MINUTES)
 }
 
-function addMinutes(date: Date, minutes: number): Date {
-  return new Date(date.getTime() + minutes * 60_000)
-}
-
-function roundUp(date: Date): Date {
-  const step = STEP_MINUTES * 60_000
-  return new Date(Math.ceil(date.getTime() / step) * step)
-}
-
-function sameDay(a: Date, b: Date): boolean {
-  return a.toDateString() === b.toDateString()
+function formatDateTime(date: WallClock): string {
+  return slotValue(date)
 }
 
 export function useOrderTime(fulfillment: Ref<Fulfillment>) {
   const branchStore = useBranchStore()
   const timezone = computed(() => branchStore.activeBranch?.branch_info?.timezone ?? null)
-  const now = ref(zonedDate(timezone.value))
+  const now = ref<WallClock>(wallClock(timezone.value))
   let timer: ReturnType<typeof setInterval> | undefined
 
   onMounted(() => {
-    timer = setInterval(() => (now.value = zonedDate(timezone.value)), 30_000)
+    timer = setInterval(() => (now.value = wallClock(timezone.value)), 30_000)
   })
   onUnmounted(() => clearInterval(timer))
 
-  watch(timezone, (zone) => (now.value = zonedDate(zone)))
+  watch(timezone, (zone) => (now.value = wallClock(zone)))
 
   const deliveryMinutes = computed(() => {
     const minutes = branchStore.activeBranch?.branch_info?.delivery_time
@@ -83,22 +84,26 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
     return hours as unknown as WorkingHoursMap
   })
 
-  function dayWindow(day: Date) {
+  const isPaused = computed(() => branchStore.activeBranch?.branch_info?.intake?.mode === 'paused')
+
+  function dayWindow(day: WallClock) {
     return workWindow(workingHours.value, day, LAST_SLOT_MINUTE, specialHours.value)
   }
 
-  function dayLabel(day: Date): string {
+  function dayLabel(day: WallClock): string {
     const today = now.value
     if (sameDay(day, today)) return t('order.timeSelect.today')
     if (sameDay(day, addDays(today, 1))) return t('order.timeSelect.tomorrow')
-    return day.toLocaleDateString(intlLocale(), {
+    return formatClock(day, intlLocale(), {
       weekday: 'short',
       day: 'numeric',
       month: 'short',
     })
   }
 
-  const openNow = computed(() => isOpenAt(workingHours.value, now.value, specialHours.value))
+  const openNow = computed(
+    () => !isPaused.value && isOpenAt(workingHours.value, now.value, specialHours.value),
+  )
 
   const days = computed<SlotDay[]>(() => {
     const earliest = roundUp(addMinutes(now.value, leadMinutes.value))
@@ -113,8 +118,8 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
       const slots: TimeSlot[] = []
 
       for (
-        let cursor = earliest > first ? earliest : first;
-        cursor <= window.close;
+        let cursor = clockMinutes(earliest) > clockMinutes(first) ? earliest : first;
+        clockMinutes(cursor) <= clockMinutes(window.close);
         cursor = addMinutes(cursor, STEP_MINUTES)
       ) {
         slots.push({ value: formatDateTime(cursor), date: cursor })
@@ -148,7 +153,7 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
 
     for (const offset of offsets) {
       const target = addMinutes(first.date, offset)
-      const slot = slots.find((item) => item.date >= target)
+      const slot = slots.find((item) => clockMinutes(item.date) >= clockMinutes(target))
       if (slot && !picked.includes(slot)) picked.push(slot)
       if (picked.length === 3) break
     }
@@ -162,8 +167,8 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
     return openNow.value && window ? formatTimeLabel(window.close) : null
   })
 
-  function formatTimeLabel(date: Date): string {
-    return date.toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' })
+  function formatTimeLabel(date: WallClock): string {
+    return formatClock(date, intlLocale(), { hour: '2-digit', minute: '2-digit' })
   }
 
   function slotLabel(slot: TimeSlot): string {

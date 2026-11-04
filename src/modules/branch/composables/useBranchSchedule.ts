@@ -2,8 +2,8 @@ import { computed, type Ref } from 'vue'
 import { useNow } from '@vueuse/core'
 import type { Branch } from '../api/branch.service'
 import { t } from '@/i18n'
-import { isOpenAt, isoDate } from '../utils/workWindow'
-import { zonedDate } from '../utils/zonedTime'
+import { isOpenAt } from '../utils/workWindow'
+import { isoDate, weekdayKey, wallClock } from '../utils/zonedTime'
 
 export interface DaySchedule {
   enabled: boolean
@@ -16,7 +16,7 @@ export type WorkingHoursMap = Record<string, DaySchedule>
 export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
   const timezone = computed(() => activeBranch.value?.branch_info?.timezone ?? null)
   const tick = useNow({ interval: 30_000 })
-  const now = computed(() => zonedDate(timezone.value, tick.value))
+  const now = computed(() => wallClock(timezone.value, tick.value))
 
   const workingHours = computed<WorkingHoursMap | null>(() => {
     const rawHours = activeBranch.value?.branch_info?.working_hours
@@ -30,15 +30,7 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
     return Object.keys(raw).length > 0 ? (raw as unknown as WorkingHoursMap) : null
   })
 
-  const dayKeysMap: Record<number, string> = {
-    0: 'sunday',
-    1: 'monday',
-    2: 'tuesday',
-    3: 'wednesday',
-    4: 'thursday',
-    5: 'friday',
-    6: 'saturday',
-  }
+  const isPaused = computed(() => activeBranch.value?.branch_info?.intake?.mode === 'paused')
 
   const todaySchedule = computed<DaySchedule | null>(() => {
     const exception = specialHours.value?.[isoDate(now.value)]
@@ -47,8 +39,7 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
     const hours = workingHours.value
     if (!hours) return null
 
-    const todayIndex = now.value.getDay()
-    const dayKey = dayKeysMap[todayIndex]
+    const dayKey = weekdayKey(now.value)
 
     if (dayKey && dayKey in hours) {
       return hours[dayKey] ?? null
@@ -57,8 +48,8 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
     return null
   })
 
-  const isOpenNow = computed<boolean>(() =>
-    isOpenAt(workingHours.value, now.value, specialHours.value),
+  const isOpenNow = computed<boolean>(
+    () => !isPaused.value && isOpenAt(workingHours.value, now.value, specialHours.value),
   )
 
   const closingTimeToday = computed<string>(() => {
@@ -87,7 +78,7 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
 
     const daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
-    const todayKey = dayKeysMap[now.value.getDay()]
+    const todayKey = weekdayKey(now.value)
 
     return daysOrder.map((key) => {
       const dayData = hours[key]
@@ -106,6 +97,7 @@ export function useBranchSchedule(activeBranch: Ref<Branch | null>) {
     now,
     workingHours,
     specialHours,
+    isPaused,
     todaySchedule,
     isOpenNow,
     closingTimeToday,
