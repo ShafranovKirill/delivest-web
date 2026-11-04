@@ -14,7 +14,9 @@ const reducedMotion = usePreferredReducedMotion()
 
 const hints = computed(() => cartStore.hints)
 const activeId = ref<string | null>(null)
-const paused = ref(false)
+const pointerInside = ref(false)
+const focusInside = ref(false)
+const paused = computed(() => pointerInside.value || focusInside.value)
 const announcement = ref('')
 
 const position = computed(() => {
@@ -40,7 +42,7 @@ function stopTimer() {
 function startTimer() {
   pause()
 
-  if (!hasMany.value || reducedMotion.value === 'reduce') return
+  if (paused.value || !hasMany.value || reducedMotion.value === 'reduce') return
 
   resume()
 }
@@ -71,21 +73,21 @@ function move(direction: number) {
 }
 
 function onMouseEnter() {
-  paused.value = true
+  pointerInside.value = true
 }
 
 function onMouseLeave() {
-  paused.value = false
+  pointerInside.value = false
 }
 
 function onFocusIn() {
-  paused.value = true
+  focusInside.value = true
 }
 
 function onFocusOut(event: FocusEvent) {
   const next = event.relatedTarget as Node | null
   if (!next || !(event.currentTarget as HTMLElement).contains(next)) {
-    paused.value = false
+    focusInside.value = false
   }
 }
 
