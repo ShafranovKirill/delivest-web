@@ -116,6 +116,9 @@ export const en: typeof ru = {
       fulfillment_unavailable:
         'This fulfillment method is unavailable. Choose another method or branch',
       branch_paused: 'This branch is not taking orders for now. Please try again later',
+      branch_closed: 'The branch is closed. Choose another time or branch',
+      cook_by_in_past: 'Choose an order time in the future',
+      cook_by_outside_hours: 'Choose a time during the branch’s opening hours',
       delivery_no_coordinates: 'Pick the delivery address on the map',
       promo_unavailable: 'The promotion has just ended. The cart has been recalculated',
       promo_not_found: 'Promo code not found',

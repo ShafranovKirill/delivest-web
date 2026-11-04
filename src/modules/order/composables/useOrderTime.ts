@@ -33,7 +33,7 @@ const MIN_PICKUP_MINUTES = 20
 const DAYS_AHEAD = 7
 const MAX_DAYS = 3
 const SUGGESTION_OFFSETS = [30, 60, 120]
-const LAST_SLOT_MINUTE = 24 * 60 - STEP_MINUTES
+const END_OF_DAY_MINUTE = 24 * 60
 
 function addMinutes(date: WallClock, minutes: number): WallClock {
   return addWallMinutes(date, minutes)
@@ -87,7 +87,7 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
   const isPaused = computed(() => branchStore.activeBranch?.branch_info?.intake?.mode === 'paused')
 
   function dayWindow(day: WallClock) {
-    return workWindow(workingHours.value, day, LAST_SLOT_MINUTE, specialHours.value)
+    return workWindow(workingHours.value, day, END_OF_DAY_MINUTE, specialHours.value)
   }
 
   function dayLabel(day: WallClock): string {
@@ -119,7 +119,7 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
 
       for (
         let cursor = clockMinutes(earliest) > clockMinutes(first) ? earliest : first;
-        clockMinutes(cursor) <= clockMinutes(window.close);
+        clockMinutes(cursor) < clockMinutes(window.close);
         cursor = addMinutes(cursor, STEP_MINUTES)
       ) {
         slots.push({ value: formatDateTime(cursor), date: cursor })
