@@ -11,6 +11,9 @@ export const useFranchiseStore = defineStore(
     const description = computed(() => franchise.value?.description ?? '')
     const primaryColor = computed(() => franchise.value?.primary_color ?? null)
     const darkPrimaryColor = computed(() => franchise.value?.dark_primary_color ?? null)
+    const defaultTheme = computed(() =>
+      franchise.value?.default_theme === 'dark' ? 'dark' : 'light',
+    )
     const legal = computed(() => franchise.value?.legal ?? null)
     const logoUrl = computed(() => franchise.value?.logo_url ?? null)
     const logoDarkUrl = computed(() => franchise.value?.logo_dark_url ?? null)
@@ -39,6 +42,7 @@ export const useFranchiseStore = defineStore(
       description,
       primaryColor,
       darkPrimaryColor,
+      defaultTheme,
       legal,
       logoUrl,
       logoDarkUrl,
