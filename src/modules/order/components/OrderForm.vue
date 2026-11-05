@@ -64,6 +64,14 @@ const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 const phoneSection = ref<HTMLElement | null>(null)
 const phoneError = ref(false)
+const phoneInputClass = computed(() =>
+  [
+    'w-full lg:max-w-sm rounded-2xl! border-2! bg-gray-50! px-4! py-3.5! text-gray-900!',
+    phoneError.value
+      ? 'border-red-500! hover:border-red-500! focus:border-red-500!'
+      : 'border-gray-100! hover:border-primary! focus:border-primary!',
+  ].join(' '),
+)
 const compositionOpen = ref(false)
 
 type PickupKind = Extract<OrderFormValues['fulfillment_type'], 'pickup' | 'dine_in'>
@@ -348,7 +356,7 @@ function handleSubmit() {
       <PhoneInput
         v-model="form.customer_phone"
         required
-        class="w-full lg:max-w-sm rounded-2xl! border-2! border-gray-100! bg-gray-50! px-4! py-3.5! text-gray-900! hover:border-primary! focus:border-primary!"
+        :class="phoneInputClass"
         :invalid="phoneError"
       />
       <p v-if="phoneError" class="text-sm font-medium text-red-600" role="alert">
