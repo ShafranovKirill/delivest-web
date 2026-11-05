@@ -43,7 +43,7 @@ export const ru = {
     fromProducts: 'Дополнительно за товары',
     earned: 'Начислено: +{stars}',
 
-    title: 'Мои звёзды',
+    title: 'Бонусы',
     shop: 'Товары за звёзды',
     add: 'Забрать за {stars}',
     history: 'История звёзд',
