@@ -99,17 +99,17 @@ watch(categories, updateVisibleCount, { deep: true })
           <p class="font-bold!">{{ category.name }}</p>
         </Button>
 
-        <div v-if="visibleCount < categories.length" class="relative group">
+        <div v-if="visibleCount < categories.length" class="relative group min-w-0">
           <div class="py-2">
             <Button
               rounded
-              class="border-0! gap-2"
+              class="border-0! gap-2 max-w-full whitespace-normal"
               :severity="isHiddenActive ? 'primary' : 'secondary'"
               :outlined="!isHiddenActive"
             >
-              <p class="font-bold!">{{ isHiddenActive ? activeCategoryName : t('menu.more') }}</p>
+              <p class="font-bold! min-w-0 whitespace-normal [overflow-wrap:anywhere]">{{ isHiddenActive ? activeCategoryName : t('menu.more') }}</p>
 
-              <i class="pi pi-chevron-down text-sm pt-1"></i>
+              <i class="pi pi-chevron-down text-sm pt-1 shrink-0"></i>
             </Button>
           </div>
 
@@ -123,7 +123,7 @@ watch(categories, updateVisibleCount, { deep: true })
               :class="{ ' text-primary-500': activeCategoryId === cat.id }"
               @click="menuStore.scrollToCategory(cat.id)"
             >
-              <p class="font-bold! text-gray-500">{{ cat.name }}</p>
+              <p class="font-bold! text-gray-500 whitespace-normal [overflow-wrap:anywhere]">{{ cat.name }}</p>
             </div>
           </div>
         </div>
