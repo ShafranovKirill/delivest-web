@@ -33,13 +33,13 @@ useMobCatBarScroll(activeCategoryId, containerRef)
           :key="category.id"
           :aria-current="menuStore.isActive(category.id) ? 'true' : undefined"
           :data-id="category.id"
-          class="shrink-0 transition-all duration-200 border-none! ml-4"
+          class="shrink-0 max-w-[calc(100vw-2rem)] whitespace-normal transition-all duration-200 border-none! ml-4"
           @click="menuStore.scrollToCategory(category.id)"
           :severity="menuStore.isActive(category.id) ? 'primary' : 'secondary'"
           :outlined="!menuStore.isActive(category.id)"
           rounded
         >
-          <p class="font-bold">{{ category.name }}</p>
+          <p class="font-bold whitespace-normal [overflow-wrap:anywhere]">{{ category.name }}</p>
         </Button>
       </div>
     </div>
