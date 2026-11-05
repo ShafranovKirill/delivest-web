@@ -41,6 +41,10 @@ export const useAuthStore = defineStore(
       queryClient.invalidateQueries()
     }
 
+    watch(isAuthenticated, (signedIn) => {
+      if (!signedIn) isProfileOpen.value = false
+    })
+
     function openProfile() {
       if (isAuthenticated.value) isProfileOpen.value = true
     }
