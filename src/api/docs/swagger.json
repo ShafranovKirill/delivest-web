@@ -881,6 +881,7 @@
                 "nullable": true,
                 "type": "string"
               },
+              "default_theme": { "enum": ["light", "dark"], "type": "string" },
               "description": { "nullable": true, "type": "string" },
               "documents": {
                 "items": { "$ref": "#/components/schemas/LegalDocumentSummary" },
@@ -913,6 +914,7 @@
               "description",
               "primary_color",
               "dark_primary_color",
+              "default_theme",
               "logo_url",
               "logo_dark_url",
               "address_map",

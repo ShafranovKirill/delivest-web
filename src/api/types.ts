@@ -1424,6 +1424,8 @@ export interface components {
          * @example #b86a69
          */
         dark_primary_color: string | null
+        /** @enum {string} */
+        default_theme: 'light' | 'dark'
         description: string | null
         documents: components['schemas']['LegalDocumentSummary'][]
         legal: components['schemas']['FranchiseLegal']
