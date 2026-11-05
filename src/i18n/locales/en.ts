@@ -45,7 +45,7 @@ export const en: typeof ru = {
     fromProducts: 'Extra for products',
     earned: 'Credited: +{stars}',
 
-    title: 'My stars',
+    title: 'Rewards',
     shop: 'Products for stars',
     add: 'Get for {stars}',
     history: 'Star history',

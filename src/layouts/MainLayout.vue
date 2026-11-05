@@ -9,6 +9,7 @@ import UniversalMobileModal from '@/modules/widgets/modal/mobile-modal/component
 import UniversalDesktopModal from '@/modules/widgets/modal/desktop-modal/components/UniversalDesktopModal.vue'
 import MainSidebar from '@/modules/widgets/sidebar/MainSidebar.vue'
 import AuthModal from '@/modules/auth/components/AuthModal.vue'
+import ProfileDialog from '@/modules/auth/components/ProfileDialog.vue'
 import AddressPrompt from '@/modules/fulfillment/components/AddressPrompt.vue'
 import FulfillmentPicker from '@/modules/fulfillment/components/FulfillmentPicker.vue'
 import { useLiveOrders } from '@/modules/order/composables/useLiveOrders'
@@ -34,6 +35,7 @@ useLiveOrders()
   <ContactModal />
   <BranchSelectModal />
   <AuthModal />
+  <ProfileDialog />
   <AddressPrompt />
   <FulfillmentPicker />
   <UniversalMobileModal v-if="viewportStore.isMobile" />

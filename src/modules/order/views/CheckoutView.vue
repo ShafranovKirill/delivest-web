@@ -6,7 +6,7 @@ import Message from 'primevue/message'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useOrderStore } from '../stores/order.store'
-import { useOpenCart } from '@/modules/cart/composables/useOpenCart'
+import { useReturnToCart } from '@/modules/cart/composables/useReturnToCart'
 import OrderForm from '../components/OrderForm.vue'
 import OrderComposition from '../components/OrderComposition.vue'
 import OrderSuccess from '../components/OrderSuccess.vue'
@@ -17,7 +17,7 @@ import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const route = useRoute()
-const openCart = useOpenCart()
+const returnToCart = useReturnToCart()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
 const orderStore = useOrderStore()
@@ -127,7 +127,7 @@ watch(
       v-else-if="step !== 3"
       class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-3 sm:gap-4 items-start"
     >
-      <OrderForm :isLoading="orderStore.isLoading" @submit="submitOrder" @back="openCart" />
+      <OrderForm :isLoading="orderStore.isLoading" @submit="submitOrder" @back="returnToCart" />
       <aside class="hidden lg:block sticky top-28">
         <OrderComposition />
       </aside>

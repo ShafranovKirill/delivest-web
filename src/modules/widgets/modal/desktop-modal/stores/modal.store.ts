@@ -13,8 +13,13 @@ export const useDesktopModalStore = defineStore('desktopModal', () => {
   const currentComponent = ref<Component | null>(null)
   const currentProps = ref<Record<string, unknown>>({})
   const title = ref<string>('')
+  let closeTimeout: ReturnType<typeof setTimeout> | null = null
 
   function openModal({ component, props = {}, headerTitle = '' }: DesktopModalOptions) {
+    if (closeTimeout !== null) {
+      clearTimeout(closeTimeout)
+      closeTimeout = null
+    }
     currentComponent.value = markRaw(component)
     currentProps.value = props
     title.value = headerTitle
@@ -23,10 +28,12 @@ export const useDesktopModalStore = defineStore('desktopModal', () => {
 
   function closeModal() {
     isOpen.value = false
-    setTimeout(() => {
+    if (closeTimeout !== null) clearTimeout(closeTimeout)
+    closeTimeout = setTimeout(() => {
       currentComponent.value = null
       currentProps.value = {}
       title.value = ''
+      closeTimeout = null
     }, 300)
   }
 

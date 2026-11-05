@@ -64,6 +64,14 @@ const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 const phoneSection = ref<HTMLElement | null>(null)
 const phoneError = ref(false)
+const phoneInputClass = computed(() =>
+  [
+    'w-full lg:max-w-sm rounded-2xl! border-2! bg-gray-50! px-4! py-3.5! text-gray-900!',
+    phoneError.value
+      ? 'border-red-500! hover:border-red-500! focus:border-red-500!'
+      : 'border-gray-100! hover:border-primary! focus:border-primary!',
+  ].join(' '),
+)
 const compositionOpen = ref(false)
 
 type PickupKind = Extract<OrderFormValues['fulfillment_type'], 'pickup' | 'dine_in'>
@@ -85,6 +93,10 @@ const loyalty = useLoyaltyQuery()
 const starsLabel = useStarsLabel()
 
 const isDelivery = computed(() => fulfillmentStore.current?.type === 'delivery')
+const authenticatedPhone = computed(() => {
+  const phone = authStore.client?.phone
+  return authStore.isAuthenticated && phone && /^\+7\d{10}$/.test(phone) ? phone : null
+})
 
 const delivery = useDeliveryQuote()
 
@@ -97,8 +109,11 @@ const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
 )
 
 watch(
-  () => authStore.client?.phone,
-  (phone) => phone && (form.customer_phone = phone),
+  authenticatedPhone,
+  (phone) => {
+    if (phone) form.customer_phone = phone
+  },
+  { immediate: true },
 )
 watch(
   () => form.customer_phone,
@@ -300,7 +315,8 @@ function handleSubmit() {
     return
   }
 
-  if (!form.customer_phone || form.customer_phone.length < 12) {
+  const customerPhone = authenticatedPhone.value ?? form.customer_phone
+  if (!/^\+7\d{10}$/.test(customerPhone)) {
     phoneError.value = true
     requestAnimationFrame(() => {
       const input = phoneSection.value?.querySelector<HTMLInputElement>('input[name="phone"]')
@@ -321,6 +337,7 @@ function handleSubmit() {
 
   emit('submit', {
     ...form,
+    customer_phone: customerPhone,
     cash_given: null,
     spend_points: starsToSpend.value,
     fulfillment_type: fulfillmentType.value,
@@ -334,13 +351,12 @@ function handleSubmit() {
   <form class="flex flex-col gap-6" novalidate @submit.prevent="handleSubmit">
     <h2 class="text-2xl font-extrabold text-gray-950">{{ headline }}</h2>
 
-    <div ref="phoneSection" :class="sectionClass">
+    <div v-if="!authenticatedPhone" ref="phoneSection" :class="sectionClass">
       <p :class="captionClass">{{ t('order.form.phoneCaption') }}</p>
       <PhoneInput
         v-model="form.customer_phone"
         required
-        :disabled="authStore.isAuthenticated"
-        class="w-full lg:max-w-sm"
+        :class="phoneInputClass"
         :invalid="phoneError"
       />
       <p v-if="phoneError" class="text-sm font-medium text-red-600" role="alert">
@@ -397,7 +413,7 @@ function handleSubmit() {
         rows="1"
         auto-resize
         :placeholder="t('order.form.commentPlaceholder')"
-        class="w-full resize-none"
+        class="w-full resize-none rounded-2xl! border-2! border-gray-100! bg-gray-50! px-4! py-3.5! text-gray-900! placeholder:text-gray-500! hover:border-primary! focus:border-primary!"
       />
     </label>
 
@@ -455,10 +471,6 @@ function handleSubmit() {
       </button>
       <OrderComposition v-if="compositionOpen" class="mb-3" />
       <div class="flex flex-col gap-1.5 text-sm text-gray-600">
-        <div class="flex justify-between">
-          <span>{{ goodsLabel }}</span>
-          <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
-        </div>
         <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
           <span>{{ t('cart.discount') }}</span>
           <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
