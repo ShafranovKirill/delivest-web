@@ -48,6 +48,7 @@ const settingClass =
   <Drawer
     v-model:visible="sidebarStore.isSidebarVisible"
     position="right"
+    block-scroll
     :pt="{
       root: { id: 'mobile-sidebar', class: '!w-[88vw] !max-w-[22rem]' },
       content: { class: 'flex flex-col gap-6 pb-5' },
