@@ -12,6 +12,7 @@ export const useAuthStore = defineStore(
     const client = ref<ClientProfile | null>(null)
     const lastPhone = ref<string | null>(null)
     const isModalOpen = ref(false)
+    const isProfileOpen = ref(false)
     const franchiseStore = useFranchiseStore()
 
     const isEnabled = computed(() => franchiseStore.clientAuth)
@@ -33,10 +34,19 @@ export const useAuthStore = defineStore(
     }
 
     function logout() {
+      isProfileOpen.value = false
       accessToken.value = null
       refreshToken.value = null
       client.value = null
       queryClient.invalidateQueries()
+    }
+
+    function openProfile() {
+      if (isAuthenticated.value) isProfileOpen.value = true
+    }
+
+    function closeProfile() {
+      isProfileOpen.value = false
     }
 
     function openModal() {
@@ -61,6 +71,9 @@ export const useAuthStore = defineStore(
       client,
       lastPhone,
       isModalOpen,
+      isProfileOpen,
+      openProfile,
+      closeProfile,
       isEnabled,
       isRequired,
       isAuthenticated,

@@ -3,7 +3,6 @@ import { useLoyaltyQuery } from '@/modules/account/composables/useLoyaltyQuery'
 import { computed } from 'vue'
 import { useAuthStore } from '../stores/auth.store'
 import { useSidebarStore } from '@/modules/widgets/sidebar/sidebar.store'
-import { useBranchNavigation } from '@/modules/branch/composables/useBranchNavigation'
 import { formatPhoneNumber } from '@/modules/widgets/contacts/utils/tel-format'
 import SidebarTile from '@/modules/widgets/sidebar/SidebarTile.vue'
 import { useI18n } from 'vue-i18n'
@@ -11,15 +10,14 @@ import { useI18n } from 'vue-i18n'
 const loyalty = useLoyaltyQuery()
 const authStore = useAuthStore()
 const sidebarStore = useSidebarStore()
-const navigateTo = useBranchNavigation()
 const { t } = useI18n()
 
 const name = computed(() => authStore.client?.name?.trim() || t('auth.guestName'))
 const phone = computed(() => formatPhoneNumber(authStore.client?.phone ?? ''))
 
-function openOrders() {
+function openProfile() {
   sidebarStore.setSidebarVisible(false)
-  navigateTo('my-orders')
+  authStore.openProfile()
 }
 
 function signIn() {
@@ -34,7 +32,7 @@ function signIn() {
     icon="pi-user"
     :title="name"
     :subtitle="phone"
-    @click="openOrders"
+    @click="openProfile"
   >
     <template #trailing>
       <span
