@@ -72,7 +72,7 @@ watch(categories, updateVisibleCount, { deep: true })
 
 <template>
   <div class="bg-gray-200 w-full sticky top-15 z-50">
-    <div class="bg-white rounded-t-full w-full min-h-20">
+    <div class="bg-white rounded-t-full w-full min-h-22">
       <div
         ref="containerRef"
         class="whitespace-nowrap flex gap-4 max-w-7xl mx-auto py-6 px-12 2xl:px-2 items-center"
