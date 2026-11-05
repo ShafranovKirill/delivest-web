@@ -471,10 +471,6 @@ function handleSubmit() {
       </button>
       <OrderComposition v-if="compositionOpen" class="mb-3" />
       <div class="flex flex-col gap-1.5 text-sm text-gray-600">
-        <div class="flex justify-between">
-          <span>{{ goodsLabel }}</span>
-          <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
-        </div>
         <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
           <span>{{ t('cart.discount') }}</span>
           <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>

@@ -80,7 +80,7 @@ function chipClass(active: boolean) {
 
     <div
       v-if="days.length"
-      class="-mx-4 flex min-w-0 snap-x gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0"
+      class="flex min-w-0 snap-x gap-2 overflow-x-auto pb-1 [scrollbar-width:none]"
     >
       <button
         v-if="asapAvailable"
