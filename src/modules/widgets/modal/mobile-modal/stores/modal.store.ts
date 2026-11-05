@@ -13,8 +13,13 @@ export const useMobileModalStore = defineStore('mobileModal', () => {
   const currentComponent = ref<Component | null>(null)
   const currentProps = ref<Record<string, unknown>>({})
   const title = ref<string>('')
+  let closeTimeout: ReturnType<typeof setTimeout> | null = null
 
   function openModal({ component, props = {}, headerTitle = '' }: ModalOptions) {
+    if (closeTimeout !== null) {
+      clearTimeout(closeTimeout)
+      closeTimeout = null
+    }
     currentComponent.value = markRaw(component)
     currentProps.value = props
     title.value = headerTitle
@@ -23,10 +28,12 @@ export const useMobileModalStore = defineStore('mobileModal', () => {
 
   function closeModal() {
     isOpen.value = false
-    setTimeout(() => {
+    if (closeTimeout !== null) clearTimeout(closeTimeout)
+    closeTimeout = setTimeout(() => {
       currentComponent.value = null
       currentProps.value = {}
       title.value = ''
+      closeTimeout = null
     }, 300)
   }
 

@@ -10,6 +10,7 @@ import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useOrderStore } from '@/modules/order/stores/order.store'
+import { useReturnToCart } from '@/modules/cart/composables/useReturnToCart'
 import { useMobileModalStore } from '../modal/mobile-modal/stores/modal.store'
 import BranchInfoBar from '@/modules/branch/components/BranchInfoBar.vue'
 import UserButton from '@/modules/auth/components/UserButton.vue'
@@ -24,6 +25,7 @@ const branchStore = useBranchStore()
 const modalStore = useMobileModalStore()
 const franchiseStore = useFranchiseStore()
 const orderStore = useOrderStore()
+const returnToCart = useReturnToCart()
 const { t } = useI18n()
 
 const showStepBack = computed(
@@ -32,10 +34,6 @@ const showStepBack = computed(
     router.currentRoute.value.name === 'checkout' &&
     !orderStore.createdOrderId,
 )
-
-function stepBack() {
-  router.back()
-}
 
 const navigateToMenu = () => {
   sidebarStore.isSidebarVisible = false
@@ -75,7 +73,7 @@ const navigateToMenu = () => {
               variant="text"
               class="size-11 p-0! -ml-3 mr-0 text-gray-700 hover:text-black shrink-0"
               :aria-label="t('common.back')"
-              @click="stepBack"
+              @click="returnToCart"
             />
 
             <div class="h-8 w-px bg-gray-300 shrink-0 -ml-1 mr-1" />
