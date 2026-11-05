@@ -14,8 +14,6 @@ const {
   suggestions,
   asapAvailable,
   asapLabel,
-  workingUntil,
-  leadMinutes,
   slotLabel,
   formatTimeLabel,
   isAvailable,
@@ -46,12 +44,6 @@ const caption = computed(() =>
   props.fulfillment === 'delivery'
     ? t('order.timeSelect.titleDelivery')
     : t('order.timeSelect.titlePickup'),
-)
-
-const leadHint = computed(() =>
-  props.fulfillment === 'delivery'
-    ? t('order.timeSelect.deliveryLead', { minutes: leadMinutes.value })
-    : t('order.timeSelect.pickupLead', { minutes: leadMinutes.value }),
 )
 
 watch(
@@ -88,7 +80,7 @@ function chipClass(active: boolean) {
 
     <div
       v-if="days.length"
-      class="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0"
+      class="-mx-4 flex min-w-0 snap-x gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0"
     >
       <button
         v-if="asapAvailable"
@@ -110,22 +102,16 @@ function chipClass(active: boolean) {
       >
         {{ slotLabel(slot) }}
       </button>
+      <button
+        type="button"
+        class="shrink-0 snap-start rounded-2xl border-2 px-4 py-3 text-sm font-semibold transition-colors cursor-pointer"
+        :class="chipClass(customSelected)"
+        @click="openDialog"
+      >
+        {{ customLabel }}
+      </button>
     </div>
-    <button
-      v-if="days.length"
-      type="button"
-      class="mt-2 rounded-2xl border-2 px-4 py-3 text-sm font-semibold transition-colors cursor-pointer"
-      :class="chipClass(customSelected)"
-      @click="openDialog"
-    >
-      {{ customLabel }}
-    </button>
     <p v-else class="text-sm text-gray-500">{{ t('order.timeSelect.noSlots') }}</p>
-
-    <p v-if="days.length" class="mt-2 text-xs text-gray-500 flex flex-wrap gap-x-3 gap-y-1">
-      <span v-if="workingUntil">{{ t('order.timeSelect.openUntil', { time: workingUntil }) }}</span>
-      <span>{{ leadHint }}</span>
-    </p>
 
     <Dialog
       v-model:visible="isDialogOpen"
