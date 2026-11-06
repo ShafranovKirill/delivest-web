@@ -5,6 +5,7 @@ import { getApiErrorCode, getApiErrorMessage } from '@/api/errors'
 import { getSocket } from '@/api/socket'
 import { t } from '@/i18n'
 import { AuthService, type CallConfirmation, type ClientSession } from '../api/auth.service'
+import { useAuthStore } from '../stores/auth.store'
 
 type Failure = { code?: string }
 
@@ -12,6 +13,7 @@ const POLL_INTERVAL_MS = 2000
 const FINAL_CODES = ['confirmation_not_found', 'client_blocked', 'attempts_exhausted']
 
 export function useCallConfirmation(onConfirmed: (session: ClientSession) => void) {
+  const authStore = useAuthStore()
   const confirmation = ref<CallConfirmation | null>(null)
   const isStarting = ref(false)
   const errorMessage = ref<string | null>(null)
@@ -94,8 +96,10 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   }
 
   async function listen(confirmationId: string) {
-    const socket = await getSocket()
-    if (!waitingFor(confirmationId)) return
+    const sessionEpoch = authStore.sessionEpoch
+    const isCurrent = () => authStore.sessionEpoch === sessionEpoch
+    const socket = await getSocket(sessionEpoch, isCurrent)
+    if (!waitingFor(confirmationId) || !isCurrent()) return
 
     channel = socket.channel(`auth:${confirmationId}`)
     channel.on('confirmed', () => check(confirmationId))

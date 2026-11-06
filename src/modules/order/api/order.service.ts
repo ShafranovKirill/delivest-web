@@ -38,8 +38,8 @@ export const OrderService = {
     return data.data.confirmation_url
   },
 
-  async getActiveOrders(): Promise<ActiveOrder[]> {
-    const { data } = await api.get<ActiveOrdersResponse>('/client/orders/active')
+  async getActiveOrders(signal?: AbortSignal): Promise<ActiveOrder[]> {
+    const { data } = await api.get<ActiveOrdersResponse>('/client/orders/active', { signal })
     return data.data
   },
 }

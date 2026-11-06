@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { queryClient } from '@/api/client'
 import type { ClientProfile, ClientSession } from '../api/auth.service'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
+import { clearPrivateQueries } from '../private-query-cache'
 
 export const useAuthStore = defineStore(
   'auth',
@@ -10,6 +11,7 @@ export const useAuthStore = defineStore(
     const accessToken = ref<string | null>(null)
     const refreshToken = ref<string | null>(null)
     const client = ref<ClientProfile | null>(null)
+    const sessionEpoch = ref(0)
     const lastPhone = ref<string | null>(null)
     const isModalOpen = ref(false)
     const isProfileOpen = ref(false)
@@ -29,11 +31,15 @@ export const useAuthStore = defineStore(
     }
 
     function signIn(session: ClientSession) {
+      clearPrivateQueries(queryClient, client.value?.id)
+      sessionEpoch.value++
       setSession(session)
       queryClient.invalidateQueries()
     }
 
     function logout() {
+      clearPrivateQueries(queryClient, client.value?.id)
+      sessionEpoch.value++
       isProfileOpen.value = false
       accessToken.value = null
       refreshToken.value = null
@@ -73,6 +79,7 @@ export const useAuthStore = defineStore(
       accessToken,
       refreshToken,
       client,
+      sessionEpoch,
       lastPhone,
       isModalOpen,
       isProfileOpen,
