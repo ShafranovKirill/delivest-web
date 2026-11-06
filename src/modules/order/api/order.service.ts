@@ -16,8 +16,10 @@ export type ActiveOrder = components['schemas']['ActiveOrder']
 export type OrderStatus = ActiveOrder['status']
 
 export const OrderService = {
-  async createOrder(payload: CreateOrderPayload): Promise<Order> {
-    const { data } = await api.post<OrderResponse>('/client/orders', payload)
+  async createOrder(payload: CreateOrderPayload, idempotencyKey: string): Promise<Order> {
+    const { data } = await api.post<OrderResponse>('/client/orders', payload, {
+      headers: { 'Idempotency-Key': idempotencyKey },
+    })
     return data.data
   },
 

@@ -358,7 +358,7 @@ export interface paths {
     put?: never
     /**
      * Создать заказ
-     * @description Создаёт заказ по cart_id и branch_id из тела запроса.
+     * @description Создаёт заказ по cart_id и branch_id. Повтор с тем же Idempotency-Key возвращает созданный заказ.
      */
     post: operations['DelivestWeb.Client.Order.OrderController.create']
     delete?: never
@@ -728,6 +728,26 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/orders/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Заказ текущей сессии
+     * @description Возвращает конкретный заказ владельцу сессии или вошедшему клиенту.
+     */
+    get: operations['DelivestWeb.Client.Order.OrderController.show']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
@@ -828,6 +848,8 @@ export interface components {
        * @example 100
        */
       spend_points?: number | null
+      /** @description Отпечаток корзины из CartResponse; при изменении вернётся cart_changed */
+      cart_revision?: string | null
     }
     /** ConfirmCodeRequest */
     ConfirmCodeRequest: {
@@ -1424,7 +1446,10 @@ export interface components {
          * @example #b86a69
          */
         dark_primary_color: string | null
-        /** @enum {string} */
+        /**
+         * @example light
+         * @enum {string}
+         */
         default_theme: 'light' | 'dark'
         description: string | null
         documents: components['schemas']['LegalDocumentSummary'][]
@@ -1535,6 +1560,8 @@ export interface components {
         total_amount: number
         /** @example 3 */
         total_quantity: number
+        /** @description Отпечаток состава и условий корзины для оформления заказа */
+        revision?: string | null
       }
     }
     /** DeliveryQuote */
@@ -1705,6 +1732,10 @@ export interface components {
         | 'cart_not_found'
         | 'cart_is_empty'
         | 'cart_already_ordered'
+        | 'cart_changed'
+        | 'idempotency_conflict'
+        | 'invalid_idempotency_key'
+        | 'payment_unavailable'
         | 'cart_branch_mismatch'
         | 'product_unavailable'
         | 'client_blocked'
@@ -1860,7 +1891,10 @@ export interface components {
        * @example Тюмень
        */
       city?: string | null
-      /** @description Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки */
+      /**
+       * @description Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки
+       * @example Asia/Yekaterinburg
+       */
       timezone?: string
       /**
        * @description Минуты до готовности вместе с добавкой на загрузку
@@ -2695,7 +2729,10 @@ export interface operations {
   'DelivestWeb.Client.Order.OrderController.create': {
     parameters: {
       query?: never
-      header?: never
+      header?: {
+        /** @description UUID ключ одного оформления для владельца и филиала */
+        'Idempotency-Key'?: string
+      }
       path?: never
       cookie?: never
     }
@@ -2724,6 +2761,15 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
+      /** @description Ключ уже использован с другим запросом */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
       /** @description Ошибка создания заказа */
       422: {
         headers: {
@@ -2735,6 +2781,15 @@ export interface operations {
       }
       /** @description Слишком много запросов */
       429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Сервис оплаты недоступен */
+      502: {
         headers: {
           [name: string]: unknown
         }
@@ -3499,6 +3554,38 @@ export interface operations {
         }
       }
       /** @description Корзина не найдена */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.show': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description ID заказа */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Заказ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['OrderResponse']
+        }
+      }
+      /** @description Заказ не найден */
       404: {
         headers: {
           [name: string]: unknown
