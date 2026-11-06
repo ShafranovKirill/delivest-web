@@ -3,6 +3,7 @@ import type { Channel } from 'phoenix'
 import { queryClient } from '@/api/client'
 import { getSocket, reconnectSocket } from '@/api/socket'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { identityQueryKey } from '@/modules/auth/private-query-cache'
 import { LOYALTY_KEY } from '@/modules/account/composables/useLoyaltyQuery'
 import { MY_ORDERS_KEY } from '@/modules/account/composables/useMyOrdersQuery'
 import type { ActiveOrder } from '../api/order.service'
@@ -23,31 +24,81 @@ function replaceKnown(list: ActiveOrder[] | undefined, { order }: OrderEvent) {
 export function useLiveOrders() {
   const authStore = useAuthStore()
   let channel: Channel | null = null
+  let orderHandlerRef: number | null = null
   let joined = false
+  let active = true
+  let channelVersion = 0
 
-  getSocket()
-    .then((socket) => {
-      channel = socket.channel('orders')
+  function leaveChannel() {
+    if (!channel) return
+    if (orderHandlerRef !== null) channel.off('order', orderHandlerRef)
+    channel.leave()
+    channel = null
+    orderHandlerRef = null
+    joined = false
+  }
 
-      channel.on('order', (event: OrderEvent) => {
-        queryClient.invalidateQueries({ queryKey: [LOYALTY_KEY] })
-        queryClient.setQueryData<ActiveOrder[]>(ACTIVE_ORDERS_KEY, (list) =>
-          upsertActive(list, event),
+  async function connectChannel(identityId: string | null, epoch: number) {
+    const version = ++channelVersion
+    leaveChannel()
+    try {
+      const isCurrent = () => authStore.sessionEpoch === epoch
+      const socket = await getSocket(epoch, isCurrent)
+      if (!active || version !== channelVersion) return
+      await reconnectSocket(epoch, isCurrent)
+      if (
+        !active ||
+        version !== channelVersion ||
+        authStore.sessionEpoch !== epoch ||
+        (authStore.client?.id ?? null) !== identityId
+      ) {
+        return
+      }
+
+      const nextChannel = socket.channel('orders')
+      channel = nextChannel
+      orderHandlerRef = nextChannel.on('order', (event: OrderEvent) => {
+        if (
+          !active ||
+          version !== channelVersion ||
+          authStore.sessionEpoch !== epoch ||
+          (authStore.client?.id ?? null) !== identityId
         )
-        queryClient.setQueryData<ActiveOrder[]>(MY_ORDERS_KEY, (list) => replaceKnown(list, event))
+          return
+        queryClient.invalidateQueries({ queryKey: [LOYALTY_KEY] })
+        queryClient.setQueryData<ActiveOrder[]>(
+          identityQueryKey(ACTIVE_ORDERS_KEY, identityId),
+          (list) => upsertActive(list, event),
+        )
+        if (identityId) {
+          queryClient.setQueryData<ActiveOrder[]>(
+            identityQueryKey(MY_ORDERS_KEY, identityId),
+            (list) => replaceKnown(list, event),
+          )
+        }
       })
 
-      channel.join().receive('ok', () => {
+      nextChannel.join().receive('ok', () => {
+        if (!active || version !== channelVersion || authStore.sessionEpoch !== epoch) return
         if (joined) queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
         joined = true
       })
-    })
-    .catch((error) => console.error(error))
+    } catch (error) {
+      if (active && version === channelVersion) console.error(error)
+    }
+  }
 
   watch(
-    () => authStore.client?.id ?? null,
-    () => reconnectSocket().catch((error) => console.error(error)),
+    [() => authStore.client?.id ?? null, () => authStore.sessionEpoch],
+    ([identityId, epoch]) => {
+      void connectChannel(identityId, epoch)
+    },
+    { immediate: true },
   )
 
-  onScopeDispose(() => channel?.leave())
+  onScopeDispose(() => {
+    active = false
+    channelVersion++
+    leaveChannel()
+  })
 }
