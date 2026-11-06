@@ -630,6 +630,7 @@ export const en: typeof ru = {
   },
   pwa: {
     push: {
+      cleanupFailed: 'Notifications are temporarily disabled. Reload the page to continue.',
       title: 'Get order updates',
       text: 'We will notify you when your order is being prepared and when it is ready',
       enable: 'Turn on notifications',

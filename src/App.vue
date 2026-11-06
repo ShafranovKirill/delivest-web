@@ -7,11 +7,16 @@ import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useBrandColor } from '@/modules/franchise/composables/useBrandColor'
 import AppToast from '@/modules/shared/components/ui/AppToast.vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
 
 useThemeStore()
 useBrandColor()
 const localeStore = useLocaleStore()
 const franchiseStore = useFranchiseStore()
+const authStore = useAuthStore()
+function retryPushCleanup() {
+  window.location.reload()
+}
 const { t } = useI18n()
 const online = ref(true)
 const reconnected = ref(false)
@@ -48,6 +53,16 @@ useHead({
 
 <template>
   <AppToast />
+  <div
+    v-if="authStore.pushCleanupError"
+    role="alert"
+    class="fixed inset-x-0 top-0 z-[10000] bg-red-900 px-4 py-2 text-center text-sm text-white"
+  >
+    {{ t('pwa.push.cleanupFailed') }}
+    <button type="button" class="ml-3 underline" @click="retryPushCleanup">
+      {{ t('common.retry') }}
+    </button>
+  </div>
   <div
     v-if="!online || reconnected"
     role="status"
