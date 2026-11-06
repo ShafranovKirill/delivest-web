@@ -83,6 +83,7 @@ export const en: typeof ru = {
   errors: {
     fallback: 'Something went wrong. Please try again',
     offline: 'No connection to the server. Check your internet',
+    reconnected: 'Network is available again',
     codes: {
       bad_request: 'Invalid request',
       branch_id_required: 'No branch selected',
@@ -209,6 +210,7 @@ export const en: typeof ru = {
     },
   },
   delivery: {
+    checking: 'Checking delivery cost…',
     free: 'Free delivery',
     price: 'Delivery {price}',
     priceFreeFrom: 'Delivery {price}, free from {sum}',
