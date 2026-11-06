@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useFulfillmentStore } from './fulfillment.store'
 import type { DeliveryAddress } from '../utils/deliveryAddress'
@@ -14,6 +14,17 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
   const isPickerOpen = ref(false)
   const pickerMode = ref<PickerMode>('delivery')
   const addressDrafts = ref<Record<string, DeliveryAddress>>({})
+  watch(
+    () => authStore.client?.id ?? 'guest',
+    (_next, previous) => {
+      if (previous && previous !== 'guest') {
+        addressDrafts.value = {}
+        isPickerOpen.value = false
+        settle(false)
+      }
+    },
+    { flush: 'sync' },
+  )
 
   function saveAddressDraft(branchId: string, address: DeliveryAddress) {
     addressDrafts.value[branchId] = { ...address }
