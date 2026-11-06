@@ -135,6 +135,11 @@
             "example": 100,
             "nullable": true,
             "type": "integer"
+          },
+          "cart_revision": {
+            "description": "Отпечаток корзины из CartResponse; при изменении вернётся cart_changed",
+            "nullable": true,
+            "type": "string"
           }
         },
         "required": ["cart_id", "branch_id"],
@@ -881,7 +886,8 @@
                 "nullable": true,
                 "type": "string"
               },
-              "default_theme": { "enum": ["light", "dark"], "type": "string" },
+              "default_theme": { "enum": ["light", "dark"], "type": "string",
+                "example": "light" },
               "description": { "nullable": true, "type": "string" },
               "documents": {
                 "items": { "$ref": "#/components/schemas/LegalDocumentSummary" },
@@ -1042,7 +1048,12 @@
                 "type": "integer"
               },
               "total_amount": { "description": "К оплате", "example": 150000, "type": "integer" },
-              "total_quantity": { "example": 3, "type": "integer" }
+              "total_quantity": { "example": 3, "type": "integer" },
+              "revision": {
+                "description": "Отпечаток состава и условий корзины для оформления заказа",
+                "nullable": true,
+                "type": "string"
+              }
             },
             "required": [
               "id",
@@ -1231,58 +1242,62 @@
           },
           "error": {
             "enum": [
-              "bad_request",
-              "branch_id_required",
-              "branch_not_found",
-              "document_not_found",
-              "cart_not_found",
-              "cart_is_empty",
-              "cart_already_ordered",
-              "cart_branch_mismatch",
-              "product_unavailable",
-              "client_blocked",
-              "quantity_limit_exceeded",
-              "item_not_found",
-              "validation_failed",
-              "order_failed",
-              "order_not_found",
-              "order_not_cancellable",
-              "too_many_requests",
-              "unauthorized",
-              "client_auth_required",
-              "invalid_phone",
-              "call_failed",
-              "confirmation_not_found",
-              "invalid_code",
-              "invalid_refresh_token",
-              "address_not_found",
-              "internal_error",
-              "price_changed",
-              "delivery_below_minimum",
-              "delivery_outside_zones",
-              "branch_paused",
-              "branch_closed",
-              "cook_by_in_past",
-              "cook_by_outside_hours",
-              "fulfillment_unavailable",
-              "delivery_no_coordinates",
-              "promo_unavailable",
-              "promo_gift_not_available",
-              "promo_gift_invalid",
-              "points_unavailable",
-              "insufficient_points",
-              "points_over_limit",
-              "promo_not_found",
-              "promo_inactive",
-              "promo_not_started",
-              "promo_expired",
-              "promo_exhausted",
-              "promo_requires_client",
-              "promo_client_limit",
-              "promo_not_owner",
-              "promo_code_used",
-              "promo_code_required"
-            ],
+                      "bad_request",
+                      "branch_id_required",
+                      "branch_not_found",
+                      "document_not_found",
+                      "cart_not_found",
+                      "cart_is_empty",
+                      "cart_already_ordered",
+                      "cart_changed",
+                      "idempotency_conflict",
+                      "invalid_idempotency_key",
+                      "payment_unavailable",
+                      "cart_branch_mismatch",
+                      "product_unavailable",
+                      "client_blocked",
+                      "quantity_limit_exceeded",
+                      "item_not_found",
+                      "validation_failed",
+                      "order_failed",
+                      "order_not_found",
+                      "order_not_cancellable",
+                      "too_many_requests",
+                      "unauthorized",
+                      "client_auth_required",
+                      "invalid_phone",
+                      "call_failed",
+                      "confirmation_not_found",
+                      "invalid_code",
+                      "invalid_refresh_token",
+                      "address_not_found",
+                      "internal_error",
+                      "price_changed",
+                      "delivery_below_minimum",
+                      "delivery_outside_zones",
+                      "branch_paused",
+                      "branch_closed",
+                      "cook_by_in_past",
+                      "cook_by_outside_hours",
+                      "fulfillment_unavailable",
+                      "delivery_no_coordinates",
+                      "promo_unavailable",
+                      "promo_gift_not_available",
+                      "promo_gift_invalid",
+                      "points_unavailable",
+                      "insufficient_points",
+                      "points_over_limit",
+                      "promo_not_found",
+                      "promo_inactive",
+                      "promo_not_started",
+                      "promo_expired",
+                      "promo_exhausted",
+                      "promo_requires_client",
+                      "promo_client_limit",
+                      "promo_not_owner",
+                      "promo_code_used",
+                      "promo_code_required"
+                    ],
             "example": "validation_failed",
             "type": "string"
           },
@@ -2327,9 +2342,20 @@
       },
       "post": {
         "callbacks": {},
-        "description": "Создаёт заказ по cart_id и branch_id из тела запроса.",
+        "description": "Создаёт заказ по cart_id и branch_id. Повтор с тем же Idempotency-Key возвращает созданный заказ.",
         "operationId": "DelivestWeb.Client.Order.OrderController.create",
-        "parameters": [],
+        "parameters": [
+                        {
+                          "description": "UUID ключ одного оформления для владельца и филиала",
+                          "in": "header",
+                          "name": "Idempotency-Key",
+                          "required": false,
+                          "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                          }
+                        }
+                      ],
         "requestBody": {
           "content": {
             "application/json": { "schema": { "$ref": "#/components/schemas/CreateOrderRequest" } }
@@ -2361,6 +2387,26 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Слишком много запросов"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Ключ уже использован с другим запросом"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Сервис оплаты недоступен"
           }
         },
         "summary": "Создать заказ",
@@ -3112,6 +3158,50 @@
         },
         "summary": "Применить промокод",
         "tags": ["Cart"]
+      }
+    },
+    "/client/orders/{id}": {
+      "get": {
+        "callbacks": {},
+        "description": "Возвращает конкретный заказ владельцу сессии или вошедшему клиенту.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.show",
+        "parameters": [
+          {
+            "description": "ID заказа",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            },
+            "description": "Заказ"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Заказ не найден"
+          }
+        },
+        "summary": "Заказ текущей сессии",
+        "tags": [
+          "Orders"
+        ]
       }
     }
   },

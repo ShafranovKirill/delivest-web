@@ -14,7 +14,12 @@ import { t } from '@/i18n'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { emptyDeliveryAddress, toAddressPayload } from '@/modules/fulfillment/utils/deliveryAddress'
 
-const PRICE_ERRORS = ['price_changed', 'promo_unavailable', 'promo_gift_not_available']
+const PRICE_ERRORS = [
+  'price_changed',
+  'cart_changed',
+  'promo_unavailable',
+  'promo_gift_not_available',
+]
 
 export const useOrderStore = defineStore('order', () => {
   const branchStore = useBranchStore()
@@ -140,11 +145,12 @@ export const useOrderStore = defineStore('order', () => {
       ),
       branch_id: branchId,
       cart_id: cartId,
+      cart_revision: cartStore.cart?.revision ?? undefined,
       expected_total: cartStore.totalAmount,
     }
 
     try {
-      const order = await OrderService.createOrder(payload)
+      const order = await OrderService.createOrder(payload, cartId)
       if (version !== submitVersion || requestedContext !== context()) {
         if (requestedContext === context() && branchStore.activeBranch?.id === branchId) {
           void cartStore.fetchCart(branchId, true).catch(console.error)
@@ -171,6 +177,10 @@ export const useOrderStore = defineStore('order', () => {
       errorMessage.value = getApiErrorMessage(error, t('order.failed'))
       if (errorCode === 'client_auth_required' || errorCode === 'unauthorized') {
         authStore.openModal()
+      }
+      if (errorCode === 'idempotency_conflict' || errorCode === 'payment_unavailable') {
+        queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
+        queryClient.invalidateQueries({ queryKey: MY_ORDERS_KEY })
       }
       if (errorCode === 'fulfillment_unavailable') {
         await branchStore.refreshBranches().catch(() => null)
