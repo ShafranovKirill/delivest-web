@@ -61,7 +61,7 @@ onMounted(() => {
   cartStore.initBranchSync()
 
   if (!cartStore.isInitialized) {
-    cartStore.fetchCart(branchStore.activeBranch?.id)
+    cartStore.fetchCart(branchStore.activeBranch?.id).catch(console.error)
   }
 })
 </script>

@@ -11,11 +11,13 @@ import {
 } from '../api/cart.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { getApiErrorCode } from '@/api/errors'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
 
 export const useCartStore = defineStore('cart', () => {
   const cart = ref<Cart | null>(null)
   const isLoading = ref(false)
   const isInitialized = ref(false)
+  const revision = ref(0)
 
   const items = computed<CartItem[]>(() => cart.value?.items ?? [])
   const totalQuantity = computed<number>(() => cart.value?.total_quantity ?? 0)
@@ -31,20 +33,65 @@ export const useCartStore = defineStore('cart', () => {
   const hasStopped = computed<boolean>(() => items.value.some((item) => item.stopped && !item.gift))
 
   const branchStore = useBranchStore()
+  const authStore = useAuthStore()
+  let requestVersion = 0
+  let mutationVersion = 0
+  let fetchController: AbortController | null = null
+  let mutationQueue: Promise<unknown> = Promise.resolve()
+  let mutationActiveContext: string | null = null
+  let contextGeneration = 0
+  const context = () => `${branchStore.activeBranch?.id ?? ''}:${authStore.sessionEpoch}`
+
+  watch(
+    context,
+    () => {
+      contextGeneration++
+      requestVersion++
+      mutationVersion++
+      revision.value++
+      fetchController?.abort()
+      mutationQueue = Promise.resolve()
+      mutationActiveContext = null
+      cart.value = null
+      isInitialized.value = false
+      isLoading.value = false
+    },
+    { flush: 'sync' },
+  )
 
   async function fetchCart(branchId?: string, force: boolean = false): Promise<Cart> {
+    const requestedContext = context()
+    const requestedGeneration = contextGeneration
+    const requestedBranch = branchId ?? branchStore.activeBranch?.id
+    const version = ++requestVersion
+    const mutationAtStart = mutationVersion
+    fetchController?.abort()
+    const controller = new AbortController()
+    fetchController = controller
     isLoading.value = true
     try {
-      const currentBranchId = branchId ?? branchStore.activeBranch?.id
-      const data = await CartService.getCart(currentBranchId, force)
-      cart.value = data
-      isInitialized.value = true
+      const data = await CartService.getCart(requestedBranch, force, controller.signal)
+      if (
+        version === requestVersion &&
+        requestedGeneration === contextGeneration &&
+        requestedContext === context() &&
+        requestedBranch === branchStore.activeBranch?.id &&
+        mutationAtStart === mutationVersion &&
+        mutationActiveContext !== requestedContext
+      ) {
+        cart.value = data
+        revision.value++
+        isInitialized.value = true
+      }
       return data
     } catch (error: unknown) {
-      console.error('[CartStore] Failed to fetch cart:', error)
+      if (!controller.signal.aborted) console.error('[CartStore] Failed to fetch cart:', error)
       throw error
     } finally {
-      isLoading.value = false
+      if (version === requestVersion) {
+        if (mutationActiveContext !== requestedContext) isLoading.value = false
+        fetchController = null
+      }
     }
   }
 
@@ -53,44 +100,58 @@ export const useCartStore = defineStore('cart', () => {
   function initBranchSync() {
     if (stopBranchSync) return stopBranchSync
 
-    stopBranchSync = watch(
-      () => branchStore.activeBranch?.id,
-      async (newBranchId, oldBranchId) => {
-        if (newBranchId === oldBranchId) return
-
-        if (newBranchId) {
-          try {
-            await fetchCart(newBranchId, true)
-          } catch (error) {
-            console.error('[CartStore] Failed to update cart after branch change:', error)
-          }
-        } else {
-          cart.value = null
+    stopBranchSync = watch(context, async () => {
+      const newBranchId = branchStore.activeBranch?.id
+      if (newBranchId) {
+        try {
+          await fetchCart(newBranchId, true)
+        } catch (error) {
+          console.error('[CartStore] Failed to update cart after branch change:', error)
         }
-      },
-    )
+      }
+    })
 
     return stopBranchSync
   }
 
-  async function withCart(mutate: (cartId: string) => Promise<Cart>): Promise<Cart> {
-    if (!cart.value?.id) await fetchCart()
-
-    isLoading.value = true
-    try {
+  function withCart(mutate: (cartId: string) => Promise<Cart>): Promise<Cart> {
+    const queuedContext = context()
+    const queuedGeneration = contextGeneration
+    const isCurrent = () => queuedGeneration === contextGeneration && queuedContext === context()
+    const run = async () => {
+      if (!isCurrent()) throw new Error('Cart context changed')
+      isLoading.value = true
       try {
-        cart.value = await mutate(cart.value!.id)
-      } catch (error) {
-        if (getApiErrorCode(error) !== 'cart_not_found') throw error
-
-        const fresh = await fetchCart(undefined, true)
-        isLoading.value = true
-        cart.value = await mutate(fresh.id)
+        if (!cart.value?.id) await fetchCart()
+        if (!isCurrent()) throw new Error('Cart context changed')
+        const cartId = cart.value?.id
+        if (!cartId) throw new Error('Cart is unavailable')
+        mutationActiveContext = queuedContext
+        let data: Cart
+        try {
+          data = await mutate(cartId)
+        } catch (error) {
+          if (getApiErrorCode(error) !== 'cart_not_found') throw error
+          const fresh = await fetchCart(undefined, true)
+          if (!isCurrent()) throw new Error('Cart context changed')
+          data = await mutate(fresh.id)
+        }
+        if (isCurrent()) {
+          mutationVersion++
+          revision.value++
+          requestVersion++
+          fetchController?.abort()
+          cart.value = data
+        }
+        return data
+      } finally {
+        if (isCurrent() && mutationActiveContext === queuedContext) mutationActiveContext = null
+        if (isCurrent()) isLoading.value = false
       }
-      return cart.value!
-    } finally {
-      isLoading.value = false
     }
+    const result = mutationQueue.then(run)
+    mutationQueue = result.catch(() => undefined)
+    return result
   }
 
   async function addStarItem(productId: string): Promise<Cart> {
@@ -160,7 +221,6 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function setFulfillment(fulfillmentType: FulfillmentType): Promise<Cart | null> {
-    if (cart.value?.fulfillment_type === fulfillmentType) return cart.value
     return withCart((cartId) => CartService.setFulfillment(cartId, fulfillmentType))
   }
 
@@ -191,6 +251,7 @@ export const useCartStore = defineStore('cart', () => {
     hasStopped,
     isLoading,
     isInitialized,
+    revision,
 
     fetchCart,
     initBranchSync,
