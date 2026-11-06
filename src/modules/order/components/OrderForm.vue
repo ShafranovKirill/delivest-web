@@ -88,6 +88,7 @@ const form = reactive({
   call_operator_for_address: false,
 })
 const draftKey = 'checkout-draft'
+const draftOwner = () => authStore.client?.id ?? 'guest'
 
 const loyalty = useLoyaltyQuery()
 const starsLabel = useStarsLabel()
@@ -209,18 +210,43 @@ const loyaltyRate = computed(() => branchStore.activeBranch?.branch_info?.loyalt
 const useStars = ref(false)
 let restoredCartId: string | null = null
 watch(
+  [() => authStore.sessionEpoch, () => authStore.client?.id],
+  () => {
+    restoredCartId = null
+    form.customer_name = authStore.client?.name ?? ''
+    form.customer_phone = authStore.client?.phone ?? '+7'
+    form.comment = ''
+    form.cook_by = null
+    form.call_operator_for_address = false
+    form.cash_given = null
+    useStars.value = false
+    try {
+      sessionStorage.removeItem(draftKey)
+    } catch {
+      /* Storage is optional. */
+    }
+  },
+  { flush: 'sync' },
+)
+watch(
   [() => cartStore.cart?.id, () => branchStore.activeBranch?.id],
   ([cartId, branchId]) => {
     if (!authStore.isRequired || !cartId || !branchId || cartId === restoredCartId) return
     restoredCartId = cartId
     try {
       const saved = JSON.parse(sessionStorage.getItem(draftKey) ?? 'null')
-      if (saved?.branchId === branchId && saved?.cartId === cartId) {
+      if (
+        saved?.owner === draftOwner() &&
+        saved?.branchId === branchId &&
+        saved?.cartId === cartId
+      ) {
         Object.assign(form, saved.form)
         if (saved.pickupKind === 'pickup' || saved.pickupKind === 'dine_in') {
           pickupKind.value = saved.pickupKind
         }
         useStars.value = saved.useStars === true
+      } else if (saved) {
+        sessionStorage.removeItem(draftKey)
       }
     } catch {
       // Checkout remains available when storage is unavailable.
@@ -236,6 +262,7 @@ watch(
       sessionStorage.setItem(
         draftKey,
         JSON.stringify({
+          owner: draftOwner(),
           branchId: branchStore.activeBranch?.id,
           cartId: cartStore.cart?.id,
           form,
@@ -372,6 +399,13 @@ function handleSubmit() {
         {{ closedNotice }}
       </p>
 
+      <p
+        v-if="isDelivery && delivery.pending.value && !form.call_operator_for_address"
+        class="mt-2 text-sm font-medium text-gray-600"
+        role="status"
+      >
+        {{ t('delivery.checking') }}
+      </p>
       <p
         v-if="isDelivery && delivery.hint.value"
         class="mt-2 text-sm font-medium"

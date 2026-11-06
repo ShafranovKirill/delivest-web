@@ -1,5 +1,5 @@
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
-import { keepPreviousData, useQuery } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { formatPrice } from '@/utils/money'
@@ -26,7 +26,9 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
       branchId.value,
       target.value?.latitude ?? null,
       target.value?.longitude ?? null,
+      JSON.stringify(target.value),
       cartStore.totalAmount,
+      cartStore.revision,
     ]),
     queryFn: () =>
       DeliveryService.quote(
@@ -36,15 +38,19 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
         cartStore.totalAmount,
       ),
     enabled: computed(() => Boolean(branchId.value && target.value)),
-    placeholderData: keepPreviousData,
     staleTime: 60 * 1000,
   })
 
-  const quote = computed(() => (target.value ? (query.data.value ?? null) : null))
+  const pending = computed(() =>
+    Boolean(target.value && (query.isPending.value || query.isFetching.value)),
+  )
+  const quote = computed(() => (target.value && !pending.value ? (query.data.value ?? null) : null))
 
   const price = computed(() => (quote.value?.status === 'ok' ? (quote.value.price ?? 0) : null))
 
-  const blocked = computed(() => Boolean(quote.value && quote.value.status !== 'ok'))
+  const blocked = computed(() =>
+    Boolean(target.value && (pending.value || !quote.value || quote.value.status !== 'ok')),
+  )
 
   const notDelivered = computed(() =>
     ['outside_zones', 'no_coordinates'].includes(quote.value?.status ?? ''),
@@ -72,5 +78,5 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
     }
   })
 
-  return { quote, price, blocked, notDelivered, hint, isFetching: query.isFetching }
+  return { quote, price, blocked, pending, notDelivered, hint, isFetching: query.isFetching }
 }

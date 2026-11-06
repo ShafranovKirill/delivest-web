@@ -8,12 +8,14 @@ import { useFulfillmentStore } from '../../stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '../../stores/fulfillmentFlow.store'
 import { useDeliveryQuote } from '../../composables/useDeliveryQuote'
 import { useDeliveryZones } from '../../composables/useDeliveryZones'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { emptyDeliveryAddress, type DeliveryAddress } from '../../utils/deliveryAddress'
 
 const { t } = useI18n()
 const branchStore = useBranchStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
+const authStore = useAuthStore()
 
 const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
 
@@ -22,6 +24,19 @@ const address = ref<DeliveryAddress>({
     fulfillmentStore.deliveryAddress ??
     emptyDeliveryAddress(city.value ?? '')),
 })
+watch(
+  [() => authStore.client?.id ?? 'guest', () => branchStore.activeBranch?.id],
+  ([, branchId], [previousOwner, previousBranchId]) => {
+    if (previousBranchId !== branchId || (previousOwner && previousOwner !== 'guest')) {
+      address.value = {
+        ...(flowStore.addressDrafts[branchId ?? ''] ??
+          fulfillmentStore.deliveryAddress ??
+          emptyDeliveryAddress(city.value ?? '')),
+      }
+    }
+  },
+  { flush: 'sync' },
+)
 
 watch(
   address,

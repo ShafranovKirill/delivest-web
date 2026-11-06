@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "test:auth": "node --experimental-strip-types --test tests/auth-session-isolation.test.mjs",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
@@ -15,7 +16,8 @@
     "format": "prettier --write --experimental-cli src/",
     "schema:download": "curl \"http://localhost:4000/api/openapi\" -o ./src/api/docs/swagger.json",
     "schema:generate": "openapi-typescript ./src/api/docs/swagger.json --output ./src/api/types.ts",
-    "schema:sync": "pnpm run schema:download && pnpm run schema:generate"
+    "schema:sync": "pnpm run schema:download && pnpm run schema:generate",
+    "test:regression": "vitest run tests/*.test.ts"
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",
@@ -64,6 +66,7 @@
     "unplugin-vue-components": "^32.1.0",
     "vite": "^8.2.2",
     "vite-plugin-vue-devtools": "^8.2.1",
+    "vitest": "^4.1.12",
     "vue-tsc": "^3.3.11"
   }
 }

@@ -1,6 +1,6 @@
 // order.store.ts
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { OrderService, type Order, type CreateOrderPayload } from '../api/order.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
@@ -29,6 +29,8 @@ export const useOrderStore = defineStore('order', () => {
   const errorMessage = ref<string | null>(null)
   let loadVersion = 0
   let submitVersion = 0
+  const context = () => `${branchStore.activeBranch?.id ?? ''}:${authStore.sessionEpoch}`
+  watch(context, () => resetOrderState(), { flush: 'sync' })
 
   function handleStepChange(step: string | number) {
     const numericStep = Number(step)
@@ -67,24 +69,25 @@ export const useOrderStore = defineStore('order', () => {
     const cached = String(createdOrderId.value) === id && lastCreatedOrder.value
     const hadPendingRequest = isLoading.value
     const version = ++loadVersion
+    const requestedContext = context()
     submitVersion++
     if (cached && !hadPendingRequest) return
     isLoading.value = true
     errorMessage.value = null
     try {
       const order = await OrderService.getOrder(id)
-      if (version !== loadVersion) return
+      if (version !== loadVersion || requestedContext !== context()) return
       lastCreatedOrder.value = order
       createdOrderId.value = order.id
       activeStep.value = 3
     } catch {
-      if (version !== loadVersion) return
+      if (version !== loadVersion || requestedContext !== context()) return
       createdOrderId.value = null
       lastCreatedOrder.value = null
       activeStep.value = 1
       errorMessage.value = t('order.success.loadFailed')
     } finally {
-      if (version === loadVersion) isLoading.value = false
+      if (version === loadVersion && requestedContext === context()) isLoading.value = false
     }
   }
 
@@ -112,6 +115,7 @@ export const useOrderStore = defineStore('order', () => {
 
     isLoading.value = true
     const version = ++submitVersion
+    const requestedContext = context()
 
     const shouldSendAddress =
       form.fulfillment_type === 'delivery' && !form.call_operator_for_address && form.address
@@ -141,8 +145,8 @@ export const useOrderStore = defineStore('order', () => {
 
     try {
       const order = await OrderService.createOrder(payload)
-      if (version !== submitVersion) {
-        if (branchStore.activeBranch?.id === branchId) {
+      if (version !== submitVersion || requestedContext !== context()) {
+        if (requestedContext === context() && branchStore.activeBranch?.id === branchId) {
           void cartStore.fetchCart(branchId, true).catch(console.error)
         }
         queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
@@ -162,7 +166,7 @@ export const useOrderStore = defineStore('order', () => {
 
       return order
     } catch (error: unknown) {
-      if (version !== submitVersion) return
+      if (version !== submitVersion || requestedContext !== context()) return
       const errorCode = getApiErrorCode(error)
       errorMessage.value = getApiErrorMessage(error, t('order.failed'))
       if (errorCode === 'client_auth_required' || errorCode === 'unauthorized') {
@@ -176,7 +180,7 @@ export const useOrderStore = defineStore('order', () => {
       }
       throw error
     } finally {
-      if (version === submitVersion) isLoading.value = false
+      if (version === submitVersion && requestedContext === context()) isLoading.value = false
     }
   }
 

@@ -28,7 +28,7 @@ const mobileModalStore = useMobileModalStore()
 
 onMounted(() => {
   if (!cartStore.isInitialized) {
-    cartStore.fetchCart()
+    cartStore.fetchCart().catch(console.error)
   }
 })
 
@@ -50,9 +50,9 @@ function goToCatalog() {
 
   const slug = route.params.slug
   if (slug) {
-    router.push({ name: 'catalog', params: { slug } })
+    router.push({ name: 'menu', params: { slug } })
   } else {
-    router.push({ name: 'catalog' })
+    router.push({ name: 'menu' })
   }
 }
 </script>
@@ -121,7 +121,7 @@ function goToCatalog() {
           {{ t('cart.removeSoldOut') }}
         </p>
         <p
-          v-else-if="delivery.blocked.value"
+          v-else-if="fulfillment.current?.type === 'delivery' && delivery.blocked.value"
           class="mb-2 text-center text-sm font-medium text-red-500"
         >
           {{ delivery.hint.value }}
@@ -129,7 +129,12 @@ function goToCatalog() {
         <button
           type="button"
           @click="handleCheckout"
-          :disabled="cartStore.isLoading || cartStore.hasStopped || !fulfillment.canOrder"
+          :disabled="
+            cartStore.isLoading ||
+            cartStore.hasStopped ||
+            !fulfillment.canOrder ||
+            (fulfillment.current?.type === 'delivery' && delivery.blocked.value)
+          "
           class="w-full py-3.5 px-4 rounded-2xl bg-(--p-primary-500) text-white font-medium text-base transition-opacity hover:opacity-90 disabled:opacity-50 shadow-sm"
         >
           {{ t('cart.checkout') }}
