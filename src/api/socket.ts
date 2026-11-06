@@ -35,19 +35,27 @@ export function getSocket(epoch: number, isCurrent: () => boolean): Promise<Sock
   }
   latestEpoch = epoch
   isLatestEpochCurrent = isCurrent
-  if (socket) return Promise.resolve(socket)
-
-  if (pending) {
-    if (pending.epoch === epoch) return pending.promise
-    return pending.promise.catch(() => undefined).then(() => getSocket(epoch, isCurrent))
+  if (socket) {
+    return reconnectSocket(epoch, isCurrent).then(() => {
+      if (!isCurrent() || epoch !== latestEpoch || !socket)
+        throw new Error('Stale socket connection request')
+      return socket
+    })
   }
 
+  if (pending?.epoch === epoch) return pending.promise
+  pending = null
+
   const promise = fetchToken(epoch, isCurrent).then(() => {
+    if (!isCurrent() || epoch !== latestEpoch || !tokenEpoch.canCommit(epoch)) {
+      throw new Error('Stale socket connection request')
+    }
     const instance = new Socket(socketUrl(), {
       params: () => ({ token }),
       longPollFallbackMs: LONG_POLL_FALLBACK_MS,
     })
     instance.onError(() => {
+      if (socket !== instance || !isLatestEpochCurrent()) return
       fetchToken(latestEpoch, isLatestEpochCurrent).catch(() => undefined)
     })
     instance.connect()
@@ -71,7 +79,8 @@ export async function reconnectSocket(epoch: number, isCurrent: () => boolean) {
   if (socketTokenEpoch === epoch && isCurrent()) return
   await fetchToken(epoch, isCurrent)
   if (!isCurrent() || !tokenEpoch.canCommit(epoch)) return
-  socket.disconnect(() => {
-    if (isCurrent() && tokenEpoch.canCommit(epoch)) socket?.connect()
+  const instance = socket
+  instance.disconnect(() => {
+    if (socket === instance && isCurrent() && tokenEpoch.canCommit(epoch)) instance.connect()
   })
 }

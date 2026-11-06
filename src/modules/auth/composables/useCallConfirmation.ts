@@ -1,4 +1,4 @@
-import { computed, onScopeDispose, ref } from 'vue'
+import { computed, onScopeDispose, ref, watch } from 'vue'
 import type { Channel } from 'phoenix'
 import axios from 'axios'
 import { getApiErrorCode, getApiErrorMessage } from '@/api/errors'
@@ -44,8 +44,12 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     generation += 1
     stop()
     confirmation.value = null
+    secondsLeft.value = 0
     attemptsLeft.value = null
     errorMessage.value = message
+    isStarting.value = false
+    isChecking.value = false
+    checking = false
   }
 
   function fail({ code }: Failure = {}) {
@@ -59,8 +63,10 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   }
 
   function startCountdown(seconds: number) {
+    const requestGeneration = generation
     secondsLeft.value = seconds
     countdownTimer = setInterval(() => {
+      if (requestGeneration !== generation) return
       secondsLeft.value -= 1
       if (secondsLeft.value <= 0) fail()
     }, 1000)
@@ -79,14 +85,16 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
       const code = getApiErrorCode(error)
       if (code && FINAL_CODES.includes(code) && waitingFor(confirmationId)) fail({ code })
     } finally {
-      checking = false
+      if (requestGeneration === generation) checking = false
     }
   }
 
   function poll(confirmationId: string) {
+    const requestGeneration = generation
     pollTimer = setTimeout(async () => {
+      if (requestGeneration !== generation) return
       await check(confirmationId)
-      if (waitingFor(confirmationId)) poll(confirmationId)
+      if (requestGeneration === generation && waitingFor(confirmationId)) poll(confirmationId)
     }, POLL_INTERVAL_MS)
   }
 
@@ -96,10 +104,11 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
   }
 
   async function listen(confirmationId: string) {
+    const requestGeneration = generation
     const sessionEpoch = authStore.sessionEpoch
     const isCurrent = () => authStore.sessionEpoch === sessionEpoch
     const socket = await getSocket(sessionEpoch, isCurrent)
-    if (!waitingFor(confirmationId) || !isCurrent()) return
+    if (requestGeneration !== generation || !waitingFor(confirmationId) || !isCurrent()) return
 
     channel = socket.channel(`auth:${confirmationId}`)
     channel.on('confirmed', () => check(confirmationId))
@@ -110,31 +119,37 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
     if (isStarting.value) return
 
     reset()
+    const requestGeneration = generation
     isStarting.value = true
     try {
-      confirmation.value = await AuthService.startCall(phone)
+      const result = await AuthService.startCall(phone)
+      if (requestGeneration !== generation) return
+      confirmation.value = result
       const { confirmation_id: confirmationId, expires_in: expiresIn } = confirmation.value
       startCountdown(expiresIn)
       poll(confirmationId)
       listen(confirmationId).catch(() => undefined)
     } catch (error) {
-      reset(getApiErrorMessage(error))
+      if (requestGeneration === generation) reset(getApiErrorMessage(error))
     } finally {
-      isStarting.value = false
+      if (requestGeneration === generation) isStarting.value = false
     }
   }
 
   async function submitCode(code: string) {
     const confirmationId = confirmation.value?.confirmation_id
     if (!confirmationId || isChecking.value) return false
+    const requestGeneration = generation
 
     isChecking.value = true
     attemptsLeft.value = null
     try {
       await AuthService.confirmCode(confirmationId, code)
+      if (requestGeneration !== generation) return false
       await check(confirmationId)
-      return true
+      return requestGeneration === generation
     } catch (error) {
+      if (requestGeneration !== generation) return false
       const failedCode = getApiErrorCode(error)
       if (failedCode === 'invalid_code' && axios.isAxiosError(error)) {
         attemptsLeft.value = error.response?.data?.details?.attempts_left ?? 0
@@ -143,14 +158,19 @@ export function useCallConfirmation(onConfirmed: (session: ClientSession) => voi
       }
       return false
     } finally {
-      isChecking.value = false
+      if (requestGeneration === generation) isChecking.value = false
     }
   }
 
   document.addEventListener('visibilitychange', checkOnReturn)
+  watch(
+    () => authStore.sessionEpoch,
+    () => reset(),
+    { flush: 'sync' },
+  )
 
   onScopeDispose(() => {
-    stop()
+    reset()
     document.removeEventListener('visibilitychange', checkOnReturn)
   })
 
