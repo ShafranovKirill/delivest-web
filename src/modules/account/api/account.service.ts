@@ -24,8 +24,8 @@ export type Loyalty = {
 }
 
 export const AccountService = {
-  async getOrders(): Promise<ActiveOrder[]> {
-    const { data } = await api.get<Envelope<ActiveOrder[]>>('/client/orders')
+  async getOrders(signal?: AbortSignal): Promise<ActiveOrder[]> {
+    const { data } = await api.get<Envelope<ActiveOrder[]>>('/client/orders', { signal })
     return data.data
   },
 
@@ -36,8 +36,8 @@ export const AccountService = {
     return data.data
   },
 
-  async getAddresses(): Promise<ClientAddress[]> {
-    const { data } = await api.get<Envelope<ClientAddress[]>>('/client/addresses')
+  async getAddresses(signal?: AbortSignal): Promise<ClientAddress[]> {
+    const { data } = await api.get<Envelope<ClientAddress[]>>('/client/addresses', { signal })
     return data.data
   },
 
