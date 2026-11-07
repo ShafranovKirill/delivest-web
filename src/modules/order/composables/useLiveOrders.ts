@@ -9,7 +9,7 @@ import { MY_ORDERS_KEY } from '@/modules/account/composables/useMyOrdersQuery'
 import type { ActiveOrder } from '../api/order.service'
 import { ACTIVE_ORDERS_KEY } from './useActiveOrdersQuery'
 
-type OrderEvent = { order: ActiveOrder; active: boolean }
+type OrderEvent = { v?: number; order: ActiveOrder; active: boolean }
 
 function upsertActive(list: ActiveOrder[] | undefined, { order, active }: OrderEvent) {
   if (!list) return list
@@ -65,6 +65,18 @@ export function useLiveOrders() {
           (authStore.client?.id ?? null) !== identityId
         )
           return
+        if (event.v !== undefined && event.v !== 1) {
+          queryClient.invalidateQueries({
+            queryKey: identityQueryKey(ACTIVE_ORDERS_KEY, identityId),
+          })
+          if (identityId) {
+            queryClient.invalidateQueries({
+              queryKey: identityQueryKey(MY_ORDERS_KEY, identityId),
+            })
+          }
+          queryClient.invalidateQueries({ queryKey: [LOYALTY_KEY] })
+          return
+        }
         queryClient.invalidateQueries({ queryKey: [LOYALTY_KEY] })
         queryClient.setQueryData<ActiveOrder[]>(
           identityQueryKey(ACTIVE_ORDERS_KEY, identityId),
