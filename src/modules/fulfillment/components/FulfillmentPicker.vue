@@ -6,7 +6,6 @@ import MapDialog from './MapDialog.vue'
 import ModeSwitch from './ModeSwitch.vue'
 import PaneSkeleton from './PaneSkeleton.vue'
 import { useFulfillmentFlowStore, type PickerMode } from '../stores/fulfillmentFlow.store'
-import { usePrefetchPanes } from '../composables/usePrefetchPanes'
 import { loadDeliveryPane, loadPickupPane } from '../utils/panes'
 
 const asyncPane = (loader: typeof loadDeliveryPane | typeof loadPickupPane) =>
@@ -18,8 +17,6 @@ const PickupPane = asyncPane(loadPickupPane)
 const { t } = useI18n()
 const flowStore = useFulfillmentFlowStore()
 const fulfillment = useFulfillmentStore()
-
-usePrefetchPanes()
 
 const modes = computed<Array<{ value: PickerMode; label: string }>>(() =>
   fulfillment.availableModes.map((value) => ({
@@ -46,7 +43,9 @@ watch(modes, (options) => {
       <ModeSwitch v-if="modes.length > 1" v-model="flowStore.pickerMode" :options="modes" />
       <span v-else class="font-semibold">{{ modes[0]?.label }}</span>
     </template>
-    <DeliveryPane v-if="flowStore.pickerMode === 'delivery'" />
-    <PickupPane v-else-if="flowStore.pickerMode === 'pickup' && modes.length" />
+    <DeliveryPane v-if="flowStore.isPickerOpen && flowStore.pickerMode === 'delivery'" />
+    <PickupPane
+      v-else-if="flowStore.isPickerOpen && flowStore.pickerMode === 'pickup' && modes.length"
+    />
   </MapDialog>
 </template>
