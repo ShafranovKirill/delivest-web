@@ -2,6 +2,70 @@
   "components": {
     "responses": {},
     "schemas": {
+    "ClientCapabilitiesResponse": {
+      "properties": {
+        "api_version": {
+          "enum": [
+            1
+          ],
+          "type": "integer"
+        },
+        "deprecation": {
+          "nullable": true,
+          "type": "string"
+        },
+        "features": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "money_unit": {
+          "enum": [
+            "kopeck"
+          ],
+          "type": "string"
+        },
+        "order_event_version": {
+          "enum": [
+            1
+          ],
+          "type": "integer"
+        },
+        "push": {
+          "properties": {
+            "apns_fcm": {
+              "type": "boolean"
+            },
+            "web_push": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "web_push",
+            "apns_fcm"
+          ],
+          "type": "object"
+        },
+        "timestamp_format": {
+          "enum": [
+            "RFC3339"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "api_version",
+        "order_event_version",
+        "money_unit",
+        "timestamp_format",
+        "features",
+        "push",
+        "deprecation"
+      ],
+      "title": "ClientCapabilitiesResponse",
+      "type": "object"
+    },
       "ActiveOrdersResponse": {
         "properties": {
           "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" }
@@ -1602,6 +1666,9 @@
         "title": "StocksListResponse",
         "type": "object"
       }
+    },
+    "securitySchemes": {
+      "bearer": { "bearerFormat": "JWT", "scheme": "bearer", "type": "http" }
     }
   },
   "info": {
@@ -1611,6 +1678,30 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/client/capabilities": {
+      "get": {
+        "callbacks": {},
+        "description": "Public additive feature discovery for API version 1 clients.",
+        "operationId": "DelivestWeb.Client.CapabilitiesController.show",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCapabilitiesResponse"
+                }
+              }
+            },
+            "description": "Capabilities"
+          }
+        },
+        "summary": "Client API capabilities",
+        "tags": [
+          "Client"
+        ]
+      }
+    },
     "/client/loyalty": {
       "get": {
         "callbacks": {},
