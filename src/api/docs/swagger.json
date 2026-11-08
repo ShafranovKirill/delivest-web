@@ -482,6 +482,8 @@
             "type": "integer"
           },
           "stopped": { "description": "Товар в стоп-листе: заказать нельзя", "type": "boolean" },
+          "unavailable": { "description": "Товар или модификатор больше недоступен", "type": "boolean" },
+          "unavailable_reason": { "nullable": true, "type": "string" },
           "total_price": {
             "description": "Итог по строке с учётом скидок",
             "example": 106200,

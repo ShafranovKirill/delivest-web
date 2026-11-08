@@ -1121,6 +1121,9 @@ export interface components {
       stars_reward?: number
       /** @description Товар в стоп-листе: заказать нельзя */
       stopped?: boolean
+      /** @description Товар или модификатор больше недоступен */
+      unavailable?: boolean
+      unavailable_reason?: string | null
       /**
        * @description Итог по строке с учётом скидок
        * @example 106200

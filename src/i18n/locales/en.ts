@@ -375,6 +375,8 @@ export const en: typeof ru = {
     checkout: 'Proceed to checkout',
     soldOut: 'Sold out',
     removeSoldOut: 'Remove sold out items to place the order',
+    unavailable: 'Item unavailable — remove from cart',
+    unavailableProduct: 'Unavailable product',
     promoGift: 'Promotion gift',
     remove: 'Remove from cart',
     gift: 'Gift: {name}',

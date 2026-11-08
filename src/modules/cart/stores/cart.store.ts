@@ -30,7 +30,7 @@ export const useCartStore = defineStore('cart', () => {
   const hints = computed<PromoHint[]>(() => cart.value?.hints ?? [])
   const promoCode = computed(() => cart.value?.promo_code ?? null)
   const isEmpty = computed<boolean>(() => items.value.length === 0)
-  const hasStopped = computed<boolean>(() => items.value.some((item) => item.stopped && !item.gift))
+  const hasStopped = computed<boolean>(() => items.value.some((item) => (item.stopped || item.unavailable) && !item.gift))
 
   const branchStore = useBranchStore()
   const authStore = useAuthStore()
