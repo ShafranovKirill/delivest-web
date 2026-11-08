@@ -1336,7 +1336,7 @@ export interface components {
     }
     /**
      * PromoReason
-     * @description Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.
+     * @description Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация, `first_order` — только для первого заказа клиента на сайте в этом филиале.
      */
     PromoReason: {
       allowed?: ('dine_in' | 'delivery' | 'pickup')[] | null
@@ -1369,6 +1369,7 @@ export interface components {
         | 'time'
         | 'weekday'
         | 'requires_client'
+        | 'first_order'
     }
     /** DeliveryZonesResponse */
     DeliveryZonesResponse: {
