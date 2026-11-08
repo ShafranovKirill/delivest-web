@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { ClientAddress } from '@/modules/account/api/account.service'
 import { formatAddress } from '@/modules/shared/utils/address'
-import { useCityAddresses } from '../../composables/useCityAddresses'
+import { useDeliveryAddresses } from '../../composables/useDeliveryAddresses'
 
-const props = defineProps<{ city: string | null }>()
 defineEmits<{ select: [address: ClientAddress] }>()
 
-const addresses = useCityAddresses(() => props.city)
+const addresses = useDeliveryAddresses()
 </script>
 
 <template>

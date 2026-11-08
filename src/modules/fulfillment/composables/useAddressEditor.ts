@@ -1,4 +1,4 @@
-import { computed, ref, toValue, type MaybeRefOrGetter, type Ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { ClientAddress } from '@/modules/account/api/account.service'
 import type { GeoAddress } from '../api/geo.service'
@@ -8,16 +8,12 @@ import {
   fromClientAddress,
   isComplete,
   lngLatOf,
-  sameCity,
   withGeo,
   type DeliveryAddress,
   type LngLat,
 } from '../utils/deliveryAddress'
 
-export function useAddressEditor(
-  address: Ref<DeliveryAddress>,
-  city: MaybeRefOrGetter<string | null>,
-) {
+export function useAddressEditor(address: Ref<DeliveryAddress>) {
   const branchStore = useBranchStore()
 
   const mapCenter = ref<LngLat>(
@@ -32,8 +28,7 @@ export function useAddressEditor(
 
   remember(lngLatOf(address.value))
 
-  const outsideCity = computed(() => !sameCity(address.value.city, toValue(city)))
-  const isReady = computed(() => isComplete(address.value) && !outsideCity.value)
+  const isReady = computed(() => isComplete(address.value))
 
   function focus(next: DeliveryAddress) {
     address.value = next
@@ -44,5 +39,5 @@ export function useAddressEditor(
   const pickSuggestion = (geo: GeoAddress) => focus(withGeo(address.value, geo))
   const pickSaved = (saved: ClientAddress) => focus(fromClientAddress(saved))
 
-  return { mapCenter, isLocating, locate, outsideCity, isReady, pickSuggestion, pickSaved }
+  return { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved }
 }

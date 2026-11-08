@@ -81,7 +81,6 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
   <div class="flex flex-col gap-2">
     <AddressSuggestInput
       :value="inputValue"
-      :city="city"
       :suggest="suggest"
       :label="t('fulfillment.form.fullAddress')"
       @select="selectAddress"
