@@ -222,6 +222,11 @@ export const ru = {
     noPoint: 'Уточните адрес на карте',
     line: 'Доставка',
     freeFrom: 'бесплатно от {sum}',
+    unavailable: 'Не удалось проверить доставку. Попробуйте ещё раз.',
+    zoneMinimum: 'минимум {sum}',
+    zoneMinutes: 'около {minutes} мин',
+    zoneTier: 'от {sum}: {price}',
+    zoomIn: 'Приблизьте карту, чтобы выбрать точку',
   },
   fulfillment: {
     prompt: {

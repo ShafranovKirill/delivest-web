@@ -38,6 +38,7 @@ let quoteOptions: { queryKey: { value: unknown[] } } | undefined
 const quoteData = ref<{ status: string; price: number } | null>(null)
 const quoteFetching = ref(false)
 const quotePending = ref(false)
+const quoteError = ref(false)
 
 vi.mock('@/modules/branch/stores/branch.store', () => ({ useBranchStore: () => branch }))
 vi.mock('@/modules/auth/stores/auth.store', () => ({ useAuthStore: () => auth }))
@@ -54,7 +55,12 @@ vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }))
 vi.mock('@tanstack/vue-query', () => ({
   useQuery: (options: typeof quoteOptions) => {
     quoteOptions = options
-    return { data: quoteData, isFetching: quoteFetching, isPending: quotePending }
+    return {
+      data: quoteData,
+      isFetching: quoteFetching,
+      isPending: quotePending,
+      isError: quoteError,
+    }
   },
 }))
 vi.mock('@/modules/fulfillment/api/delivery.service', () => ({
@@ -107,6 +113,7 @@ beforeEach(() => {
   quoteData.value = null
   quoteFetching.value = false
   quotePending.value = false
+  quoteError.value = false
 })
 
 describe('delivery quote freshness', () => {
@@ -127,6 +134,20 @@ describe('delivery quote freshness', () => {
     quoteFetching.value = false
     quoteData.value = { status: 'ok', price: 150 }
     expect(quote.price.value).toBe(150)
+  })
+
+  it('hides a cached quote after a request error and a branch change', () => {
+    const address = ref({ latitude: 1, longitude: 2, city: 'A' })
+    quoteData.value = { status: 'ok', price: 100 }
+    const quote = useDeliveryQuote(() => address.value as never)
+    expect(quote.price.value).toBe(100)
+    quoteError.value = true
+    expect(quote.quote.value).toBeNull()
+    expect(quote.blocked.value).toBe(true)
+    quoteError.value = false
+    branch.activeBranch = { id: 'B' }
+    quoteFetching.value = true
+    expect(quote.price.value).toBeNull()
   })
 })
 
