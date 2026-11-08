@@ -374,6 +374,8 @@ export const ru = {
     checkout: 'К оформлению заказа',
     soldOut: 'Закончилось',
     removeSoldOut: 'Уберите закончившиеся блюда, чтобы оформить заказ',
+    unavailable: 'Товар недоступен — удалите из корзины',
+    unavailableProduct: 'Недоступный товар',
     promoGift: 'Подарок по акции',
     remove: 'Удалить из корзины',
     gift: 'В подарок: {name}',

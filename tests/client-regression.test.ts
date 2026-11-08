@@ -270,6 +270,26 @@ describe('cart response ownership', () => {
     expect(setFulfillment.mock.calls.map((call) => call[1])).toEqual(['pickup', 'delivery'])
     expect(store.cart?.fulfillment_type).toBe('delivery')
   })
+
+  it('blocks checkout while an unavailable row remains and clears it with remove all', async () => {
+    const unavailableCart = {
+      ...cart('A-cart', 1),
+      items: [{ key: 'missing', product_id: 'p', quantity: 1, unavailable: true }],
+      total_quantity: 0,
+      total_amount: 0,
+    }
+    getCart.mockResolvedValue(unavailableCart)
+    removeItem.mockResolvedValue(cart('A-cart'))
+    const store = useCartStore()
+    await store.fetchCart('A')
+    expect(store.hasStopped).toBe(true)
+    expect(store.isEmpty).toBe(false)
+
+    await store.removeAllOfItem('missing')
+    expect(removeItem).toHaveBeenCalledWith('A-cart', 'missing', true)
+    expect(store.hasStopped).toBe(false)
+    expect(store.isEmpty).toBe(true)
+  })
 })
 
 describe('fulfillment address ownership', () => {
