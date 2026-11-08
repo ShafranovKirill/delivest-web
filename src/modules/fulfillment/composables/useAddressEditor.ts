@@ -22,9 +22,19 @@ export function useAddressEditor(address: Ref<DeliveryAddress>) {
       fallbackLngLat(branchStore.branches),
   )
 
-  const { isLocating, locate, remember } = useReverseGeocode((geo, [longitude, latitude]) => {
+  const {
+    isLocating,
+    locate: reverseLocate,
+    remember,
+  } = useReverseGeocode((geo, [longitude, latitude]) => {
     address.value = { ...(geo ? withGeo(address.value, geo) : address.value), longitude, latitude }
   })
+
+  function locate(point: LngLat, zoom: number) {
+    if (zoom < 15) return
+    address.value = { ...address.value, longitude: point[0], latitude: point[1] }
+    reverseLocate(point, zoom)
+  }
 
   remember(lngLatOf(address.value))
 

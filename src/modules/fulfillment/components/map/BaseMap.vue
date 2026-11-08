@@ -9,7 +9,10 @@ import maplibregl, {
   type Marker,
 } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import { useI18n } from 'vue-i18n'
+import { formatPrice } from '@/utils/money'
 import MapPlaceholder from './MapPlaceholder.vue'
+import { effectiveDeliveryZones } from './effectiveDeliveryZones'
 import type { LngLat } from '../../utils/deliveryAddress'
 import type { DeliveryZone } from '../../api/delivery.service'
 
@@ -49,19 +52,24 @@ const props = withDefaults(
     pinNote?: string | null
     markers?: MapMarker[]
     zones?: DeliveryZone[]
+    selectedZoneId?: string | null
   }>(),
-  { zoom: 17, pin: false, pinNote: null, markers: () => [], zones: () => [] },
+  { zoom: 17, pin: false, pinNote: null, markers: () => [], zones: () => [], selectedZoneId: null },
 )
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   moved: [center: LngLat, zoom: number]
   markerClick: [id: string]
+  dragStart: []
 }>()
 
 const container = ref<HTMLDivElement | null>(null)
 const map = shallowRef<MapLibreMap | null>(null)
 const isDragging = ref(false)
 const isLoaded = ref(false)
+const hover = ref<string | null>(null)
 let rendered: Marker[] = []
 
 function markerElement(marker: MapMarker) {
@@ -92,13 +100,30 @@ function renderMarkers() {
 function zonesData(): GeoJSONSourceSpecification['data'] {
   return {
     type: 'FeatureCollection',
-    features: props.zones.map((zone) => ({
-      type: 'Feature',
-      id: zone.id,
-      geometry: zone.polygon,
-      properties: { color: zone.color, name: zone.name },
-    })),
+    features: effectiveDeliveryZones(props.zones)
+      .reverse()
+      .map((zone) => ({
+        type: 'Feature',
+        id: zone.id,
+        geometry: zone.polygon,
+        properties: {
+          zone_id: zone.id,
+          color: zone.color,
+          name: zone.name,
+          priority: props.zones.findIndex((item) => item.id === zone.id),
+        },
+      })),
   }
+}
+
+function zoneDescription(zone: DeliveryZone): string {
+  const conditions = (zone.thresholds ?? []).map((tier) =>
+    t('delivery.zoneTier', { sum: formatPrice(tier.order_from), price: formatPrice(tier.price) }),
+  )
+  if (zone.delivery_minutes != null) {
+    conditions.push(t('delivery.zoneMinutes', { minutes: zone.delivery_minutes }))
+  }
+  return [zone.name, ...conditions].join(' · ')
 }
 
 function addZones() {
@@ -113,8 +138,21 @@ function addZones() {
     id: 'delivery-zones-line',
     type: 'line',
     source: ZONES_SOURCE,
-    paint: { 'line-color': ['get', 'color'], 'line-width': 2, 'line-opacity': 0.8 },
+    layout: { 'line-sort-key': ['-', 0, ['get', 'priority']] },
+    paint: {
+      'line-color': ['get', 'color'],
+      'line-width': ['case', ['==', ['get', 'zone_id'], props.selectedZoneId ?? ''], 4, 2],
+      'line-opacity': 0.8,
+    },
   })
+  map.value?.on('mousemove', 'delivery-zones-fill', (event) => {
+    const zone = event.features
+      ?.map((feature) => props.zones.find((item) => item.id === feature.properties?.zone_id))
+      .filter((item): item is DeliveryZone => Boolean(item))
+      .sort((a, b) => props.zones.indexOf(a) - props.zones.indexOf(b))[0]
+    hover.value = zone ? zoneDescription(zone) : null
+  })
+  map.value?.on('mouseleave', 'delivery-zones-fill', () => (hover.value = null))
 }
 
 onMounted(() => {
@@ -132,7 +170,11 @@ onMounted(() => {
     isLoaded.value = true
   })
   map.value.on('styleimagemissing', ({ id }) => map.value?.addImage(id, BLANK_IMAGE))
-  map.value.on('dragstart', () => (isDragging.value = true))
+  map.value.on('dragstart', () => {
+    isDragging.value = true
+    hover.value = null
+    emit('dragStart')
+  })
   map.value.on('moveend', (event) => {
     isDragging.value = false
     if (!event.originalEvent) return
@@ -158,12 +200,31 @@ watch(
   () => props.zones,
   () => map.value?.getSource<GeoJSONSource>(ZONES_SOURCE)?.setData(zonesData()),
 )
+
+watch(
+  () => props.selectedZoneId,
+  (id) => {
+    if (map.value?.getLayer('delivery-zones-line')) {
+      map.value.setPaintProperty('delivery-zones-line', 'line-width', [
+        'case',
+        ['==', ['get', 'zone_id'], id ?? ''],
+        4,
+        2,
+      ])
+    }
+  },
+)
 </script>
 
 <template>
   <div class="relative h-full w-full overflow-hidden">
     <div ref="container" class="h-full w-full [&_.maplibregl-ctrl-bottom-right]:bottom-[25px]!" />
     <MapPlaceholder v-if="!isLoaded" class="absolute inset-0" />
+    <span
+      v-if="hover"
+      class="pointer-events-none absolute left-3 top-20 z-20 max-w-[calc(100%-1.5rem)] rounded-lg bg-gray-950 px-2 py-1 text-xs text-white shadow-md"
+      >{{ hover }}</span
+    >
     <div
       v-if="pin && isLoaded"
       class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full transition-transform"

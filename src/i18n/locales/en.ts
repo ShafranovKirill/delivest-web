@@ -223,6 +223,11 @@ export const en: typeof ru = {
     noPoint: 'Pick the address on the map',
     line: 'Delivery',
     freeFrom: 'free from {sum}',
+    unavailable: 'Could not check delivery. Please try again.',
+    zoneMinimum: 'minimum {sum}',
+    zoneMinutes: 'about {minutes} min',
+    zoneTier: 'from {sum}: {price}',
+    zoomIn: 'Zoom in to choose a point',
   },
   fulfillment: {
     prompt: {

@@ -9,7 +9,7 @@ import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useAddressEditor } from '../../composables/useAddressEditor'
 import { useDeliveryAddresses } from '../../composables/useDeliveryAddresses'
 import { savedMarkers } from '../../utils/savedMarkers'
-import type { DeliveryAddress } from '../../utils/deliveryAddress'
+import type { DeliveryAddress, LngLat } from '../../utils/deliveryAddress'
 import type { DeliveryZone } from '../../api/delivery.service'
 
 const props = withDefaults(
@@ -18,9 +18,12 @@ const props = withDefaults(
     saved?: boolean
     zones?: DeliveryZone[]
     pinNote?: string | null
+    selectedZoneId?: string | null
   }>(),
-  { saved: true, zones: () => [], pinNote: null },
+  { saved: true, zones: () => [], pinNote: null, selectedZoneId: null },
 )
+
+const emit = defineEmits<{ selecting: []; zoomTooLow: [] }>()
 
 const address = defineModel<DeliveryAddress>({ required: true })
 
@@ -36,6 +39,11 @@ function pickMarker(id: string) {
   const saved = savedAddresses.value.find((address) => address.id === id)
   if (saved) pickSaved(saved)
 }
+
+function movePin(point: LngLat, zoom: number) {
+  if (zoom < 15) emit('zoomTooLow')
+  else locate(point, zoom)
+}
 </script>
 
 <template>
@@ -46,9 +54,11 @@ function pickMarker(id: string) {
       :markers="markers"
       :zones="zones"
       :pin-note="pinNote"
+      :selected-zone-id="selectedZoneId"
       pin
       class="min-h-48 flex-1"
-      @moved="locate"
+      @moved="movePin"
+      @drag-start="emit('selecting')"
       @marker-click="pickMarker"
     >
       <SavedAddressesButton

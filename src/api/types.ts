@@ -24,6 +24,26 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/orders/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Заказ текущей сессии
+     * @description Возвращает конкретный заказ владельцу сессии или вошедшему клиенту.
+     */
+    get: operations['DelivestWeb.Client.Order.OrderController.show']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/auth/refresh': {
     parameters: {
       query?: never
@@ -728,26 +748,6 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/client/orders/{id}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Заказ текущей сессии
-     * @description Возвращает конкретный заказ владельцу сессии или вошедшему клиенту.
-     */
-    get: operations['DelivestWeb.Client.Order.OrderController.show']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
 }
 export type webhooks = Record<string, never>
 export interface components {
@@ -800,6 +800,8 @@ export interface components {
        * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
        */
       cart_id: string
+      /** @description Отпечаток корзины из CartResponse; при изменении вернётся cart_changed */
+      cart_revision?: string | null
       /**
        * @description Сдача с какой суммы, в копейках. Только для наличных
        * @example 500000
@@ -848,8 +850,6 @@ export interface components {
        * @example 100
        */
       spend_points?: number | null
-      /** @description Отпечаток корзины из CartResponse; при изменении вернётся cart_changed */
-      cart_revision?: string | null
     }
     /** ConfirmCodeRequest */
     ConfirmCodeRequest: {
@@ -1121,14 +1121,14 @@ export interface components {
       stars_reward?: number
       /** @description Товар в стоп-листе: заказать нельзя */
       stopped?: boolean
-      /** @description Товар или модификатор больше недоступен */
-      unavailable?: boolean
-      unavailable_reason?: string | null
       /**
        * @description Итог по строке с учётом скидок
        * @example 106200
        */
       total_price: number
+      /** @description Товар или модификатор больше недоступен */
+      unavailable?: boolean
+      unavailable_reason?: string | null
     }
     /** Branch */
     Branch: {
@@ -1515,6 +1515,7 @@ export interface components {
     DeliveryZone: {
       /** @example #2563eb */
       color: string
+      delivery_minutes?: number | null
       /** Format: uuid */
       id: string
       /** @example Центр */
@@ -1525,6 +1526,10 @@ export interface components {
         /** @enum {string} */
         type: 'Polygon'
       }
+      thresholds?: {
+        order_from: number
+        price: number
+      }[]
     }
     /** CartResponse */
     CartResponse: {
@@ -1550,6 +1555,8 @@ export interface components {
         product_stars?: number
         promo_code?: components['schemas']['PromoCodeState']
         promotions: components['schemas']['AppliedPromotion'][]
+        /** @description Отпечаток состава и условий корзины для оформления заказа */
+        revision?: string | null
         /** @example eceaec3d-dd25-4e19-8afc-f1d0f1412c9c */
         session_id?: string | null
         /**
@@ -1564,8 +1571,6 @@ export interface components {
         total_amount: number
         /** @example 3 */
         total_quantity: number
-        /** @description Отпечаток состава и условий корзины для оформления заказа */
-        revision?: string | null
       }
     }
     /** DeliveryQuote */
@@ -1580,6 +1585,12 @@ export interface components {
       price: number | null
       /** @enum {string} */
       status: 'ok' | 'below_minimum' | 'outside_zones' | 'no_coordinates'
+      /** @example #2563eb */
+      zone_color?: string | null
+      /** Format: uuid */
+      zone_id?: string | null
+      /** @example Центр */
+      zone_name?: string | null
     }
     /** RunningPromotion */
     RunningPromotion: {
@@ -1896,17 +1907,10 @@ export interface components {
        */
       city?: string | null
       /**
-       * @description Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки
-       * @example Asia/Yekaterinburg
-       */
-      timezone?: string
-      /**
        * @description Минуты до готовности вместе с добавкой на загрузку
        * @example 30
        */
       delivery_time?: number | null
-      /** Format: float */
-      manual_rating?: number | null
       /** @description Включённые способы получения заказа */
       fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
       /**
@@ -1946,6 +1950,8 @@ export interface components {
         spend_enabled?: boolean
         stars?: number | null
       }
+      /** Format: float */
+      manual_rating?: number | null
       /** @description Способы оплаты, включённые на филиале */
       payment_methods?: ('cash' | 'card_offline' | 'online')[]
       /** @example +79990000000 */
@@ -1963,6 +1969,11 @@ export interface components {
       special_hours?: {
         [key: string]: unknown
       }
+      /**
+       * @description Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки
+       * @example Asia/Yekaterinburg
+       */
+      timezone?: string
       /** @example https://vk.com/group_name */
       vk_url?: string | null
       /** @example https://wa.me/79990000000 */
@@ -2048,6 +2059,38 @@ export interface operations {
       }
       /** @description Нужна авторизация */
       401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.show': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description ID заказа */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Заказ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['OrderResponse']
+        }
+      }
+      /** @description Заказ не найден */
+      404: {
         headers: {
           [name: string]: unknown
         }
@@ -3558,38 +3601,6 @@ export interface operations {
         }
       }
       /** @description Корзина не найдена */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['ErrorResponse']
-        }
-      }
-    }
-  }
-  'DelivestWeb.Client.Order.OrderController.show': {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        /** @description ID заказа */
-        id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Заказ */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['OrderResponse']
-        }
-      }
-      /** @description Заказ не найден */
       404: {
         headers: {
           [name: string]: unknown

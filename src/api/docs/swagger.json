@@ -77,6 +77,11 @@
             "format": "uuid",
             "type": "string"
           },
+          "cart_revision": {
+            "description": "Отпечаток корзины из CartResponse; при изменении вернётся cart_changed",
+            "nullable": true,
+            "type": "string"
+          },
           "cash_given": {
             "description": "Сдача с какой суммы, в копейках. Только для наличных",
             "example": 500000,
@@ -135,11 +140,6 @@
             "example": 100,
             "nullable": true,
             "type": "integer"
-          },
-          "cart_revision": {
-            "description": "Отпечаток корзины из CartResponse; при изменении вернётся cart_changed",
-            "nullable": true,
-            "type": "string"
           }
         },
         "required": ["cart_id", "branch_id"],
@@ -482,13 +482,16 @@
             "type": "integer"
           },
           "stopped": { "description": "Товар в стоп-листе: заказать нельзя", "type": "boolean" },
-          "unavailable": { "description": "Товар или модификатор больше недоступен", "type": "boolean" },
-          "unavailable_reason": { "nullable": true, "type": "string" },
           "total_price": {
             "description": "Итог по строке с учётом скидок",
             "example": 106200,
             "type": "integer"
-          }
+          },
+          "unavailable": {
+            "description": "Товар или модификатор больше недоступен",
+            "type": "boolean"
+          },
+          "unavailable_reason": { "nullable": true, "type": "string" }
         },
         "required": [
           "key",
@@ -889,8 +892,7 @@
                 "nullable": true,
                 "type": "string"
               },
-              "default_theme": { "enum": ["light", "dark"], "type": "string",
-                "example": "light" },
+              "default_theme": { "enum": ["light", "dark"], "example": "light", "type": "string" },
               "description": { "nullable": true, "type": "string" },
               "documents": {
                 "items": { "$ref": "#/components/schemas/LegalDocumentSummary" },
@@ -984,6 +986,7 @@
       "DeliveryZone": {
         "properties": {
           "color": { "example": "#2563eb", "type": "string" },
+          "delivery_minutes": { "nullable": true, "type": "integer" },
           "id": { "format": "uuid", "type": "string" },
           "name": { "example": "Центр", "type": "string" },
           "polygon": {
@@ -1000,6 +1003,14 @@
             },
             "required": ["type", "coordinates"],
             "type": "object"
+          },
+          "thresholds": {
+            "items": {
+              "properties": { "order_from": { "type": "integer" }, "price": { "type": "integer" } },
+              "required": ["order_from", "price"],
+              "type": "object"
+            },
+            "type": "array"
           }
         },
         "required": ["id", "name", "color", "polygon"],
@@ -1040,6 +1051,11 @@
                 "items": { "$ref": "#/components/schemas/AppliedPromotion" },
                 "type": "array"
               },
+              "revision": {
+                "description": "Отпечаток состава и условий корзины для оформления заказа",
+                "nullable": true,
+                "type": "string"
+              },
               "session_id": {
                 "example": "eceaec3d-dd25-4e19-8afc-f1d0f1412c9c",
                 "nullable": true,
@@ -1051,12 +1067,7 @@
                 "type": "integer"
               },
               "total_amount": { "description": "К оплате", "example": 150000, "type": "integer" },
-              "total_quantity": { "example": 3, "type": "integer" },
-              "revision": {
-                "description": "Отпечаток состава и условий корзины для оформления заказа",
-                "nullable": true,
-                "type": "string"
-              }
+              "total_quantity": { "example": 3, "type": "integer" }
             },
             "required": [
               "id",
@@ -1084,7 +1095,10 @@
           "status": {
             "enum": ["ok", "below_minimum", "outside_zones", "no_coordinates"],
             "type": "string"
-          }
+          },
+          "zone_color": { "example": "#2563eb", "nullable": true, "type": "string" },
+          "zone_id": { "format": "uuid", "nullable": true, "type": "string" },
+          "zone_name": { "example": "Центр", "nullable": true, "type": "string" }
         },
         "required": ["status", "price", "min_order", "free_from", "minutes"],
         "title": "DeliveryQuote",
@@ -1245,62 +1259,62 @@
           },
           "error": {
             "enum": [
-                      "bad_request",
-                      "branch_id_required",
-                      "branch_not_found",
-                      "document_not_found",
-                      "cart_not_found",
-                      "cart_is_empty",
-                      "cart_already_ordered",
-                      "cart_changed",
-                      "idempotency_conflict",
-                      "invalid_idempotency_key",
-                      "payment_unavailable",
-                      "cart_branch_mismatch",
-                      "product_unavailable",
-                      "client_blocked",
-                      "quantity_limit_exceeded",
-                      "item_not_found",
-                      "validation_failed",
-                      "order_failed",
-                      "order_not_found",
-                      "order_not_cancellable",
-                      "too_many_requests",
-                      "unauthorized",
-                      "client_auth_required",
-                      "invalid_phone",
-                      "call_failed",
-                      "confirmation_not_found",
-                      "invalid_code",
-                      "invalid_refresh_token",
-                      "address_not_found",
-                      "internal_error",
-                      "price_changed",
-                      "delivery_below_minimum",
-                      "delivery_outside_zones",
-                      "branch_paused",
-                      "branch_closed",
-                      "cook_by_in_past",
-                      "cook_by_outside_hours",
-                      "fulfillment_unavailable",
-                      "delivery_no_coordinates",
-                      "promo_unavailable",
-                      "promo_gift_not_available",
-                      "promo_gift_invalid",
-                      "points_unavailable",
-                      "insufficient_points",
-                      "points_over_limit",
-                      "promo_not_found",
-                      "promo_inactive",
-                      "promo_not_started",
-                      "promo_expired",
-                      "promo_exhausted",
-                      "promo_requires_client",
-                      "promo_client_limit",
-                      "promo_not_owner",
-                      "promo_code_used",
-                      "promo_code_required"
-                    ],
+              "bad_request",
+              "branch_id_required",
+              "branch_not_found",
+              "document_not_found",
+              "cart_not_found",
+              "cart_is_empty",
+              "cart_already_ordered",
+              "cart_changed",
+              "idempotency_conflict",
+              "invalid_idempotency_key",
+              "payment_unavailable",
+              "cart_branch_mismatch",
+              "product_unavailable",
+              "client_blocked",
+              "quantity_limit_exceeded",
+              "item_not_found",
+              "validation_failed",
+              "order_failed",
+              "order_not_found",
+              "order_not_cancellable",
+              "too_many_requests",
+              "unauthorized",
+              "client_auth_required",
+              "invalid_phone",
+              "call_failed",
+              "confirmation_not_found",
+              "invalid_code",
+              "invalid_refresh_token",
+              "address_not_found",
+              "internal_error",
+              "price_changed",
+              "delivery_below_minimum",
+              "delivery_outside_zones",
+              "branch_paused",
+              "branch_closed",
+              "cook_by_in_past",
+              "cook_by_outside_hours",
+              "fulfillment_unavailable",
+              "delivery_no_coordinates",
+              "promo_unavailable",
+              "promo_gift_not_available",
+              "promo_gift_invalid",
+              "points_unavailable",
+              "insufficient_points",
+              "points_over_limit",
+              "promo_not_found",
+              "promo_inactive",
+              "promo_not_started",
+              "promo_expired",
+              "promo_exhausted",
+              "promo_requires_client",
+              "promo_client_limit",
+              "promo_not_owner",
+              "promo_code_used",
+              "promo_code_required"
+            ],
             "example": "validation_failed",
             "type": "string"
           },
@@ -1463,18 +1477,12 @@
             "nullable": true,
             "type": "string"
           },
-          "timezone": {
-            "description": "Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки",
-            "example": "Asia/Yekaterinburg",
-            "type": "string"
-          },
           "delivery_time": {
             "description": "Минуты до готовности вместе с добавкой на загрузку",
             "example": "30",
             "nullable": true,
             "type": "integer"
           },
-          "manual_rating": { "format": "float", "nullable": true, "type": "number" },
           "fulfillment_methods": {
             "description": "Включённые способы получения заказа",
             "items": { "enum": ["delivery", "pickup", "dine_in"], "type": "string" },
@@ -1526,6 +1534,7 @@
             },
             "type": "object"
           },
+          "manual_rating": { "format": "float", "nullable": true, "type": "number" },
           "payment_methods": {
             "description": "Способы оплаты, включённые на филиале",
             "items": { "enum": ["cash", "card_offline", "online"], "type": "string" },
@@ -1537,6 +1546,11 @@
             "description": "Исключения по датам (ISO-дата → enabled, open, close) поверх недели",
             "example": { "2026-12-31": { "close": "18:00", "enabled": true, "open": "10:00" } },
             "type": "object"
+          },
+          "timezone": {
+            "description": "Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки",
+            "example": "Asia/Yekaterinburg",
+            "type": "string"
           },
           "vk_url": { "example": "https://vk.com/group_name", "nullable": true, "type": "string" },
           "whatsapp_url": {
@@ -1628,6 +1642,38 @@
         "security": [{ "bearer": [] }],
         "summary": "Бонусы клиента",
         "tags": ["Loyalty"]
+      }
+    },
+    "/client/orders/{id}": {
+      "get": {
+        "callbacks": {},
+        "description": "Возвращает конкретный заказ владельцу сессии или вошедшему клиенту.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.show",
+        "parameters": [
+          {
+            "description": "ID заказа",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/OrderResponse" } }
+            },
+            "description": "Заказ"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Заказ не найден"
+          }
+        },
+        "summary": "Заказ текущей сессии",
+        "tags": ["Orders"]
       }
     },
     "/client/auth/refresh": {
@@ -2348,17 +2394,14 @@
         "description": "Создаёт заказ по cart_id и branch_id. Повтор с тем же Idempotency-Key возвращает созданный заказ.",
         "operationId": "DelivestWeb.Client.Order.OrderController.create",
         "parameters": [
-                        {
-                          "description": "UUID ключ одного оформления для владельца и филиала",
-                          "in": "header",
-                          "name": "Idempotency-Key",
-                          "required": false,
-                          "schema": {
-                            "format": "uuid",
-                            "type": "string"
-                          }
-                        }
-                      ],
+          {
+            "description": "UUID ключ одного оформления для владельца и филиала",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": { "format": "uuid", "type": "string" }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": { "schema": { "$ref": "#/components/schemas/CreateOrderRequest" } }
@@ -2379,6 +2422,12 @@
             },
             "description": "Требуется вход"
           },
+          "409": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Ключ уже использован с другим запросом"
+          },
           "422": {
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
@@ -2391,23 +2440,9 @@
             },
             "description": "Слишком много запросов"
           },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Ключ уже использован с другим запросом"
-          },
           "502": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Сервис оплаты недоступен"
           }
@@ -3161,50 +3196,6 @@
         },
         "summary": "Применить промокод",
         "tags": ["Cart"]
-      }
-    },
-    "/client/orders/{id}": {
-      "get": {
-        "callbacks": {},
-        "description": "Возвращает конкретный заказ владельцу сессии или вошедшему клиенту.",
-        "operationId": "DelivestWeb.Client.Order.OrderController.show",
-        "parameters": [
-          {
-            "description": "ID заказа",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrderResponse"
-                }
-              }
-            },
-            "description": "Заказ"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Заказ не найден"
-          }
-        },
-        "summary": "Заказ текущей сессии",
-        "tags": [
-          "Orders"
-        ]
       }
     }
   },

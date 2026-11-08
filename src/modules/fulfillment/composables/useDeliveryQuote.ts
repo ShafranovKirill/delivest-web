@@ -44,7 +44,9 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
   const pending = computed(() =>
     Boolean(target.value && (query.isPending.value || query.isFetching.value)),
   )
-  const quote = computed(() => (target.value && !pending.value ? (query.data.value ?? null) : null))
+  const quote = computed(() =>
+    target.value && !pending.value && !query.isError.value ? (query.data.value ?? null) : null,
+  )
 
   const price = computed(() => (quote.value?.status === 'ok' ? (quote.value.price ?? 0) : null))
 
@@ -78,5 +80,14 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
     }
   })
 
-  return { quote, price, blocked, pending, notDelivered, hint, isFetching: query.isFetching }
+  return {
+    quote,
+    price,
+    blocked,
+    pending,
+    notDelivered,
+    hint,
+    isError: query.isError,
+    isFetching: query.isFetching,
+  }
 }
