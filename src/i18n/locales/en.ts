@@ -436,6 +436,7 @@ export const en: typeof ru = {
       time: 'valid from {from} to {to}',
       weekday: 'valid on: {days}',
       requiresClient: 'sign in',
+      firstOrder: 'only for your first website order at this branch',
     },
     rejected: {
       fallback: 'This promo code cannot be applied',

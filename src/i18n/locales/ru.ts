@@ -435,6 +435,7 @@ export const ru = {
       time: 'действует с {from} до {to}',
       weekday: 'действует: {days}',
       requiresClient: 'войдите в аккаунт',
+      firstOrder: 'только для первого заказа на сайте в этом филиале',
     },
     rejected: {
       fallback: 'Промокод нельзя применить',
