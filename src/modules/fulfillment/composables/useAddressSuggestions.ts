@@ -13,13 +13,13 @@ const normalize = (query: string) =>
 
 const isUnfinished = (query: string) => /[\s,]$/.test(query)
 
-export function useAddressSuggestions(city: () => string | null) {
+export function useAddressSuggestions() {
   const suggestions = ref<GeoAddress[]>([])
   const cache = new Map<string, GeoAddress[]>()
   let lastKey = ''
 
-  async function fetch(key: string, query: string, locality: string | null) {
-    if (!cache.has(key)) cache.set(key, await GeoService.suggest(query, locality).catch(() => []))
+  async function fetch(key: string, query: string) {
+    if (!cache.has(key)) cache.set(key, await GeoService.suggest(query).catch(() => []))
     if (key === lastKey) suggestions.value = cache.get(key)!
   }
 
@@ -27,13 +27,12 @@ export function useAddressSuggestions(city: () => string | null) {
 
   function search(query: string) {
     const normalized = normalize(query)
-    const locality = city()
-    const key = `${locality ?? ''}|${normalized}`
+    const key = normalized
     if (normalized.length < MIN_LENGTH || isUnfinished(query) || key === lastKey) return
 
     lastKey = key
     if (cache.has(key)) suggestions.value = cache.get(key)!
-    else request(key, query, locality)
+    else request(key, query)
   }
 
   return { suggestions, search }

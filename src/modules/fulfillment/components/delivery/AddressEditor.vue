@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import BaseMap from '../map/BaseMap.vue'
 import DeliveryAddressForm from './DeliveryAddressForm.vue'
 import SavedAddresses from './SavedAddresses.vue'
@@ -8,7 +7,7 @@ import SavedAddressesButton from './SavedAddressesButton.vue'
 import SheetPanel from '../SheetPanel.vue'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useAddressEditor } from '../../composables/useAddressEditor'
-import { useCityAddresses } from '../../composables/useCityAddresses'
+import { useDeliveryAddresses } from '../../composables/useDeliveryAddresses'
 import { savedMarkers } from '../../utils/savedMarkers'
 import type { DeliveryAddress } from '../../utils/deliveryAddress'
 import type { DeliveryZone } from '../../api/delivery.service'
@@ -25,12 +24,11 @@ const props = withDefaults(
 
 const address = defineModel<DeliveryAddress>({ required: true })
 
-const { t } = useI18n()
 const franchiseStore = useFranchiseStore()
-const savedAddresses = useCityAddresses(() => props.city)
+const savedAddresses = useDeliveryAddresses()
 
-const { mapCenter, isLocating, locate, outsideCity, isReady, pickSuggestion, pickSaved } =
-  useAddressEditor(address, () => props.city)
+const { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved } =
+  useAddressEditor(address)
 
 const markers = computed(() => (props.saved ? savedMarkers(savedAddresses.value) : []))
 
@@ -55,14 +53,13 @@ function pickMarker(id: string) {
     >
       <SavedAddressesButton
         v-if="saved"
-        :city="city"
         class="absolute bottom-9 left-3 z-10"
         @select="pickSaved"
       />
     </BaseMap>
 
     <SheetPanel :floating="franchiseStore.addressMap">
-      <SavedAddresses v-if="saved && !franchiseStore.addressMap" :city="city" @select="pickSaved" />
+      <SavedAddresses v-if="saved && !franchiseStore.addressMap" @select="pickSaved" />
 
       <slot name="before" />
 
@@ -72,10 +69,6 @@ function pickMarker(id: string) {
         :city="city"
         @select="pickSuggestion"
       />
-
-      <p v-if="outsideCity" class="text-sm text-red-500">
-        {{ t('fulfillment.outsideCity', { city }) }}
-      </p>
 
       <slot :ready="isReady" :locating="isLocating" />
     </SheetPanel>

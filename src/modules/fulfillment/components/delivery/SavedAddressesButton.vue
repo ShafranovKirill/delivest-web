@@ -4,15 +4,14 @@ import { onClickOutside } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import type { ClientAddress } from '@/modules/account/api/account.service'
 import { formatAddress } from '@/modules/shared/utils/address'
-import { useCityAddresses } from '../../composables/useCityAddresses'
+import { useDeliveryAddresses } from '../../composables/useDeliveryAddresses'
 
-const props = defineProps<{ city: string | null }>()
 const emit = defineEmits<{ select: [address: ClientAddress] }>()
 
 const { t } = useI18n()
 const root = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
-const addresses = useCityAddresses(() => props.city)
+const addresses = useDeliveryAddresses()
 
 onClickOutside(root, () => (isOpen.value = false))
 

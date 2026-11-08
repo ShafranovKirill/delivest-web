@@ -8,7 +8,6 @@ import { shortAddressLabel } from '../../utils/deliveryAddress'
 
 const props = defineProps<{
   value: string
-  city: string | null
   label: string
   suggest: boolean
 }>()
@@ -16,10 +15,7 @@ const emit = defineEmits<{ select: [address: GeoAddress]; edit: [value: string] 
 
 const inputId = useId()
 const query = ref(props.value)
-const { suggestions, search } = useAddressSuggestions(() => {
-  const prefix = props.city && `${props.city},`.toLowerCase()
-  return prefix && query.value.trimStart().toLowerCase().startsWith(prefix) ? props.city : null
-})
+const { suggestions, search } = useAddressSuggestions()
 const options = computed(() =>
   suggestions.value.map((address) => ({
     address,
