@@ -1535,6 +1535,10 @@
             "type": "object"
           },
           "manual_rating": { "format": "float", "nullable": true, "type": "number" },
+          "notifications_enabled": {
+            "description": "Customer notification capability for this branch",
+            "type": "boolean"
+          },
           "payment_methods": {
             "description": "Способы оплаты, включённые на филиале",
             "items": { "enum": ["cash", "card_offline", "online"], "type": "string" },

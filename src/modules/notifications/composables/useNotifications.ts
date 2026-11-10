@@ -23,7 +23,7 @@ export function useNotificationScope() {
   const enabled = computed(
     () =>
       auth.isAuthenticated &&
-      Boolean((branch.activeBranch?.branch_info as { notifications_enabled?: boolean } | undefined)?.notifications_enabled),
+      Boolean(branch.activeBranch?.branch_info?.notifications_enabled),
   )
   const branchId = computed(() => branch.activeBranch?.id ?? '')
   const identity = computed(() => auth.client?.id ?? 'guest')

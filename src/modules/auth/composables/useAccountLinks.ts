@@ -12,7 +12,7 @@ export function useAccountLinks() {
       : []),
     { route: 'my-orders', label: t('nav.myOrders'), icon: 'pi pi-receipt' },
     { route: 'my-addresses', label: t('nav.myAddresses'), icon: 'pi pi-map-marker' },
-    ...((branch.activeBranch?.branch_info as { notifications_enabled?: boolean } | undefined)?.notifications_enabled
+    ...(branch.activeBranch?.branch_info?.notifications_enabled
       ? [{ route: 'notification-channels', label: t('notifications.channels'), icon: 'pi pi-bell' }]
       : []),
   ])
