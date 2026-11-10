@@ -15,6 +15,7 @@ import StoryViewer from '@/modules/stock/components/StoryViewer.vue'
 import FulfillmentSummary from '@/modules/fulfillment/components/FulfillmentSummary.vue'
 import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
 import ActiveOrders from '@/modules/order/components/active/ActiveOrders.vue'
+import NotificationCards from '@/modules/notifications/components/NotificationCards.vue'
 import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import MobileCategoryBar from '../components/category/MobileCategoryBar.vue'
@@ -75,6 +76,7 @@ onMounted(() => {
       <FulfillmentSummary />
     </div>
     <ActiveOrders />
+    <NotificationCards />
   </div>
   <MobileCategoryBar v-if="viewportStore.isMobile" />
   <DesktopCategoryBar v-if="!viewportStore.isMobile" />

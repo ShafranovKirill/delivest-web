@@ -1601,6 +1601,162 @@
         },
         "title": "StocksListResponse",
         "type": "object"
+      },
+      "CustomerNoticeList": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerNotice"
+            },
+            "type": "array"
+          },
+          "next_cursor": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "next_cursor"
+        ],
+        "title": "CustomerNoticeList",
+        "type": "object"
+      },
+      "CustomerNoticeClick": {
+        "properties": {
+          "data": {
+            "nullable": true,
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "CustomerNoticeClick",
+        "type": "object"
+      },
+      "CustomerNotice": {
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cta": {
+            "nullable": true,
+            "properties": {
+              "type": {
+                "enum": [
+                  "apply_promo",
+                  "show_bonus"
+                ],
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "value"
+            ],
+            "type": "object"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "body",
+          "created_at"
+        ],
+        "title": "CustomerNotice",
+        "type": "object"
+      },
+      "CustomerNotificationConsentRequest": {
+        "properties": {
+          "branch_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "push": {
+            "type": "boolean"
+          },
+          "sms": {
+            "description": "Unavailable; only false accepted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "branch_id"
+        ],
+        "title": "CustomerNotificationConsentRequest",
+        "type": "object"
+      },
+      "CustomerNotificationConsentResponse": {
+        "properties": {
+          "capabilities": {
+            "properties": {
+              "in_app": {
+                "type": "boolean"
+              },
+              "push": {
+                "type": "boolean"
+              },
+              "sms": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "in_app",
+              "push",
+              "sms"
+            ],
+            "type": "object"
+          },
+          "data": {
+            "properties": {
+              "push": {
+                "type": "boolean"
+              },
+              "sms": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "push",
+              "sms"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "data",
+          "capabilities"
+        ],
+        "title": "CustomerNotificationConsentResponse",
+        "type": "object"
       }
     }
   },
@@ -3197,7 +3353,354 @@
         "summary": "Применить промокод",
         "tags": ["Cart"]
       }
-    }
+    },
+      "/client/notifications/consents": {
+        "get": {
+          "callbacks": {},
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.consents",
+          "parameters": [
+            {
+              "description": "",
+              "in": "query",
+              "name": "branch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CustomerNotificationConsentResponse"
+                  }
+                }
+              },
+              "description": "Согласия"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Модуль выключен"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Маркетинговые согласия и доступность каналов",
+          "tags": [
+            "Notifications"
+          ]
+        },
+        "put": {
+          "callbacks": {},
+          "description": "Push по умолчанию выключен; SMS пока недоступен и true отклоняется. Настройки транзакционных уведомлений не меняются.",
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.update_consents",
+          "parameters": [],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerNotificationConsentRequest"
+                }
+              }
+            },
+            "description": "Согласия",
+            "required": false
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CustomerNotificationConsentResponse"
+                  }
+                }
+              },
+              "description": "Согласия"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Модуль выключен"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверный запрос"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Изменить добровольные маркетинговые согласия",
+          "tags": [
+            "Notifications"
+          ]
+        }
+      },
+      "/client/notifications/{id}/dismiss": {
+        "post": {
+          "callbacks": {},
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.dismiss",
+          "parameters": [
+            {
+              "description": "",
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "branch_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "device_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "branch_id",
+                    "device_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Устройство и филиал",
+            "required": false
+          },
+          "responses": {
+            "204": {
+              "description": "Закрыто"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Не найдено"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверный запрос"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Закрыть карточку на одном устройстве",
+          "tags": [
+            "Notifications"
+          ]
+        }
+      },
+      "/client/notifications/{id}/click": {
+        "post": {
+          "callbacks": {},
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.click",
+          "parameters": [
+            {
+              "description": "",
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "branch_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "device_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "branch_id",
+                    "device_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Устройство и филиал",
+            "required": false
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CustomerNoticeClick"
+                  }
+                }
+              },
+              "description": "Действие"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Не найдено или истекло"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверный запрос"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Отметить переход из текущей карточки",
+          "tags": [
+            "Notifications"
+          ]
+        }
+      },
+      "/client/notifications": {
+        "get": {
+          "callbacks": {},
+          "description": "Только канал in_app. Просмотр не закрывает карточку. Курсор проходит и через устаревшие карточки.",
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.index",
+          "parameters": [
+            {
+              "description": "",
+              "in": "query",
+              "name": "branch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            {
+              "description": "",
+              "in": "query",
+              "name": "device_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            {
+              "description": "",
+              "in": "query",
+              "name": "cursor",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CustomerNoticeList"
+                  }
+                }
+              },
+              "description": "Карточки"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Модуль выключен"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверный курсор или устройство"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Карточки клиента для текущего филиала и устройства",
+          "tags": [
+            "Notifications"
+          ]
+        }
+      }
   },
   "security": [],
   "servers": [{ "url": "http://localhost:4000", "variables": {} }],

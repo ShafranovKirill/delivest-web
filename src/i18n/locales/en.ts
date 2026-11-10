@@ -1,6 +1,32 @@
 import type { ru } from './ru'
 
 export const en: typeof ru = {
+  notifications: {
+    offers: 'Offers',
+    orderUpdates: 'Orders and account',
+    orderUpdatesHint: 'Order updates and reward reminders are enabled in their respective sections. Their settings are separate from the offers below.',
+    ordersSettings: 'My orders',
+    rewardsSettings: 'My rewards',
+    marketingOffers: 'Offers and promotions',
+    channels: 'Notification channels',
+    signIn: 'Sign in to manage notification channels.',
+    inApp: 'In app',
+    inAppHint: 'Offers appear below the menu header and stay until closed on this device.',
+    on: 'On',
+    push: 'Push',
+    pushHint: 'Offers on this device. Order updates are configured separately.',
+    enable: 'Enable offers',
+    disable: 'Disable offers',
+    deviceStatus: 'Device permission',
+    allowed: 'allowed',
+    notAllowed: 'not allowed',
+    unsupported: 'Push is unavailable in this browser.',
+    denied: 'Push is blocked in browser settings.',
+    smsUnavailable: 'This channel is not connected yet.',
+    apply: 'Apply promo code',
+    showBonus: 'Show rewards',
+    more: 'Show more',
+  },
   common: {
     edit: 'Edit',
     back: 'Back',
