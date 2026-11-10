@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import AuthRequired from '@/modules/auth/components/AuthRequired.vue'
@@ -16,6 +16,10 @@ const navigate = useBranchNavigation()
 const saving = ref(false)
 const error = ref(false)
 const consent = computed(() => state.data.value?.data)
+watch([state.identity, state.epoch, state.branchId, state.enabled], () => {
+  saving.value = false
+  error.value = false
+})
 
 async function setPush(enabled: boolean) {
   if (saving.value) return
@@ -35,9 +39,9 @@ async function setPush(enabled: boolean) {
     if (!current()) return
     await queryClient.invalidateQueries({ queryKey: [CONSENTS_KEY] })
   } catch {
-    error.value = true
+    if (current()) error.value = true
   } finally {
-    saving.value = false
+    if (current()) saving.value = false
   }
 }
 </script>

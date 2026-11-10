@@ -19,6 +19,10 @@ watch(notices.enabled, (enabled) => {
   if (clock) clearInterval(clock)
   clock = enabled ? setInterval(() => { now.value = Date.now() }, 30_000) : undefined
 }, { immediate: true })
+watch([notices.identity, notices.epoch, notices.branchId, notices.enabled], () => {
+  busy.value = null
+  error.value = false
+})
 onUnmounted(() => { if (clock) clearInterval(clock) })
 const visible = computed(() => notices.data.value?.pages.flatMap((page) => page.data)
   .filter((item) => !item.expires_at || Date.parse(item.expires_at) > now.value) ?? [])
@@ -37,7 +41,7 @@ async function dismiss(id: string) {
   } catch {
     if (current()) error.value = true
   } finally {
-    busy.value = null
+    if (current()) busy.value = null
   }
 }
 
@@ -57,7 +61,7 @@ async function follow(id: string, cta: { type: 'apply_promo' | 'show_bonus'; val
   } catch {
     if (current()) error.value = true
   } finally {
-    busy.value = null
+    if (current()) busy.value = null
   }
 }
 </script>
