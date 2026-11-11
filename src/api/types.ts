@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+  '/client/analytics/source/claim': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Bind signed guest advertising clicks to the authenticated client
+     * @description Uses the signed analytics cookie and verified bearer identity. Request body must be empty.
+     */
+    post: operations['DelivestWeb.Client.Analytics.SourceController.claim']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/loyalty': {
     parameters: {
       query?: never
@@ -748,10 +768,111 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/notifications/consents': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Маркетинговые согласия и доступность каналов */
+    get: operations['DelivestWeb.Client.Notifications.NotificationController.consents']
+    /**
+     * Изменить добровольные маркетинговые согласия
+     * @description Push по умолчанию выключен; SMS пока недоступен и true отклоняется. Настройки транзакционных уведомлений не меняются.
+     */
+    put: operations['DelivestWeb.Client.Notifications.NotificationController.update_consents']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/notifications/{id}/dismiss': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Закрыть карточку на одном устройстве */
+    post: operations['DelivestWeb.Client.Notifications.NotificationController.dismiss']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/notifications/{id}/click': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Отметить переход из текущей карточки */
+    post: operations['DelivestWeb.Client.Notifications.NotificationController.click']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/notifications': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Карточки клиента для текущего филиала и устройства
+     * @description Только канал in_app. Просмотр не закрывает карточку. Курсор проходит и через устаревшие карточки.
+     */
+    get: operations['DelivestWeb.Client.Notifications.NotificationController.index']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/analytics/events': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Записать событие воронки
+     * @description Событие создаётся только при включённой аналитике филиала. UTM поля — непроверенные клиентские метки, не подтверждение рекламы или выручки. Гость получает отдельную подписанную cookie.
+     */
+    post: operations['DelivestWeb.Client.Analytics.EventController.create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
+    /** AdvertisingSourceClaimResponse */
+    AdvertisingSourceClaimResponse: {
+      data: {
+        claimed: number
+      }
+    }
     /** ActiveOrdersResponse */
     ActiveOrdersResponse: {
       data: components['schemas']['ActiveOrder'][]
@@ -1952,6 +2073,8 @@ export interface components {
       }
       /** Format: float */
       manual_rating?: number | null
+      /** @description Customer notification capability for this branch */
+      notifications_enabled?: boolean
       /** @description Способы оплаты, включённые на филиале */
       payment_methods?: ('cash' | 'card_offline' | 'online')[]
       /** @example +79990000000 */
@@ -2005,6 +2128,10 @@ export interface components {
             [key: string]: unknown
           })
         | null
+      /** @description Funnel event capture is enabled for this branch */
+      analytics_funnel_enabled?: boolean
+      /** @description Trusted advertising link tracking is enabled for this branch */
+      analytics_links_enabled?: boolean
     }
     /** AppliedPromotion */
     AppliedPromotion: {
@@ -2027,6 +2154,83 @@ export interface components {
     StocksListResponse: {
       data?: components['schemas']['StockResponse'][]
     }
+    /** CustomerNoticeList */
+    CustomerNoticeList: {
+      data: components['schemas']['CustomerNotice'][]
+      next_cursor: string | null
+    }
+    /** CustomerNoticeClick */
+    CustomerNoticeClick: {
+      data: {
+        type?: string
+        value?: string
+      } | null
+    }
+    /** CustomerNotice */
+    CustomerNotice: {
+      body: string
+      /** Format: date-time */
+      created_at: string
+      cta?: {
+        /** @enum {string} */
+        type: 'apply_promo' | 'show_bonus'
+        value: string
+      } | null
+      /** Format: date-time */
+      expires_at?: string | null
+      /** Format: uuid */
+      id: string
+      title: string
+    }
+    /** CustomerNotificationConsentRequest */
+    CustomerNotificationConsentRequest: {
+      /** Format: uuid */
+      branch_id: string
+      push?: boolean
+      /** @description Unavailable; only false accepted */
+      sms?: boolean
+    }
+    /** CustomerNotificationConsentResponse */
+    CustomerNotificationConsentResponse: {
+      capabilities: {
+        in_app: boolean
+        push: boolean
+        sms: boolean
+      }
+      data: {
+        push: boolean
+        sms: boolean
+      }
+    }
+    /** FunnelEventResponse */
+    FunnelEventResponse: {
+      data: {
+        /** Format: uuid */
+        event_id: string
+        /** Format: uuid */
+        session_id: string
+      }
+    }
+    /** FunnelEventRequest */
+    FunnelEventRequest: {
+      /** Format: uuid */
+      branch_id: string
+      /** @enum {string} */
+      event:
+        | 'visit'
+        | 'menu_view'
+        | 'product_view'
+        | 'cart_add'
+        | 'checkout_start'
+        | 'fulfillment_selected'
+      /** Format: uuid */
+      event_id: string
+      /** @enum {string} */
+      source_type?: 'direct' | 'campaign' | 'unknown'
+      utm_campaign?: string
+      utm_medium?: string
+      utm_source?: string
+    }
   }
   responses: never
   parameters: never
@@ -2036,6 +2240,49 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  'DelivestWeb.Client.Analytics.SourceController.claim': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Empty request */
+    requestBody?: {
+      content: {
+        'application/json': Record<string, never>
+      }
+    }
+    responses: {
+      /** @description Claim result */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AdvertisingSourceClaimResponse']
+        }
+      }
+      /** @description Advertising tracking unavailable */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Invalid request */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   'DelivestWeb.Client.Loyalty.LoyaltyController.show': {
     parameters: {
       query?: {
@@ -3602,6 +3849,272 @@ export interface operations {
       }
       /** @description Корзина не найдена */
       404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.consents': {
+    parameters: {
+      query: {
+        branch_id: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Согласия */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CustomerNotificationConsentResponse']
+        }
+      }
+      /** @description Модуль выключен */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.update_consents': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Согласия */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CustomerNotificationConsentRequest']
+      }
+    }
+    responses: {
+      /** @description Согласия */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CustomerNotificationConsentResponse']
+        }
+      }
+      /** @description Модуль выключен */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный запрос */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.dismiss': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    /** @description Устройство и филиал */
+    requestBody?: {
+      content: {
+        'application/json': {
+          /** Format: uuid */
+          branch_id: string
+          /** Format: uuid */
+          device_id: string
+        }
+      }
+    }
+    responses: {
+      /** @description Закрыто */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Не найдено */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный запрос */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.click': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    /** @description Устройство и филиал */
+    requestBody?: {
+      content: {
+        'application/json': {
+          /** Format: uuid */
+          branch_id: string
+          /** Format: uuid */
+          device_id: string
+        }
+      }
+    }
+    responses: {
+      /** @description Действие */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CustomerNoticeClick']
+        }
+      }
+      /** @description Не найдено или истекло */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный запрос */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.index': {
+    parameters: {
+      query: {
+        branch_id: string
+        device_id: string
+        cursor?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Карточки */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CustomerNoticeList']
+        }
+      }
+      /** @description Модуль выключен */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный курсор или устройство */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Analytics.EventController.create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Событие */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FunnelEventRequest']
+      }
+    }
+    responses: {
+      /** @description Событие принято */
+      202: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['FunnelEventResponse']
+        }
+      }
+      /** @description Аналитика филиала недоступна */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверное событие */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Превышен лимит */
+      429: {
         headers: {
           [name: string]: unknown
         }

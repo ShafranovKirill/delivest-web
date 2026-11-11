@@ -11,12 +11,14 @@ import { useDeliveryZones } from '../../composables/useDeliveryZones'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { emptyDeliveryAddress, type DeliveryAddress } from '../../utils/deliveryAddress'
 import { formatPrice } from '@/utils/money'
+import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
 const { t } = useI18n()
 const branchStore = useBranchStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 const authStore = useAuthStore()
+const analytics = useFunnelAnalytics()
 
 const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
 
@@ -111,6 +113,7 @@ function confirm() {
   if (!branchId) return
 
   fulfillmentStore.choose(branchId, { type: 'delivery', address: { ...address.value } })
+  analytics.track('fulfillment_selected')
   flowStore.clearAddressDraft(branchId)
   flowStore.complete()
 }

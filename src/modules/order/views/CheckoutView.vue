@@ -14,6 +14,7 @@ import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
 import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import { useI18n } from 'vue-i18n'
+import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
 const router = useRouter()
 const route = useRoute()
@@ -22,6 +23,10 @@ const cartStore = useCartStore()
 const branchStore = useBranchStore()
 const orderStore = useOrderStore()
 const { t } = useI18n()
+const analytics = useFunnelAnalytics()
+watch(() => [route.name, branchStore.activeBranch?.id, branchStore.activeBranch?.branch_info?.analytics_funnel_enabled], ([name, branchId, enabled]) => {
+  if (name === 'checkout' && branchId && enabled === true) analytics.track('checkout_start')
+}, { immediate: true })
 
 const step = computed(() => Number(orderStore.activeStep))
 
