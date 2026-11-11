@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { watch } from 'vue'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 import BranchSelectModal from '@/modules/branch/components/BranchSelectModal.vue'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import ContactModal from '@/modules/widgets/contacts/components/ContactModal.vue'
@@ -15,6 +19,14 @@ import FulfillmentPicker from '@/modules/fulfillment/components/FulfillmentPicke
 import { useLiveOrders } from '@/modules/order/composables/useLiveOrders'
 
 const viewportStore = useViewportStore()
+const branchStore = useBranchStore()
+const authStore = useAuthStore()
+const analytics = useFunnelAnalytics()
+watch(
+  () => [branchStore.activeBranch?.id, branchStore.activeBranch?.branch_info?.analytics_funnel_enabled, authStore.client?.id, authStore.sessionEpoch],
+  ([branchId, enabled]) => { if (branchId && enabled === true) analytics.track('visit') },
+  { immediate: true },
+)
 useLiveOrders()
 </script>
 <template>

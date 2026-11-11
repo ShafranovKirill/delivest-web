@@ -823,6 +823,26 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/analytics/events': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Записать событие воронки
+     * @description Событие создаётся только при включённой аналитике филиала. UTM поля — непроверенные клиентские метки, не подтверждение рекламы или выручки. Гость получает отдельную подписанную cookie.
+     */
+    post: operations['DelivestWeb.Client.Analytics.EventController.create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
@@ -2082,6 +2102,8 @@ export interface components {
             [key: string]: unknown
           })
         | null
+      /** @description Funnel event capture is enabled for this branch */
+      analytics_funnel_enabled?: boolean
     }
     /** AppliedPromotion */
     AppliedPromotion: {
@@ -2151,6 +2173,35 @@ export interface components {
         push: boolean
         sms: boolean
       }
+    }
+    /** FunnelEventResponse */
+    FunnelEventResponse: {
+      data: {
+        /** Format: uuid */
+        event_id: string
+        /** Format: uuid */
+        session_id: string
+      }
+    }
+    /** FunnelEventRequest */
+    FunnelEventRequest: {
+      /** Format: uuid */
+      branch_id: string
+      /** @enum {string} */
+      event:
+        | 'visit'
+        | 'menu_view'
+        | 'product_view'
+        | 'cart_add'
+        | 'checkout_start'
+        | 'fulfillment_selected'
+      /** Format: uuid */
+      event_id: string
+      /** @enum {string} */
+      source_type?: 'direct' | 'campaign' | 'unknown'
+      utm_campaign?: string
+      utm_medium?: string
+      utm_source?: string
     }
   }
   responses: never
@@ -3941,6 +3992,58 @@ export interface operations {
       }
       /** @description Неверный курсор или устройство */
       422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Analytics.EventController.create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Событие */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FunnelEventRequest']
+      }
+    }
+    responses: {
+      /** @description Событие принято */
+      202: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['FunnelEventResponse']
+        }
+      }
+      /** @description Аналитика филиала недоступна */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверное событие */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Превышен лимит */
+      429: {
         headers: {
           [name: string]: unknown
         }

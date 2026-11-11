@@ -1579,6 +1579,10 @@
               "yandex_org_id": { "example": "123456789", "nullable": true, "type": "string" }
             },
             "type": "object"
+          },
+          "analytics_funnel_enabled": {
+            "description": "Funnel event capture is enabled for this branch",
+            "type": "boolean"
           }
         },
         "required": ["id"],
@@ -1760,6 +1764,86 @@
           "capabilities"
         ],
         "title": "CustomerNotificationConsentResponse",
+        "type": "object"
+      },
+      "FunnelEventResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "event_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "session_id": {
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_id",
+              "session_id"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FunnelEventResponse",
+        "type": "object"
+      },
+      "FunnelEventRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "event": {
+            "enum": [
+              "visit",
+              "menu_view",
+              "product_view",
+              "cart_add",
+              "checkout_start",
+              "fulfillment_selected"
+            ],
+            "type": "string"
+          },
+          "event_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "direct",
+              "campaign",
+              "unknown"
+            ],
+            "type": "string"
+          },
+          "utm_campaign": {
+            "maxLength": 64,
+            "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "utm_medium": {
+            "maxLength": 64,
+            "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "utm_source": {
+            "maxLength": 64,
+            "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "branch_id",
+          "event"
+        ],
+        "title": "FunnelEventRequest",
         "type": "object"
       }
     }
@@ -3702,6 +3786,71 @@
           "summary": "Карточки клиента для текущего филиала и устройства",
           "tags": [
             "Notifications"
+          ]
+        }
+      },
+      "/client/analytics/events": {
+        "post": {
+          "callbacks": {},
+          "description": "Событие создаётся только при включённой аналитике филиала. UTM поля — непроверенные клиентские метки, не подтверждение рекламы или выручки. Гость получает отдельную подписанную cookie.",
+          "operationId": "DelivestWeb.Client.Analytics.EventController.create",
+          "parameters": [],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FunnelEventRequest"
+                }
+              }
+            },
+            "description": "Событие",
+            "required": true
+          },
+          "responses": {
+            "202": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/FunnelEventResponse"
+                  }
+                }
+              },
+              "description": "Событие принято"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Аналитика филиала недоступна"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверное событие"
+            },
+            "429": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Превышен лимит"
+            }
+          },
+          "summary": "Записать событие воронки",
+          "tags": [
+            "Analytics"
           ]
         }
       }

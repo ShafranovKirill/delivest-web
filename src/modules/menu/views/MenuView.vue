@@ -15,6 +15,8 @@ import StoryViewer from '@/modules/stock/components/StoryViewer.vue'
 import FulfillmentSummary from '@/modules/fulfillment/components/FulfillmentSummary.vue'
 import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
 import ActiveOrders from '@/modules/order/components/active/ActiveOrders.vue'
+import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import NotificationCards from '@/modules/notifications/components/NotificationCards.vue'
 import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
@@ -28,6 +30,8 @@ import ErrorComponent from '../components/category/ErrorComponent.vue'
 const viewportStore = useViewportStore()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
+const authStore = useAuthStore()
+const analytics = useFunnelAnalytics()
 const fulfillmentStore = useFulfillmentStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
@@ -37,6 +41,18 @@ const menu = computed(() => {
 })
 
 const menuStore = useMenuStore()
+let viewedScope: string | null = null
+watch([menu, () => branchStore.activeBranch?.id, () => branchStore.activeBranch?.branch_info?.analytics_funnel_enabled, () => authStore.client?.id, () => authStore.sessionEpoch], ([categories, branchId, enabled, clientId, epoch]) => {
+  if (enabled !== true) { viewedScope = null; return }
+  const scope = `${clientId ?? 'guest'}:${epoch}:${branchId}`
+  if (categories?.length && branchId && viewedScope !== scope) {
+    analytics.track('menu_view')
+    viewedScope = scope
+  }
+}, { immediate: true })
+watch(() => [menuStore.isProductModalOpen, menuStore.activeProduct?.id] as const, ([open, id]) => {
+  if (open && id) analytics.track('product_view')
+})
 
 watch(
   menu,
