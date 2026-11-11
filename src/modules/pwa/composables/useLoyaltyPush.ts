@@ -35,10 +35,14 @@ export function useLoyaltyPush(active: MaybeRefOrGetter<boolean>) {
   async function enable() {
     if (!supported || pending.value) return
 
+    const epoch = authStore.sessionEpoch
+    const token = authStore.accessToken
+
     pending.value = true
     failed.value = false
     try {
       permission.value = await Notification.requestPermission()
+      if (authStore.sessionEpoch !== epoch || authStore.accessToken !== token) return
       if (permission.value === 'granted') await subscribe()
     } catch {
       failed.value = true

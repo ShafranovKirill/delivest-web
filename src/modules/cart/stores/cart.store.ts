@@ -12,6 +12,7 @@ import {
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { getApiErrorCode } from '@/api/errors'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
 export const useCartStore = defineStore('cart', () => {
   const cart = ref<Cart | null>(null)
@@ -34,6 +35,7 @@ export const useCartStore = defineStore('cart', () => {
 
   const branchStore = useBranchStore()
   const authStore = useAuthStore()
+  const analytics = useFunnelAnalytics()
   let requestVersion = 0
   let mutationVersion = 0
   let fetchController: AbortController | null = null
@@ -159,8 +161,11 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function addItem(productId: string, modifiers?: ModifierChoice[]): Promise<Cart> {
+    const requestedContext = context()
     try {
-      return await withCart((cartId) => CartService.addItem(cartId, productId, modifiers))
+      const result = await withCart((cartId) => CartService.addItem(cartId, productId, modifiers))
+      if (requestedContext === context()) analytics.track('cart_add')
+      return result
     } catch (error) {
       console.error(`[CartStore] Failed to add product ${productId}:`, error)
       throw error

@@ -29,4 +29,13 @@ export function clearPrivateQueries(queryClient: QueryClient, identityId?: strin
   }
   void queryClient.cancelQueries(loyaltyQuery)
   queryClient.removeQueries(loyaltyQuery)
+
+  const notificationsQuery = {
+    predicate: (query: { queryKey: readonly unknown[] }) =>
+      (query.queryKey[0] === 'customer-notifications' ||
+        query.queryKey[0] === 'notification-consents') &&
+      query.queryKey[1] === identityId,
+  }
+  void queryClient.cancelQueries(notificationsQuery)
+  queryClient.removeQueries(notificationsQuery)
 }

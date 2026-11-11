@@ -15,6 +15,7 @@ import { useFulfillmentStore } from '../../stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '../../stores/fulfillmentFlow.store'
 import { branchLngLat, fallbackLngLat } from '../../utils/branchLocation'
 import type { LngLat } from '../../utils/deliveryAddress'
+import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -23,6 +24,7 @@ const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
+const analytics = useFunnelAnalytics()
 
 const branches = computed(() =>
   branchStore.branches.filter((branch) => branch.is_active && hasOnsite(branch)),
@@ -58,6 +60,7 @@ async function confirm(branch: Branch) {
   if (!hasOnsite(branch)) return
   if (branch.id === branchStore.activeBranch?.id) {
     fulfillmentStore.choose(branch.id, { type: 'pickup' })
+    analytics.track('fulfillment_selected')
     flowStore.complete()
     return
   }
@@ -66,6 +69,7 @@ async function confirm(branch: Branch) {
   try {
     await branchStore.selectBranch(branch)
     fulfillmentStore.choose(branch.id, { type: 'pickup' })
+    analytics.track('fulfillment_selected')
     flowStore.abandon()
     await router.push(`/${branch.slug}`)
   } catch {
