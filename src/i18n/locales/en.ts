@@ -26,6 +26,9 @@ export const en: typeof ru = {
     apply: 'Apply promo code',
     showBonus: 'Show rewards',
     more: 'Show more',
+    previous: 'Previous offer',
+    next: 'Next offer',
+    position: '{current} of {total}',
   },
   common: {
     edit: 'Edit',

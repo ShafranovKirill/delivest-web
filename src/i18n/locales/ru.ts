@@ -26,6 +26,9 @@ export const ru = {
     apply: 'Применить промокод',
     showBonus: 'Показать бонусы',
     more: 'Показать ещё',
+    previous: 'Предыдущее предложение',
+    next: 'Следующее предложение',
+    position: '{current} из {total}',
   },
   common: {
     edit: 'Изменить',
