@@ -2,6 +2,7 @@
   "components": {
     "responses": {},
     "schemas": {
+      "AdvertisingSourceClaimResponse": {"properties": {"data": {"properties": {"claimed": {"minimum": 0, "type": "integer"}}, "required": ["claimed"], "type": "object"}}, "required": ["data"], "title": "AdvertisingSourceClaimResponse", "type": "object"},
       "ActiveOrdersResponse": {
         "properties": {
           "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" }
@@ -1583,7 +1584,8 @@
           "analytics_funnel_enabled": {
             "description": "Funnel event capture is enabled for this branch",
             "type": "boolean"
-          }
+          },
+          "analytics_links_enabled": {"description": "Trusted advertising link tracking is enabled for this branch", "type": "boolean"}
         },
         "required": ["id"],
         "title": "BranchInfoResponse",
@@ -1855,6 +1857,7 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/client/analytics/source/claim": {"post": {"callbacks": {}, "description": "Uses the signed analytics cookie and verified bearer identity. Request body must be empty.", "operationId": "DelivestWeb.Client.Analytics.SourceController.claim", "parameters": [], "requestBody": {"content": {"application/json": {"schema": {"additionalProperties": false, "properties": {}, "type": "object"}}}, "description": "Empty request", "required": false}, "responses": {"200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/AdvertisingSourceClaimResponse"}}}, "description": "Claim result"}, "404": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}, "description": "Advertising tracking unavailable"}, "422": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}, "description": "Invalid request"}}, "summary": "Bind signed guest advertising clicks to the authenticated client", "tags": ["Analytics"]}},
     "/client/loyalty": {
       "get": {
         "callbacks": {},

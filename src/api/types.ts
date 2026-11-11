@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+  '/client/analytics/source/claim': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Bind signed guest advertising clicks to the authenticated client
+     * @description Uses the signed analytics cookie and verified bearer identity. Request body must be empty.
+     */
+    post: operations['DelivestWeb.Client.Analytics.SourceController.claim']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/loyalty': {
     parameters: {
       query?: never
@@ -847,6 +867,12 @@ export interface paths {
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
+    /** AdvertisingSourceClaimResponse */
+    AdvertisingSourceClaimResponse: {
+      data: {
+        claimed: number
+      }
+    }
     /** ActiveOrdersResponse */
     ActiveOrdersResponse: {
       data: components['schemas']['ActiveOrder'][]
@@ -2104,6 +2130,8 @@ export interface components {
         | null
       /** @description Funnel event capture is enabled for this branch */
       analytics_funnel_enabled?: boolean
+      /** @description Trusted advertising link tracking is enabled for this branch */
+      analytics_links_enabled?: boolean
     }
     /** AppliedPromotion */
     AppliedPromotion: {
@@ -2212,6 +2240,49 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  'DelivestWeb.Client.Analytics.SourceController.claim': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Empty request */
+    requestBody?: {
+      content: {
+        'application/json': Record<string, never>
+      }
+    }
+    responses: {
+      /** @description Claim result */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AdvertisingSourceClaimResponse']
+        }
+      }
+      /** @description Advertising tracking unavailable */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Invalid request */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   'DelivestWeb.Client.Loyalty.LoyaltyController.show': {
     parameters: {
       query?: {
