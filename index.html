@@ -9,17 +9,46 @@
     <script>
       ;(function () {
         var root = document.documentElement
+        var validColor = function (value) {
+          return typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)
+        }
+        var meta = function (name) {
+          var element = document.querySelector('meta[name="' + name + '"]')
+          return element && element.getAttribute('content')
+        }
         try {
-          var mode = localStorage.getItem('delivest-theme') || 'light'
+          var cached = null
+          try {
+            cached = JSON.parse(localStorage.getItem('franchise') || 'null')
+          } catch (e) {}
+          var franchise = cached && cached.franchise
+          var serverColor = meta('theme-color')
+          var serverDarkColor = meta('delivest-brand-color-dark')
+          var serverTheme = meta('delivest-default-theme')
+          var authoritative = validColor(serverColor)
+          var color = authoritative ? serverColor : franchise && franchise.primary_color
+          var darkColor = authoritative
+            ? serverDarkColor
+            : franchise && franchise.dark_primary_color
+          var defaultTheme =
+            authoritative && (serverTheme === 'light' || serverTheme === 'dark')
+              ? serverTheme
+              : franchise && franchise.default_theme === 'dark'
+                ? 'dark'
+                : 'light'
+          var mode = localStorage.getItem('delivest-theme') || defaultTheme
           var dark =
             mode === 'dark' ||
             (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
           root.classList.toggle('dark', dark)
-
-          var cached = JSON.parse(localStorage.getItem('franchise') || 'null')
-          var color = cached && cached.franchise && cached.franchise.primary_color
-          if (color) root.style.setProperty('--boot-color', color)
-        } catch (e) {}
+          if (validColor(color)) {
+            root.style.setProperty('--boot-color-light', color)
+            root.style.setProperty('--boot-color-dark', validColor(darkColor) ? darkColor : color)
+          }
+          if (!authoritative) root.classList.add('boot-color-pending')
+        } catch (e) {
+          root.classList.add('boot-color-pending')
+        }
       })()
     </script>
     <style>
@@ -29,13 +58,20 @@
         display: grid;
         place-items: center;
         background: #e5e7eb;
-        color: var(--boot-color, #462094);
+        color: var(--boot-color-light, #462094);
       }
       html.dark .boot {
         background: #0c0c0f;
+        color: var(--boot-color-dark, var(--boot-color-light, #462094));
       }
-      html.dark .boot-scene {
-        filter: brightness(1.6);
+      html.boot-color-pending .boot-scene {
+        color: #6b7280;
+      }
+      html.dark.boot-color-pending .boot-scene {
+        color: #9ca3af;
+      }
+      html.boot-color-pending .boot-scooter {
+        visibility: hidden;
       }
       .boot-scene {
         position: relative;

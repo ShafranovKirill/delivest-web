@@ -36,6 +36,11 @@ function darkStyleElement(): HTMLStyleElement {
 }
 
 export function applyBrandColor(color: string, darkColor: string | null) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) return
+  const validDarkColor = darkColor && /^#[0-9a-fA-F]{6}$/.test(darkColor) ? darkColor : color
+  document.documentElement.style.setProperty('--boot-color-light', color)
+  document.documentElement.style.setProperty('--boot-color-dark', validDarkColor)
+  document.documentElement.classList.remove('boot-color-pending')
   updatePrimaryPalette(palette(color) as Scale)
-  darkStyleElement().textContent = darkOverrides(darkColor ?? color)
+  darkStyleElement().textContent = darkOverrides(validDarkColor)
 }
