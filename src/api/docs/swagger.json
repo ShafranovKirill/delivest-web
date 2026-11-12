@@ -1478,6 +1478,28 @@
             "nullable": true,
             "type": "string"
           },
+          "delivery": {
+            "additionalProperties": true,
+            "properties": {
+              "address_mode_set": {
+                "description": "Способ выбора адреса явно настроен для филиала",
+                "type": "boolean"
+              },
+              "map_address": {
+                "description": "Включён ли выбор адреса по карте на сайте",
+                "type": "boolean"
+              },
+              "operator_address": {
+                "description": "Разрешена ли галочка «назову адрес оператору» в форме заказа",
+                "type": "boolean"
+              },
+              "show_city": {
+                "description": "Показывать поле города при ручном вводе адреса",
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
           "delivery_time": {
             "description": "Минуты до готовности вместе с добавкой на загрузку",
             "example": "30",

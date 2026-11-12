@@ -4,7 +4,8 @@ export const en: typeof ru = {
   notifications: {
     offers: 'Offers',
     orderUpdates: 'Orders and account',
-    orderUpdatesHint: 'Order updates and reward reminders are enabled in their respective sections. Their settings are separate from the offers below.',
+    orderUpdatesHint:
+      'Order updates and reward reminders are enabled in their respective sections. Their settings are separate from the offers below.',
     ordersSettings: 'My orders',
     rewardsSettings: 'My rewards',
     marketingOffers: 'Offers and promotions',
@@ -253,6 +254,7 @@ export const en: typeof ru = {
     line: 'Delivery',
     freeFrom: 'free from {sum}',
     unavailable: 'Could not check delivery. Please try again.',
+    mapUnavailable: 'The address map is temporarily unavailable. Please contact the restaurant.',
     zoneMinimum: 'minimum {sum}',
     zoneMinutes: 'about {minutes} min',
     zoneTier: 'from {sum}: {price}',
@@ -274,6 +276,7 @@ export const en: typeof ru = {
     },
     form: {
       fullAddress: 'City, street, house',
+      city: 'City',
       streetHouse: 'Street and house',
       entrance: 'Entrance',
       intercom: 'Door code',

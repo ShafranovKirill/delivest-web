@@ -2,6 +2,7 @@
 import { computed, defineAsyncComponent, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFulfillmentStore } from '../stores/fulfillment.store'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import MapDialog from './MapDialog.vue'
 import ModeSwitch from './ModeSwitch.vue'
 import PaneSkeleton from './PaneSkeleton.vue'
@@ -17,6 +18,7 @@ const PickupPane = asyncPane(loadPickupPane)
 const { t } = useI18n()
 const flowStore = useFulfillmentFlowStore()
 const fulfillment = useFulfillmentStore()
+const branchStore = useBranchStore()
 
 const modes = computed<Array<{ value: PickerMode; label: string }>>(() =>
   fulfillment.availableModes.map((value) => ({
@@ -35,6 +37,14 @@ watch(modes, (options) => {
   else if (!options.some((option) => option.value === flowStore.pickerMode))
     flowStore.pickerMode = options[0]!.value
 })
+watch(
+  () => flowStore.pickerMode,
+  (mode) => {
+    if (mode === 'delivery' && !branchStore.mapAddress && flowStore.isPickerOpen) {
+      flowStore.chooseManualDelivery()
+    }
+  },
+)
 </script>
 
 <template>
