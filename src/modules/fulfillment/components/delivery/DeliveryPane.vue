@@ -24,7 +24,7 @@ const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
 
 const address = ref<DeliveryAddress>({
   ...(flowStore.addressDrafts[branchStore.activeBranch?.id ?? ''] ??
-    fulfillmentStore.deliveryAddress ??
+    (fulfillmentStore.current?.type === 'delivery' ? fulfillmentStore.current.address : null) ??
     emptyDeliveryAddress(city.value ?? '')),
 })
 watch(
@@ -33,7 +33,7 @@ watch(
     if (previousBranchId !== branchId || (previousOwner && previousOwner !== 'guest')) {
       address.value = {
         ...(flowStore.addressDrafts[branchId ?? ''] ??
-          fulfillmentStore.deliveryAddress ??
+          (fulfillmentStore.current?.type === 'delivery' ? fulfillmentStore.current.address : null) ??
           emptyDeliveryAddress(city.value ?? '')),
       }
     }
@@ -52,6 +52,9 @@ watch(
 
 const delivery = useDeliveryQuote(address)
 const zones = useDeliveryZones()
+const canUseOperator = computed(() =>
+  branchStore.operatorAddress && fulfillmentStore.methods.includes('delivery'),
+)
 const selecting = ref(false)
 const needsZoom = ref(false)
 
@@ -117,6 +120,20 @@ function confirm() {
   flowStore.clearAddressDraft(branchId)
   flowStore.complete()
 }
+
+function confirmWithOperator() {
+  const branchId = branchStore.activeBranch?.id
+  if (!branchId || !canUseOperator.value) return
+  const existing = fulfillmentStore.current
+  fulfillmentStore.choose(branchId, {
+    type: 'delivery',
+    address: existing?.type === 'delivery' ? existing.address : null,
+    addressByOperator: true,
+  })
+  analytics.track('fulfillment_selected')
+  flowStore.clearAddressDraft(branchId)
+  flowStore.complete()
+}
 </script>
 
 <template>
@@ -169,6 +186,13 @@ function confirm() {
         :loading="locating"
         class="h-12 w-full rounded-full! font-semibold"
         @click="confirm"
+      />
+      <Button
+        v-if="canUseOperator"
+        :label="t('fulfillment.tellOperator')"
+        text
+        class="h-9! w-full p-0! font-semibold"
+        @click="confirmWithOperator"
       />
     </template>
   </AddressEditor>

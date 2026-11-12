@@ -5,7 +5,9 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { fulfillmentMethods } from '../utils/fulfillmentMethods'
 import type { DeliveryAddress } from '../utils/deliveryAddress'
 
-export type FulfillmentChoice = { type: 'delivery'; address: DeliveryAddress } | { type: 'pickup' }
+export type FulfillmentChoice =
+  | { type: 'delivery'; address: DeliveryAddress | null; addressByOperator?: boolean }
+  | { type: 'pickup' }
 
 const STORAGE_KEY = 'fulfillment:v2'
 
@@ -57,8 +59,12 @@ export const useFulfillmentStore = defineStore('fulfillment', () => {
     return choice && availableModes.value.includes(choice.type) ? choice : null
   })
 
+  const addressByOperator = computed(
+    () => current.value?.type === 'delivery' && branchStore.operatorAddress && current.value.addressByOperator === true,
+  )
+
   const deliveryAddress = computed(() =>
-    current.value?.type === 'delivery' ? current.value.address : null,
+    current.value?.type === 'delivery' && !addressByOperator.value ? current.value.address : null,
   )
 
   function choose(branchId: string, choice: FulfillmentChoice) {
@@ -66,5 +72,5 @@ export const useFulfillmentStore = defineStore('fulfillment', () => {
     save()
   }
 
-  return { choices, current, deliveryAddress, choose, methods, canOrder, availableModes }
+  return { choices, current, addressByOperator, deliveryAddress, choose, methods, canOrder, availableModes }
 })

@@ -30,7 +30,11 @@ const summary = computed(() => {
   return {
     icon: 'pi-car',
     title: t('order.form.delivery'),
-    text: [formatAddress(choice.address), choice.address.comment].filter(Boolean).join(' · '),
+    text: fulfillmentStore.addressByOperator
+      ? t('order.addressByOperator')
+      : choice.address
+        ? [formatAddress(choice.address), choice.address.comment].filter(Boolean).join(' · ')
+        : '',
   }
 })
 </script>
