@@ -265,6 +265,7 @@ export const en: typeof ru = {
       unavailable: 'Ordering unavailable',
 
       title: "What's your address?",
+      methodTitle: 'How would you like to receive your order?',
       text: "We want to make sure you're in the delivery area. We'll save the address for future orders.",
       delivery: 'Set delivery address',
       pickup: "I'll pick it up",
