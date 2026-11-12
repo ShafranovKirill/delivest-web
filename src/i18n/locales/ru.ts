@@ -274,7 +274,7 @@ export const ru = {
       title: 'Куда привезти?',
     },
     form: {
-      fullAddress: 'Город, улица, дом',
+      fullAddress: 'Улица, дом',
       streetHouse: 'Улица и дом',
       entrance: 'Подъезд',
       intercom: 'Код двери',
@@ -288,6 +288,7 @@ export const ru = {
     },
     deliverHere: 'Заказать сюда',
     confirmAddress: 'Подтвердить адрес',
+    tellOperator: 'Скажу оператору',
     pickupHere: 'Заказать сюда',
     outsideCity: 'Этот филиал доставляет только по городу {city}',
     notOnMap: 'нет на карте',

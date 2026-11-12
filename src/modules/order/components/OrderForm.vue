@@ -114,7 +114,7 @@ const needsAddressEntry = computed(() => isDelivery.value && !hasMap.value)
 
 const inlineAddress = computed<DeliveryAddress>(() =>
   fulfillmentStore.current?.type === 'delivery'
-    ? fulfillmentStore.current.address
+    ? (fulfillmentStore.current.address ?? emptyDeliveryAddress(branchStore.activeBranch?.branch_info?.city ?? ''))
     : emptyDeliveryAddress(branchStore.activeBranch?.branch_info?.city ?? ''),
 )
 
@@ -126,11 +126,24 @@ const inlineAddressMissing = computed(
 )
 
 watch(
-  () => [needsAddressEntry.value, branchStore.mapAddress],
-  () => {
-    if (showOperatorCheckbox.value) return
-    if (!branchStore.operatorAddress) form.call_operator_for_address = false
+  () => fulfillmentStore.addressByOperator,
+  (value) => { form.call_operator_for_address = value },
+  { immediate: true, flush: 'sync' },
+)
+watch(
+  () => form.call_operator_for_address,
+  (value) => {
+    if (value === fulfillmentStore.addressByOperator) return
+    const branchId = branchStore.activeBranch?.id
+    const choice = fulfillmentStore.current
+    if (!branchId || choice?.type !== 'delivery') return
+    if (value && !showOperatorCheckbox.value) {
+      form.call_operator_for_address = false
+      return
+    }
+    fulfillmentStore.choose(branchId, { ...choice, addressByOperator: value })
   },
+  { flush: 'sync' },
 )
 
 watch(inlineAddressMissing, (missing) => {
@@ -249,7 +262,6 @@ watch(
     form.customer_phone = authStore.client?.phone ?? '+7'
     form.comment = ''
     form.cook_by = null
-    form.call_operator_for_address = false
     form.cash_given = null
     useStars.value = false
     try {
@@ -272,7 +284,9 @@ watch(
         saved?.branchId === branchId &&
         saved?.cartId === cartId
       ) {
-        Object.assign(form, saved.form)
+        const savedForm = { ...saved.form }
+        delete savedForm.call_operator_for_address
+        Object.assign(form, savedForm)
         if (saved.pickupKind === 'pickup' || saved.pickupKind === 'dine_in') {
           pickupKind.value = saved.pickupKind
         }
@@ -351,7 +365,11 @@ const addressRow = computed(() => {
   }
   return {
     title: t('order.form.delivery'),
-    text: [formatAddress(choice.address), choice.address.comment].filter(Boolean).join(' · '),
+    text: fulfillmentStore.addressByOperator
+      ? t('order.addressByOperator')
+      : choice.address
+        ? [formatAddress(choice.address), choice.address.comment].filter(Boolean).join(' · ')
+        : '',
   }
 })
 
@@ -361,7 +379,7 @@ function openAddressPicker() {
 
 function updateInlineAddress(address: DeliveryAddress) {
   const branchId = branchStore.activeBranch?.id
-  if (branchId) fulfillmentStore.choose(branchId, { type: 'delivery', address })
+  if (branchId) fulfillmentStore.choose(branchId, { type: 'delivery', address, addressByOperator: false })
 }
 
 function handleSubmit() {

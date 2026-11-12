@@ -273,7 +273,7 @@ export const en: typeof ru = {
       title: 'Where to deliver?',
     },
     form: {
-      fullAddress: 'City, street, house',
+      fullAddress: 'Street, house',
       streetHouse: 'Street and house',
       entrance: 'Entrance',
       intercom: 'Door code',
@@ -287,6 +287,7 @@ export const en: typeof ru = {
     },
     deliverHere: 'Order here',
     confirmAddress: 'Confirm address',
+    tellOperator: 'Tell the operator',
     pickupHere: 'Order here',
     outsideCity: 'This branch delivers only within {city}',
     notOnMap: 'not on the map',

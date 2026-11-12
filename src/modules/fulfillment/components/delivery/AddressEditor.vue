@@ -31,7 +31,7 @@ const franchiseStore = useFranchiseStore()
 const savedAddresses = useDeliveryAddresses()
 
 const { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved } =
-  useAddressEditor(address)
+  useAddressEditor(address, () => franchiseStore.addressMap)
 
 const markers = computed(() => (props.saved ? savedMarkers(savedAddresses.value) : []))
 

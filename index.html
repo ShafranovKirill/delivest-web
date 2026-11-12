@@ -45,10 +45,7 @@
             root.style.setProperty('--boot-color-light', color)
             root.style.setProperty('--boot-color-dark', validColor(darkColor) ? darkColor : color)
           }
-          if (!authoritative) root.classList.add('boot-color-pending')
-        } catch (e) {
-          root.classList.add('boot-color-pending')
-        }
+        } catch (e) {}
       })()
     </script>
     <style>
@@ -63,15 +60,6 @@
       html.dark .boot {
         background: #0c0c0f;
         color: var(--boot-color-dark, var(--boot-color-light, #462094));
-      }
-      html.boot-color-pending .boot-scene {
-        color: #6b7280;
-      }
-      html.dark.boot-color-pending .boot-scene {
-        color: #9ca3af;
-      }
-      html.boot-color-pending .boot-scooter {
-        visibility: hidden;
       }
       .boot-scene {
         position: relative;
