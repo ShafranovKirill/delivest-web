@@ -15,7 +15,9 @@ export function useCartSuggestions() {
   return computed(() =>
     (menu.value ?? [])
       .flatMap((category) => category.products ?? [])
-      .filter((product) => product.suggested && product.id && !inCart.value.has(product.id))
+      .filter((product) => product.id && !inCart.value.has(product.id))
+      .sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular)))
+      .filter((product) => product.popular || product.suggested)
       .slice(0, LIMIT),
   )
 }

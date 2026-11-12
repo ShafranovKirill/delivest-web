@@ -909,6 +909,8 @@ export interface components {
     /** CreateOrderRequest */
     CreateOrderRequest: {
       address?: components['schemas']['AddressRequest']
+      /** @description Клиент назовёт адрес доставки оператору по телефону. Заказ принимается без адреса и без расчёта доставки */
+      address_by_operator?: boolean
       /**
        * Format: uuid
        * @description UUID филиала
@@ -1116,6 +1118,8 @@ export interface components {
       stars_reward?: number | null
       /** @description Товар в стоп-листе: показывать, но не давать заказать */
       stopped?: boolean
+      /** @description Хит продаж филиала: попадает в блок «Популярное» по настройке режима популярных товаров */
+      popular?: boolean
       /** @description Предлагать в корзине в блоке «Добавить к заказу» */
       suggested?: boolean
       /** @description Теги товара, которые админ настраивает во вкладке «Теги» */
@@ -2034,6 +2038,13 @@ export interface components {
       delivery_time?: number | null
       /** @description Включённые способы получения заказа */
       fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
+      /** @description Настройки адреса доставки филиала */
+      delivery?: {
+        /** @description Включён ли выбор адреса по карте на сайте */
+        map_address?: boolean
+        /** @description Разрешена ли галочка «назову адрес оператору» в форме заказа */
+        operator_address?: boolean
+      }
       /**
        * Format: uuid
        * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc

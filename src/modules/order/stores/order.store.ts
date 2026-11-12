@@ -122,14 +122,10 @@ export const useOrderStore = defineStore('order', () => {
     const version = ++submitVersion
     const requestedContext = context()
 
-    const shouldSendAddress =
-      form.fulfillment_type === 'delivery' && !form.call_operator_for_address && form.address
+    const byOperator = form.fulfillment_type === 'delivery' && form.call_operator_for_address
+    const shouldSendAddress = form.fulfillment_type === 'delivery' && !byOperator && form.address
 
-    let comment = form.comment?.trim() || null
-    if (form.call_operator_for_address) {
-      const note = 'Адрес назовет по телефону'
-      comment = comment ? `${comment} (${note})` : note
-    }
+    const comment = form.comment?.trim() || null
 
     const payload: CreateOrderPayload = {
       customer_name: form.customer_name || null,
@@ -143,6 +139,7 @@ export const useOrderStore = defineStore('order', () => {
       address: toAddressPayload(
         shouldSendAddress && form.address ? form.address : emptyDeliveryAddress(),
       ),
+      address_by_operator: byOperator,
       branch_id: branchId,
       cart_id: cartId,
       cart_revision: cartStore.cart?.revision ?? undefined,

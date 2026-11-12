@@ -19,9 +19,10 @@ import { formatClock, sameDay } from '@/modules/branch/utils/zonedTime'
 import { intlLocale } from '@/i18n'
 import { formatAddress } from '@/modules/shared/utils/address'
 import type { DeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
+import { emptyDeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
+import DeliveryAddressForm from '@/modules/fulfillment/components/delivery/DeliveryAddressForm.vue'
 import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
-import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
@@ -59,11 +60,12 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
-const franchiseStore = useFranchiseStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 const phoneSection = ref<HTMLElement | null>(null)
 const phoneError = ref(false)
+const addressSection = ref<HTMLElement | null>(null)
+const addressError = ref(false)
 const phoneInputClass = computed(() =>
   [
     'w-full lg:max-w-sm rounded-2xl! border-2! bg-gray-50! px-4! py-3.5! text-gray-900!',
@@ -94,6 +96,8 @@ const loyalty = useLoyaltyQuery()
 const starsLabel = useStarsLabel()
 
 const isDelivery = computed(() => fulfillmentStore.current?.type === 'delivery')
+const hasMap = computed(() => branchStore.mapAddress)
+const showOperatorCheckbox = computed(() => isDelivery.value && branchStore.operatorAddress)
 const authenticatedPhone = computed(() => {
   const phone = authStore.client?.phone
   return authStore.isAuthenticated && phone && /^\+7\d{10}$/.test(phone) ? phone : null
@@ -104,6 +108,34 @@ const delivery = useDeliveryQuote()
 const deliveryBlocked = computed(
   () => isDelivery.value && !form.call_operator_for_address && delivery.blocked.value,
 )
+
+// Inline address entry is shown when the branch disabled the address map.
+const needsAddressEntry = computed(() => isDelivery.value && !hasMap.value)
+
+const inlineAddress = computed<DeliveryAddress>(() =>
+  fulfillmentStore.current?.type === 'delivery'
+    ? fulfillmentStore.current.address
+    : emptyDeliveryAddress(branchStore.activeBranch?.branch_info?.city ?? ''),
+)
+
+const inlineAddressMissing = computed(
+  () =>
+    needsAddressEntry.value &&
+    !form.call_operator_for_address &&
+    !inlineAddress.value.street.trim(),
+)
+
+watch(
+  () => [needsAddressEntry.value, branchStore.mapAddress],
+  () => {
+    if (showOperatorCheckbox.value) return
+    if (!branchStore.operatorAddress) form.call_operator_for_address = false
+  },
+)
+
+watch(inlineAddressMissing, (missing) => {
+  if (!missing) addressError.value = false
+})
 
 const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
   isDelivery.value ? 'delivery' : pickupKind.value,
@@ -327,6 +359,11 @@ function openAddressPicker() {
   flowStore.openPicker(fulfillmentStore.current?.type ?? 'delivery')
 }
 
+function updateInlineAddress(address: DeliveryAddress) {
+  const branchId = branchStore.activeBranch?.id
+  if (branchId) fulfillmentStore.choose(branchId, { type: 'delivery', address })
+}
+
 function handleSubmit() {
   if (authStore.isRequired && !authStore.isAuthenticated) {
     if (authStore.isEnabled) {
@@ -362,14 +399,28 @@ function handleSubmit() {
 
   if (deliveryBlocked.value) return
 
+  if (inlineAddressMissing.value) {
+    addressError.value = true
+    requestAnimationFrame(() => {
+      const input = addressSection.value?.querySelector<HTMLInputElement>('input')
+      input?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      input?.focus()
+    })
+    return
+  }
+
+  const callOperator = showOperatorCheckbox.value && form.call_operator_for_address
+  const address =
+    isDelivery.value && !callOperator ? (fulfillmentStore.deliveryAddress ?? null) : null
+
   emit('submit', {
     ...form,
     customer_phone: customerPhone,
     cash_given: null,
     spend_points: starsToSpend.value,
     fulfillment_type: fulfillmentType.value,
-    address: fulfillmentStore.deliveryAddress,
-    call_operator_for_address: isDelivery.value && form.call_operator_for_address,
+    address,
+    call_operator_for_address: isDelivery.value && callOperator,
   })
 }
 </script>
@@ -391,9 +442,31 @@ function handleSubmit() {
       </p>
     </div>
 
-    <div :class="sectionClass">
+    <div ref="addressSection" :class="sectionClass">
       <p :class="captionClass">{{ addressCaption }}</p>
-      <OrderPickRow :title="addressRow.title" :text="addressRow.text" @click="openAddressPicker" />
+
+      <DeliveryAddressForm
+        v-if="needsAddressEntry && !form.call_operator_for_address"
+        :model-value="inlineAddress"
+        :suggest="false"
+        :city="branchStore.activeBranch?.branch_info?.city ?? null"
+        @update:model-value="updateInlineAddress"
+      />
+
+      <OrderPickRow
+        v-else
+        :title="addressRow.title"
+        :text="addressRow.text"
+        @click="openAddressPicker"
+      />
+
+      <p
+        v-if="addressError && inlineAddressMissing"
+        class="mt-2 text-sm font-medium text-red-600"
+        role="alert"
+      >
+        {{ t('order.form.addressError') }}
+      </p>
 
       <p v-if="closedNotice" class="mt-2 text-sm font-medium text-amber-700">
         {{ closedNotice }}
@@ -407,7 +480,7 @@ function handleSubmit() {
         {{ t('delivery.checking') }}
       </p>
       <p
-        v-if="isDelivery && delivery.hint.value"
+        v-if="isDelivery && delivery.hint.value && !needsAddressEntry"
         class="mt-2 text-sm font-medium"
         :class="delivery.blocked.value ? 'text-red-500' : 'text-gray-700'"
       >
@@ -423,7 +496,7 @@ function handleSubmit() {
       />
 
       <label
-        v-if="isDelivery && !franchiseStore.addressMap"
+        v-if="showOperatorCheckbox"
         class="mt-3 flex items-center gap-2 cursor-pointer select-none"
       >
         <Checkbox v-model="form.call_operator_for_address" binary />

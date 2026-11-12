@@ -1,14 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useFulfillmentStore } from './fulfillment.store'
-import type { DeliveryAddress } from '../utils/deliveryAddress'
+import { emptyDeliveryAddress, type DeliveryAddress } from '../utils/deliveryAddress'
 
 export type PickerMode = 'delivery' | 'pickup'
 
 export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
   const fulfillmentStore = useFulfillmentStore()
   const authStore = useAuthStore()
+  const branchStore = useBranchStore()
 
   const isPromptOpen = ref(false)
   const isPickerOpen = ref(false)
@@ -48,6 +50,18 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
       isPromptOpen.value = true
       return Promise.resolve(false)
     }
+
+    // With the map off the site never asks for the address up front: the customer
+    // enters it in the order form, so delivery is chosen silently.
+    if (!branchStore.mapAddress && fulfillmentStore.availableModes.includes('delivery')) {
+      const branchId = branchStore.activeBranch?.id
+      if (branchId) {
+        fulfillmentStore.choose(branchId, { type: 'delivery', address: emptyDeliveryAddress() })
+        settle(true)
+        return Promise.resolve(true)
+      }
+    }
+
     settle(false)
     return new Promise((resolve) => {
       pending = resolve
