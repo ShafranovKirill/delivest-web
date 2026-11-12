@@ -1,4 +1,5 @@
 import { api } from '@/api/client'
+import { currentLocale } from '@/i18n'
 import type { paths } from '@/api/types'
 
 type MenuApiResponse =
@@ -10,7 +11,9 @@ export type MenuProduct = NonNullable<MenuCategory['products']>[number]
 
 export const MenuService = {
   async getMenu(branchId: string): Promise<MenuCategory[]> {
-    const { data } = await api.get<MenuApiResponse>(`/client/branches/${branchId}/menu`)
+    const { data } = await api.get<MenuApiResponse>(`/client/branches/${branchId}/menu`, {
+      headers: { 'Accept-Language': currentLocale() },
+    })
     return data.data ?? []
   },
 }

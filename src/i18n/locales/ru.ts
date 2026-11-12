@@ -254,6 +254,7 @@ export const ru = {
     line: 'Доставка',
     freeFrom: 'бесплатно от {sum}',
     unavailable: 'Не удалось проверить доставку. Попробуйте ещё раз.',
+    mapUnavailable: 'Карта адресов временно недоступна. Свяжитесь с рестораном.',
     zoneMinimum: 'минимум {sum}',
     zoneMinutes: 'около {minutes} мин',
     zoneTier: 'от {sum}: {price}',
@@ -264,6 +265,7 @@ export const ru = {
       unavailable: 'Приём заказов недоступен',
 
       title: 'Какой у вас адрес?',
+      methodTitle: 'Как получить заказ?',
       text: 'Хотим убедиться, что вы в зоне доставки. Адрес сохраним для будущих заказов.',
       delivery: 'Указать адрес доставки',
       pickup: 'Заберу самостоятельно',
@@ -275,6 +277,7 @@ export const ru = {
     },
     form: {
       fullAddress: 'Город, улица, дом',
+      city: 'Город',
       streetHouse: 'Улица и дом',
       entrance: 'Подъезд',
       intercom: 'Код двери',

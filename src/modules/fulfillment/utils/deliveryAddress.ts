@@ -25,6 +25,15 @@ export interface DeliveryAddress {
 
 export type LngLat = [number, number]
 
+export function hasAddressPoint({ latitude, longitude }: DeliveryAddress): boolean {
+  return (
+    typeof latitude === 'number' &&
+    Math.abs(latitude) <= 90 &&
+    typeof longitude === 'number' &&
+    Math.abs(longitude) <= 180
+  )
+}
+
 export function emptyDeliveryAddress(city = ''): DeliveryAddress {
   return {
     city,

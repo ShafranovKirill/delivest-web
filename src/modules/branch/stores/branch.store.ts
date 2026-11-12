@@ -106,8 +106,14 @@ export const useBranchStore = defineStore('branch', () => {
   const mapAddress = computed(
     () => activeBranch.value?.branch_info?.delivery?.map_address !== false,
   )
+  const addressModeSet = computed(
+    () => activeBranch.value?.branch_info?.delivery?.address_mode_set === true,
+  )
   const operatorAddress = computed(
-    () => activeBranch.value?.branch_info?.delivery?.operator_address === true,
+    () => !mapAddress.value && activeBranch.value?.branch_info?.delivery?.operator_address === true,
+  )
+  const showCity = computed(
+    () => !mapAddress.value && activeBranch.value?.branch_info?.delivery?.show_city === true,
   )
 
   return {
@@ -116,7 +122,9 @@ export const useBranchStore = defineStore('branch', () => {
     isInitialized,
     isModalOpen,
     mapAddress,
+    addressModeSet,
     operatorAddress,
+    showCity,
     openModal,
     closeModal,
     toggleModal,
