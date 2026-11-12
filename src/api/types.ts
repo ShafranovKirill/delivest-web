@@ -909,7 +909,10 @@ export interface components {
     /** CreateOrderRequest */
     CreateOrderRequest: {
       address?: components['schemas']['AddressRequest']
-      /** @description Клиент назовёт адрес доставки оператору по телефону. Заказ принимается без адреса и без расчёта доставки */
+      /**
+       * @description Клиент назовёт адрес доставки оператору по телефону. Заказ принимается без адреса и без расчёта доставки
+       * @example false
+       */
       address_by_operator?: boolean
       /**
        * Format: uuid
@@ -1099,6 +1102,8 @@ export interface components {
        * @example https://storage.example.com/images/pepperoni.jpg
        */
       photo_url?: string | null
+      /** @description Хит продаж филиала: попадает в блок «Популярное» по настройке режима популярных товаров */
+      popular?: boolean
       /**
        * @description Цена в копейках
        * @example 59000
@@ -1118,8 +1123,6 @@ export interface components {
       stars_reward?: number | null
       /** @description Товар в стоп-листе: показывать, но не давать заказать */
       stopped?: boolean
-      /** @description Хит продаж филиала: попадает в блок «Популярное» по настройке режима популярных товаров */
-      popular?: boolean
       /** @description Предлагать в корзине в блоке «Добавить к заказу» */
       suggested?: boolean
       /** @description Теги товара, которые админ настраивает во вкладке «Теги» */
@@ -2031,6 +2034,18 @@ export interface components {
        * @example Тюмень
        */
       city?: string | null
+      delivery?: {
+        /** @description Способ выбора адреса явно настроен для филиала */
+        address_mode_set?: boolean
+        /** @description Включён ли выбор адреса по карте на сайте */
+        map_address?: boolean
+        /** @description Разрешена ли галочка «назову адрес оператору» в форме заказа */
+        operator_address?: boolean
+        /** @description Показывать поле города при ручном вводе адреса */
+        show_city?: boolean
+      } & {
+        [key: string]: unknown
+      }
       /**
        * @description Минуты до готовности вместе с добавкой на загрузку
        * @example 30
@@ -2038,13 +2053,6 @@ export interface components {
       delivery_time?: number | null
       /** @description Включённые способы получения заказа */
       fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
-      /** @description Настройки адреса доставки филиала */
-      delivery?: {
-        /** @description Включён ли выбор адреса по карте на сайте */
-        map_address?: boolean
-        /** @description Разрешена ли галочка «назову адрес оператору» в форме заказа */
-        operator_address?: boolean
-      }
       /**
        * Format: uuid
        * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc

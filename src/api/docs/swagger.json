@@ -66,6 +66,11 @@
       "CreateOrderRequest": {
         "properties": {
           "address": { "$ref": "#/components/schemas/AddressRequest" },
+          "address_by_operator": {
+            "description": "Клиент назовёт адрес доставки оператору по телефону. Заказ принимается без адреса и без расчёта доставки",
+            "example": false,
+            "type": "boolean"
+          },
           "branch_id": {
             "description": "UUID филиала",
             "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
@@ -293,6 +298,10 @@
             "format": "uri",
             "nullable": true,
             "type": "string"
+          },
+          "popular": {
+            "description": "Хит продаж филиала: попадает в блок «Популярное» по настройке режима популярных товаров",
+            "type": "boolean"
           },
           "price": { "description": "Цена в копейках", "example": 59000, "type": "integer" },
           "quantity": {
@@ -1477,6 +1486,28 @@
             "example": "Тюмень",
             "nullable": true,
             "type": "string"
+          },
+          "delivery": {
+            "additionalProperties": true,
+            "properties": {
+              "address_mode_set": {
+                "description": "Способ выбора адреса явно настроен для филиала",
+                "type": "boolean"
+              },
+              "map_address": {
+                "description": "Включён ли выбор адреса по карте на сайте",
+                "type": "boolean"
+              },
+              "operator_address": {
+                "description": "Разрешена ли галочка «назову адрес оператору» в форме заказа",
+                "type": "boolean"
+              },
+              "show_city": {
+                "description": "Показывать поле города при ручном вводе адреса",
+                "type": "boolean"
+              }
+            },
+            "type": "object"
           },
           "delivery_time": {
             "description": "Минуты до готовности вместе с добавкой на загрузку",
