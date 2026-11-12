@@ -28,7 +28,12 @@ describe('cross-city delivery addresses', () => {
       street: 'Мира',
       house: '1',
     })
-    expect(useAddressEditor(address).isReady.value).toBe(true)
+    const editor = useAddressEditor(address, () => true)
+    expect(editor.isReady.value).toBe(false)
+    address.value = { ...address.value, latitude: 55.75, longitude: 37.62 }
+    expect(editor.isReady.value).toBe(true)
+    address.value = { ...address.value, latitude: null, longitude: null }
+    expect(useAddressEditor(address, () => false).isReady.value).toBe(true)
   })
 
   it('shows saved addresses from all cities', () => {

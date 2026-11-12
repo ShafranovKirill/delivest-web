@@ -13,7 +13,7 @@ import {
   type LngLat,
 } from '../utils/deliveryAddress'
 
-export function useAddressEditor(address: Ref<DeliveryAddress>) {
+export function useAddressEditor(address: Ref<DeliveryAddress>, requireCoordinates: () => boolean) {
   const branchStore = useBranchStore()
 
   const mapCenter = ref<LngLat>(
@@ -38,7 +38,11 @@ export function useAddressEditor(address: Ref<DeliveryAddress>) {
 
   remember(lngLatOf(address.value))
 
-  const isReady = computed(() => isComplete(address.value))
+  const isReady = computed(
+    () =>
+      isComplete(address.value) &&
+      (!requireCoordinates() || lngLatOf(address.value) !== null),
+  )
 
   function focus(next: DeliveryAddress) {
     address.value = next
