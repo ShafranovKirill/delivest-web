@@ -569,6 +569,7 @@ export const ru = {
       addressPickup: 'Адрес кафе',
       phoneCaption: 'Номер телефона',
       phoneError: 'Введите номер телефона полностью',
+      addressError: 'Укажите улицу и дом для доставки',
       paymentCaption: 'Способ оплаты',
       contacts: 'Контактные данные',
       name: 'Ваше имя',

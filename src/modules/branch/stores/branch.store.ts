@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import Cookies from 'js-cookie'
 import { BranchService, type Branch } from '../api/branch.service'
 import { useBranchSchedule } from '../composables/useBranchSchedule'
@@ -101,11 +101,22 @@ export const useBranchStore = defineStore('branch', () => {
     return Cookies.get('active_branch_id') ?? readSavedBranchId()
   }
 
+  // Delivery address settings of the active branch. The site asks for the address
+  // on the map only when `mapAddress` is on; the operator checkbox is opt-in.
+  const mapAddress = computed(
+    () => activeBranch.value?.branch_info?.delivery?.map_address !== false,
+  )
+  const operatorAddress = computed(
+    () => activeBranch.value?.branch_info?.delivery?.operator_address === true,
+  )
+
   return {
     branches,
     activeBranch,
     isInitialized,
     isModalOpen,
+    mapAddress,
+    operatorAddress,
     openModal,
     closeModal,
     toggleModal,

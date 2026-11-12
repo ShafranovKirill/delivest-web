@@ -568,6 +568,7 @@ export const en: typeof ru = {
       addressPickup: 'Cafe address',
       phoneCaption: 'Phone number',
       phoneError: 'Enter your full phone number',
+      addressError: 'Enter the street and house for delivery',
       paymentCaption: 'Payment method',
       contacts: 'Contact details',
       name: 'Your name',
