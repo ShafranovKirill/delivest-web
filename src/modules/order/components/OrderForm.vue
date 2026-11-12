@@ -106,7 +106,10 @@ const authenticatedPhone = computed(() => {
 const delivery = useDeliveryQuote()
 
 const deliveryBlocked = computed(
-  () => isDelivery.value && !form.call_operator_for_address && delivery.blocked.value,
+  () =>
+    isDelivery.value &&
+    !(showOperatorCheckbox.value && form.call_operator_for_address) &&
+    delivery.blocked.value,
 )
 
 // Inline address entry is shown when the branch disabled the address map.
@@ -121,16 +124,17 @@ const inlineAddress = computed<DeliveryAddress>(() =>
 const inlineAddressMissing = computed(
   () =>
     needsAddressEntry.value &&
-    !form.call_operator_for_address &&
-    !inlineAddress.value.street.trim(),
+    !(showOperatorCheckbox.value && form.call_operator_for_address) &&
+    (!inlineAddress.value.street.trim() ||
+      (branchStore.showCity && !inlineAddress.value.city.trim())),
 )
 
 watch(
-  () => [needsAddressEntry.value, branchStore.mapAddress],
-  () => {
-    if (showOperatorCheckbox.value) return
-    if (!branchStore.operatorAddress) form.call_operator_for_address = false
+  showOperatorCheckbox,
+  (show) => {
+    if (!show) form.call_operator_for_address = false
   },
+  { immediate: true },
 )
 
 watch(inlineAddressMissing, (missing) => {
@@ -361,7 +365,16 @@ function openAddressPicker() {
 
 function updateInlineAddress(address: DeliveryAddress) {
   const branchId = branchStore.activeBranch?.id
-  if (branchId) fulfillmentStore.choose(branchId, { type: 'delivery', address })
+  if (branchId)
+    fulfillmentStore.choose(branchId, {
+      type: 'delivery',
+      address: {
+        ...address,
+        city: branchStore.showCity
+          ? address.city
+          : (branchStore.activeBranch?.branch_info?.city ?? ''),
+      },
+    })
 }
 
 function handleSubmit() {
@@ -410,8 +423,12 @@ function handleSubmit() {
   }
 
   const callOperator = showOperatorCheckbox.value && form.call_operator_for_address
-  const address =
+  const selectedAddress =
     isDelivery.value && !callOperator ? (fulfillmentStore.deliveryAddress ?? null) : null
+  const address =
+    selectedAddress && needsAddressEntry.value && !branchStore.showCity
+      ? { ...selectedAddress, city: branchStore.activeBranch?.branch_info?.city ?? '' }
+      : selectedAddress
 
   emit('submit', {
     ...form,
@@ -446,18 +463,29 @@ function handleSubmit() {
       <p :class="captionClass">{{ addressCaption }}</p>
 
       <DeliveryAddressForm
-        v-if="needsAddressEntry && !form.call_operator_for_address"
+        v-if="needsAddressEntry && !(showOperatorCheckbox && form.call_operator_for_address)"
         :model-value="inlineAddress"
         :suggest="false"
+        manual
+        :show-city="branchStore.showCity"
         :city="branchStore.activeBranch?.branch_info?.city ?? null"
         @update:model-value="updateInlineAddress"
       />
 
       <OrderPickRow
-        v-else
+        v-else-if="!needsAddressEntry"
         :title="addressRow.title"
         :text="addressRow.text"
         @click="openAddressPicker"
+      />
+
+      <Button
+        v-if="needsAddressEntry && fulfillmentStore.availableModes.includes('pickup')"
+        type="button"
+        :label="t('order.form.pickup')"
+        text
+        class="mt-2"
+        @click="flowStore.openPicker('pickup')"
       />
 
       <p

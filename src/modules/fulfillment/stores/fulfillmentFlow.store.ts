@@ -53,13 +53,13 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
 
     // With the map off the site never asks for the address up front: the customer
     // enters it in the order form, so delivery is chosen silently.
-    if (!branchStore.mapAddress && fulfillmentStore.availableModes.includes('delivery')) {
-      const branchId = branchStore.activeBranch?.id
-      if (branchId) {
-        fulfillmentStore.choose(branchId, { type: 'delivery', address: emptyDeliveryAddress() })
-        settle(true)
-        return Promise.resolve(true)
-      }
+    if (
+      !branchStore.mapAddress &&
+      fulfillmentStore.availableModes.length === 1 &&
+      fulfillmentStore.availableModes[0] === 'delivery'
+    ) {
+      chooseManualDelivery()
+      return Promise.resolve(Boolean(fulfillmentStore.current))
     }
 
     settle(false)
@@ -78,6 +78,15 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
       settle(false)
       return
     }
+    if (
+      mode === 'delivery' &&
+      !branchStore.mapAddress &&
+      fulfillmentStore.availableModes.includes('delivery')
+    ) {
+      chooseManualDelivery()
+      isPromptOpen.value = false
+      return
+    }
     pickerMode.value = fulfillmentStore.availableModes.includes(mode)
       ? mode
       : fulfillmentStore.availableModes[0]!
@@ -88,6 +97,18 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
   function complete() {
     isPickerOpen.value = false
     settle(true)
+  }
+
+  function chooseManualDelivery() {
+    const branchId = branchStore.activeBranch?.id
+    if (!branchId) return
+    if (fulfillmentStore.current?.type !== 'delivery') {
+      fulfillmentStore.choose(branchId, {
+        type: 'delivery',
+        address: emptyDeliveryAddress(branchStore.activeBranch?.branch_info?.city ?? ''),
+      })
+    }
+    complete()
   }
 
   function abandon() {
@@ -115,6 +136,7 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
     ensure,
     openPicker,
     complete,
+    chooseManualDelivery,
     abandon,
     dismiss,
     signIn,

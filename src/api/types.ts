@@ -2040,10 +2040,14 @@ export interface components {
       fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
       /** @description Настройки адреса доставки филиала */
       delivery?: {
+        /** @description Способ выбора адреса явно настроен для филиала */
+        address_mode_set?: boolean
         /** @description Включён ли выбор адреса по карте на сайте */
         map_address?: boolean
         /** @description Разрешена ли галочка «назову адрес оператору» в форме заказа */
         operator_address?: boolean
+        /** @description Показывать поле города при ручном вводе адреса */
+        show_city?: boolean
       }
       /**
        * Format: uuid

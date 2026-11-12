@@ -14,6 +14,9 @@ const flowStore = useFulfillmentFlowStore()
 const props = defineProps<{ withQuote?: boolean }>()
 
 const { hint, blocked } = useDeliveryQuote()
+const manualDelivery = computed(
+  () => !branchStore.mapAddress && fulfillmentStore.current?.type === 'delivery',
+)
 
 const summary = computed(() => {
   const choice = fulfillmentStore.current
@@ -54,9 +57,14 @@ const summary = computed(() => {
       </span>
     </span>
     <button
+      v-if="!manualDelivery || fulfillmentStore.availableModes.includes('pickup')"
       type="button"
       class="shrink-0 font-semibold text-primary cursor-pointer"
-      @click="flowStore.openPicker(fulfillmentStore.current?.type ?? 'delivery')"
+      @click="
+        flowStore.openPicker(
+          manualDelivery ? 'pickup' : (fulfillmentStore.current?.type ?? 'delivery'),
+        )
+      "
     >
       {{ summary ? t('branch.change') : t('fulfillment.summary.choose') }}
     </button>

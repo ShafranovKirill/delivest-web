@@ -9,7 +9,11 @@ import { useFulfillmentFlowStore } from '../../stores/fulfillmentFlow.store'
 import { useDeliveryQuote } from '../../composables/useDeliveryQuote'
 import { useDeliveryZones } from '../../composables/useDeliveryZones'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
-import { emptyDeliveryAddress, type DeliveryAddress } from '../../utils/deliveryAddress'
+import {
+  emptyDeliveryAddress,
+  hasAddressPoint,
+  type DeliveryAddress,
+} from '../../utils/deliveryAddress'
 import { formatPrice } from '@/utils/money'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
@@ -135,6 +139,13 @@ function confirm() {
   >
     <template #default="{ ready, locating }">
       <p
+        v-if="fulfillmentStore.addressMapUnavailable"
+        role="alert"
+        class="mb-2 text-sm font-medium text-red-500"
+      >
+        {{ t('delivery.mapUnavailable') }}
+      </p>
+      <p
         v-if="
           ready ||
           (address.latitude != null && address.longitude != null) ||
@@ -158,6 +169,8 @@ function confirm() {
         :label="t('fulfillment.confirmAddress')"
         :disabled="
           !ready ||
+          (fulfillmentStore.requiresAddressMap && !hasAddressPoint(address)) ||
+          fulfillmentStore.addressMapUnavailable ||
           locating ||
           selecting ||
           needsZoom ||
