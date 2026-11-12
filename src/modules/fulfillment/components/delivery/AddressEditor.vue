@@ -6,6 +6,7 @@ import SavedAddresses from './SavedAddresses.vue'
 import SavedAddressesButton from './SavedAddressesButton.vue'
 import SheetPanel from '../SheetPanel.vue'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useAddressEditor } from '../../composables/useAddressEditor'
 import { useDeliveryAddresses } from '../../composables/useDeliveryAddresses'
 import { savedMarkers } from '../../utils/savedMarkers'
@@ -28,10 +29,11 @@ const emit = defineEmits<{ selecting: []; zoomTooLow: [] }>()
 const address = defineModel<DeliveryAddress>({ required: true })
 
 const franchiseStore = useFranchiseStore()
+const branchStore = useBranchStore()
 const savedAddresses = useDeliveryAddresses()
 
 const { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved } =
-  useAddressEditor(address, () => franchiseStore.addressMap)
+  useAddressEditor(address, () => branchStore.mapAddress)
 
 const markers = computed(() => (props.saved ? savedMarkers(savedAddresses.value) : []))
 
