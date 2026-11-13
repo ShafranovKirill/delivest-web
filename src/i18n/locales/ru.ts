@@ -601,7 +601,7 @@ export const ru = {
       titleDelivery: 'Время доставки',
       pick: 'Выберите время',
       asap: 'Побыстрее',
-      asapEta: 'к {time}',
+      asapEta: '≈ {time}',
       custom: 'Другое время',
       today: 'Сегодня',
       tomorrow: 'Завтра',
