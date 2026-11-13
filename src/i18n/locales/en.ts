@@ -600,7 +600,7 @@ export const en: typeof ru = {
       titleDelivery: 'Delivery time',
       pick: 'Choose a time',
       asap: 'ASAP',
-      asapEta: 'by {time}',
+      asapEta: '≈ {time}',
       custom: 'Other time',
       today: 'Today',
       tomorrow: 'Tomorrow',

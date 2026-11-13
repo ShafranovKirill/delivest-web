@@ -5,8 +5,8 @@ import DeliveryAddressForm from './DeliveryAddressForm.vue'
 import SavedAddresses from './SavedAddresses.vue'
 import SavedAddressesButton from './SavedAddressesButton.vue'
 import SheetPanel from '../SheetPanel.vue'
-import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useAddressEditor } from '../../composables/useAddressEditor'
 import { useDeliveryAddresses } from '../../composables/useDeliveryAddresses'
 import { savedMarkers } from '../../utils/savedMarkers'
@@ -28,12 +28,13 @@ const emit = defineEmits<{ selecting: []; zoomTooLow: [] }>()
 
 const address = defineModel<DeliveryAddress>({ required: true })
 
-const franchiseStore = useFranchiseStore()
 const branchStore = useBranchStore()
+const franchiseStore = useFranchiseStore()
+const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddress)
 const savedAddresses = useDeliveryAddresses()
 
 const { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved } =
-  useAddressEditor(address, () => branchStore.mapAddress)
+  useAddressEditor(address, () => hasMap.value)
 
 const markers = computed(() => (props.saved ? savedMarkers(savedAddresses.value) : []))
 
@@ -51,7 +52,7 @@ function movePin(point: LngLat, zoom: number) {
 <template>
   <div class="flex h-full flex-col">
     <BaseMap
-      v-if="franchiseStore.addressMap"
+      v-if="hasMap"
       :center="mapCenter"
       :markers="markers"
       :zones="zones"
@@ -70,14 +71,14 @@ function movePin(point: LngLat, zoom: number) {
       />
     </BaseMap>
 
-    <SheetPanel :floating="franchiseStore.addressMap">
-      <SavedAddresses v-if="saved && !franchiseStore.addressMap" @select="pickSaved" />
+    <SheetPanel :floating="hasMap">
+      <SavedAddresses v-if="saved && !hasMap" @select="pickSaved" />
 
       <slot name="before" />
 
       <DeliveryAddressForm
         v-model="address"
-        :suggest="franchiseStore.addressMap"
+        :suggest="hasMap"
         :city="city"
         @select="pickSuggestion"
       />

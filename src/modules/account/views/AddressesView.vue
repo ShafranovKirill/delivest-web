@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
 import { getApiErrorMessage } from '@/api/errors'
@@ -11,6 +11,7 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import AddressCard from '../components/AddressCard.vue'
 import AddressFormDialog from '../components/AddressFormDialog.vue'
 import AddressEditorDialog from '../components/AddressEditorDialog.vue'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import type { ClientAddress } from '../api/account.service'
 import { useAddressesQuery } from '../composables/useAddressesQuery'
@@ -20,7 +21,9 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const authStore = useAuthStore()
+const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
+const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddress)
 const toast = useToast()
 const { data: addresses, isLoading } = useAddressesQuery()
 const { remove } = useAddressMutations()
@@ -72,7 +75,7 @@ function removeAddress(address: ClientAddress) {
       />
 
       <AddressEditorDialog
-        v-if="franchiseStore.addressMap"
+        v-if="hasMap"
         :visible="isDialogOpen"
         :address="editing"
         @close="isDialogOpen = false"

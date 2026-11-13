@@ -33,6 +33,7 @@ const { t } = useI18n()
 const toast = useToast()
 const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
+const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddress)
 const { save } = useAddressMutations()
 
 const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
@@ -69,10 +70,10 @@ async function submit() {
 </script>
 
 <template>
-  <MapDialog v-model:visible="isOpen" :compact="!franchiseStore.addressMap">
+  <MapDialog v-model:visible="isOpen" :compact="!hasMap">
     <template #header>
       <p
-        class="grid h-11 place-items-center rounded-full bg-white px-4 font-semibold text-gray-900" :class="{ 'shadow-lg ring-1 ring-black/10 dark:ring-white/10': franchiseStore.addressMap }"
+        class="grid h-11 place-items-center rounded-full bg-white px-4 font-semibold text-gray-900" :class="{ 'shadow-lg ring-1 ring-black/10 dark:ring-white/10': hasMap }"
       >
         {{ address ? t('account.address.editTitle') : t('account.address.newTitle') }}
       </p>
