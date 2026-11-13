@@ -370,6 +370,7 @@ export const ru = {
     },
   },
   menu: {
+    popular: 'Популярные',
     saveChanges: 'Сохранить · {price}',
     noModifiers: 'Без добавок',
     nutrition: {

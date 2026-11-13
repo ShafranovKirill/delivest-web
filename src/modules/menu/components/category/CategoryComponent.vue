@@ -3,9 +3,12 @@ import type { MenuCategory } from '../../api/menu.service.ts'
 import { vIntersectionObserver } from '@vueuse/components'
 import ProductCard from '../product/ProductCard.vue'
 import { useMenuStore } from '../../stores/menu.store.ts'
+import { categoryDisplayName } from '../../utils/categoryDisplayName'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ category: MenuCategory }>()
 const menuStore = useMenuStore()
+const { t } = useI18n()
 
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   if (entries[0]?.isIntersecting && !menuStore.isManualScroll) {
@@ -19,7 +22,9 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
     v-intersection-observer="[onIntersectionObserver, { rootMargin: '-20% 0px -60% 0px' }]"
     class="my-4 scroll-mt-40 md:scroll-mt-44"
   >
-    <h2 class="mb-2 px-2 text-3xl font-bold! sm:px-0 [overflow-wrap:anywhere]">{{ category.name }}</h2>
+    <h2 class="mb-2 px-2 text-3xl font-bold! sm:px-0 [overflow-wrap:anywhere]">
+      {{ categoryDisplayName(category, t('menu.popular')) }}
+    </h2>
     <div
       class="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-1 sm:gap-2 justify-items-center"
     >

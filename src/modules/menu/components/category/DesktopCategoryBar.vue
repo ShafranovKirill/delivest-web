@@ -8,6 +8,7 @@ import SkeletonCategoryBar from './SkeletonCategoryBar.vue'
 import { useI18n } from 'vue-i18n'
 import { useResizeObserver } from '@vueuse/core'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { categoryDisplayName } from '../../utils/categoryDisplayName'
 
 const { data: menu, isLoading } = useMenuQuery()
 const menuStore = useMenuStore()
@@ -99,7 +100,7 @@ watch(categories, updateVisibleCount, { deep: true })
                 severity="secondary"
                 outlined
               >
-                <p class="font-bold!">{{ category.name }}</p>
+                <p class="font-bold!">{{ categoryDisplayName(category, t('menu.popular')) }}</p>
               </Button>
             </div>
             <div ref="measurementMoreRef" class="shrink-0">
@@ -135,7 +136,7 @@ watch(categories, updateVisibleCount, { deep: true })
           @click="menuStore.scrollToCategory(category.id)"
           class="shrink-0 whitespace-nowrap border-0!"
         >
-          <p class="font-bold!">{{ category.name }}</p>
+          <p class="font-bold!">{{ categoryDisplayName(category, t('menu.popular')) }}</p>
         </Button>
 
         <div
@@ -167,7 +168,7 @@ watch(categories, updateVisibleCount, { deep: true })
               @click="menuStore.scrollToCategory(cat.id)"
             >
               <p class="font-bold! text-gray-500 whitespace-normal [overflow-wrap:anywhere]">
-                {{ cat.name }}
+                {{ categoryDisplayName(cat, t('menu.popular')) }}
               </p>
             </div>
           </div>

@@ -369,6 +369,7 @@ export const en: typeof ru = {
     },
   },
   menu: {
+    popular: 'Popular',
     saveChanges: 'Save · {price}',
     noModifiers: 'No extras',
     nutrition: {
