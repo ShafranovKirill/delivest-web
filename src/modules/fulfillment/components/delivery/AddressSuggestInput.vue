@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, useId, watch } from 'vue'
-import FloatLabel from 'primevue/floatlabel'
 import AutoComplete, { type AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
 import { useAddressSuggestions } from '../../composables/useAddressSuggestions'
 import type { GeoAddress } from '../../api/geo.service'
@@ -49,19 +48,21 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
 </script>
 
 <template>
-  <FloatLabel variant="in">
+  <div class="flex flex-col gap-2">
+    <label :for="inputId" class="px-1 text-xs font-medium text-gray-500">{{ label }}</label>
     <AutoComplete
+      append-to="self"
       :model-value="query"
       :suggestions="options"
       option-label="label"
       :input-id="inputId"
       :delay="0"
       :min-length="4"
+      input-class="h-12! border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white!"
       fluid
       @update:model-value="onInput"
       @complete="suggest && search($event.query)"
       @option-select="onSelect"
     />
-    <label :for="inputId">{{ label }}</label>
-  </FloatLabel>
+  </div>
 </template>

@@ -22,6 +22,15 @@ const { useDeliveryAddresses } =
 const { emptyDeliveryAddress } = await import('@/modules/fulfillment/utils/deliveryAddress')
 
 describe('cross-city delivery addresses', () => {
+  it('accepts manual address text when the house is not parsed into a separate field', () => {
+    const address = ref({
+      ...emptyDeliveryAddress(),
+      street: 'Тверская 7к1',
+    })
+    expect(useAddressEditor(address, () => false).isReady.value).toBe(true)
+    expect(useAddressEditor(address, () => true).isReady.value).toBe(false)
+  })
+
   it('allows a complete address in a neighboring city to proceed to the delivery quote', () => {
     const address = ref({
       ...emptyDeliveryAddress('Соседний город'),

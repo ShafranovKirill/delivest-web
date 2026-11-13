@@ -7,12 +7,14 @@ import { intlLocale } from '@/i18n'
 import { formatPrice } from '@/utils/money'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
+import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
 
 const { t } = useI18n()
 const cartStore = useCartStore()
 const delivery = useDeliveryQuote()
+const fulfillmentFlow = useFulfillmentFlowStore()
 
 const goodsLabel = computed(() => {
   const count = cartStore.totalQuantity
@@ -71,12 +73,17 @@ const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
         <span>{{ t('cart.discount') }}</span>
         <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
       </div>
-      <div v-if="deliveryFee !== null" class="flex justify-between">
+      <button
+        v-if="deliveryFee !== null"
+        type="button"
+        class="flex w-full cursor-pointer justify-between text-left"
+        @click="fulfillmentFlow.openPicker('delivery')"
+      >
         <span>{{ t('delivery.line') }}</span>
         <span class="tabular-nums">
           {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
         </span>
-      </div>
+      </button>
       <div class="mt-2 flex justify-between text-lg font-extrabold text-gray-950">
         <span>{{ t('order.form.orderTotal') }}</span>
         <span class="tabular-nums">{{ formatPrice(total) }}</span>

@@ -16,6 +16,9 @@ vi.mock('@/modules/branch/stores/branch.store', () => ({
   }),
 }))
 vi.mock('@/modules/auth/stores/auth.store', () => ({ useAuthStore: () => auth }))
+vi.mock('@/modules/franchise/stores/franchise.store', () => ({
+  useFranchiseStore: () => ({ addressMap: false }),
+}))
 vi.mock('@/modules/fulfillment/utils/fulfillmentMethods', () => ({
   fulfillmentMethods: (value: typeof branch.activeBranch) => value?.methods ?? [],
 }))

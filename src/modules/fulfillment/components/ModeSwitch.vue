@@ -6,7 +6,7 @@ const model = defineModel<T>({ required: true })
 
 <template>
   <div
-    class="flex rounded-full bg-white p-1 shadow-lg ring-1 ring-black/10 dark:ring-white/10"
+    class="flex rounded-full bg-gray-100 p-1"
     role="radiogroup"
   >
     <button

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { reactive, nextTick, effectScope, ref } from 'vue'
+import { emptyDeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
 
 function memoryStorage(): Storage {
   const entries = new Map<string, string>()
@@ -42,6 +43,9 @@ const quoteError = ref(false)
 
 vi.mock('@/modules/branch/stores/branch.store', () => ({ useBranchStore: () => branch }))
 vi.mock('@/modules/auth/stores/auth.store', () => ({ useAuthStore: () => auth }))
+vi.mock('@/modules/franchise/stores/franchise.store', () => ({
+  useFranchiseStore: () => ({ addressMap: false }),
+}))
 vi.mock('@/modules/cart/api/cart.service', () => ({
   CartService: { getCart, addItem, removeItem, setFulfillment },
 }))
@@ -316,7 +320,7 @@ describe('cart response ownership', () => {
 describe('fulfillment address ownership', () => {
   it('keeps guest choice on first login and clears A address on logout and B login', () => {
     const store = useFulfillmentStore()
-    const address = { city: 'A secret' } as never
+    const address = { ...emptyDeliveryAddress('A secret'), street: 'Main', house: '7' }
     store.choose('A', { type: 'delivery', address })
     auth.client = { id: 'A' }
     expect(store.deliveryAddress).toEqual(address)
@@ -326,6 +330,29 @@ describe('fulfillment address ownership', () => {
     expect(JSON.parse(sessionStorage.getItem('fulfillment:v2')!).owner).toBe('B')
     setActivePinia(createPinia())
     expect(useFulfillmentStore().deliveryAddress).toBeNull()
+  })
+
+  it('requires a choice again when an older session silently saved an empty delivery address', () => {
+    sessionStorage.setItem(
+      'fulfillment:v2',
+      JSON.stringify({
+        owner: 'guest',
+        choices: { A: { type: 'delivery', address: emptyDeliveryAddress() } },
+      }),
+    )
+    const store = useFulfillmentStore()
+    expect(store.current).toBeNull()
+  })
+
+  it('ignores an incomplete delivery choice from an older session', () => {
+    sessionStorage.setItem(
+      'fulfillment:v2',
+      JSON.stringify({
+        owner: 'guest',
+        choices: { A: { type: 'delivery', address: { city: 'Moscow' } } },
+      }),
+    )
+    expect(useFulfillmentStore().current).toBeNull()
   })
 
   it('rejects unowned legacy persisted addresses', () => {

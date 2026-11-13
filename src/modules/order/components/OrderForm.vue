@@ -6,10 +6,8 @@ import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import OrderConsent from './OrderConsent.vue'
 import Textarea from 'primevue/textarea'
-import Checkbox from 'primevue/checkbox'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
-import OptionChips from '@/modules/order/components/OptionChips.vue'
 import { captionClass, sectionClass } from '@/modules/order/utils/formLayout'
 import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
 import Dialog from 'primevue/dialog'
@@ -19,8 +17,6 @@ import { formatClock, sameDay } from '@/modules/branch/utils/zonedTime'
 import { intlLocale } from '@/i18n'
 import { formatAddress } from '@/modules/shared/utils/address'
 import type { DeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
-import { emptyDeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
-import DeliveryAddressForm from '@/modules/fulfillment/components/delivery/DeliveryAddressForm.vue'
 import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
@@ -64,8 +60,6 @@ const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 const phoneSection = ref<HTMLElement | null>(null)
 const phoneError = ref(false)
-const addressSection = ref<HTMLElement | null>(null)
-const addressError = ref(false)
 const phoneInputClass = computed(() =>
   [
     'w-full lg:max-w-sm rounded-2xl! border-2! bg-gray-50! px-4! py-3.5! text-gray-900!',
@@ -78,7 +72,16 @@ const compositionOpen = ref(false)
 
 type PickupKind = Extract<OrderFormValues['fulfillment_type'], 'pickup' | 'dine_in'>
 
-const pickupKind = ref<PickupKind>('pickup')
+const pickupKind = computed<PickupKind>(() => {
+  const choice = fulfillmentStore.current
+  if (
+    choice?.type === 'pickup' &&
+    choice.pickupKind &&
+    fulfillmentStore.methods.includes(choice.pickupKind)
+  )
+    return choice.pickupKind
+  return fulfillmentStore.methods.includes('pickup') ? 'pickup' : 'dine_in'
+})
 
 const form = reactive({
   customer_name: authStore.client?.name ?? '',
@@ -95,9 +98,12 @@ const draftOwner = () => authStore.client?.id ?? 'guest'
 const loyalty = useLoyaltyQuery()
 const starsLabel = useStarsLabel()
 
-const isDelivery = computed(() => fulfillmentStore.current?.type === 'delivery')
-const hasMap = computed(() => branchStore.mapAddress)
-const showOperatorCheckbox = computed(() => isDelivery.value && branchStore.operatorAddress)
+const isDelivery = computed(
+  () =>
+    fulfillmentStore.current?.type === 'delivery' ||
+    (!fulfillmentStore.current && fulfillmentStore.availableModes[0] === 'delivery'),
+)
+const canUseOperator = computed(() => isDelivery.value && branchStore.operatorAddress)
 const authenticatedPhone = computed(() => {
   const phone = authStore.client?.phone
   return authStore.isAuthenticated && phone && /^\+7\d{10}$/.test(phone) ? phone : null
@@ -109,47 +115,13 @@ const deliveryBlocked = computed(
   () => isDelivery.value && !form.call_operator_for_address && delivery.blocked.value,
 )
 
-// Inline address entry is shown when the branch disabled the address map.
-const needsAddressEntry = computed(() => isDelivery.value && !hasMap.value)
-
-const inlineAddress = computed<DeliveryAddress>(() =>
-  fulfillmentStore.current?.type === 'delivery'
-    ? (fulfillmentStore.current.address ?? emptyDeliveryAddress(branchStore.activeBranch?.branch_info?.city ?? ''))
-    : emptyDeliveryAddress(branchStore.activeBranch?.branch_info?.city ?? ''),
-)
-
-const inlineAddressMissing = computed(
-  () =>
-    needsAddressEntry.value &&
-    !form.call_operator_for_address &&
-    !inlineAddress.value.street.trim(),
-)
-
 watch(
   () => fulfillmentStore.addressByOperator,
-  (value) => { form.call_operator_for_address = value },
+  (value) => {
+    form.call_operator_for_address = value
+  },
   { immediate: true, flush: 'sync' },
 )
-watch(
-  () => form.call_operator_for_address,
-  (value) => {
-    if (value === fulfillmentStore.addressByOperator) return
-    const branchId = branchStore.activeBranch?.id
-    const choice = fulfillmentStore.current
-    if (!branchId || choice?.type !== 'delivery') return
-    if (value && !showOperatorCheckbox.value) {
-      form.call_operator_for_address = false
-      return
-    }
-    fulfillmentStore.choose(branchId, { ...choice, addressByOperator: value })
-  },
-  { flush: 'sync' },
-)
-
-watch(inlineAddressMissing, (missing) => {
-  if (!missing) addressError.value = false
-})
-
 const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
   isDelivery.value ? 'delivery' : pickupKind.value,
 )
@@ -168,25 +140,28 @@ watch(
   },
 )
 
-const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() =>
-  (
-    [
-      { value: 'pickup', label: t('order.form.takeaway') },
-      { value: 'dine_in', label: t('order.form.dineIn') },
-    ] as Array<{ value: PickupKind; label: string }>
-  ).filter((option) => fulfillmentStore.methods.includes(option.value)),
-)
 watch(
-  pickupOptions,
-  (options) => {
-    if (!options.some((option) => option.value === pickupKind.value) && options[0])
-      pickupKind.value = options[0].value
+  () => fulfillmentStore.current,
+  (choice) => {
+    if (choice) cartStore.setFulfillment(fulfillmentType.value).catch(console.error)
   },
   { immediate: true },
 )
-watch(fulfillmentType, (type) => cartStore.setFulfillment(type).catch((e) => console.error(e)), {
-  immediate: true,
-})
+watch(
+  () => [branchStore.activeBranch?.id, fulfillmentStore.current] as const,
+  ([branchId, choice]) => {
+    if (
+      branchId &&
+      !choice &&
+      fulfillmentStore.canOrder &&
+      !flowStore.isPickerOpen &&
+      !flowStore.isPromptOpen
+    ) {
+      flowStore.openPicker(fulfillmentStore.availableModes[0] ?? 'delivery')
+    }
+  },
+  { immediate: true },
+)
 onMounted(() => branchStore.refreshBranches().catch(console.error))
 
 const allPaymentOptions = computed<
@@ -287,8 +262,14 @@ watch(
         const savedForm = { ...saved.form }
         delete savedForm.call_operator_for_address
         Object.assign(form, savedForm)
-        if (saved.pickupKind === 'pickup' || saved.pickupKind === 'dine_in') {
-          pickupKind.value = saved.pickupKind
+        const choice = fulfillmentStore.current
+        if (
+          choice?.type === 'pickup' &&
+          !choice.pickupKind &&
+          (saved.pickupKind === 'pickup' || saved.pickupKind === 'dine_in') &&
+          fulfillmentStore.methods.includes(saved.pickupKind)
+        ) {
+          fulfillmentStore.choose(branchId, { ...choice, pickupKind: saved.pickupKind })
         }
         useStars.value = saved.useStars === true
       } else if (saved) {
@@ -377,11 +358,6 @@ function openAddressPicker() {
   flowStore.openPicker(fulfillmentStore.current?.type ?? 'delivery')
 }
 
-function updateInlineAddress(address: DeliveryAddress) {
-  const branchId = branchStore.activeBranch?.id
-  if (branchId) fulfillmentStore.choose(branchId, { type: 'delivery', address, addressByOperator: false })
-}
-
 function handleSubmit() {
   if (authStore.isRequired && !authStore.isAuthenticated) {
     if (authStore.isEnabled) {
@@ -411,23 +387,13 @@ function handleSubmit() {
   if (!fulfillmentStore.canOrder) return
 
   if (!fulfillmentStore.current) {
-    flowStore.openPicker('delivery')
+    flowStore.openPicker(fulfillmentStore.availableModes[0] ?? 'delivery')
     return
   }
 
   if (deliveryBlocked.value) return
 
-  if (inlineAddressMissing.value) {
-    addressError.value = true
-    requestAnimationFrame(() => {
-      const input = addressSection.value?.querySelector<HTMLInputElement>('input')
-      input?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      input?.focus()
-    })
-    return
-  }
-
-  const callOperator = showOperatorCheckbox.value && form.call_operator_for_address
+  const callOperator = canUseOperator.value && form.call_operator_for_address
   const address =
     isDelivery.value && !callOperator ? (fulfillmentStore.deliveryAddress ?? null) : null
 
@@ -460,31 +426,10 @@ function handleSubmit() {
       </p>
     </div>
 
-    <div ref="addressSection" :class="sectionClass">
+    <div :class="sectionClass">
       <p :class="captionClass">{{ addressCaption }}</p>
 
-      <DeliveryAddressForm
-        v-if="needsAddressEntry && !form.call_operator_for_address"
-        :model-value="inlineAddress"
-        :suggest="false"
-        :city="branchStore.activeBranch?.branch_info?.city ?? null"
-        @update:model-value="updateInlineAddress"
-      />
-
-      <OrderPickRow
-        v-else
-        :title="addressRow.title"
-        :text="addressRow.text"
-        @click="openAddressPicker"
-      />
-
-      <p
-        v-if="addressError && inlineAddressMissing"
-        class="mt-2 text-sm font-medium text-red-600"
-        role="alert"
-      >
-        {{ t('order.form.addressError') }}
-      </p>
+      <OrderPickRow :title="addressRow.title" :text="addressRow.text" @click="openAddressPicker" />
 
       <p v-if="closedNotice" class="mt-2 text-sm font-medium text-amber-700">
         {{ closedNotice }}
@@ -498,28 +443,12 @@ function handleSubmit() {
         {{ t('delivery.checking') }}
       </p>
       <p
-        v-if="isDelivery && delivery.hint.value && !needsAddressEntry"
+        v-if="isDelivery && delivery.hint.value && !form.call_operator_for_address"
         class="mt-2 text-sm font-medium"
         :class="delivery.blocked.value ? 'text-red-500' : 'text-gray-700'"
       >
         {{ delivery.hint.value }}
       </p>
-
-      <OptionChips
-        v-if="fulfillmentStore.current?.type === 'pickup' && pickupOptions.length > 1"
-        v-model="pickupKind"
-        :options="pickupOptions"
-        :columns="2"
-        class="mt-3"
-      />
-
-      <label
-        v-if="showOperatorCheckbox"
-        class="mt-3 flex items-center gap-2 cursor-pointer select-none"
-      >
-        <Checkbox v-model="form.call_operator_for_address" binary />
-        <span class="text-sm text-gray-700">{{ t('order.form.callOperator') }}</span>
-      </label>
     </div>
 
     <OrderTimeSelect v-model="form.cook_by" :fulfillment="fulfillmentType" />
@@ -604,12 +533,17 @@ function handleSubmit() {
           <span>{{ t('loyalty.spent') }}</span>
           <span class="tabular-nums">−{{ formatPrice(starsToSpend * 100) }}</span>
         </div>
-        <div v-if="deliveryFee !== null" class="flex justify-between">
+        <button
+          v-if="deliveryFee !== null"
+          type="button"
+          class="flex w-full cursor-pointer justify-between text-left"
+          @click="openAddressPicker"
+        >
           <span>{{ t('delivery.line') }}</span>
           <span class="tabular-nums">
             {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
           </span>
-        </div>
+        </button>
         <div class="flex justify-between text-lg font-extrabold text-gray-950">
           <span>{{ t('order.form.orderTotal') }}</span>
           <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>

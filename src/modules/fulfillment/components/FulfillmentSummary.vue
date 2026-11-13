@@ -22,7 +22,10 @@ const summary = computed(() => {
     return {
       icon: 'pi-shopping-bag',
       title: t(
-        fulfillmentStore.methods.includes('pickup') ? 'order.form.pickup' : 'order.form.dineIn',
+        choice.pickupKind === 'dine_in' ||
+          (!choice.pickupKind && !fulfillmentStore.methods.includes('pickup'))
+          ? 'order.form.dineIn'
+          : 'order.form.pickup',
       ),
       text: branchStore.activeBranch?.branch_info?.address ?? branchStore.activeBranch?.name,
     }

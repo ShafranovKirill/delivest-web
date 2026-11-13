@@ -3,7 +3,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
-import { hasOnsite } from '../../utils/fulfillmentMethods'
+import { fulfillmentMethods, hasOnsite } from '../../utils/fulfillmentMethods'
+import ModeSwitch from '../ModeSwitch.vue'
 import BaseMap, { type MapMarker } from '../map/BaseMap.vue'
 import PickupBranchList from './PickupBranchList.vue'
 import PickupBranchCard from './PickupBranchCard.vue'
@@ -32,6 +33,31 @@ const branches = computed(() =>
 const selectedId = ref<string | null>(branchStore.activeBranch?.id ?? null)
 const selected = computed(() => branches.value.find((branch) => branch.id === selectedId.value))
 const isSwitching = ref(false)
+type PickupKind = 'pickup' | 'dine_in'
+const pickupKind = ref<PickupKind>(
+  fulfillmentStore.current?.type === 'pickup' && fulfillmentStore.current.pickupKind
+    ? fulfillmentStore.current.pickupKind
+    : 'pickup',
+)
+const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() => {
+  const methods = fulfillmentMethods(selected.value)
+  return [
+    ...(methods.includes('pickup')
+      ? [{ value: 'pickup' as const, label: t('order.form.takeaway') }]
+      : []),
+    ...(methods.includes('dine_in')
+      ? [{ value: 'dine_in' as const, label: t('order.form.dineIn') }]
+      : []),
+  ]
+})
+watch(
+  pickupOptions,
+  (options) => {
+    if (!options.some((option) => option.value === pickupKind.value))
+      pickupKind.value = options[0]?.value ?? 'pickup'
+  },
+  { immediate: true },
+)
 watch(
   branches,
   (available) => {
@@ -59,7 +85,7 @@ onMounted(() => branchStore.initBranches().catch(() => null))
 async function confirm(branch: Branch) {
   if (!hasOnsite(branch)) return
   if (branch.id === branchStore.activeBranch?.id) {
-    fulfillmentStore.choose(branch.id, { type: 'pickup' })
+    fulfillmentStore.choose(branch.id, { type: 'pickup', pickupKind: pickupKind.value })
     analytics.track('fulfillment_selected')
     flowStore.complete()
     return
@@ -68,7 +94,7 @@ async function confirm(branch: Branch) {
   isSwitching.value = true
   try {
     await branchStore.selectBranch(branch)
-    fulfillmentStore.choose(branch.id, { type: 'pickup' })
+    fulfillmentStore.choose(branch.id, { type: 'pickup', pickupKind: pickupKind.value })
     analytics.track('fulfillment_selected')
     flowStore.abandon()
     await router.push(`/${branch.slug}`)
@@ -92,6 +118,12 @@ async function confirm(branch: Branch) {
     />
 
     <SheetPanel :floating="hasMap" :class="{ 'max-h-[55%]': hasMap }">
+      <ModeSwitch
+        v-if="pickupOptions.length > 1"
+        v-model="pickupKind"
+        :options="pickupOptions"
+        class="mb-3"
+      />
       <PickupBranchCard
         v-if="selected"
         :branch="selected"

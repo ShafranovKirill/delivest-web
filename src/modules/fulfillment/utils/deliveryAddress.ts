@@ -95,7 +95,11 @@ export function fromClientAddress(address: ClientAddress): DeliveryAddress {
 }
 
 export function isComplete(address: DeliveryAddress): boolean {
-  return Boolean(address.street.trim() && address.house.trim())
+  return (
+    typeof address.street === 'string' &&
+    typeof address.house === 'string' &&
+    Boolean(address.street.trim() && address.house.trim())
+  )
 }
 
 const normalizeCity = (city: string) =>

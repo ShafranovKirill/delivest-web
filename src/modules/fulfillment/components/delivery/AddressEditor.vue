@@ -72,18 +72,22 @@ function movePin(point: LngLat, zoom: number) {
     </BaseMap>
 
     <SheetPanel :floating="hasMap">
-      <SavedAddresses v-if="saved && !hasMap" @select="pickSaved" />
+      <div class="flex flex-col gap-4">
+        <SavedAddresses v-if="saved && !hasMap" @select="pickSaved" />
 
-      <slot name="before" />
+        <slot name="before" />
 
-      <DeliveryAddressForm
-        v-model="address"
-        :suggest="hasMap"
-        :city="city"
-        @select="pickSuggestion"
-      />
+        <DeliveryAddressForm
+          v-model="address"
+          :suggest="hasMap"
+          :city="city"
+          @select="pickSuggestion"
+        />
+      </div>
 
-      <slot :ready="isReady" :locating="isLocating" />
+      <div class="flex flex-col gap-2 border-t border-gray-100 pt-4">
+        <slot :ready="isReady" :locating="isLocating" />
+      </div>
     </SheetPanel>
   </div>
 </template>

@@ -38,10 +38,10 @@ export function useAddressEditor(address: Ref<DeliveryAddress>, requireCoordinat
 
   remember(lngLatOf(address.value))
 
-  const isReady = computed(
-    () =>
-      isComplete(address.value) &&
-      (!requireCoordinates() || lngLatOf(address.value) !== null),
+  const isReady = computed(() =>
+    requireCoordinates()
+      ? isComplete(address.value) && lngLatOf(address.value) !== null
+      : Boolean(address.value.street.trim()),
   )
 
   function focus(next: DeliveryAddress) {

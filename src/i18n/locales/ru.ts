@@ -288,7 +288,7 @@ export const ru = {
     },
     deliverHere: 'Заказать сюда',
     confirmAddress: 'Подтвердить адрес',
-    tellOperator: 'Скажу оператору',
+    tellOperator: 'Уточнить адрес по телефону',
     pickupHere: 'Заказать сюда',
     outsideCity: 'Этот филиал доставляет только по городу {city}',
     notOnMap: 'нет на карте',
@@ -514,7 +514,7 @@ export const ru = {
       call: 'Позвонить курьеру',
       track: 'Где курьер',
     },
-    addressByOperator: 'Адрес уточнит оператор',
+    addressByOperator: 'Адрес уточним по телефону',
     atBranch: 'В филиале',
     steps: {
       details: 'Данные',

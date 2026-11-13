@@ -3,16 +3,18 @@ import { computed, ref, watch } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { fulfillmentMethods } from '../utils/fulfillmentMethods'
-import type { DeliveryAddress } from '../utils/deliveryAddress'
+import { isComplete, lngLatOf, type DeliveryAddress } from '../utils/deliveryAddress'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 
 export type FulfillmentChoice =
   | { type: 'delivery'; address: DeliveryAddress | null; addressByOperator?: boolean }
-  | { type: 'pickup' }
+  | { type: 'pickup'; pickupKind?: 'pickup' | 'dine_in' }
 
 const STORAGE_KEY = 'fulfillment:v2'
 
 export const useFulfillmentStore = defineStore('fulfillment', () => {
   const branchStore = useBranchStore()
+  const franchiseStore = useFranchiseStore()
   const authStore = useAuthStore()
   const owner = () => authStore.client?.id ?? 'guest'
   const choices = ref<Record<string, FulfillmentChoice>>({})
@@ -56,11 +58,27 @@ export const useFulfillmentStore = defineStore('fulfillment', () => {
   const current = computed<FulfillmentChoice | null>(() => {
     const branchId = branchStore.activeBranch?.id
     const choice = branchId ? choices.value[branchId] : null
-    return choice && availableModes.value.includes(choice.type) ? choice : null
+    if (!choice || !availableModes.value.includes(choice.type)) return null
+    if (choice.type === 'pickup') return choice
+
+    if (choice.addressByOperator === true && branchStore.operatorAddress) return choice
+    if (!choice.address || !choice.address.street?.trim()) return null
+    if (
+      franchiseStore.addressMap &&
+      branchStore.mapAddress &&
+      (!isComplete(choice.address) || !lngLatOf(choice.address))
+    ) {
+      return null
+    }
+
+    return choice
   })
 
   const addressByOperator = computed(
-    () => current.value?.type === 'delivery' && branchStore.operatorAddress && current.value.addressByOperator === true,
+    () =>
+      current.value?.type === 'delivery' &&
+      branchStore.operatorAddress &&
+      current.value.addressByOperator === true,
   )
 
   const deliveryAddress = computed(() =>
@@ -72,5 +90,14 @@ export const useFulfillmentStore = defineStore('fulfillment', () => {
     save()
   }
 
-  return { choices, current, addressByOperator, deliveryAddress, choose, methods, canOrder, availableModes }
+  return {
+    choices,
+    current,
+    addressByOperator,
+    deliveryAddress,
+    choose,
+    methods,
+    canOrder,
+    availableModes,
+  }
 })

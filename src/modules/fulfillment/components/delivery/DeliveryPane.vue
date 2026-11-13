@@ -25,7 +25,7 @@ const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
 const address = ref<DeliveryAddress>({
   ...(flowStore.addressDrafts[branchStore.activeBranch?.id ?? ''] ??
     (fulfillmentStore.current?.type === 'delivery' ? fulfillmentStore.current.address : null) ??
-    emptyDeliveryAddress(city.value ?? '')),
+    emptyDeliveryAddress()),
 })
 watch(
   [() => authStore.client?.id ?? 'guest', () => branchStore.activeBranch?.id],
@@ -34,7 +34,7 @@ watch(
       address.value = {
         ...(flowStore.addressDrafts[branchId ?? ''] ??
           (fulfillmentStore.current?.type === 'delivery' ? fulfillmentStore.current.address : null) ??
-          emptyDeliveryAddress(city.value ?? '')),
+          emptyDeliveryAddress()),
       }
     }
   },
@@ -160,7 +160,7 @@ function confirmWithOperator() {
           locating
         "
         data-testid="delivery-quote-caption"
-        class="mb-2 text-sm font-medium"
+        class="rounded-2xl bg-gray-50 px-4 py-3 text-sm font-medium"
         :class="
           delivery.quote.value?.status === 'below_minimum' ||
           delivery.notDelivered.value ||
@@ -190,8 +190,9 @@ function confirmWithOperator() {
       <Button
         v-if="canUseOperator"
         :label="t('fulfillment.tellOperator')"
-        text
-        class="h-9! w-full p-0! font-semibold"
+        variant="text"
+        severity="secondary"
+        class="h-10! w-full rounded-full! bg-transparent! p-0! text-sm! font-medium!"
         @click="confirmWithOperator"
       />
     </template>

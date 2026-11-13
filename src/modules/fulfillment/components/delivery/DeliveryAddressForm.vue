@@ -2,7 +2,6 @@
 import { ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AddressSuggestInput from './AddressSuggestInput.vue'
-import FloatLabel from 'primevue/floatlabel'
 import InputText from 'primevue/inputtext'
 import type { GeoAddress } from '../../api/geo.service'
 import { shortAddressLabel, type DeliveryAddress } from '../../utils/deliveryAddress'
@@ -44,9 +43,10 @@ function editAddress(value: string) {
     /^г\.?(?:\s|$)/i.test(first) ||
     (parts.length >= 3 && !/^(ул\.?|улица|пр\.?|проспект|пер\.?|переулок|шоссе)/i.test(first)) ||
     (parts.length === 2 && /[а-яa-z].*\d/i.test(second) && !/^д(?:ом)?\.?\s*\d/i.test(second))
-  const city = isCity ? parts.shift()! : branchCity
+  let city = isCity ? parts.shift()! : ''
   let line = parts.join(', ')
   if (!isCity && branchCity && line.toLowerCase().startsWith(`${branchCity.toLowerCase()} `)) {
+    city = branchCity
     line = line.slice(branchCity.length).trim()
   }
   const houseMatch = line.match(
@@ -78,7 +78,7 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-4">
     <AddressSuggestInput
       :value="inputValue"
       :suggest="suggest"
@@ -86,15 +86,17 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
       @select="selectAddress"
       @edit="editAddress"
     />
-    <div class="grid grid-cols-2 gap-2">
-      <FloatLabel v-for="field in details" :key="field" variant="in" class="min-w-0">
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div v-for="field in details" :key="field" class="flex min-w-0 flex-col gap-2">
+        <label :for="`${detailsId}-${field}`" class="px-1 text-xs font-medium text-gray-500">
+          {{ t(`fulfillment.form.${field}`) }}
+        </label>
         <InputText
           :id="`${detailsId}-${field}`"
           v-model="address[field]"
-          class="w-full min-w-0"
+          class="h-12! w-full min-w-0 border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white!"
         />
-        <label :for="`${detailsId}-${field}`">{{ t(`fulfillment.form.${field}`) }}</label>
-      </FloatLabel>
+      </div>
     </div>
   </div>
 </template>
