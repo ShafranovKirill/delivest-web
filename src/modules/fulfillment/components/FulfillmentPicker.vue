@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, watch } from 'vue'
+import { computed, defineAsyncComponent, defineComponent, h, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFulfillmentStore } from '../stores/fulfillment.store'
 import MapDialog from './MapDialog.vue'
@@ -10,11 +10,24 @@ import { loadDeliveryPane, loadPickupPane } from '../utils/panes'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 
-const asyncPane = (loader: typeof loadDeliveryPane | typeof loadPickupPane) =>
-  defineAsyncComponent({ loader, loadingComponent: PaneSkeleton, delay: 0 })
+const asyncPane = (loader: typeof loadDeliveryPane | typeof loadPickupPane, mode: PickerMode) =>
+  defineAsyncComponent({
+    loader,
+    loadingComponent: defineComponent({
+      setup() {
+        const branch = useBranchStore()
+        const franchise = useFranchiseStore()
+        return () =>
+          h(PaneSkeleton, {
+            map: franchise.addressMap && (mode === 'pickup' || branch.mapAddress),
+          })
+      },
+    }),
+    delay: 0,
+  })
 
-const DeliveryPane = asyncPane(loadDeliveryPane)
-const PickupPane = asyncPane(loadPickupPane)
+const DeliveryPane = asyncPane(loadDeliveryPane, 'delivery')
+const PickupPane = asyncPane(loadPickupPane, 'pickup')
 
 const { t } = useI18n()
 const flowStore = useFulfillmentFlowStore()

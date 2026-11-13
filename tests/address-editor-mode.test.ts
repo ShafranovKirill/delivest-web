@@ -16,6 +16,7 @@ vi.mock('../src/modules/fulfillment/composables/useAddressEditor', () => ({
   useAddressEditor: () => ({ mapCenter: [0, 0], isLocating: false, locate: vi.fn(), isReady: true, pickSuggestion: vi.fn(), pickSaved: vi.fn() }),
 }))
 vi.mock('../src/modules/fulfillment/composables/useDeliveryAddresses', () => ({ useDeliveryAddresses: () => ({ value: [] }) }))
+vi.mock('../src/modules/fulfillment/components/map/MapPlaceholder.vue', () => ({ default: defineComponent({ setup: () => () => h('div', { 'data-map-placeholder': '' }) }) }))
 vi.mock('../src/modules/fulfillment/components/map/BaseMap.vue', () => ({ default: defineComponent({ setup: (_, { slots }) => () => h('section', { 'data-map': '' }, slots.default?.()) }) }))
 vi.mock('../src/modules/fulfillment/components/delivery/DeliveryAddressForm.vue', () => ({ default: defineComponent({ props: ['suggest'], setup: (props) => () => h('div', { 'data-suggest': String(props.suggest) }) }) }))
 vi.mock('../src/modules/fulfillment/components/delivery/SavedAddresses.vue', () => ({ default: defineComponent({ setup: () => () => h('div', { 'data-saved-list': '' }) }) }))
@@ -24,6 +25,7 @@ vi.mock('../src/modules/fulfillment/components/SheetPanel.vue', () => ({ default
 
 import AddressEditor from '../src/modules/fulfillment/components/delivery/AddressEditor.vue'
 import FulfillmentPicker from '../src/modules/fulfillment/components/FulfillmentPicker.vue'
+import PaneSkeleton from '../src/modules/fulfillment/components/PaneSkeleton.vue'
 
 async function render() {
   return renderToString(createSSRApp(AddressEditor, {
@@ -63,5 +65,27 @@ describe('fulfillment picker map layout', () => {
     franchise.addressMap = integration
     const html = await renderToString(createSSRApp(FulfillmentPicker))
     expect(html).toContain(`data-compact="${compact}"`)
+  })
+})
+
+describe('loading pane map placeholder', () => {
+  it.each([
+    [true, true, true],
+    [true, false, false],
+    [false, true, false],
+  ])('integration %s and delivery map %s renders placeholder %s', async (integration, enabled, map) => {
+    franchise.addressMap = integration
+    branch.mapAddress = enabled
+    const html = await renderToString(createSSRApp(PaneSkeleton))
+    expect(html.includes('data-map-placeholder')).toBe(map)
+    expect(html).toContain(`data-floating="${map}"`)
+  })
+
+  it('keeps the pickup placeholder with manual delivery mode', async () => {
+    franchise.addressMap = true
+    branch.mapAddress = false
+    const html = await renderToString(createSSRApp(PaneSkeleton, { map: true }))
+    expect(html).toContain('data-map-placeholder')
+    expect(html).toContain('data-floating="true"')
   })
 })
