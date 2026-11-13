@@ -6,9 +6,12 @@ import { useMobCatBarScroll } from '../../composables/useMobCatBarScroll'
 import { storeToRefs } from 'pinia'
 import { useMenuStore } from '../../stores/menu.store'
 import SkeletonCategoryBar from './SkeletonCategoryBar.vue'
+import { categoryDisplayName } from '../../utils/categoryDisplayName'
+import { useI18n } from 'vue-i18n'
 
 const { data: menu, isLoading } = useMenuQuery()
 const menuStore = useMenuStore()
+const { t } = useI18n()
 const categories = computed(() => {
   if (!menu.value) return []
 
@@ -39,7 +42,9 @@ useMobCatBarScroll(activeCategoryId, containerRef)
           :outlined="!menuStore.isActive(category.id)"
           rounded
         >
-          <p class="font-bold whitespace-normal [overflow-wrap:anywhere]">{{ category.name }}</p>
+          <p class="font-bold whitespace-normal [overflow-wrap:anywhere]">
+            {{ categoryDisplayName(category, t('menu.popular')) }}
+          </p>
         </Button>
       </div>
     </div>
