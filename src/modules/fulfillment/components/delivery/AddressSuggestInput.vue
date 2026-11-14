@@ -131,7 +131,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
   transform: none !important;
   width: 100% !important;
   max-width: 100%;
-  margin-top: 0.75rem;
+  margin-top: 0.75rem !important;
   border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
   box-shadow: 0 8px 20px rgb(15 23 42 / 0.08);
