@@ -109,6 +109,7 @@ function confirmWithOperator() {
     v-model="address"
     :city="city"
     :zones="zones"
+    floating-labels
     :selected-zone-id="
       selecting || needsZoom || delivery.pending.value || delivery.isError.value
         ? null

@@ -6,6 +6,7 @@ import type { ClientAddress } from '@/modules/account/api/account.service'
 import { formatAddress } from '@/modules/shared/utils/address'
 import { useDeliveryAddresses } from '../../composables/useDeliveryAddresses'
 
+defineProps<{ alignRight?: boolean }>()
 const emit = defineEmits<{ select: [address: ClientAddress] }>()
 
 const { t } = useI18n()
@@ -25,7 +26,8 @@ function select(address: ClientAddress) {
   <div v-if="addresses.length" ref="root">
     <ul
       v-if="isOpen"
-      class="absolute bottom-full left-0 mb-2 flex max-h-64 w-72 max-w-[calc(100vw-1.5rem)] flex-col overflow-y-auto rounded-2xl bg-white p-1 shadow-lg ring-1 ring-black/10 dark:ring-white/10"
+      class="absolute bottom-full mb-2 flex max-h-64 w-72 max-w-[calc(100vw-1.5rem)] flex-col overflow-y-auto rounded-2xl bg-white p-1 shadow-lg ring-1 ring-black/10 dark:ring-white/10"
+      :class="alignRight ? 'right-0' : 'left-0'"
     >
       <li v-for="address in addresses" :key="address.id">
         <button
@@ -47,11 +49,12 @@ function select(address: ClientAddress) {
     <button
       type="button"
       :aria-expanded="isOpen"
-      class="flex h-11 items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-gray-700 shadow-lg ring-1 ring-black/10 hover:bg-gray-50 dark:ring-white/10 cursor-pointer"
+      class="flex h-11 items-center gap-2 rounded-full bg-white text-sm font-semibold text-gray-700 shadow-lg ring-1 ring-black/10 hover:bg-gray-50 dark:ring-white/10 cursor-pointer"
+      :class="alignRight ? 'w-11 justify-center p-0' : 'px-4'"
       @click="isOpen = !isOpen"
     >
       <i class="pi pi-bookmark" />
-      {{ t('fulfillment.savedAddresses') }}
+      <span :class="{ 'sr-only': alignRight }">{{ t('fulfillment.savedAddresses') }}</span>
     </button>
   </div>
 </template>

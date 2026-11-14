@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useId, watch } from 'vue'
 import AutoComplete, { type AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
+import FloatLabel from 'primevue/floatlabel'
 import { useAddressSuggestions } from '../../composables/useAddressSuggestions'
 import type { GeoAddress } from '../../api/geo.service'
 import { shortAddressLabel } from '../../utils/deliveryAddress'
@@ -9,6 +10,7 @@ const props = defineProps<{
   value: string
   label: string
   suggest: boolean
+  floatingLabels?: boolean
 }>()
 const emit = defineEmits<{ select: [address: GeoAddress]; edit: [value: string] }>()
 
@@ -48,9 +50,34 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <label :for="inputId" class="px-1 text-xs font-medium text-gray-500">{{ label }}</label>
+  <div class="flex flex-col" :class="{ 'gap-2': !floatingLabels }">
+    <label v-if="!floatingLabels" :for="inputId" class="px-1 text-xs font-medium text-gray-500">{{
+      label
+    }}</label>
+    <FloatLabel
+      v-if="floatingLabels"
+      variant="in"
+      :dt="{ root: { active: { fontSize: '0.6875rem' } }, in: { active: { top: '0.375rem' } } }"
+      class="block w-full"
+    >
+      <AutoComplete
+        append-to="self"
+        :model-value="query"
+        :suggestions="options"
+        option-label="label"
+        :input-id="inputId"
+        :delay="0"
+        :min-length="4"
+        input-class="h-12! border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white!"
+        fluid
+        @update:model-value="onInput"
+        @complete="suggest && search($event.query)"
+        @option-select="onSelect"
+      />
+      <label :for="inputId" class="left-4!">{{ label }}</label>
+    </FloatLabel>
     <AutoComplete
+      v-else
       append-to="self"
       :model-value="query"
       :suggestions="options"

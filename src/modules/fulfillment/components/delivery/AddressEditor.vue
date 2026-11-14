@@ -19,8 +19,9 @@ const props = withDefaults(
     saved?: boolean
     zones?: DeliveryZone[]
     selectedZoneId?: string | null
+    floatingLabels?: boolean
   }>(),
-  { saved: true, zones: () => [], selectedZoneId: null },
+  { saved: true, zones: () => [], selectedZoneId: null, floatingLabels: false },
 )
 
 const emit = defineEmits<{ selecting: []; zoomTooLow: [] }>()
@@ -66,7 +67,10 @@ function movePin(point: LngLat, zoom: number) {
     >
       <SavedAddressesButton
         v-if="saved"
-        class="absolute bottom-9 left-3 z-10"
+        :align-right="Boolean($slots['map-overlay'])"
+        :class="
+          $slots['map-overlay'] ? 'absolute bottom-9 right-3 z-10' : 'absolute bottom-9 left-3 z-10'
+        "
         @select="pickSaved"
       />
       <template v-if="$slots['map-overlay']" #map-overlay>
@@ -84,6 +88,7 @@ function movePin(point: LngLat, zoom: number) {
           v-model="address"
           :suggest="hasMap"
           :city="city"
+          :floating-labels="floatingLabels"
           @select="pickSuggestion"
         />
       </div>
