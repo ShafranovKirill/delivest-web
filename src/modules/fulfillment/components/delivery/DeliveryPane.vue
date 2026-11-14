@@ -121,7 +121,6 @@ function confirmWithOperator() {
     <template #map-overlay="{ ready, locating }">
       <DeliveryQuoteSummary
         :quote="selecting || needsZoom ? null : delivery.quote.value"
-        :zones="zones"
         :has-point="address.latitude != null && address.longitude != null"
         :ready="ready && !locating"
         :pending="delivery.pending.value"
@@ -135,7 +134,6 @@ function confirmWithOperator() {
         <DeliveryQuoteSummary
           v-if="!onMap"
           :quote="selecting || needsZoom ? null : delivery.quote.value"
-          :zones="zones"
           :has-point="address.latitude != null && address.longitude != null"
           :ready="ready && !locating"
           :pending="delivery.pending.value"

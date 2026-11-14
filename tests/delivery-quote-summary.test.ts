@@ -10,7 +10,6 @@ vi.mock('vue-i18n', async (importOriginal) => ({
 }))
 
 const baseProps = {
-  zones: [],
   ready: false,
   pending: false,
   selecting: false,
@@ -46,6 +45,7 @@ describe('delivery quote summary', () => {
     )
     expect(html).toContain('delivery.costTitle')
     expect(html).not.toContain('Internal zone name')
-    expect(html).toContain('aria-expanded="false"')
+    expect(html).toContain('150')
+    expect(html).not.toContain('<button')
   })
 })
