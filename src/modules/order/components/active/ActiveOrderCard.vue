@@ -56,16 +56,7 @@ const { t } = useI18n()
 </template>
 
 <style scoped>
-.order-status-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(
-    ellipse 85% 110% at 100% 100%,
-    color-mix(in srgb, var(--color-primary) 34%, transparent),
-    color-mix(in srgb, var(--color-primary) 12%, transparent) 45%,
-    transparent 85%
-  );
+.order-status-card {
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--surface-card, white));
 }
 </style>
