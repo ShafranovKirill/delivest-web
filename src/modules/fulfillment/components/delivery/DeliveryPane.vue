@@ -117,33 +117,34 @@ function confirmWithOperator() {
     @selecting="startSelecting"
     @zoom-too-low="requireZoom"
   >
-    <template #summary>
-      <DeliveryQuoteSummary
-        :quote="selecting || needsZoom ? null : delivery.quote.value"
-        :zones="zones"
-        :pending="delivery.pending.value"
-        :selecting="selecting"
-        :needs-zoom="needsZoom"
-        :error="delivery.isError.value"
-      />
-    </template>
     <template #default="{ ready, locating }">
-      <Button
-        :label="t('fulfillment.confirmAddress')"
-        :disabled="
-          !ready ||
-          locating ||
-          selecting ||
-          needsZoom ||
-          delivery.pending.value ||
-          delivery.isError.value ||
-          delivery.notDelivered.value ||
-          !delivery.quote.value
-        "
-        :loading="locating"
-        class="h-12 w-full rounded-full! font-semibold"
-        @click="confirm"
-      />
+      <div class="flex h-12 items-center gap-3">
+        <DeliveryQuoteSummary
+          :quote="selecting || needsZoom ? null : delivery.quote.value"
+          :zones="zones"
+          :ready="ready && !locating"
+          :pending="delivery.pending.value"
+          :selecting="selecting"
+          :needs-zoom="needsZoom"
+          :error="delivery.isError.value"
+        />
+        <Button
+          :label="t('fulfillment.confirmAddress')"
+          :disabled="
+            !ready ||
+            locating ||
+            selecting ||
+            needsZoom ||
+            delivery.pending.value ||
+            delivery.isError.value ||
+            delivery.notDelivered.value ||
+            !delivery.quote.value
+          "
+          :loading="locating"
+          class="h-12 min-w-0 flex-1 rounded-full! px-3! text-sm! font-semibold whitespace-nowrap"
+          @click="confirm"
+        />
+      </div>
       <Button
         v-if="canUseOperator"
         :label="t('fulfillment.tellOperator')"

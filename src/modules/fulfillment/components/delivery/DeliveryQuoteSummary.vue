@@ -8,6 +8,7 @@ import type { DeliveryQuote, DeliveryZone } from '../../api/delivery.service'
 const props = defineProps<{
   quote: DeliveryQuote | null
   zones: DeliveryZone[]
+  ready: boolean
   pending: boolean
   selecting: boolean
   needsZoom: boolean
@@ -17,50 +18,48 @@ const { t } = useI18n()
 const popover = ref<InstanceType<typeof Popover> | null>(null)
 const fresh = computed(
   () =>
+    props.ready &&
     !props.pending &&
     !props.selecting &&
     !props.needsZoom &&
     !props.error &&
-    (props.quote?.status === 'ok' || props.quote?.status === 'below_minimum'),
+    props.quote?.price != null &&
+    (props.quote.status === 'ok' || props.quote.status === 'below_minimum'),
 )
 const zone = computed(() => props.zones.find((item) => item.id === props.quote?.zone_id))
-const shortText = computed(() => {
-  if (props.needsZoom) return t('delivery.zoomIn')
-  if (props.selecting || props.pending) return t('delivery.checkingShort')
-  if (props.error) return t('delivery.unavailableShort')
+const amount = computed(() => {
   const quote = props.quote
-  if (!quote) return t('delivery.noPoint')
-  if (quote.status === 'outside_zones') return t('delivery.outside')
-  if (quote.status === 'no_coordinates') return t('delivery.noPoint')
-  if (quote.status !== 'ok' && quote.status !== 'below_minimum')
+  if (quote?.price == null) return ''
+  return quote.price === 0 ? t('common.free') : formatPrice(quote.price)
+})
+const hint = computed(() => {
+  if (!props.ready || props.selecting || props.pending) return null
+  if (props.needsZoom) return t('delivery.zoomIn')
+  if (props.error) return t('delivery.unavailableShort')
+  if (props.quote?.status === 'outside_zones') return t('delivery.outside')
+  if (props.quote?.status === 'no_coordinates') return t('delivery.noPoint')
+  if (props.quote && props.quote.status !== 'ok' && props.quote.status !== 'below_minimum')
     return t('delivery.unavailableShort')
-  const amount =
-    quote.price == null
-      ? null
-      : quote.price === 0
-        ? t('delivery.free')
-        : t('delivery.price', { price: formatPrice(quote.price) })
-  const time = quote.minutes == null ? null : t('delivery.zoneMinutes', { minutes: quote.minutes })
-  return [amount, time].filter(Boolean).join(' · ') || t('delivery.checkingShort')
+  return null
 })
 watch(
-  () => [props.quote, props.pending, props.selecting, props.needsZoom, props.error],
+  () => [props.quote, props.ready, props.pending, props.selecting, props.needsZoom, props.error],
   () => popover.value?.hide(),
 )
 </script>
 
 <template>
-  <div
-    class="flex h-11 min-w-0 items-center gap-2 rounded-2xl bg-white px-4 text-sm text-gray-700 shadow-md ring-1 ring-gray-100"
-    data-testid="delivery-quote-caption"
-    :title="shortText"
-  >
-    <span class="min-w-0 flex-1 truncate font-medium">{{ shortText }}</span>
+  <div v-if="fresh || hint" class="flex shrink-0 items-center gap-1.5" data-testid="delivery-quote-caption">
+    <div v-if="fresh" class="flex flex-col text-left leading-tight">
+      <span class="text-xs text-gray-500">{{ t('delivery.line') }}</span>
+      <span class="whitespace-nowrap text-sm font-semibold text-gray-900">{{ amount }}</span>
+    </div>
+    <span v-else class="max-w-28 text-xs leading-tight text-gray-600">{{ hint }}</span>
     <button
       v-if="fresh"
       type="button"
       :aria-label="t('delivery.conditions')"
-      class="grid size-8 shrink-0 place-items-center rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50"
+      class="grid size-7 shrink-0 place-items-center rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50"
       @click="popover?.toggle($event)"
     >
       <span aria-hidden="true">?</span>

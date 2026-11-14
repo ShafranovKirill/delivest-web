@@ -32,18 +32,6 @@ function handleReturnHome() {
   <div class="mx-auto flex max-w-lg flex-col gap-3 sm:gap-4">
     <OrderSuccessHero v-if="order" :key="order.id" :order="order" />
 
-    <div
-      v-if="order?.status === 'created' && !order.awaiting_payment"
-      class="rounded-3xl bg-gray-50 px-5 py-4 text-sm text-gray-500"
-    >
-      <p class="font-semibold text-gray-800">{{ t('order.success.operatorCall') }}</p>
-      <i18n-t keypath="order.success.hint" tag="p" class="mt-1 leading-relaxed">
-        <template #time>
-          <span class="font-semibold text-gray-900">{{ t('order.success.hintTime') }}</span>
-        </template>
-      </i18n-t>
-    </div>
-
     <OrderSuccessDetails v-if="order" :order="order" />
 
     <div class="flex flex-col gap-2 sm:flex-row sm:gap-3">

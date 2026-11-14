@@ -77,8 +77,6 @@ function movePin(point: LngLat, zoom: number) {
 
         <slot name="before" />
 
-        <slot name="summary" />
-
         <DeliveryAddressForm
           v-model="address"
           :suggest="hasMap"
