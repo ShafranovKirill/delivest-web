@@ -18,10 +18,9 @@ const props = withDefaults(
     city: string | null
     saved?: boolean
     zones?: DeliveryZone[]
-    pinNote?: string | null
     selectedZoneId?: string | null
   }>(),
-  { saved: true, zones: () => [], pinNote: null, selectedZoneId: null },
+  { saved: true, zones: () => [], selectedZoneId: null },
 )
 
 const emit = defineEmits<{ selecting: []; zoomTooLow: [] }>()
@@ -58,7 +57,6 @@ function movePin(point: LngLat, zoom: number) {
       :center="mapCenter"
       :markers="markers"
       :zones="zones"
-      :pin-note="pinNote"
       :selected-zone-id="selectedZoneId"
       pin
       class="min-h-48 flex-1"

@@ -11,7 +11,6 @@ import { useDeliveryQuote } from '../../composables/useDeliveryQuote'
 import { useDeliveryZones } from '../../composables/useDeliveryZones'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { emptyDeliveryAddress, type DeliveryAddress } from '../../utils/deliveryAddress'
-import { formatPrice } from '@/utils/money'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
 const { t } = useI18n()
@@ -70,14 +69,6 @@ watch(
   { flush: 'sync' },
 )
 
-const pinNote = computed(() => {
-  if (needsZoom.value || selecting.value || delivery.pending.value || delivery.isError.value)
-    return null
-  const quote = delivery.quote.value
-  if (quote?.status !== 'ok') return null
-  return quote.price ? t('delivery.price', { price: formatPrice(quote.price) }) : t('delivery.free')
-})
-
 function startSelecting() {
   selecting.value = true
   needsZoom.value = false
@@ -118,7 +109,6 @@ function confirmWithOperator() {
     v-model="address"
     :city="city"
     :zones="zones"
-    :pin-note="pinNote"
     :selected-zone-id="
       selecting || needsZoom || delivery.pending.value || delivery.isError.value
         ? null

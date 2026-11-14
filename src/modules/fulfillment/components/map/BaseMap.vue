@@ -49,12 +49,11 @@ const props = withDefaults(
     center: LngLat
     zoom?: number
     pin?: boolean
-    pinNote?: string | null
     markers?: MapMarker[]
     zones?: DeliveryZone[]
     selectedZoneId?: string | null
   }>(),
-  { zoom: 17, pin: false, pinNote: null, markers: () => [], zones: () => [], selectedZoneId: null },
+  { zoom: 17, pin: false, markers: () => [], zones: () => [], selectedZoneId: null },
 )
 
 const { t } = useI18n()
@@ -230,13 +229,7 @@ watch(
       class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full transition-transform"
       :class="{ '-translate-y-[calc(100%+8px)]': isDragging }"
     >
-      <span
-        v-if="pinNote && !isDragging"
-        class="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-gray-950 px-3 py-1.5 text-xs font-semibold text-white shadow-md"
-      >
-        {{ pinNote }}
-      </span>
-      <i class="pi pi-map-marker text-4xl text-primary drop-shadow-md" />
+      <i-tabler-map-pin-filled class="size-12 text-primary drop-shadow-lg" aria-hidden="true" />
     </div>
     <slot />
   </div>
