@@ -19,8 +19,9 @@ const props = withDefaults(
     saved?: boolean
     zones?: DeliveryZone[]
     selectedZoneId?: string | null
+    floatingLabels?: boolean
   }>(),
-  { saved: true, zones: () => [], selectedZoneId: null },
+  { saved: true, zones: () => [], selectedZoneId: null, floatingLabels: false },
 )
 
 const emit = defineEmits<{ selecting: []; zoomTooLow: [] }>()
@@ -87,6 +88,7 @@ function movePin(point: LngLat, zoom: number) {
           v-model="address"
           :suggest="hasMap"
           :city="city"
+          :floating-labels="floatingLabels"
           @select="pickSuggestion"
         />
       </div>

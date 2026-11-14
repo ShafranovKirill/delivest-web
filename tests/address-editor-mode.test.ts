@@ -21,7 +21,7 @@ vi.mock('../src/modules/fulfillment/composables/useAddressEditor', () => ({
 vi.mock('../src/modules/fulfillment/composables/useDeliveryAddresses', () => ({ useDeliveryAddresses: () => ({ value: [] }) }))
 vi.mock('../src/modules/fulfillment/components/map/MapPlaceholder.vue', () => ({ default: defineComponent({ setup: () => () => h('div', { 'data-map-placeholder': '' }) }) }))
 vi.mock('../src/modules/fulfillment/components/map/BaseMap.vue', () => ({ default: defineComponent({ setup: (_, { slots }) => () => h('section', { 'data-map': '' }, slots.default?.()) }) }))
-vi.mock('../src/modules/fulfillment/components/delivery/DeliveryAddressForm.vue', () => ({ default: defineComponent({ props: ['suggest'], setup: (props) => () => h('div', { 'data-suggest': String(props.suggest) }) }) }))
+vi.mock('../src/modules/fulfillment/components/delivery/DeliveryAddressForm.vue', () => ({ default: defineComponent({ props: ['suggest', 'floatingLabels'], setup: (props) => () => h('div', { 'data-suggest': String(props.suggest), 'data-floating-labels': String(props.floatingLabels) }) }) }))
 vi.mock('../src/modules/fulfillment/components/delivery/SavedAddresses.vue', () => ({ default: defineComponent({ setup: () => () => h('div', { 'data-saved-list': '' }) }) }))
 vi.mock('../src/modules/fulfillment/components/delivery/SavedAddressesButton.vue', () => ({ default: defineComponent({ setup: () => () => h('div', { 'data-saved-map': '' }) }) }))
 vi.mock('../src/modules/fulfillment/components/SheetPanel.vue', () => ({ default: defineComponent({ props: ['floating'], setup: (props, { slots }) => () => h('div', { 'data-floating': String(props.floating) }, slots.default?.()) }) }))
@@ -30,15 +30,21 @@ import AddressEditor from '../src/modules/fulfillment/components/delivery/Addres
 import FulfillmentPicker from '../src/modules/fulfillment/components/FulfillmentPicker.vue'
 import PaneSkeleton from '../src/modules/fulfillment/components/PaneSkeleton.vue'
 
-async function render() {
+async function render(floatingLabels = false) {
   return renderToString(createSSRApp(AddressEditor, {
     modelValue: { city: 'Moscow', street: 'Main', house: '1' },
     city: 'Moscow',
     saved: true,
+    floatingLabels,
   }))
 }
 
 describe('delivery address editor mode', () => {
+  it('keeps floating labels opt-in for the address form', async () => {
+    expect(await render()).toContain('data-floating-labels="false"')
+    expect(await render(true)).toContain('data-floating-labels="true"')
+  })
+
   it.each([
     [true, true, true],
     [true, false, false],
