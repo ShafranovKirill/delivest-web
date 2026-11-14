@@ -15,7 +15,7 @@ const { t } = useI18n()
 <template>
   <button
     type="button"
-    class="order-status-card group relative isolate flex min-h-44 w-full cursor-pointer flex-col items-start overflow-hidden rounded-3xl bg-white p-5 pb-12 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-strong"
+    class="order-status-card group relative isolate flex min-h-44 w-full cursor-pointer flex-col items-start overflow-hidden rounded-3xl bg-white p-5 pb-12 pt-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-strong"
     @click="$emit('open', order)"
   >
     <svg
@@ -23,14 +23,21 @@ const { t } = useI18n()
       viewBox="0 0 1000 300"
       preserveAspectRatio="none"
       fill="currentColor"
-      opacity="0.16"
       aria-hidden="true"
       focusable="false"
     >
-      <path
-        d="M135 24C300 27 430 47 570 18C720 -13 860 -18 1000 0V70C845 31 720 35 590 52C430 75 270 29 135 24Z"
-      />
-      <path d="M0 230C155 258 285 243 430 271C620 307 815 314 1000 278L1000 284C805 321 620 317 430 300L0 300Z" />
+      <path opacity="0.20" d="M0 -40 H1000 V110 C760 140 645 105 500 55 C345 -10 160 -30 0 -30 Z" />
+      <path opacity="0.20" d="M0 -80 H1000 V56 C790 84 660 51 520 14 C355 -30 180 -60 0 -60 Z" />
+      <g transform="translate(0 8)">
+        <path
+          opacity="0.20"
+          d="M0 216 C200 191 360 236 540 274 C700 314 860 282 1000 252 V340 H0 Z"
+        />
+        <path
+          opacity="0.20"
+          d="M0 246 C190 220 330 272 500 312 C680 346 840 312 1000 288 V340 H0 Z"
+        />
+      </g>
     </svg>
     <span class="relative z-10 block w-[65%] min-w-0">
       <span class="block text-xs leading-snug text-gray-500">
@@ -45,14 +52,13 @@ const { t } = useI18n()
       <span class="mt-4 block max-w-52">
         <OrderStatusSteps :order="order" />
       </span>
-      <span class="mt-3 block text-sm leading-snug text-gray-500">
-        {{
-          order.cook_by
-            ? t('order.cookBy', { time: formatTime(order.cook_by) })
-            : t('order.placedAt', { time: formatTime(order.inserted_at) })
-        }}
+      <span v-if="order.cook_by" class="mt-3 block text-sm leading-snug text-gray-500">
+        {{ t('order.cookBy', { time: formatTime(order.cook_by) }) }}
       </span>
-      <span class="mt-1 block font-semibold tabular-nums text-gray-900">
+      <span
+        class="block font-semibold tabular-nums text-gray-900"
+        :class="order.cook_by ? 'mt-1' : 'mt-3'"
+      >
         {{ formatPrice(order.total_amount) }}
       </span>
     </span>
