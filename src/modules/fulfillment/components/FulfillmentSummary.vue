@@ -6,6 +6,7 @@ import { formatAddress } from '@/modules/shared/utils/address'
 import { useFulfillmentStore } from '../stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '../stores/fulfillmentFlow.store'
 import { useDeliveryQuote } from '../composables/useDeliveryQuote'
+import FulfillmentIllustration from './FulfillmentIllustration.vue'
 
 const { t } = useI18n()
 const branchStore = useBranchStore()
@@ -20,7 +21,7 @@ const summary = computed(() => {
   if (!choice) return null
   if (choice.type === 'pickup') {
     return {
-      icon: 'pi-shopping-bag',
+      illustration: 'pickup' as const,
       title: t(
         choice.pickupKind === 'dine_in' ||
           (!choice.pickupKind && !fulfillmentStore.methods.includes('pickup'))
@@ -31,7 +32,7 @@ const summary = computed(() => {
     }
   }
   return {
-    icon: 'pi-car',
+    illustration: 'delivery' as const,
     title: t('order.form.delivery'),
     text: fulfillmentStore.addressByOperator
       ? t('order.addressByOperator')
@@ -43,15 +44,20 @@ const summary = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center gap-3 rounded-3xl border border-gray-100 bg-white p-3 pr-4 text-sm">
-    <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary">
-      <i class="pi text-lg" :class="summary?.icon ?? 'pi-map-marker'" />
-    </span>
-    <span class="min-w-0 flex-1">
-      <span class="block font-semibold text-gray-900">
+  <button
+    type="button"
+    class="fulfillment-summary relative isolate block min-h-28 w-full cursor-pointer overflow-hidden rounded-3xl p-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-strong sm:min-h-32 sm:p-5"
+    @click="flowStore.openPicker(fulfillmentStore.current?.type ?? 'delivery')"
+  >
+    <span class="relative z-10 block min-w-0 pr-[clamp(7rem,35%,14rem)]">
+      <span class="block text-sm font-medium text-primary-strong">
         {{ summary?.title ?? t('fulfillment.summary.empty') }}
       </span>
-      <span v-if="summary?.text" class="block text-gray-500">{{ summary.text }}</span>
+      <span
+        v-if="summary?.text"
+        class="mt-1 block break-words text-base font-semibold leading-snug text-gray-900 sm:text-lg"
+        >{{ summary.text }}</span
+      >
       <span
         v-if="props.withQuote && fulfillmentStore.current?.type === 'delivery' && hint"
         class="block font-medium"
@@ -60,12 +66,20 @@ const summary = computed(() => {
         {{ hint }}
       </span>
     </span>
-    <button
-      type="button"
-      class="shrink-0 font-semibold text-primary cursor-pointer"
-      @click="flowStore.openPicker(fulfillmentStore.current?.type ?? 'delivery')"
-    >
+    <span class="absolute right-4 top-4 z-20 text-sm font-semibold text-primary-strong sm:right-5 sm:top-5">
       {{ summary ? t('branch.change') : t('fulfillment.summary.choose') }}
-    </button>
-  </div>
+    </span>
+    <FulfillmentIllustration
+      :kind="summary?.illustration ?? 'delivery'"
+      class="pointer-events-none absolute bottom-1 right-2 z-0 h-16 w-[clamp(7rem,34%,13rem)] text-primary-strong sm:bottom-2 sm:right-4 sm:h-20"
+      aria-hidden="true"
+    />
+  </button>
 </template>
+
+<style scoped>
+.fulfillment-summary {
+  --summary-bg: color-mix(in srgb, var(--color-primary) 14%, var(--surface-card, white));
+  background: var(--summary-bg);
+}
+</style>
