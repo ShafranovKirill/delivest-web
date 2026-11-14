@@ -53,14 +53,21 @@ watch(
 </script>
 
 <template>
-  <div class="flex shrink-0 items-center gap-1.5" data-testid="delivery-quote-caption">
-    <div v-if="fresh" class="flex flex-col text-left leading-tight">
-      <span class="text-xs text-gray-500">{{ t('delivery.costTitle') }}</span>
-      <span class="whitespace-nowrap text-sm font-semibold text-gray-900">{{ amount }}</span>
+  <div
+    class="flex w-max max-w-full min-w-0 items-center gap-1.5"
+    data-testid="delivery-quote-caption"
+  >
+    <div v-if="fresh" class="flex min-w-0 flex-1 flex-col text-left leading-tight">
+      <span class="whitespace-nowrap text-xs text-gray-500">{{ t('delivery.costTitle') }}</span>
+      <span class="block truncate text-sm font-semibold text-gray-900" :title="amount">{{
+        amount
+      }}</span>
     </div>
-    <div v-else class="flex flex-col text-left leading-tight">
-      <span class="text-xs text-gray-500">{{ t('delivery.costTitle') }}</span>
-      <span class="max-w-40 text-xs text-gray-600">{{ hint }}</span>
+    <div v-else class="flex min-w-0 flex-1 flex-col text-left leading-tight">
+      <span class="whitespace-nowrap text-xs text-gray-500">{{ t('delivery.costTitle') }}</span>
+      <span class="block truncate text-xs text-gray-600" :title="hint ?? undefined">{{
+        hint
+      }}</span>
     </div>
     <button
       v-if="fresh"

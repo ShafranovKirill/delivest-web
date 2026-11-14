@@ -203,7 +203,7 @@ watch(
     <slot />
     <div
       v-if="$slots['map-overlay']"
-      class="absolute bottom-24 left-3 z-10 max-w-[calc(100%-1.5rem)] rounded-2xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/10"
+      class="absolute bottom-24 left-3 z-10 w-max max-w-[calc(100%-5rem)] translate-y-[calc(100%+8px)] rounded-2xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/10"
     >
       <slot name="map-overlay" />
     </div>
