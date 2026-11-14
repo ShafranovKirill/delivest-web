@@ -10,10 +10,10 @@ defineProps<{ kind: 'delivery' | 'pickup' }>()
     xmlns="http://www.w3.org/2000/svg"
     focusable="false"
   >
-    <g fill="currentColor" opacity=".23">
+    <g fill="var(--summary-bg-deep)">
       <path d="M5 29h36v53H5zM12 23h22v6H12zM42 43l20-10 21 10v39H42zM181 46h32v36h-32z" />
     </g>
-    <g fill="var(--summary-bg)" opacity=".8">
+    <g fill="var(--summary-bg)">
       <path
         d="M13 38h5v9h-5zM27 38h5v9h-5zM13 55h5v9h-5zM27 55h5v9h-5zM52 51h5v9h-5zM67 51h5v9h-5zM188 54h5v9h-5zM201 54h5v9h-5z"
       />
@@ -38,10 +38,9 @@ defineProps<{ kind: 'delivery' | 'pickup' }>()
     <circle cx="172" cy="84" r="6" fill="var(--summary-bg)" />
     <path
       d="M4 91h36m15 0h27m110 0h24"
-      stroke="currentColor"
+      stroke="var(--summary-bg-deep)"
       stroke-width="2"
       stroke-linecap="round"
-      opacity=".45"
     />
   </svg>
   <svg

@@ -66,7 +66,9 @@ const summary = computed(() => {
         {{ hint }}
       </span>
     </span>
-    <span class="absolute right-4 top-4 z-20 text-sm font-semibold text-primary-strong sm:right-5 sm:top-5">
+    <span
+      class="absolute right-4 top-4 z-20 text-sm font-semibold text-primary-strong sm:right-5 sm:top-5"
+    >
       {{ summary ? t('branch.change') : t('fulfillment.summary.choose') }}
     </span>
     <FulfillmentIllustration
@@ -79,7 +81,8 @@ const summary = computed(() => {
 
 <style scoped>
 .fulfillment-summary {
-  --summary-bg: color-mix(in srgb, var(--color-primary) 14%, var(--surface-card, white));
+  --summary-bg: color-mix(in srgb, var(--color-primary) 20%, var(--surface-card, white));
+  --summary-bg-deep: color-mix(in srgb, var(--color-primary) 36%, var(--surface-card, white));
   background: var(--summary-bg);
 }
 </style>
