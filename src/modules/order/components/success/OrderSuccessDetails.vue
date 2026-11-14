@@ -1,58 +1,65 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Order } from '../../api/order.service'
 import { formatPrice } from '@/utils/money'
-import { formatTime, fulfillmentLabel, paymentLabel } from '../../utils/orderStatus'
-import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
+import { paymentLabel } from '../../utils/orderStatus'
+import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 
-const props = defineProps<{ order: Order }>()
-
+defineProps<{ order: Order }>()
 const { t } = useI18n()
-
-const isDelivery = computed(() => props.order.fulfillment_type === 'delivery')
-
-const place = computed(
-  () =>
-    formatAddress(props.order.address as AddressParts | null) ||
-    (isDelivery.value ? t('order.addressByOperator') : t('order.atBranch')),
-)
-
-const rows = computed(() => [
-  {
-    icon: isDelivery.value ? 'pi-map-marker' : 'pi-shopping-bag',
-    label: fulfillmentLabel(props.order.fulfillment_type),
-    value: place.value,
-  },
-  {
-    icon: 'pi-clock',
-    label: t('order.time'),
-    value: props.order.cook_by
-      ? t('order.cookBy', { time: formatTime(props.order.cook_by) })
-      : t('order.asap'),
-  },
-  {
-    icon: 'pi-wallet',
-    label: t('order.payment.title'),
-    value: paymentLabel(props.order.payment_method),
-  },
-])
 </script>
 
 <template>
   <SurfaceCard>
     <ul class="flex flex-col gap-3">
-      <li v-for="row in rows" :key="row.icon" class="flex items-center gap-3">
-        <span class="grid size-8 shrink-0 place-items-center text-gray-600">
-          <i :class="['pi', row.icon]" />
+      <li
+        v-for="(item, index) in order.items"
+        :key="`${item.product_id}:${index}`"
+        class="flex min-w-0 items-center gap-3"
+      >
+        <ProductImage :src="item.image_url" :alt="item.title" class="size-10 shrink-0 rounded-lg" />
+        <span class="flex min-w-0 flex-1 items-center gap-1 text-sm font-semibold text-gray-900">
+          <span
+            class="min-w-0 truncate"
+            :title="
+              [item.title, ...(item.modifiers ?? []).map((modifier) => modifier.name)].join(' · ')
+            "
+            >{{ item.title }}</span
+          >
+          <span v-if="item.quantity > 1" class="shrink-0 font-normal text-gray-500"
+            >× {{ item.quantity }}</span
+          >
         </span>
-        <span class="min-w-0 flex-1">
-          <span class="block text-xs text-gray-400">{{ row.label }}</span>
-          <span class="block font-semibold text-gray-900 break-words">{{ row.value }}</span>
+        <span class="shrink-0 text-sm font-semibold text-gray-950 tabular-nums">
+          {{ item.gift ? t('common.free') : formatPrice(item.price * item.quantity) }}
         </span>
       </li>
     </ul>
+
+    <div class="mt-4 flex flex-col gap-2 border-t border-gray-200 pt-4 text-sm">
+      <div class="flex justify-between gap-3 text-gray-600">
+        <span>{{ t('order.success.orderAmount') }}</span>
+        <span class="tabular-nums">{{ formatPrice(order.subtotal_amount) }}</span>
+      </div>
+      <div v-if="order.discount_amount > 0" class="flex justify-between gap-3 text-gray-600">
+        <span>{{ t('cart.discount') }}</span>
+        <span class="tabular-nums">−{{ formatPrice(order.discount_amount) }}</span>
+      </div>
+      <div
+        v-if="order.fulfillment_type === 'delivery'"
+        class="flex justify-between gap-3 text-gray-600"
+      >
+        <span>{{ t('order.fulfillment.delivery') }}</span>
+        <span class="tabular-nums">{{
+          order.delivery_amount ? formatPrice(order.delivery_amount) : t('common.free')
+        }}</span>
+      </div>
+      <div class="flex justify-between gap-3 text-gray-600">
+        <span>{{ t('order.payment.title') }}</span>
+        <span>{{ paymentLabel(order.payment_method) }}</span>
+      </div>
+    </div>
 
     <div
       class="mt-4 flex items-baseline justify-between border-t border-gray-200 pt-4 font-extrabold text-gray-950"

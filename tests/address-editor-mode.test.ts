@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { createSSRApp, defineComponent, h, reactive } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
-const branch = reactive({ mapAddress: true })
+const branch = reactive({
+  mapAddress: true,
+  branches: [{ is_active: true, branch_info: { latitude: 55.75 as number | null, longitude: 37.61 as number | null, fulfillment_methods: ['pickup'] } }],
+})
 const franchise = reactive({ addressMap: true })
 const flow = reactive({ pickerMode: 'delivery', isPickerOpen: false, dismiss: vi.fn(), abandon: vi.fn() })
 vi.mock('../src/modules/fulfillment/utils/panes', () => ({ loadDeliveryPane: () => Promise.resolve(defineComponent({ render: () => null })), loadPickupPane: () => Promise.resolve(defineComponent({ render: () => null })) }))
@@ -65,6 +68,17 @@ describe('fulfillment picker map layout', () => {
     franchise.addressMap = integration
     const html = await renderToString(createSSRApp(FulfillmentPicker))
     expect(html).toContain(`data-compact="${compact}"`)
+  })
+
+  it('uses a compact picker when onsite branches have no coordinates', async () => {
+    flow.pickerMode = 'pickup'
+    franchise.addressMap = true
+    branch.branches[0]!.branch_info.latitude = null
+    branch.branches[0]!.branch_info.longitude = null
+    const html = await renderToString(createSSRApp(FulfillmentPicker))
+    expect(html).toContain('data-compact="true"')
+    branch.branches[0]!.branch_info.latitude = 55.75
+    branch.branches[0]!.branch_info.longitude = 37.61
   })
 })
 

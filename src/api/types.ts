@@ -994,6 +994,7 @@ export interface components {
       base_price: number
       /** @example false */
       gift: boolean
+      image_url?: string | null
       modifiers?: components['schemas']['ItemModifier'][]
       /**
        * @description Цена за единицу с учётом скидок

@@ -291,7 +291,8 @@ export const en: typeof ru = {
     deliverHere: 'Order here',
     confirmAddress: 'Confirm address',
     tellOperator: 'Tell the operator',
-    pickupHere: 'Order here',
+    pickupHere: 'Pick up here',
+    dineInHere: 'Dine in here',
     outsideCity: 'This branch delivers only within {city}',
     notOnMap: 'not on the map',
     savedAddresses: 'My addresses',
@@ -615,6 +616,7 @@ export const en: typeof ru = {
     },
     success: {
       title: 'Order created',
+      orderAmount: 'Order amount',
       accepted: 'Order accepted',
       stages: 'Order stages',
       loadFailed: 'Could not open the order',

@@ -188,9 +188,8 @@ useResizeObserver(container, () => map.value?.resize())
 
 onBeforeUnmount(() => map.value?.remove())
 
-watch(
-  () => props.center,
-  (center) => map.value?.flyTo({ center, zoom: Math.max(map.value.getZoom(), props.zoom) }),
+watch([() => props.center, () => props.zoom], ([center, zoom]) =>
+  map.value?.flyTo({ center, zoom: Math.max(map.value.getZoom(), zoom) }),
 )
 
 watch(() => props.markers, renderMarkers, { deep: true })

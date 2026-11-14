@@ -292,7 +292,8 @@ export const ru = {
     deliverHere: 'Заказать сюда',
     confirmAddress: 'Подтвердить адрес',
     tellOperator: 'Уточнить адрес по телефону',
-    pickupHere: 'Заказать сюда',
+    pickupHere: 'Заберу здесь',
+    dineInHere: 'Останусь здесь',
     outsideCity: 'Этот филиал доставляет только по городу {city}',
     notOnMap: 'нет на карте',
     savedAddresses: 'Мои адреса',
@@ -616,6 +617,7 @@ export const ru = {
     },
     success: {
       title: 'Заказ создан',
+      orderAmount: 'Сумма заказа',
       accepted: 'Приняли заказ',
       stages: 'Этапы заказа',
       loadFailed: 'Не удалось открыть заказ',

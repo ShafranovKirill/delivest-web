@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/// <reference types="unplugin-icons/types/vue" />
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Order, OrderStatus } from '../../api/order.service'
@@ -7,6 +8,7 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
 import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
 import { orderStatusIcon, orderStatusLabel } from '../../utils/orderStatus'
+import CutleryIcon from '~icons/tabler/tools-kitchen-2'
 
 const props = defineProps<{ order: Order }>()
 const { t, locale } = useI18n()
@@ -84,33 +86,25 @@ const statusText = computed(() =>
     ? t('order.success.accepted')
     : orderStatusLabel(props.order),
 )
-const terminal = computed(
-  () => props.order.status === 'cancelled' || props.order.status === 'completed',
-)
+const terminal = computed(() => props.order.status === 'cancelled')
 const steps = computed(() => {
-  const last: OrderStatus = props.order.fulfillment_type === 'delivery' ? 'delivering' : 'ready'
-  return ['created', 'accepted', 'preparing', last] as OrderStatus[]
+  const base: OrderStatus[] = ['created', 'accepted', 'preparing']
+  return props.order.fulfillment_type === 'delivery'
+    ? [...base, 'delivering', 'completed']
+    : [...base, 'ready']
 })
 const activeIndex = computed(() => {
   if (props.order.awaiting_payment) return -1
+  if (props.order.status === 'completed') return steps.value.length - 1
   if (props.order.status === 'ready' && props.order.fulfillment_type === 'delivery') return 2
   return steps.value.indexOf(props.order.status)
 })
-const stepIcon: Record<OrderStatus, string> = {
-  created: 'pi-check',
-  accepted: 'pi-check-circle',
-  preparing: 'pi-hourglass',
-  ready: 'pi-shopping-bag',
-  delivering: 'pi-truck',
-  completed: 'pi-check',
-  cancelled: 'pi-times',
-}
 </script>
 
 <template>
   <section class="order-success-hero">
-    <div class="mb-4 text-center">
-      <h1 class="text-xl font-bold text-gray-950 sm:text-2xl">
+    <div class="mb-4 text-left">
+      <h1 class="text-3xl font-bold text-gray-950 sm:text-4xl">
         {{ t('order.number', { number: order.short_number }) }}
       </h1>
       <p class="mt-1 text-sm text-gray-500">{{ [placedAt, place].filter(Boolean).join(' · ') }}</p>
@@ -121,7 +115,7 @@ const stepIcon: Record<OrderStatus, string> = {
         <i
           :class="[
             'pi',
-            expanded ? (terminal ? stepIcon[order.status] : orderStatusIcon(order)) : 'pi-check',
+            expanded && terminal ? 'pi-times' : expanded ? orderStatusIcon(order) : 'pi-check',
             'text-xl text-gray-950',
           ]"
           aria-hidden="true"
@@ -146,7 +140,7 @@ const stepIcon: Record<OrderStatus, string> = {
               <i
                 :class="[
                   'pi',
-                  stepIcon[order.status],
+                  'pi-times',
                   'text-3xl',
                   order.status === 'cancelled' ? 'text-gray-400' : 'text-gray-950',
                 ]"
@@ -155,24 +149,40 @@ const stepIcon: Record<OrderStatus, string> = {
             </div>
             <ol
               v-else
-              class="mt-7 flex items-start justify-between"
+              class="mt-6 flex items-center justify-between"
               :aria-label="t('order.success.stages')"
             >
               <template v-for="(step, index) in steps" :key="step">
                 <li
-                  class="flex min-w-0 flex-1 flex-col items-center gap-2 text-center transition-colors duration-300"
+                  class="flex min-w-0 flex-1 items-center justify-center transition-colors duration-300"
                   :class="index <= activeIndex ? 'text-gray-950' : 'text-gray-400'"
                   :aria-current="index === activeIndex ? 'step' : undefined"
                   :data-order-step="step"
                 >
-                  <i :class="['pi', stepIcon[step], 'text-xl']" aria-hidden="true" />
-                  <span class="text-[11px] leading-tight sm:text-xs">{{
+                  <i-tabler-hourglass v-if="step === 'created'" class="size-7" aria-hidden="true" />
+                  <i-tabler-check
+                    v-else-if="step === 'accepted'"
+                    class="size-7"
+                    aria-hidden="true"
+                  />
+                  <i-tabler-soup
+                    v-else-if="step === 'preparing'"
+                    class="size-7"
+                    aria-hidden="true"
+                  />
+                  <i-tabler-truck
+                    v-else-if="step === 'delivering'"
+                    class="size-7"
+                    aria-hidden="true"
+                  />
+                  <CutleryIcon v-else class="size-7" aria-hidden="true" />
+                  <span class="sr-only">{{
                     step === 'accepted' ? t('order.success.accepted') : t(`order.status.${step}`)
                   }}</span>
                 </li>
                 <li
                   v-if="index < steps.length - 1"
-                  class="mt-2 flex shrink-0 gap-1"
+                  class="flex shrink-0 gap-1"
                   role="presentation"
                   aria-hidden="true"
                 >

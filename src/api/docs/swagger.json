@@ -168,6 +168,7 @@
             "type": "integer"
           },
           "gift": { "example": false, "type": "boolean" },
+          "image_url": { "nullable": true, "type": "string" },
           "modifiers": {
             "items": { "$ref": "#/components/schemas/ItemModifier" },
             "type": "array"
