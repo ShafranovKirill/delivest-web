@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
@@ -31,6 +31,9 @@ const branches = computed(() =>
   branchStore.branches.filter((branch) => branch.is_active && hasOnsite(branch)),
 )
 const selectedId = ref<string | null>(branchStore.activeBranch?.id ?? null)
+const showDetails = ref(false)
+const backButton = ref<HTMLButtonElement | null>(null)
+const listRef = ref<InstanceType<typeof PickupBranchList> | null>(null)
 const selected = computed(() => branches.value.find((branch) => branch.id === selectedId.value))
 const isSwitching = ref(false)
 type PickupKind = 'pickup' | 'dine_in'
@@ -61,8 +64,10 @@ watch(
 watch(
   branches,
   (available) => {
-    if (!available.some((b) => b.id === selectedId.value))
+    if (!available.some((b) => b.id === selectedId.value)) {
       selectedId.value = available[0]?.id ?? null
+      showDetails.value = false
+    }
   },
   { immediate: true },
 )
@@ -70,7 +75,16 @@ watch(
 const markers = computed<MapMarker[]>(() =>
   branches.value.flatMap((branch) => {
     const lngLat = branchLngLat(branch)
-    return lngLat ? [{ id: branch.id, lngLat, active: branch.id === selectedId.value }] : []
+    return lngLat
+      ? [
+          {
+            id: branch.id,
+            lngLat,
+            active: showDetails.value && branch.id === selectedId.value,
+            title: branch.name,
+          },
+        ]
+      : []
   }),
 )
 
@@ -81,6 +95,26 @@ const mapCenter = computed<LngLat>(
 )
 
 onMounted(() => branchStore.initBranches().catch(() => null))
+
+async function selectPreview(branch: Branch | undefined) {
+  if (
+    isSwitching.value ||
+    !branch ||
+    !branches.value.some((available) => available.id === branch.id)
+  )
+    return
+  selectedId.value = branch.id
+  showDetails.value = true
+  await nextTick()
+  backButton.value?.focus()
+}
+
+async function returnToList() {
+  if (isSwitching.value) return
+  showDetails.value = false
+  await nextTick()
+  if (selectedId.value) listRef.value?.focusBranch(selectedId.value)
+}
 
 async function confirm(branch: Branch) {
   if (!hasOnsite(branch)) return
@@ -111,30 +145,36 @@ async function confirm(branch: Branch) {
     <BaseMap
       v-if="hasMap"
       :center="mapCenter"
-      :zoom="12"
+      :zoom="showDetails ? 16 : 12"
       :markers="markers"
       class="min-h-48 flex-1"
-      @marker-click="selectedId = $event"
+      @marker-click="selectPreview(branches.find((branch) => branch.id === $event))"
     />
 
     <SheetPanel :floating="hasMap" :class="{ 'max-h-[55%]': hasMap }">
-      <ModeSwitch
-        v-if="pickupOptions.length > 1"
-        v-model="pickupKind"
-        :options="pickupOptions"
-        class="mb-3"
-      />
-      <PickupBranchCard
-        v-if="selected"
-        :branch="selected"
-        :loading="isSwitching"
-        @confirm="confirm(selected)"
-      />
-      <PickupBranchList
-        :branches="branches"
-        :selected-id="selectedId"
-        @select="selectedId = $event.id"
-      />
+      <div
+        v-if="showDetails && selected"
+        class="flex flex-col gap-4"
+        data-testid="pickup-branch-detail"
+      >
+        <button
+          ref="backButton"
+          type="button"
+          :disabled="isSwitching"
+          class="flex w-fit cursor-pointer items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-950"
+          @click="returnToList"
+        >
+          <i class="pi pi-arrow-left" aria-hidden="true" />{{ t('common.back') }}
+        </button>
+        <ModeSwitch v-if="pickupOptions.length > 1" v-model="pickupKind" :options="pickupOptions" />
+        <PickupBranchCard
+          :branch="selected"
+          :pickup-kind="pickupKind"
+          :loading="isSwitching"
+          @confirm="confirm(selected)"
+        />
+      </div>
+      <PickupBranchList v-else ref="listRef" :branches="branches" @select="selectPreview" />
     </SheetPanel>
   </div>
 </template>

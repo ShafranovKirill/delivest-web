@@ -18,10 +18,9 @@ const props = withDefaults(
     city: string | null
     saved?: boolean
     zones?: DeliveryZone[]
-    pinNote?: string | null
     selectedZoneId?: string | null
   }>(),
-  { saved: true, zones: () => [], pinNote: null, selectedZoneId: null },
+  { saved: true, zones: () => [], selectedZoneId: null },
 )
 
 const emit = defineEmits<{ selecting: []; zoomTooLow: [] }>()
@@ -33,8 +32,10 @@ const franchiseStore = useFranchiseStore()
 const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddress)
 const savedAddresses = useDeliveryAddresses()
 
-const { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved } =
-  useAddressEditor(address, () => hasMap.value)
+const { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved } = useAddressEditor(
+  address,
+  () => hasMap.value,
+)
 
 const markers = computed(() => (props.saved ? savedMarkers(savedAddresses.value) : []))
 
@@ -56,7 +57,6 @@ function movePin(point: LngLat, zoom: number) {
       :center="mapCenter"
       :markers="markers"
       :zones="zones"
-      :pin-note="pinNote"
       :selected-zone-id="selectedZoneId"
       pin
       class="min-h-48 flex-1"
@@ -69,6 +69,9 @@ function movePin(point: LngLat, zoom: number) {
         class="absolute bottom-9 left-3 z-10"
         @select="pickSaved"
       />
+      <template v-if="$slots['map-overlay']" #map-overlay>
+        <slot name="map-overlay" :ready="isReady" :locating="isLocating" />
+      </template>
     </BaseMap>
 
     <SheetPanel :floating="hasMap">
@@ -86,7 +89,7 @@ function movePin(point: LngLat, zoom: number) {
       </div>
 
       <div class="flex flex-col gap-2 border-t border-gray-100 pt-4">
-        <slot :ready="isReady" :locating="isLocating" />
+        <slot :ready="isReady" :locating="isLocating" :on-map="hasMap" />
       </div>
     </SheetPanel>
   </div>

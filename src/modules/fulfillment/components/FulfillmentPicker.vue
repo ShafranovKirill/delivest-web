@@ -9,6 +9,8 @@ import { useFulfillmentFlowStore, type PickerMode } from '../stores/fulfillmentF
 import { loadDeliveryPane, loadPickupPane } from '../utils/panes'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
+import { hasOnsite } from '../utils/fulfillmentMethods'
+import { branchLngLat } from '../utils/branchLocation'
 
 const asyncPane = (loader: typeof loadDeliveryPane | typeof loadPickupPane, mode: PickerMode) =>
   defineAsyncComponent({
@@ -19,7 +21,13 @@ const asyncPane = (loader: typeof loadDeliveryPane | typeof loadPickupPane, mode
         const franchise = useFranchiseStore()
         return () =>
           h(PaneSkeleton, {
-            map: franchise.addressMap && (mode === 'pickup' || branch.mapAddress),
+            map:
+              franchise.addressMap &&
+              (mode === 'delivery'
+                ? branch.mapAddress
+                : branch.branches.some(
+                    (item) => item.is_active && hasOnsite(item) && branchLngLat(item),
+                  )),
           })
       },
     }),
@@ -34,9 +42,13 @@ const flowStore = useFulfillmentFlowStore()
 const fulfillment = useFulfillmentStore()
 const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
-const hasMap = computed(
-  () => franchiseStore.addressMap && (flowStore.pickerMode !== 'delivery' || branchStore.mapAddress),
-)
+const hasMap = computed(() => {
+  if (!franchiseStore.addressMap) return false
+  if (flowStore.pickerMode === 'delivery') return branchStore.mapAddress
+  return branchStore.branches.some(
+    (branch) => branch.is_active && hasOnsite(branch) && branchLngLat(branch),
+  )
+})
 
 const modes = computed<Array<{ value: PickerMode; label: string }>>(() =>
   fulfillment.availableModes.map((value) => ({
