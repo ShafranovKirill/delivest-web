@@ -245,6 +245,9 @@ export const ru = {
   },
   delivery: {
     checking: 'Проверяем стоимость доставки…',
+    checkingShort: 'Рассчитываем…',
+    unavailableShort: 'Не удалось рассчитать доставку',
+    conditions: 'Условия доставки',
     free: 'Доставка бесплатно',
     price: 'Доставка {price}',
     priceFreeFrom: 'Доставка {price}, бесплатно от {sum}',
@@ -612,7 +615,9 @@ export const ru = {
       noSlots: 'В ближайшие дни нет свободного времени.',
     },
     success: {
-      title: 'Заказ оформлен!',
+      title: 'Заказ создан',
+      accepted: 'Приняли заказ',
+      stages: 'Этапы заказа',
       loadFailed: 'Не удалось открыть заказ',
       loadFailedHint: 'Обратитесь в филиал, чтобы узнать состояние заказа.',
       number: 'Номер заказа',

@@ -676,6 +676,7 @@
                 "items": { "$ref": "#/components/schemas/OrderItemResponse" },
                 "type": "array"
               },
+              "inserted_at": { "format": "date_time", "type": "string" },
               "number": { "example": "261029-MSK1-042", "type": "string" },
               "payment": {
                 "description": "Только в ответе на создание онлайн-заказа",
@@ -728,6 +729,7 @@
               "promotions",
               "branch_id",
               "cart_id",
+              "inserted_at",
               "items"
             ],
             "type": "object"

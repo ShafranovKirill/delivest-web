@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import Button from 'primevue/button'
 import { useI18n } from 'vue-i18n'
 import AddressEditor from './AddressEditor.vue'
+import DeliveryQuoteSummary from './DeliveryQuoteSummary.vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useFulfillmentStore } from '../../stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '../../stores/fulfillmentFlow.store'
@@ -33,7 +34,9 @@ watch(
     if (previousBranchId !== branchId || (previousOwner && previousOwner !== 'guest')) {
       address.value = {
         ...(flowStore.addressDrafts[branchId ?? ''] ??
-          (fulfillmentStore.current?.type === 'delivery' ? fulfillmentStore.current.address : null) ??
+          (fulfillmentStore.current?.type === 'delivery'
+            ? fulfillmentStore.current.address
+            : null) ??
           emptyDeliveryAddress()),
       }
     }
@@ -52,8 +55,8 @@ watch(
 
 const delivery = useDeliveryQuote(address)
 const zones = useDeliveryZones()
-const canUseOperator = computed(() =>
-  branchStore.operatorAddress && fulfillmentStore.methods.includes('delivery'),
+const canUseOperator = computed(
+  () => branchStore.operatorAddress && fulfillmentStore.methods.includes('delivery'),
 )
 const selecting = ref(false)
 const needsZoom = ref(false)
@@ -66,32 +69,6 @@ watch(
   },
   { flush: 'sync' },
 )
-
-const quoteCaption = computed(() => {
-  if (needsZoom.value) return t('delivery.zoomIn')
-  if (selecting.value || delivery.pending.value) return t('delivery.checking')
-  if (delivery.isError.value) return t('delivery.unavailable')
-  const quote = delivery.quote.value
-  if (!quote) return t('delivery.checking')
-  const zone = quote.zone_name ? `${quote.zone_name} · ` : ''
-  if (quote.status !== 'ok' && quote.status !== 'below_minimum')
-    return zone + (delivery.hint.value ?? '')
-  const details =
-    quote.status === 'below_minimum'
-      ? [
-          quote.price
-            ? t('delivery.price', { price: formatPrice(quote.price) })
-            : t('delivery.free'),
-          delivery.hint.value ?? '',
-        ]
-      : [delivery.hint.value ?? '']
-  if (quote.status === 'ok' && quote.min_order != null && quote.min_order > 0)
-    details.push(t('delivery.zoneMinimum', { sum: formatPrice(quote.min_order) }))
-  if (quote.free_from != null && quote.free_from > 0 && (quote.status !== 'ok' || !quote.price))
-    details.push(t('delivery.freeFrom', { sum: formatPrice(quote.free_from) }))
-  if (quote.minutes != null) details.push(t('delivery.zoneMinutes', { minutes: quote.minutes }))
-  return zone + details.join(' · ')
-})
 
 const pinNote = computed(() => {
   if (needsZoom.value || selecting.value || delivery.pending.value || delivery.isError.value)
@@ -150,27 +127,17 @@ function confirmWithOperator() {
     @selecting="startSelecting"
     @zoom-too-low="requireZoom"
   >
+    <template #summary>
+      <DeliveryQuoteSummary
+        :quote="selecting || needsZoom ? null : delivery.quote.value"
+        :zones="zones"
+        :pending="delivery.pending.value"
+        :selecting="selecting"
+        :needs-zoom="needsZoom"
+        :error="delivery.isError.value"
+      />
+    </template>
     <template #default="{ ready, locating }">
-      <p
-        v-if="
-          ready ||
-          (address.latitude != null && address.longitude != null) ||
-          needsZoom ||
-          selecting ||
-          locating
-        "
-        data-testid="delivery-quote-caption"
-        class="rounded-2xl bg-gray-50 px-4 py-3 text-sm font-medium"
-        :class="
-          delivery.quote.value?.status === 'below_minimum' ||
-          delivery.notDelivered.value ||
-          delivery.isError.value
-            ? 'text-red-500'
-            : 'text-gray-700'
-        "
-      >
-        {{ quoteCaption }}
-      </p>
       <Button
         :label="t('fulfillment.confirmAddress')"
         :disabled="

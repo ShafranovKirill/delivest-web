@@ -244,6 +244,9 @@ export const en: typeof ru = {
   },
   delivery: {
     checking: 'Checking delivery cost…',
+    checkingShort: 'Calculating…',
+    unavailableShort: 'Could not calculate delivery',
+    conditions: 'Delivery conditions',
     free: 'Free delivery',
     price: 'Delivery {price}',
     priceFreeFrom: 'Delivery {price}, free from {sum}',
@@ -611,7 +614,9 @@ export const en: typeof ru = {
       noSlots: 'No free time in the coming days.',
     },
     success: {
-      title: 'Order placed!',
+      title: 'Order created',
+      accepted: 'Order accepted',
+      stages: 'Order stages',
       loadFailed: 'Could not open the order',
       loadFailedHint: 'Contact the branch to check your order.',
       number: 'Order number',

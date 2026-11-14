@@ -44,9 +44,7 @@ const rows = computed(() => [
   <SurfaceCard>
     <ul class="flex flex-col gap-3">
       <li v-for="row in rows" :key="row.icon" class="flex items-center gap-3">
-        <span
-          class="grid size-10 shrink-0 place-items-center rounded-2xl bg-white text-primary shadow-xs"
-        >
+        <span class="grid size-8 shrink-0 place-items-center text-gray-600">
           <i :class="['pi', row.icon]" />
         </span>
         <span class="min-w-0 flex-1">

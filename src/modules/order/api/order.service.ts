@@ -23,8 +23,8 @@ export const OrderService = {
     return data.data
   },
 
-  async getOrder(id: string): Promise<Order> {
-    const { data } = await api.get<OrderResponse>(`/client/orders/${id}`)
+  async getOrder(id: string, signal?: AbortSignal): Promise<Order> {
+    const { data } = await api.get<OrderResponse>(`/client/orders/${id}`, { signal })
     return data.data
   },
 

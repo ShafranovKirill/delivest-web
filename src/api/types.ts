@@ -1411,6 +1411,8 @@ export interface components {
          */
         id: string
         items: components['schemas']['OrderItemResponse'][]
+        /** Format: date_time */
+        inserted_at: string
         /** @example 261029-MSK1-042 */
         number: string
         /** @description Только в ответе на создание онлайн-заказа */

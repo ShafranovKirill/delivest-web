@@ -33,8 +33,10 @@ const franchiseStore = useFranchiseStore()
 const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddress)
 const savedAddresses = useDeliveryAddresses()
 
-const { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved } =
-  useAddressEditor(address, () => hasMap.value)
+const { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved } = useAddressEditor(
+  address,
+  () => hasMap.value,
+)
 
 const markers = computed(() => (props.saved ? savedMarkers(savedAddresses.value) : []))
 
@@ -64,6 +66,9 @@ function movePin(point: LngLat, zoom: number) {
       @drag-start="emit('selecting')"
       @marker-click="pickMarker"
     >
+      <div class="absolute top-16 left-3 right-3 z-10 mx-auto max-w-xl">
+        <slot name="summary" />
+      </div>
       <SavedAddressesButton
         v-if="saved"
         class="absolute bottom-9 left-3 z-10"
@@ -73,6 +78,7 @@ function movePin(point: LngLat, zoom: number) {
 
     <SheetPanel :floating="hasMap">
       <div class="flex flex-col gap-4">
+        <slot v-if="!hasMap" name="summary" />
         <SavedAddresses v-if="saved && !hasMap" @select="pickSaved" />
 
         <slot name="before" />
