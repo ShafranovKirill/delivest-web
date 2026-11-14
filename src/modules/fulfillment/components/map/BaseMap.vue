@@ -9,8 +9,6 @@ import maplibregl, {
   type Marker,
 } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { useI18n } from 'vue-i18n'
-import { formatPrice } from '@/utils/money'
 import MapPlaceholder from './MapPlaceholder.vue'
 import { effectiveDeliveryZones } from './effectiveDeliveryZones'
 import type { LngLat } from '../../utils/deliveryAddress'
@@ -56,8 +54,6 @@ const props = withDefaults(
   { zoom: 17, pin: false, markers: () => [], zones: () => [], selectedZoneId: null },
 )
 
-const { t } = useI18n()
-
 const emit = defineEmits<{
   moved: [center: LngLat, zoom: number]
   markerClick: [id: string]
@@ -68,7 +64,6 @@ const container = ref<HTMLDivElement | null>(null)
 const map = shallowRef<MapLibreMap | null>(null)
 const isDragging = ref(false)
 const isLoaded = ref(false)
-const hover = ref<string | null>(null)
 let rendered: Marker[] = []
 
 function markerElement(marker: MapMarker) {
@@ -108,21 +103,10 @@ function zonesData(): GeoJSONSourceSpecification['data'] {
         properties: {
           zone_id: zone.id,
           color: zone.color,
-          name: zone.name,
           priority: props.zones.findIndex((item) => item.id === zone.id),
         },
       })),
   }
-}
-
-function zoneDescription(zone: DeliveryZone): string {
-  const conditions = (zone.thresholds ?? []).map((tier) =>
-    t('delivery.zoneTier', { sum: formatPrice(tier.order_from), price: formatPrice(tier.price) }),
-  )
-  if (zone.delivery_minutes != null) {
-    conditions.push(t('delivery.zoneMinutes', { minutes: zone.delivery_minutes }))
-  }
-  return [zone.name, ...conditions].join(' · ')
 }
 
 function addZones() {
@@ -144,14 +128,6 @@ function addZones() {
       'line-opacity': 0.8,
     },
   })
-  map.value?.on('mousemove', 'delivery-zones-fill', (event) => {
-    const zone = event.features
-      ?.map((feature) => props.zones.find((item) => item.id === feature.properties?.zone_id))
-      .filter((item): item is DeliveryZone => Boolean(item))
-      .sort((a, b) => props.zones.indexOf(a) - props.zones.indexOf(b))[0]
-    hover.value = zone ? zoneDescription(zone) : null
-  })
-  map.value?.on('mouseleave', 'delivery-zones-fill', () => (hover.value = null))
 }
 
 onMounted(() => {
@@ -171,7 +147,6 @@ onMounted(() => {
   map.value.on('styleimagemissing', ({ id }) => map.value?.addImage(id, BLANK_IMAGE))
   map.value.on('dragstart', () => {
     isDragging.value = true
-    hover.value = null
     emit('dragStart')
   })
   map.value.on('moveend', (event) => {
@@ -218,11 +193,6 @@ watch(
   <div class="relative h-full w-full overflow-hidden">
     <div ref="container" class="h-full w-full [&_.maplibregl-ctrl-bottom-right]:bottom-[25px]!" />
     <MapPlaceholder v-if="!isLoaded" class="absolute inset-0" />
-    <span
-      v-if="hover"
-      class="pointer-events-none absolute left-3 top-20 z-20 max-w-[calc(100%-1.5rem)] rounded-lg bg-gray-950 px-2 py-1 text-xs text-white shadow-md"
-      >{{ hover }}</span
-    >
     <div
       v-if="pin && isLoaded"
       class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full transition-transform"
@@ -231,5 +201,11 @@ watch(
       <i-tabler-map-pin-filled class="size-12 text-primary drop-shadow-lg" aria-hidden="true" />
     </div>
     <slot />
+    <div
+      v-if="$slots['map-overlay']"
+      class="absolute bottom-24 left-3 z-10 max-w-[calc(100%-1.5rem)] rounded-2xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/10"
+    >
+      <slot name="map-overlay" />
+    </div>
   </div>
 </template>

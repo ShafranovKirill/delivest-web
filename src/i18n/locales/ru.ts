@@ -244,6 +244,8 @@ export const ru = {
     },
   },
   delivery: {
+    costTitle: 'Стоимость доставки',
+    selectAddress: 'Выберите адрес',
     checking: 'Проверяем стоимость доставки…',
     checkingShort: 'Рассчитываем…',
     unavailableShort: 'Не удалось рассчитать доставку',

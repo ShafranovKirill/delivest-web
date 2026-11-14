@@ -117,11 +117,25 @@ function confirmWithOperator() {
     @selecting="startSelecting"
     @zoom-too-low="requireZoom"
   >
-    <template #default="{ ready, locating }">
+    <template #map-overlay="{ ready, locating }">
+      <DeliveryQuoteSummary
+        :quote="selecting || needsZoom ? null : delivery.quote.value"
+        :zones="zones"
+        :has-point="address.latitude != null && address.longitude != null"
+        :ready="ready && !locating"
+        :pending="delivery.pending.value"
+        :selecting="selecting"
+        :needs-zoom="needsZoom"
+        :error="delivery.isError.value"
+      />
+    </template>
+    <template #default="{ ready, locating, onMap }">
       <div class="flex h-12 items-center gap-3">
         <DeliveryQuoteSummary
+          v-if="!onMap"
           :quote="selecting || needsZoom ? null : delivery.quote.value"
           :zones="zones"
+          :has-point="address.latitude != null && address.longitude != null"
           :ready="ready && !locating"
           :pending="delivery.pending.value"
           :selecting="selecting"

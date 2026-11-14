@@ -4,7 +4,8 @@ export const en: typeof ru = {
   notifications: {
     offers: 'Offers',
     orderUpdates: 'Orders and account',
-    orderUpdatesHint: 'Order updates and reward reminders are enabled in their respective sections. Their settings are separate from the offers below.',
+    orderUpdatesHint:
+      'Order updates and reward reminders are enabled in their respective sections. Their settings are separate from the offers below.',
     ordersSettings: 'My orders',
     rewardsSettings: 'My rewards',
     marketingOffers: 'Offers and promotions',
@@ -243,6 +244,8 @@ export const en: typeof ru = {
     },
   },
   delivery: {
+    costTitle: 'Delivery cost',
+    selectAddress: 'Choose an address',
     checking: 'Checking delivery cost…',
     checkingShort: 'Calculating…',
     unavailableShort: 'Could not calculate delivery',
