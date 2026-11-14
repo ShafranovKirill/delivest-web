@@ -30,6 +30,12 @@ const fresh = computed(
     (props.quote.status === 'ok' || props.quote.status === 'below_minimum'),
 )
 const zone = computed(() => props.zones.find((item) => item.id === props.quote?.zone_id))
+const tiers = computed(
+  () =>
+    (zone.value?.thresholds ?? []).filter(
+      (tier) => !(tier.price === 0 && tier.order_from === props.quote?.free_from),
+    ),
+)
 const amount = computed(() => {
   const quote = props.quote
   if (quote?.price == null) return ''
@@ -86,32 +92,56 @@ watch(
       @show="popoverOpen = true"
       @hide="popoverOpen = false"
     >
-      <div class="max-w-72 space-y-1 text-sm text-gray-700">
-        <p class="font-bold text-gray-950">{{ t('delivery.conditions') }}</p>
-        <p v-if="quote?.price != null">
-          {{
-            quote.price === 0
-              ? t('delivery.free')
-              : t('delivery.price', { price: formatPrice(quote.price) })
-          }}
-        </p>
-        <p v-if="quote?.minutes != null">
-          {{ t('delivery.zoneMinutes', { minutes: quote.minutes }) }}
-        </p>
-        <p v-if="quote?.min_order != null">
-          {{ t('delivery.minimum', { sum: formatPrice(quote.min_order) }) }}
-        </p>
-        <p v-if="quote?.free_from != null">
-          {{ t('delivery.freeFrom', { sum: formatPrice(quote.free_from) }) }}
-        </p>
-        <p v-for="tier in zone?.thresholds ?? []" :key="`${tier.order_from}:${tier.price}`">
-          {{
-            t('delivery.zoneTier', {
-              sum: formatPrice(tier.order_from),
-              price: tier.price === 0 ? t('delivery.free') : formatPrice(tier.price),
-            })
-          }}
-        </p>
+      <div class="w-[min(18rem,calc(100vw-3rem))] space-y-3 text-sm text-gray-700">
+        <p class="font-semibold text-gray-950">{{ t('delivery.conditions') }}</p>
+        <dl class="space-y-2">
+          <div v-if="quote?.price != null" class="flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+            <dt>{{ t('delivery.costTitle') }}</dt>
+            <dd class="font-medium text-gray-950">
+              {{ quote.price === 0 ? t('common.free') : formatPrice(quote.price) }}
+            </dd>
+          </div>
+          <div
+            v-if="quote?.minutes != null"
+            class="flex flex-wrap justify-between gap-x-3 gap-y-0.5"
+          >
+            <dt>{{ t('delivery.conditionsTime') }}</dt>
+            <dd class="font-medium text-gray-950">
+              {{ t('delivery.conditionsAroundMinutes', { minutes: quote.minutes }) }}
+            </dd>
+          </div>
+          <div
+            v-if="quote?.min_order != null"
+            class="flex flex-wrap justify-between gap-x-3 gap-y-0.5"
+          >
+            <dt>{{ t('delivery.conditionsMinimum') }}</dt>
+            <dd class="font-medium text-gray-950">{{ formatPrice(quote.min_order) }}</dd>
+          </div>
+          <div
+            v-if="quote?.free_from != null"
+            class="flex flex-wrap justify-between gap-x-3 gap-y-0.5"
+          >
+            <dt>{{ t('delivery.conditionsFree') }}</dt>
+            <dd class="font-medium text-gray-950">
+              {{ t('delivery.conditionsFrom', { sum: formatPrice(quote.free_from) }) }}
+            </dd>
+          </div>
+        </dl>
+        <div v-if="tiers.length" class="space-y-2 border-t border-gray-200 pt-3">
+          <p class="font-medium text-gray-950">{{ t('delivery.conditionsTiers') }}</p>
+          <dl class="space-y-2">
+            <div
+              v-for="tier in tiers"
+              :key="`${tier.order_from}:${tier.price}`"
+              class="flex flex-wrap justify-between gap-x-3 gap-y-0.5"
+            >
+              <dt>{{ t('delivery.conditionsFrom', { sum: formatPrice(tier.order_from) }) }}</dt>
+              <dd class="font-medium text-gray-950">
+                {{ tier.price === 0 ? t('common.free') : formatPrice(tier.price) }}
+              </dd>
+            </div>
+          </dl>
+        </div>
       </div>
     </Popover>
   </div>

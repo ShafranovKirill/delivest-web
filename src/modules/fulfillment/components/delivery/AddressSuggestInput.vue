@@ -5,6 +5,7 @@ import FloatLabel from 'primevue/floatlabel'
 import { useAddressSuggestions } from '../../composables/useAddressSuggestions'
 import type { GeoAddress } from '../../api/geo.service'
 import { shortAddressLabel } from '../../utils/deliveryAddress'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   value: string
@@ -13,6 +14,7 @@ const props = defineProps<{
   floatingLabels?: boolean
 }>()
 const emit = defineEmits<{ select: [address: GeoAddress]; edit: [value: string] }>()
+const { t } = useI18n()
 
 const inputId = useId()
 const query = ref(props.value)
@@ -68,12 +70,24 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
         :input-id="inputId"
         :delay="0"
         :min-length="4"
+        :empty-search-message="t('delivery.addressNotFound')"
+        :empty-selection-message="t('delivery.addressNotFound')"
+        :pt="{ overlay: { class: 'address-suggest-overlay' } }"
         input-class="h-12! border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white!"
         fluid
         @update:model-value="onInput"
         @complete="suggest && search($event.query)"
         @option-select="onSelect"
-      />
+      >
+        <template #empty
+          ><span class="block px-3 py-2 text-sm text-gray-700"
+            >{{ t('delivery.addressNotFound')
+            }}<span class="block text-xs text-gray-500">{{
+              t('delivery.addressNotFoundHint')
+            }}</span></span
+          ></template
+        >
+      </AutoComplete>
       <label :for="inputId" class="left-4!">{{ label }}</label>
     </FloatLabel>
     <AutoComplete
@@ -85,11 +99,51 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
       :input-id="inputId"
       :delay="0"
       :min-length="4"
+      :empty-search-message="t('delivery.addressNotFound')"
+      :empty-selection-message="t('delivery.addressNotFound')"
+      :pt="{ overlay: { class: 'address-suggest-overlay' } }"
       input-class="h-12! border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white!"
       fluid
       @update:model-value="onInput"
       @complete="suggest && search($event.query)"
       @option-select="onSelect"
-    />
+    >
+      <template #empty
+        ><span class="block px-3 py-2 text-sm text-gray-700"
+          >{{ t('delivery.addressNotFound')
+          }}<span class="block text-xs text-gray-500">{{
+            t('delivery.addressNotFoundHint')
+          }}</span></span
+        ></template
+      >
+    </AutoComplete>
   </div>
 </template>
+
+<style scoped>
+:deep(.p-autocomplete) {
+  display: block;
+  width: 100%;
+}
+:deep(.address-suggest-overlay) {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: 100%;
+  margin-top: 0.375rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 0.08);
+  overflow: hidden;
+}
+:deep(.address-suggest-overlay .p-autocomplete-list-container) {
+  max-height: 12rem !important;
+  overflow-y: auto;
+}
+:deep(.address-suggest-overlay .p-autocomplete-option) {
+  padding: 0.625rem 0.75rem;
+  white-space: normal;
+  line-height: 1.35;
+}
+</style>
