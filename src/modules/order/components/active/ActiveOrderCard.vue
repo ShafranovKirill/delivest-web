@@ -15,9 +15,23 @@ const { t } = useI18n()
 <template>
   <button
     type="button"
-    class="order-status-card group relative isolate block min-h-44 w-full cursor-pointer overflow-hidden rounded-3xl bg-white p-5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-strong"
+    class="order-status-card group relative isolate flex min-h-44 w-full cursor-pointer flex-col items-start overflow-hidden rounded-3xl bg-white p-5 pb-12 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-strong"
     @click="$emit('open', order)"
   >
+    <svg
+      class="pointer-events-none absolute inset-0 -z-10 h-full w-full text-primary"
+      viewBox="0 0 1000 300"
+      preserveAspectRatio="none"
+      fill="currentColor"
+      opacity="0.16"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M135 24C300 27 430 47 570 18C720 -13 860 -18 1000 0V70C845 31 720 35 590 52C430 75 270 29 135 24Z"
+      />
+      <path d="M0 230C155 258 285 243 430 271C620 307 815 314 1000 278L1000 284C805 321 620 317 430 300L0 300Z" />
+    </svg>
     <span class="relative z-10 block w-[65%] min-w-0">
       <span class="block text-xs leading-snug text-gray-500">
         {{ t('order.number', { number: order.short_number }) }} ·
@@ -54,9 +68,3 @@ const { t } = useI18n()
     />
   </button>
 </template>
-
-<style scoped>
-.order-status-card {
-  background: color-mix(in srgb, var(--color-primary) 14%, var(--surface-card, white));
-}
-</style>
