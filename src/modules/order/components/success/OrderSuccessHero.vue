@@ -121,7 +121,7 @@ const activeIndex = computed(() => {
             >
               {{ t('order.success.title') }}
             </p>
-            <h2 class="success-status break-words font-semibold leading-snug text-gray-950">
+            <h2 class="break-words font-semibold leading-snug text-gray-950">
               {{ statusText }}
             </h2>
             <div v-if="eta" class="success-expand success-eta">
@@ -219,9 +219,6 @@ const activeIndex = computed(() => {
 .is-intro .success-art {
   animation: success-detail-enter 0.4s ease-out 0.08s backwards;
 }
-.is-intro .success-status {
-  animation: success-detail-enter 0.3s ease-out 0.17s backwards;
-}
 .is-intro .success-eta {
   animation: success-expand-enter 0.36s ease-out 0.25s backwards;
 }
@@ -230,11 +227,9 @@ const activeIndex = computed(() => {
 }
 @keyframes success-card-enter {
   from {
-    opacity: 0;
     transform: translateY(8px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
@@ -266,7 +261,6 @@ const activeIndex = computed(() => {
 @media (prefers-reduced-motion: reduce) {
   .is-intro,
   .is-intro .success-art,
-  .is-intro .success-status,
   .is-intro .success-eta,
   .is-intro .success-stages {
     animation: none;
