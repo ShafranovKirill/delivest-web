@@ -531,6 +531,7 @@ export const ru = {
       awaitingPayment: 'Ожидает оплаты',
       paidCreated: 'Оплачен, ожидает подтверждения оператором',
       paidAccepted: 'Заказ принят, начали готовить',
+      inReview: 'На проверке',
       created: 'Ждёт подтверждения',
       accepted: 'Подтверждён',
       preparing: 'Готовится',

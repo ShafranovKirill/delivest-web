@@ -5,11 +5,17 @@ import { formatTime, fulfillmentLabel, orderStatusLabel } from '../../utils/orde
 import OrderStatusSteps from './OrderStatusSteps.vue'
 import OrderStatusIllustration from './OrderStatusIllustration.vue'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
-defineProps<{ order: ActiveOrder }>()
+const props = defineProps<{ order: ActiveOrder }>()
 defineEmits<{ open: [order: ActiveOrder] }>()
 
 const { t } = useI18n()
+const cardStatusLabel = computed(() => {
+  if (props.order.awaiting_payment) return orderStatusLabel(props.order)
+  if (props.order.status === 'created') return t('order.status.inReview')
+  return t(`order.status.${props.order.status}`)
+})
 </script>
 
 <template>
@@ -54,9 +60,10 @@ const { t } = useI18n()
         {{ fulfillmentLabel(order.fulfillment_type) }}
       </span>
       <span
-        class="mt-2 block break-words text-lg font-bold leading-tight text-gray-950 sm:text-2xl"
+        class="mt-2 block truncate text-lg font-bold leading-tight text-gray-950 sm:text-2xl"
+        :title="orderStatusLabel(order)"
       >
-        {{ orderStatusLabel(order) }}
+        {{ cardStatusLabel }}
       </span>
       <span class="mt-4 block max-w-52">
         <OrderStatusSteps :order="order" />
@@ -79,6 +86,7 @@ const { t } = useI18n()
       :status="order.status"
       :awaiting-payment="order.awaiting_payment"
       class="pointer-events-none absolute bottom-2 right-2 z-0 h-24 w-[31%] text-primary-strong sm:bottom-3 sm:right-3 sm:h-28"
+      :class="order.awaiting_payment ? 'translate-y-[6px]' : order.status === 'delivering' ? 'translate-y-[14px]' : order.status === 'accepted' ? 'translate-y-[15px]' : ['created', 'preparing'].includes(order.status) ? 'translate-y-[11px]' : 'translate-y-[6px]'"
       aria-hidden="true"
     />
   </button>

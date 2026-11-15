@@ -531,6 +531,7 @@ export const en: typeof ru = {
       awaitingPayment: 'Awaiting payment',
       paidCreated: 'Paid, awaiting operator confirmation',
       paidAccepted: 'Order accepted, we started cooking',
+      inReview: 'Under review',
       created: 'Awaiting confirmation',
       accepted: 'Confirmed',
       preparing: 'Preparing',
