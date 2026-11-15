@@ -28,14 +28,14 @@ const buttonLabel = computed(() => {
       label: {
         class:
           cartStore.totalAmount > 0
-            ? 'font-sans text-[18px] font-bold tabular-nums whitespace-nowrap'
+            ? 'font-sans text-[16px] font-bold tabular-nums whitespace-nowrap'
             : '',
       },
     }"
     @click="openCartModal"
   >
     <template #icon>
-      <CartBasketIcon class="size-6 shrink-0" />
+      <CartBasketIcon class="size-5 shrink-0 -translate-y-[1.5px]" />
     </template>
   </Button>
 </template>
