@@ -41,19 +41,18 @@ const handleCopy = async () => {
 </script>
 
 <template>
-  <div v-if="hasContacts" :class="props.variant === 'directory' ? 'mt-3' : 'flex flex-col gap-2'">
+  <div v-if="hasContacts" :class="props.variant === 'directory' ? '' : 'flex flex-col gap-2'">
     <div
       v-if="contactsStore.phone"
       class="flex items-center gap-3"
       :class="
-        props.variant === 'directory'
-          ? 'border-b border-gray-200 py-3'
-          : 'rounded-3xl bg-gray-50 border border-gray-100 p-3'
+        props.variant === 'directory' ? 'py-4' : 'rounded-3xl bg-gray-50 border border-gray-100 p-3'
       "
     >
       <button
         type="button"
-        class="flex flex-1 items-center gap-3 min-w-0 text-left cursor-pointer group"
+        class="group flex min-w-0 items-center gap-3 text-left cursor-pointer"
+        :class="props.variant === 'directory' ? '' : 'flex-1'"
         @click="contactsStore.makeCall"
       >
         <span
@@ -63,12 +62,19 @@ const handleCopy = async () => {
           <i class="pi pi-phone" />
         </span>
         <span class="min-w-0">
-          <span class="block text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+          <span
+            v-if="props.variant === 'card'"
+            class="block text-[11px] font-semibold uppercase tracking-wider text-gray-400"
+          >
             {{ t('common.call') }}
           </span>
           <span
-            class="block font-bold text-gray-900 group-hover:text-primary transition-colors"
-            :class="props.variant === 'directory' ? 'break-all' : 'truncate'"
+            class="block text-gray-900 group-hover:text-primary transition-colors"
+            :class="
+              props.variant === 'directory'
+                ? 'break-all text-lg font-semibold leading-snug'
+                : 'truncate font-bold'
+            "
           >
             {{ contactsStore.phoneFormatted }}
           </span>
@@ -76,8 +82,12 @@ const handleCopy = async () => {
       </button>
       <button
         type="button"
-        class="grid place-items-center size-10 shrink-0 rounded-full text-gray-500 hover:text-primary transition-colors cursor-pointer"
-        :class="props.variant === 'card' ? 'bg-white shadow-xs' : 'border border-gray-200'"
+        class="grid shrink-0 place-items-center rounded-full text-gray-500 hover:text-primary transition-colors cursor-pointer"
+        :class="
+          props.variant === 'card'
+            ? 'size-10 bg-white shadow-xs'
+            : 'size-8 border border-gray-200 text-xs'
+        "
         :aria-label="t('contacts.copyPhone')"
         @click="handleCopy"
       >
@@ -86,13 +96,13 @@ const handleCopy = async () => {
     </div>
 
     <button
-      v-for="social in socials"
+      v-for="(social, index) in socials"
       :key="social.key"
       type="button"
       class="group flex w-full items-center gap-3 text-left cursor-pointer transition-colors"
       :class="
         props.variant === 'directory'
-          ? 'border-b border-gray-200 py-4'
+          ? ['py-4', contactsStore.phone || index > 0 ? 'border-t border-gray-200' : '']
           : 'rounded-3xl bg-gray-50 border border-gray-100 p-3 hover:border-primary'
       "
       @click="openLink(social.url)"

@@ -18,20 +18,29 @@ const { t } = useI18n()
     <template #illustration>
       <PageIllustration kind="contacts" />
     </template>
-    <div class="grid gap-x-12 gap-y-10 md:grid-cols-2 md:gap-y-12">
-      <section class="min-w-0" :aria-label="t('contacts.reach')">
+    <div class="grid items-start gap-4 md:grid-cols-2 md:gap-5">
+      <section
+        class="min-w-0 overflow-hidden rounded-3xl border border-gray-200 bg-white"
+        :aria-label="t('contacts.reach')"
+      >
         <ContactSectionHeader :title="t('contacts.reach')" kind="reach" />
-        <p class="pt-4 text-sm text-gray-600">{{ t('contacts.reachHint') }}</p>
-        <ContactList variant="directory" />
-        <ContactEmailCard />
+        <div class="px-5 pb-5 sm:px-6">
+          <ContactList variant="directory" />
+          <ContactEmailCard />
+        </div>
       </section>
 
-      <section class="min-w-0" :aria-label="t('contacts.place')">
+      <section
+        class="min-w-0 overflow-hidden rounded-3xl border border-gray-200 bg-white"
+        :aria-label="t('contacts.place')"
+      >
         <ContactSectionHeader :title="t('contacts.place')" kind="place" />
-        <ContactPlaceCard />
+        <div class="px-5 pb-5 sm:px-6">
+          <ContactPlaceCard />
+        </div>
       </section>
 
-      <ContactRequisitesCard class="md:col-span-2" />
+      <ContactRequisitesCard class="mt-6 md:col-span-2 md:mt-7" />
     </div>
   </PageShell>
 </template>

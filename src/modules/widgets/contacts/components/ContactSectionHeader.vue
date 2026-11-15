@@ -7,7 +7,7 @@ defineProps<{
 
 <template>
   <div
-    class="contact-section-header flex min-h-24 items-center justify-between gap-3 overflow-hidden rounded-3xl border border-primary/10 px-5 py-3 sm:px-6"
+    class="contact-section-header flex min-h-24 items-center justify-between gap-3 border-b border-primary/10 px-5 py-3 sm:px-6"
   >
     <h2 class="min-w-0 text-lg font-bold leading-tight text-gray-950 sm:text-xl">{{ title }}</h2>
 
