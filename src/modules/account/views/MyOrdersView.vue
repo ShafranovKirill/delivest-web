@@ -103,7 +103,7 @@ function repeatSelected() {
       </div>
 
       <EmptyState
-        v-else-if="!isPending && !orders.length"
+        v-else-if="!isPending && !isError && !orders.length"
         icon="pi-receipt"
         :title="t('account.orders.emptyTitle')"
         :text="t('account.orders.emptyText')"
