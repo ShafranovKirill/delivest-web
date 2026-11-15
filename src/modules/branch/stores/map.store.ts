@@ -5,10 +5,6 @@ import { useBranchStore } from './branch.store'
 export const useMapStore = defineStore('branchMap', () => {
   const branchStore = useBranchStore()
 
-  const isMapEnabled = computed<boolean>(() => {
-    return branchStore.activeBranch?.branch_info?.ycart_settings?.enabled ?? false
-  })
-
   const mapSettings = computed(() => {
     return branchStore.activeBranch?.branch_info?.ycart_settings ?? null
   })
@@ -26,7 +22,6 @@ export const useMapStore = defineStore('branchMap', () => {
   })
 
   return {
-    isMapEnabled,
     mapSettings,
     coordinates,
     yandexOrgUrl,

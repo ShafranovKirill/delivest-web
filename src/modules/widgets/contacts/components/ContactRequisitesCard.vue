@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
-import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 
 const { t } = useI18n()
 const franchiseStore = useFranchiseStore()
@@ -21,12 +20,19 @@ const rows = computed(() => {
 </script>
 
 <template>
-  <SurfaceCard v-if="rows.length" icon="pi-building" :label="t('contacts.requisites')">
-    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+  <section
+    v-if="rows.length"
+    class="min-w-0 border-t border-gray-200 pt-7"
+    :aria-label="t('contacts.requisites')"
+  >
+    <h2 class="text-xs font-bold uppercase tracking-widest text-primary-strong">
+      {{ t('contacts.requisites') }}
+    </h2>
+    <dl class="mt-5 grid grid-cols-1 gap-x-10 gap-y-5 text-sm sm:grid-cols-2">
       <div v-for="row in rows" :key="row.label" class="min-w-0">
         <dt class="text-gray-500">{{ row.label }}</dt>
-        <dd class="font-semibold text-gray-900 break-words">{{ row.value }}</dd>
+        <dd class="mt-1 font-semibold text-gray-900 break-words">{{ row.value }}</dd>
       </div>
     </dl>
-  </SurfaceCard>
+  </section>
 </template>

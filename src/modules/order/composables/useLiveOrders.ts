@@ -1,11 +1,13 @@
 import { onScopeDispose, watch } from 'vue'
 import type { Channel } from 'phoenix'
+import type { InfiniteData } from '@tanstack/vue-query'
 import { queryClient } from '@/api/client'
 import { getSocket, reconnectSocket } from '@/api/socket'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { identityQueryKey } from '@/modules/auth/private-query-cache'
 import { LOYALTY_KEY } from '@/modules/account/composables/useLoyaltyQuery'
 import { MY_ORDERS_KEY } from '@/modules/account/composables/useMyOrdersQuery'
+import type { OrdersPage } from '@/modules/account/api/account.service'
 import type { ActiveOrder } from '../api/order.service'
 import { ACTIVE_ORDERS_KEY } from './useActiveOrdersQuery'
 
@@ -17,8 +19,18 @@ function upsertActive(list: ActiveOrder[] | undefined, { order, active }: OrderE
   return active ? [order, ...rest].sort((a, b) => b.inserted_at.localeCompare(a.inserted_at)) : rest
 }
 
-function replaceKnown(list: ActiveOrder[] | undefined, { order }: OrderEvent) {
-  return list?.map((item) => (item.id === order.id ? order : item))
+function replaceKnown(
+  history: InfiniteData<OrdersPage, string | null> | undefined,
+  { order }: OrderEvent,
+) {
+  if (!history) return history
+  return {
+    ...history,
+    pages: history.pages.map((page) => ({
+      ...page,
+      data: page.data.map((item) => (item.id === order.id ? order : item)),
+    })),
+  }
 }
 
 export function useLiveOrders() {
@@ -83,10 +95,18 @@ export function useLiveOrders() {
           (list) => upsertActive(list, event),
         )
         if (identityId) {
-          queryClient.setQueryData<ActiveOrder[]>(
-            identityQueryKey(MY_ORDERS_KEY, identityId),
-            (list) => replaceKnown(list, event),
+          const historyKey = identityQueryKey(MY_ORDERS_KEY, identityId)
+          const history =
+            queryClient.getQueryData<InfiniteData<OrdersPage, string | null>>(historyKey)
+          queryClient.setQueryData<InfiniteData<OrdersPage, string | null>>(historyKey, (list) =>
+            replaceKnown(list, event),
           )
+          if (
+            history &&
+            !history.pages.some((page) => page.data.some((item) => item.id === event.order.id))
+          ) {
+            queryClient.invalidateQueries({ queryKey: historyKey })
+          }
         }
       })
 
