@@ -1179,7 +1179,8 @@
       },
       "ClientOrdersResponse": {
         "properties": {
-          "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" }
+          "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" },
+          "next_cursor": { "nullable": true, "type": "string" }
         },
         "required": ["data"],
         "title": "ClientOrdersResponse",
@@ -2647,9 +2648,24 @@
     "/client/orders": {
       "get": {
         "callbacks": {},
-        "description": "Все заказы авторизованного клиента, новые сначала.",
+        "description": "Заказы авторизованного клиента, новые сначала. Без limit возвращает прежний список (до 50). С limit возвращает страницу и next_cursor для следующей страницы.",
         "operationId": "DelivestWeb.Client.Order.OrderController.index",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Размер страницы от 1 до 50",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": { "type": "integer" }
+          },
+          {
+            "description": "Курсор предыдущей страницы; требует limit",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -2658,6 +2674,12 @@
               }
             },
             "description": "Заказы клиента"
+          },
+          "400": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Неверный limit или cursor"
           },
           "401": {
             "content": {

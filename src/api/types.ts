@@ -392,7 +392,7 @@ export interface paths {
     }
     /**
      * Мои заказы
-     * @description Все заказы авторизованного клиента, новые сначала.
+     * @description Заказы авторизованного клиента, новые сначала. Без limit возвращает прежний список (до 50). С limit возвращает страницу и next_cursor для следующей страницы.
      */
     get: operations['DelivestWeb.Client.Order.OrderController.index']
     put?: never
@@ -1769,6 +1769,7 @@ export interface components {
     /** ClientOrdersResponse */
     ClientOrdersResponse: {
       data: components['schemas']['ActiveOrder'][]
+      next_cursor?: string | null
     }
     /** ClientSession */
     ClientSession: {
@@ -3015,7 +3016,12 @@ export interface operations {
   }
   'DelivestWeb.Client.Order.OrderController.index': {
     parameters: {
-      query?: never
+      query?: {
+        /** @description Размер страницы от 1 до 50 */
+        limit?: number
+        /** @description Курсор предыдущей страницы; требует limit */
+        cursor?: string
+      }
       header?: never
       path?: never
       cookie?: never
@@ -3029,6 +3035,15 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['ClientOrdersResponse']
+        }
+      }
+      /** @description Неверный limit или cursor */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
         }
       }
       /** @description Нужна авторизация */
