@@ -68,7 +68,7 @@ async function add(id: string) {
 <template>
   <div class="min-h-full bg-white px-4 pb-12 sm:px-8">
     <header
-      class="relative isolate mx-auto my-5 flex max-w-5xl flex-col items-center overflow-hidden rounded-3xl bg-primary-soft px-6 py-7 text-center sm:my-7 sm:py-9"
+      class="relative isolate mx-auto mb-4 mt-0 flex max-w-5xl flex-col items-center overflow-hidden rounded-3xl bg-primary-soft px-6 py-4 text-center sm:mb-6 sm:py-5"
     >
       <svg
         class="pointer-events-none absolute inset-y-0 left-0 -z-10 h-full w-[30%] max-w-60 text-primary"
@@ -144,21 +144,24 @@ async function add(id: string) {
           <p v-if="!products.length" class="rounded-3xl bg-gray-50 p-8 text-center text-gray-500">
             {{ t('loyalty.noProducts') }}
           </p>
-          <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+          <div v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
             <article
               v-for="product in products"
               :key="product.id"
-              class="flex flex-col gap-3 rounded-3xl bg-gray-50 p-3 sm:p-4"
+              class="flex flex-col gap-2 rounded-3xl bg-gray-50 p-2.5 sm:p-3"
             >
               <ProductImage
                 :src="menuProducts.get(product.id)?.photo_url"
                 :alt="product.name"
-                class="aspect-square w-full rounded-2xl object-contain"
+                fit="contain"
+                class="h-32 w-full rounded-2xl sm:h-40"
               />
-              <h3 class="grow text-sm font-bold leading-snug text-gray-950 sm:text-base">
+              <h3
+                class="line-clamp-2 min-h-10 grow text-sm font-bold leading-snug text-gray-950 sm:text-base"
+              >
                 {{ product.name }}
               </h3>
-              <p class="flex items-center gap-1.5 text-lg font-extrabold text-primary">
+              <p class="flex items-center gap-1.5 text-base font-extrabold text-primary">
                 <i class="pi pi-star-fill text-sm" aria-hidden="true" />{{ product.stars_price }}
               </p>
               <p v-if="inCart(product.id)" class="text-xs font-semibold text-primary">
@@ -172,7 +175,7 @@ async function add(id: string) {
                   product.stars_price > available ? t('loyalty.insufficient') : t('loyalty.take')
                 "
                 rounded
-                class="w-full !text-xs sm:!text-sm"
+                class="min-h-10 w-full !px-2 !text-[11px] !leading-tight sm:!text-xs"
                 @click="add(product.id)"
               />
             </article>
