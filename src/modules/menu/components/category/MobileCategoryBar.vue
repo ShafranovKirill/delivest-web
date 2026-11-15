@@ -28,7 +28,7 @@ useMobCatBarScroll(activeCategoryId, containerRef)
       <div
         v-else
         ref="containerRef"
-        class="flex items-center overflow-x-auto scrollbar-none max-w-7xl mx-auto -my-4 py-4"
+        class="flex items-center overflow-x-auto [clip-path:inset(0)] scrollbar-none max-w-7xl mx-auto -my-4 py-4"
       >
         <LoyaltyCategoryButton class="ml-4" />
         <Button
