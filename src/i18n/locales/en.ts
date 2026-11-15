@@ -226,6 +226,9 @@ export const en: typeof ru = {
       repeatOrder: 'Repeat order',
       repeatPartial: 'Some items are unavailable now, the rest is in your cart',
       repeatEmpty: 'These items are not on the menu right now',
+      loadMore: 'Show more orders',
+      loadError: 'Could not load your orders',
+      loadMoreError: 'Could not load more orders',
     },
   },
   address: {

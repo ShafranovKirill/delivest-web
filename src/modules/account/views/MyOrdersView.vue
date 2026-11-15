@@ -13,8 +13,30 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const { data: orders, isLoading } = useMyOrdersQuery()
+const {
+  data: history,
+  isPending,
+  isError,
+  isFetchNextPageError,
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
+  refetch,
+} = useMyOrdersQuery()
 const { repeat, repeatingId } = useRepeatOrder()
+
+const orders = computed(() => {
+  const seen = new Set<string>()
+  return (
+    history.value?.pages.flatMap((page) =>
+      page.data.filter((order) => {
+        if (seen.has(order.id)) return false
+        seen.add(order.id)
+        return true
+      }),
+    ) ?? []
+  )
+})
 
 const selectedId = ref<string | null>(null)
 
@@ -33,13 +55,13 @@ function repeatSelected() {
   <PageShell :title="t('account.orders.title')" width="wide">
     <AuthRequired :text="t('account.orders.authText')">
       <SkeletonList
-        v-if="isLoading"
+        v-if="isPending && !isError"
         :count="3"
         class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
         item-class="h-44 rounded-3xl!"
       />
 
-      <div v-else-if="orders?.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div v-else-if="orders.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <div
           v-for="order in orders"
           :key="order.id"
@@ -63,12 +85,47 @@ function repeatSelected() {
         </div>
       </div>
 
+      <div v-if="isError && !orders.length" class="flex flex-col items-center gap-3 py-8">
+        <p role="alert" class="text-sm text-red-700">{{ t('account.orders.loadError') }}</p>
+        <button type="button" class="text-sm font-semibold text-primary" @click="refetch()">
+          {{ t('common.retry') }}
+        </button>
+      </div>
+
+      <div
+        v-if="isError && orders.length && !isFetchNextPageError"
+        class="mt-4 flex items-center justify-center gap-3"
+      >
+        <p role="alert" class="text-sm text-red-700">{{ t('account.orders.loadError') }}</p>
+        <button type="button" class="text-sm font-semibold text-primary" @click="refetch()">
+          {{ t('common.retry') }}
+        </button>
+      </div>
+
       <EmptyState
-        v-else
+        v-else-if="!isPending && !orders.length"
         icon="pi-receipt"
         :title="t('account.orders.emptyTitle')"
         :text="t('account.orders.emptyText')"
       />
+
+      <div
+        v-if="orders.length && (hasNextPage || isFetchNextPageError)"
+        class="mt-6 flex flex-col items-center gap-2"
+      >
+        <p v-if="isFetchNextPageError" role="alert" class="text-sm text-red-700">
+          {{ t('account.orders.loadMoreError') }}
+        </p>
+        <button
+          type="button"
+          class="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
+          :disabled="isFetchingNextPage"
+          @click="fetchNextPage()"
+        >
+          <i v-if="isFetchingNextPage" class="pi pi-spin pi-spinner mr-2 text-xs" />
+          {{ isFetchNextPageError ? t('common.retry') : t('account.orders.loadMore') }}
+        </button>
+      </div>
 
       <ActiveOrderModal
         :order="selected"
