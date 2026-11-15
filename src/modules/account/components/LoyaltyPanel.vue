@@ -8,7 +8,6 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { useLoyaltyQuery } from '../composables/useLoyaltyQuery'
 import { useStarsLabel } from '../composables/useStarsLabel'
-import { useLoyaltyPush } from '@/modules/pwa/composables/useLoyaltyPush'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { getApiErrorMessage } from '@/api/errors'
 import AuthRequired from '@/modules/auth/components/AuthRequired.vue'
@@ -20,12 +19,6 @@ const cart = useCartStore()
 const toast = useToast()
 const busy = ref(false)
 const auth = useAuthStore()
-const {
-  supported: pushSupported,
-  enabled: pushEnabled,
-  pending: pushPending,
-  enable: enablePush,
-} = useLoyaltyPush(() => auth.isAuthenticated)
 const modal = useLoyaltyModalStore()
 const { data: menu } = useMenuQuery()
 const menuProducts = computed(
@@ -136,34 +129,18 @@ async function add(id: string) {
         <template v-else-if="data?.enabled">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <h2 class="text-xl font-extrabold sm:text-2xl">{{ t('loyalty.shop') }}</h2>
-            <span class="text-sm text-gray-500">{{
-              t('loyalty.available', { stars: label(available) })
-            }}</span>
+            <p
+              v-if="nextReward"
+              class="min-w-0 max-w-full text-sm text-gray-500 sm:max-w-[60%] sm:text-right"
+            >
+              {{
+                t('loyalty.moreToReward', {
+                  stars: label(missing),
+                  product: nextReward.name,
+                })
+              }}
+            </p>
           </div>
-          <p v-if="nextReward" class="text-sm text-gray-500">
-            {{
-              t('loyalty.moreToReward', {
-                stars: label(missing),
-                product: nextReward.name,
-              })
-            }}
-          </p>
-          <div
-            v-if="pushSupported && auth.isAuthenticated && !pushEnabled"
-            class="flex flex-wrap items-center gap-3 rounded-2xl bg-gray-50 px-4 py-3"
-          >
-            <span class="text-sm text-gray-600">{{ t('loyalty.reminders.hint') }}</span>
-            <Button
-              :disabled="pushPending"
-              :label="t('loyalty.reminders.enable')"
-              rounded
-              class="!text-xs"
-              @click="enablePush"
-            />
-          </div>
-          <p v-else-if="pushEnabled && pushSupported" class="text-xs text-gray-500">
-            {{ t('loyalty.reminders.enabled') }}
-          </p>
           <p v-if="!products.length" class="rounded-3xl bg-gray-50 p-8 text-center text-gray-500">
             {{ t('loyalty.noProducts') }}
           </p>
