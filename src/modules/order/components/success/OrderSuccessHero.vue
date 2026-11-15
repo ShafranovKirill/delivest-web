@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /// <reference types="unplugin-icons/types/vue" />
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Order, OrderStatus } from '../../api/order.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
@@ -13,21 +13,11 @@ const props = defineProps<{ order: Order }>()
 const { t, locale } = useI18n()
 const branchStore = useBranchStore()
 
-const expanded = ref(false)
-let introTimer: ReturnType<typeof setTimeout> | undefined
-onMounted(() => {
-  if (props.order.status === 'created' && !props.order.awaiting_payment)
-    introTimer = setTimeout(() => (expanded.value = true), 700)
-  else expanded.value = true
-})
-onUnmounted(() => clearTimeout(introTimer))
+const playIntro = ref(props.order.status === 'created' && !props.order.awaiting_payment)
 watch(
   () => [props.order.status, props.order.awaiting_payment],
   () => {
-    if (props.order.status !== 'created' || props.order.awaiting_payment) {
-      clearTimeout(introTimer)
-      expanded.value = true
-    }
+    if (props.order.status !== 'created' || props.order.awaiting_payment) playIntro.value = false
   },
 )
 
@@ -104,7 +94,7 @@ const activeIndex = computed(() => {
 
     <div
       class="order-success-card relative overflow-hidden rounded-3xl shadow-sm ring-1 ring-gray-100"
-      :class="{ 'is-success': !terminal && !order.awaiting_payment }"
+      :class="{ 'is-success': !terminal && !order.awaiting_payment, 'is-intro': playIntro }"
     >
       <div
         data-order-summary
@@ -119,27 +109,22 @@ const activeIndex = computed(() => {
           <i
             :class="[
               'pi',
-              expanded && terminal ? 'pi-times' : expanded ? orderStatusIcon(order) : 'pi-check',
+              terminal ? 'pi-times' : orderStatusIcon(order),
               'shrink-0 text-xl text-gray-950',
             ]"
             aria-hidden="true"
           />
           <div class="min-w-0">
             <p
-              v-if="expanded && !terminal && !order.awaiting_payment"
+              v-if="!terminal && !order.awaiting_payment"
               class="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-800"
             >
               {{ t('order.success.title') }}
             </p>
-            <Transition name="success-text" mode="out-in">
-              <h2
-                :key="expanded ? statusText : t('order.success.title')"
-                class="break-words font-semibold leading-snug text-gray-950"
-              >
-                {{ expanded ? statusText : t('order.success.title') }}
-              </h2>
-            </Transition>
-            <div v-if="eta" class="success-expand" :class="{ 'is-expanded': expanded }">
+            <h2 class="success-status break-words font-semibold leading-snug text-gray-950">
+              {{ statusText }}
+            </h2>
+            <div v-if="eta" class="success-expand success-eta">
               <div class="min-h-0 overflow-hidden">
                 <p class="mt-3 text-sm text-gray-600">{{ eta }}</p>
               </div>
@@ -154,7 +139,7 @@ const activeIndex = computed(() => {
           aria-hidden="true"
         />
       </div>
-      <div class="success-expand" :class="{ 'is-expanded': expanded }">
+      <div class="success-expand success-stages">
         <div class="min-h-0 overflow-hidden">
           <div class="px-5 pb-6 sm:px-6">
             <div v-if="terminal" class="mt-6 text-center" :data-order-terminal="order.status">
@@ -228,51 +213,62 @@ const activeIndex = computed(() => {
 .order-success-card.is-success {
   background: linear-gradient(125deg, #ecf8ef 0%, #dff3e5 100%);
 }
-.success-art {
-  animation: success-art-pop 0.7s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+.is-intro {
+  animation: success-card-enter 0.34s ease-out backwards;
 }
-@keyframes success-art-pop {
+.is-intro .success-art {
+  animation: success-detail-enter 0.4s ease-out 0.08s backwards;
+}
+.is-intro .success-status {
+  animation: success-detail-enter 0.3s ease-out 0.17s backwards;
+}
+.is-intro .success-eta {
+  animation: success-expand-enter 0.36s ease-out 0.25s backwards;
+}
+.is-intro .success-stages {
+  animation: success-expand-enter 0.36s ease-out 0.34s backwards;
+}
+@keyframes success-card-enter {
   from {
     opacity: 0;
-    transform: scale(0.75) rotate(-12deg);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: scale(1) rotate(0);
+    transform: translateY(0);
+  }
+}
+@keyframes success-detail-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes success-expand-enter {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
   }
 }
 .success-expand {
   display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transition:
-    grid-template-rows 0.7s ease,
-    opacity 0.7s ease;
-}
-.success-expand.is-expanded {
   grid-template-rows: 1fr;
   opacity: 1;
 }
-.success-text-enter-active,
-.success-text-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-.success-text-enter-from {
-  opacity: 0;
-  transform: translateY(5px);
-}
-.success-text-leave-to {
-  opacity: 0;
-  transform: translateY(-5px);
-}
 @media (prefers-reduced-motion: reduce) {
-  .success-art,
-  .success-expand,
-  .success-text-enter-active,
-  .success-text-leave-active {
-    transition: none;
+  .is-intro,
+  .is-intro .success-art,
+  .is-intro .success-status,
+  .is-intro .success-eta,
+  .is-intro .success-stages {
     animation: none;
   }
 }
