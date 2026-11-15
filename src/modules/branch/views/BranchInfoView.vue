@@ -18,7 +18,7 @@ const branchStore = useBranchStore()
 const mapStore = useMapStore()
 
 const { activeBranch } = storeToRefs(branchStore)
-const { isMapEnabled, coordinates, yandexOrgUrl } = storeToRefs(mapStore)
+const { coordinates, yandexOrgUrl } = storeToRefs(mapStore)
 
 const info = computed(() => activeBranch.value?.branch_info ?? null)
 const phoneLabel = computed(() =>
@@ -82,7 +82,7 @@ const socials = computed(() =>
         </template>
 
         <div
-          v-if="isMapEnabled && coordinates"
+          v-if="coordinates"
           class="h-87.5 overflow-hidden rounded-2xl border border-gray-200"
         >
           <BaseMap
