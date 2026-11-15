@@ -619,7 +619,7 @@ export const ru = {
       noSlots: 'В ближайшие дни нет свободного времени.',
     },
     success: {
-      title: 'Заказ создан',
+      title: 'Заказ оформлен',
       orderAmount: 'Сумма заказа',
       accepted: 'Приняли заказ',
       stages: 'Этапы заказа',

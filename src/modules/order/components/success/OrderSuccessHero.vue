@@ -3,18 +3,14 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Order, OrderStatus } from '../../api/order.service'
-import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
-import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
 import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
 import { orderStatusIcon, orderStatusLabel } from '../../utils/orderStatus'
 import CutleryIcon from '~icons/tabler/tools-kitchen-2'
 
 const props = defineProps<{ order: Order }>()
 const { t, locale } = useI18n()
-const authStore = useAuthStore()
 const branchStore = useBranchStore()
-const starsLabel = useStarsLabel()
 
 const expanded = ref(false)
 let introTimer: ReturnType<typeof setTimeout> | undefined
@@ -47,11 +43,6 @@ function formatDateTime(value: string): string {
   })
 }
 
-const earned = computed(() => {
-  const rate = branchStore.activeBranch?.branch_info?.loyalty
-  if (!authStore.isAuthenticated || !rate?.enabled) return 0
-  return props.order.points_earned ?? 0
-})
 const placedAt = computed(() =>
   props.order.inserted_at ? formatDateTime(props.order.inserted_at) : null,
 )
@@ -110,8 +101,62 @@ const activeIndex = computed(() => {
       <p class="mt-1 text-sm text-gray-500">{{ [placedAt, place].filter(Boolean).join(' · ') }}</p>
     </div>
 
-    <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-gray-100">
-      <div class="flex items-center gap-3 px-5 py-4 sm:px-6" aria-live="polite">
+    <div
+      class="order-success-card relative overflow-hidden rounded-3xl shadow-sm ring-1 ring-gray-100"
+      :class="{ 'is-success': !terminal && !order.awaiting_payment }"
+    >
+      <div
+        v-if="!terminal && !order.awaiting_payment"
+        class="success-art pointer-events-none absolute right-3 top-2 size-20 sm:right-5 sm:top-1 sm:size-24"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 104 104" fill="none" focusable="false">
+          <g class="success-spark success-spark-a" fill="#48a76c">
+            <path d="m14 26 2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z" />
+          </g>
+          <g class="success-spark success-spark-b" fill="#70bd8a">
+            <path d="m87 13 1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5 1.5-4Z" />
+          </g>
+          <circle class="success-spark success-spark-c" cx="95" cy="46" r="2.5" fill="#48a76c" />
+          <circle class="success-spark success-spark-d" cx="22" cy="88" r="2" fill="#70bd8a" />
+          <g transform="rotate(-7 51 51)">
+            <rect
+              x="25"
+              y="12"
+              width="56"
+              height="77"
+              rx="7"
+              fill="#fff"
+              stroke="#b9e4c7"
+              stroke-width="2"
+            />
+            <path d="M64 12v13h17" stroke="#d4ecdc" stroke-width="2" />
+            <circle cx="38" cy="34" r="4" fill="#75c392" />
+            <path
+              d="M48 34h19M35 49h34M35 59h26"
+              stroke="#b8dcca"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+          </g>
+          <path
+            d="m76 57 5 3 6-1 3 6 6 3-1 7 4 5-4 5 1 7-6 3-3 6-6-1-5 3-5-3-6 1-3-6-6-3 1-7-4-5 4-5-1-7 6-3 3-6 6 1 5-3Z"
+            fill="#23824b"
+          />
+          <path
+            class="success-check"
+            d="m66 79 7 7 14-15"
+            stroke="white"
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <div
+        class="relative flex min-h-28 w-[70%] items-start gap-3 px-5 py-5 sm:px-6"
+        aria-live="polite"
+      >
         <i
           :class="[
             'pi',
@@ -120,21 +165,27 @@ const activeIndex = computed(() => {
           ]"
           aria-hidden="true"
         />
-        <Transition name="success-text" mode="out-in">
-          <h2
-            :key="expanded ? statusText : t('order.success.title')"
-            class="font-semibold text-gray-950"
+        <div class="min-w-0">
+          <p
+            v-if="expanded && !terminal && !order.awaiting_payment"
+            class="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-800"
           >
-            {{ expanded ? statusText : t('order.success.title') }}
-          </h2>
-        </Transition>
+            {{ t('order.success.title') }}
+          </p>
+          <Transition name="success-text" mode="out-in">
+            <h2
+              :key="expanded ? statusText : t('order.success.title')"
+              class="break-words font-semibold leading-snug text-gray-950"
+            >
+              {{ expanded ? statusText : t('order.success.title') }}
+            </h2>
+          </Transition>
+        </div>
       </div>
       <div class="success-expand" :class="{ 'is-expanded': expanded }">
         <div class="min-h-0 overflow-hidden">
-          <div class="border-t border-gray-100 px-5 pb-6 pt-5 sm:px-6">
-            <div class="text-center">
-              <p v-if="eta" class="mt-1 text-sm text-gray-500">{{ eta }}</p>
-            </div>
+          <div class="px-5 pb-6 sm:px-6">
+            <p v-if="eta" class="mb-5 text-sm text-gray-600">{{ eta }}</p>
 
             <div v-if="terminal" class="mt-6 text-center" :data-order-terminal="order.status">
               <i
@@ -149,7 +200,7 @@ const activeIndex = computed(() => {
             </div>
             <ol
               v-else
-              class="mt-6 flex items-center justify-between"
+              class="mt-5 flex items-center justify-between"
               :aria-label="t('order.success.stages')"
             >
               <template v-for="(step, index) in steps" :key="step">
@@ -193,13 +244,6 @@ const activeIndex = computed(() => {
                 </li>
               </template>
             </ol>
-            <p
-              v-if="earned > 0 && order.status !== 'cancelled'"
-              class="mt-5 text-center text-sm font-semibold text-amber-700"
-            >
-              <i class="pi pi-star-fill mr-1" aria-hidden="true" />
-              +{{ t('loyalty.afterCompleted', { stars: starsLabel(earned) }) }}
-            </p>
           </div>
         </div>
       </div>
@@ -208,6 +252,58 @@ const activeIndex = computed(() => {
 </template>
 
 <style scoped>
+.order-success-card {
+  background: #fff;
+}
+.order-success-card.is-success {
+  background: linear-gradient(125deg, #ecf8ef 0%, #dff3e5 100%);
+}
+.success-art {
+  animation: success-art-pop 0.7s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+.success-check {
+  stroke-dasharray: 32;
+  stroke-dashoffset: 32;
+  animation: success-check-draw 0.55s ease-out 0.2s forwards;
+}
+.success-spark {
+  transform-origin: center;
+  animation: success-spark-burst 0.6s ease-out 0.2s both;
+}
+.success-spark-b {
+  animation-delay: 0.3s;
+}
+.success-spark-c {
+  animation-delay: 0.4s;
+}
+.success-spark-d {
+  animation-delay: 0.5s;
+}
+@keyframes success-art-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.75) rotate(-12deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes success-spark-burst {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes success-check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
 .success-expand {
   display: grid;
   grid-template-rows: 0fr;
@@ -235,10 +331,17 @@ const activeIndex = computed(() => {
   transform: translateY(-5px);
 }
 @media (prefers-reduced-motion: reduce) {
+  .success-art,
+  .success-spark,
+  .success-check,
   .success-expand,
   .success-text-enter-active,
   .success-text-leave-active {
     transition: none;
+    animation: none;
+  }
+  .success-check {
+    stroke-dashoffset: 0;
   }
 }
 </style>

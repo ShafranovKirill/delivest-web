@@ -1,17 +1,29 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Order } from '../../api/order.service'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
 import { formatPrice } from '@/utils/money'
 import { paymentLabel } from '../../utils/orderStatus'
 import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 
-defineProps<{ order: Order }>()
+const props = defineProps<{ order: Order }>()
 const { t } = useI18n()
+const authStore = useAuthStore()
+const branchStore = useBranchStore()
+const starsLabel = useStarsLabel()
+const earned = computed(() => {
+  const rate = branchStore.activeBranch?.branch_info?.loyalty
+  if (!authStore.isAuthenticated || !rate?.enabled) return 0
+  return props.order.points_earned ?? 0
+})
 </script>
 
 <template>
-  <SurfaceCard>
+  <SurfaceCard data-order-success-details>
     <ul class="flex flex-col gap-3">
       <li
         v-for="(item, index) in order.items"
@@ -67,5 +79,12 @@ const { t } = useI18n()
       <span>{{ t('common.total') }}</span>
       <span class="text-xl tabular-nums">{{ formatPrice(order.total_amount) }}</span>
     </div>
+    <p
+      v-if="earned > 0 && order.status !== 'cancelled'"
+      class="mt-3 text-sm font-semibold text-amber-700"
+    >
+      <i class="pi pi-star-fill mr-1" aria-hidden="true" />
+      +{{ t('loyalty.afterCompleted', { stars: starsLabel(earned) }) }}
+    </p>
   </SurfaceCard>
 </template>
