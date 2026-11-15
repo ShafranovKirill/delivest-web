@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
+import PageIllustration from '@/modules/shared/components/ui/PageIllustration.vue'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import { useContactsStore } from '../stores/constacts.store'
 import ContactList from '../components/ContactList.vue'
@@ -14,6 +15,9 @@ const { t } = useI18n()
 
 <template>
   <PageShell :title="t('nav.contacts')" :subtitle="contactsStore.cafeName">
+    <template #illustration>
+      <PageIllustration kind="contacts" />
+    </template>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 items-start">
       <div class="flex flex-col gap-3 sm:gap-4">
         <SurfaceCard icon="pi-comments" :label="t('contacts.reach')">
