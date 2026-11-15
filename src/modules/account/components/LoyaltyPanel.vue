@@ -74,10 +74,45 @@ async function add(id: string) {
 
 <template>
   <div class="min-h-full bg-white px-4 pb-12 sm:px-8">
-    <header class="mx-auto flex max-w-5xl flex-col items-center py-8 text-center sm:py-12">
-      <span class="mb-4 grid size-16 place-items-center rounded-full bg-primary-soft text-primary">
-        <i class="pi pi-star-fill text-3xl" aria-hidden="true" />
-      </span>
+    <header
+      class="relative isolate mx-auto my-5 flex max-w-5xl flex-col items-center overflow-hidden rounded-3xl bg-primary-soft px-6 py-7 text-center sm:my-7 sm:py-9"
+    >
+      <svg
+        class="pointer-events-none absolute inset-y-0 left-0 -z-10 h-full w-[30%] max-w-60 text-primary"
+        viewBox="0 0 240 300"
+        preserveAspectRatio="xMinYMid meet"
+        fill="none"
+        stroke="currentColor"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g opacity="0.18" stroke-width="2">
+          <path d="M-60 35 C95 20 160 100 180 190 S140 290 60 335" />
+          <path d="M-95 80 C45 45 125 130 145 205 S105 295 20 330" />
+        </g>
+        <g opacity="0.35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M115 78 L120 91 L133 96 L120 101 L115 114 L110 101 L97 96 L110 91 Z" />
+          <path d="M225 238 L229 248 L239 252 L229 256 L225 266 L221 256 L211 252 L221 248 Z" />
+        </g>
+      </svg>
+      <svg
+        class="pointer-events-none absolute inset-y-0 right-0 -z-10 h-full w-[30%] max-w-60 -scale-x-100 text-primary"
+        viewBox="0 0 240 300"
+        preserveAspectRatio="xMinYMid meet"
+        fill="none"
+        stroke="currentColor"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g opacity="0.18" stroke-width="2">
+          <path d="M-60 35 C95 20 160 100 180 190 S140 290 60 335" />
+          <path d="M-95 80 C45 45 125 130 145 205 S105 295 20 330" />
+        </g>
+        <g opacity="0.35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M115 78 L120 91 L133 96 L120 101 L115 114 L110 101 L97 96 L110 91 Z" />
+          <path d="M225 238 L229 248 L239 252 L229 256 L225 266 L221 256 L211 252 L221 248 Z" />
+        </g>
+      </svg>
       <p v-if="auth.isAuthenticated" class="text-sm font-medium text-gray-500">
         {{ t('loyalty.yourBalance') }}
       </p>
