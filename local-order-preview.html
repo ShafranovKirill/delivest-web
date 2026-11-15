@@ -1,0 +1,24 @@
+<!doctype html><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Предпросмотр заказа</title><div id="app" style="margin:20px auto;max-width:32rem;padding:0 16px"></div>
+<div style="max-width:32rem;margin:12px auto;padding:0 16px"><button id="replay" type="button" style="padding:8px 12px;border:1px solid #aab5af;border-radius:12px;cursor:pointer">Повторить анимацию</button> <button id="advance" type="button" style="padding:8px 12px;border:1px solid #aab5af;border-radius:12px;cursor:pointer">Следующий этап</button></div>
+<script type="module">
+import {createApp, h, ref, reactive} from 'vue'
+import {createPinia} from 'pinia'
+import Hero from './src/modules/order/components/success/OrderSuccessHero.vue'
+import {i18n} from './src/i18n'
+import {useBranchStore} from './src/modules/branch/stores/branch.store'
+import './src/assets/main.css'
+import 'primeicons/primeicons.css'
+const pinia=createPinia()
+const order=reactive({status:'created',fulfillment_type:'delivery',short_number:'418',address:{street:'Садовая',house:'12'},payment_method:'cash',inserted_at:'2026-11-15T08:00:00Z'})
+useBranchStore(pinia).activeBranch={branch_info:{delivery_time:40}}
+const revision=ref(0)
+const app=createApp({render:()=>h(Hero,{order,key:revision.value})}).use(pinia).use(i18n)
+app.mount('#app')
+const steps=['created','accepted','preparing','delivering','completed']
+const advance=document.getElementById('advance')
+document.getElementById('replay').onclick=()=>{order.status=steps[0];revision.value++;advance.disabled=false}
+advance.onclick=()=>{
+  order.status=steps[steps.indexOf(order.status)+1]
+  advance.disabled=order.status===steps.at(-1)
+}
+</script>

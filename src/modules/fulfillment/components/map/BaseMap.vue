@@ -136,8 +136,9 @@ onMounted(() => {
     style: STYLE_URL,
     center: props.center,
     zoom: props.zoom,
-    attributionControl: { compact: true },
+    attributionControl: false,
   })
+  map.value.addControl(new maplibregl.AttributionControl({ compact: true }), 'top-right')
 
   map.value.on('load', () => {
     map.value?.addLayer(HOUSE_NUMBERS)
@@ -191,7 +192,7 @@ watch(
 
 <template>
   <div class="relative h-full w-full overflow-hidden">
-    <div ref="container" class="h-full w-full [&_.maplibregl-ctrl-bottom-right]:bottom-[25px]!" />
+    <div ref="container" class="h-full w-full" />
     <MapPlaceholder v-if="!isLoaded" class="absolute inset-0" />
     <div
       v-if="pin && isLoaded"

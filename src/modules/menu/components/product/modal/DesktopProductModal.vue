@@ -26,10 +26,11 @@ const weightKey = computed(() =>
     v-model:visible="menuStore.isProductModalOpen"
     :dismissable-mask="true"
     modal
+    block-scroll
     class="w-[90vw] max-w-4xl rounded-3xl overflow-hidden shadow-2xl border-0"
   >
     <template #container>
-      <div class="relative w-full bg-white p-6 sm:p-8">
+      <div class="relative max-h-[90dvh] w-full overflow-y-auto overscroll-contain bg-white p-6 sm:p-8">
         <Button
           @click="menuStore.closeProductModal()"
           severity="secondary"
@@ -39,8 +40,10 @@ const weightKey = computed(() =>
           icon="pi pi-times"
         />
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div class="flex justify-center items-center rounded-2xl p-6 aspect-square max-h-87.5">
+        <div class="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
+          <div
+            class="flex aspect-square max-h-87.5 items-center justify-center rounded-2xl p-6 md:sticky md:top-2"
+          >
             <ProductImage
               :src="activeProduct?.photo_url"
               :alt="activeProduct?.name"
@@ -50,33 +53,35 @@ const weightKey = computed(() =>
             />
           </div>
 
-          <div class="flex flex-col justify-between h-full min-h-75">
-            <div class="space-y-4">
+          <div class="flex min-h-75 min-w-0 flex-col justify-between">
+            <div class="space-y-3">
               <div>
                 <ProductTagPills :tags="activeProduct?.tags ?? []" class="mb-3" />
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
                   {{ activeProduct?.name }}
                 </h2>
 
-                <div class="flex items-center gap-3 text-sm text-gray-500 mt-2 font-medium">
-                  <span v-if="activeProduct?.weight" class="bg-gray-100 px-2.5 py-1 rounded-md">
+                <div class="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                  <span v-if="activeProduct?.weight">
                     {{ t(weightKey, { value: activeProduct.weight }) }}
                   </span>
-                  <span v-if="activeProduct?.quantity" class="bg-gray-100 px-2.5 py-1 rounded-md">
+                  <span v-if="activeProduct?.weight && activeProduct?.quantity" aria-hidden="true"
+                    >·</span
+                  >
+                  <span v-if="activeProduct?.quantity">
                     {{ t('common.pieces', { count: activeProduct.quantity }) }}
                   </span>
                 </div>
               </div>
 
-              <StarRewardBadge :amount="activeProduct?.stars_reward" />
-              <ProductNutrition :nutrition="activeProduct?.nutrition" />
-
               <p
                 v-if="activeProduct?.description"
-                class="text-gray-600 leading-relaxed text-sm sm:text-base"
+                class="text-sm leading-relaxed text-gray-600 sm:text-base"
               >
                 {{ activeProduct.description }}
               </p>
+              <ProductNutrition :nutrition="activeProduct?.nutrition" />
+              <StarRewardBadge :amount="activeProduct?.stars_reward" />
             </div>
 
             <div class="mt-6 flex flex-col gap-4">

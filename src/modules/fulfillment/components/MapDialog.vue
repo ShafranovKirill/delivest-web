@@ -43,7 +43,13 @@ const { t } = useI18n()
         <slot name="header" />
       </div>
     </div>
-    <div class="min-h-0 flex-1 overflow-hidden">
+    <div
+      class="min-h-0 flex-1 overflow-hidden"
+      :class="{
+        '[&_.maplibregl-ctrl-top-right]:top-[50px]!': !compact,
+        '[&_.maplibregl-ctrl-top-right>.maplibregl-ctrl-attrib]:mr-3!': !compact,
+      }"
+    >
       <slot />
     </div>
   </Dialog>

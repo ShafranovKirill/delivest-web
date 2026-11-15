@@ -26,6 +26,7 @@ declare module 'vue' {
     ITablerRepeat: typeof import('~icons/tabler/repeat')['default']
     ITablerRosetteDiscount: typeof import('~icons/tabler/rosette-discount')['default']
     ITablerSoup: typeof import('~icons/tabler/soup')['default']
+    ITablerToolsKitchen2: typeof import('~icons/tabler/tools-kitchen2')['default']
     ITablerTruck: typeof import('~icons/tabler/truck')['default']
     ITablerX: typeof import('~icons/tabler/x')['default']
     IVkLogoBlack: typeof import('~icons/vk/logo-black')['default']

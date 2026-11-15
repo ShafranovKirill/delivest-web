@@ -9,11 +9,15 @@ import type { MenuProduct } from '@/modules/menu/api/menu.service'
 import SoldOutLabel from './SoldOutLabel.vue'
 import ModifierPicker from '../ModifierPicker.vue'
 import { useI18n } from 'vue-i18n'
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 
-const props = defineProps<{
-  product?: MenuProduct | null
-}>()
+const props = withDefaults(
+  defineProps<{
+    product?: MenuProduct | null
+    showModifiers?: boolean
+  }>(),
+  { showModifiers: true },
+)
 
 const emit = defineEmits<{
   (e: 'added'): void
@@ -26,7 +30,7 @@ const { t } = useI18n()
 
 const groups = computed(() => props.product?.modifier_groups ?? [])
 const modifiers = computed(() => groups.value.flatMap((g) => g.modifiers))
-const selected = ref<string[]>([])
+const selected = defineModel<string[]>({ default: () => [] })
 
 const menuStore = useMenuStore()
 const editingLine = computed(() =>
@@ -75,7 +79,11 @@ const handleAddToCart = async () => {
 
 <template>
   <div class="flex flex-col gap-4">
-    <ModifierPicker v-if="groups.length && !product?.stopped" v-model="selected" :groups="groups" />
+    <ModifierPicker
+      v-if="showModifiers !== false && groups.length && !product?.stopped"
+      v-model="selected"
+      :groups="groups"
+    />
     <SoldOutLabel v-if="product?.stopped" class="py-3.5!" />
     <Button
       v-else

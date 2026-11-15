@@ -27,12 +27,12 @@ const rows = computed(() =>
 </script>
 
 <template>
-  <div v-if="rows.length" class="flex flex-col gap-1.5">
-    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">
+  <div v-if="rows.length" class="flex flex-wrap items-center gap-x-2 gap-y-1">
+    <p class="text-[11px] font-medium text-gray-500">
       {{ t('menu.nutrition.per100') }}
     </p>
-    <div class="flex flex-wrap gap-2 text-sm text-gray-600">
-      <span v-for="row in rows" :key="row.key" class="rounded-md bg-gray-100 px-2.5 py-1">
+    <div class="flex flex-wrap gap-1 text-xs text-gray-600">
+      <span v-for="row in rows" :key="row.key" class="rounded-md bg-gray-100 px-1.5 py-0.5">
         {{ t(`menu.nutrition.${row.key}`) }} <b class="text-gray-900">{{ row.value }}</b>
         {{ row.unit }}
       </span>
