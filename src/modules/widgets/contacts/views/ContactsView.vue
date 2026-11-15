@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import PageIllustration from '@/modules/shared/components/ui/PageIllustration.vue'
-import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import { useContactsStore } from '../stores/constacts.store'
 import ContactList from '../components/ContactList.vue'
 import ContactPlaceCard from '../components/ContactPlaceCard.vue'
@@ -18,16 +17,27 @@ const { t } = useI18n()
     <template #illustration>
       <PageIllustration kind="contacts" />
     </template>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 items-start">
-      <div class="flex flex-col gap-3 sm:gap-4">
-        <SurfaceCard icon="pi-comments" :label="t('contacts.reach')">
-          <template #value>{{ t('contacts.reachHint') }}</template>
-          <ContactList />
-        </SurfaceCard>
+    <div class="grid gap-x-12 gap-y-10 md:grid-cols-2 md:gap-y-12">
+      <section class="min-w-0" :aria-label="t('contacts.reach')">
+        <h2
+          class="border-b border-gray-200 pb-3 text-xs font-bold uppercase tracking-widest text-primary-strong"
+        >
+          {{ t('contacts.reach') }}
+        </h2>
+        <p class="pt-4 text-sm text-gray-600">{{ t('contacts.reachHint') }}</p>
+        <ContactList variant="directory" />
         <ContactEmailCard />
-      </div>
+      </section>
 
-      <ContactPlaceCard />
+      <section class="min-w-0" :aria-label="t('contacts.place')">
+        <h2
+          class="border-b border-gray-200 pb-3 text-xs font-bold uppercase tracking-widest text-primary-strong"
+        >
+          {{ t('contacts.place') }}
+        </h2>
+        <ContactPlaceCard />
+      </section>
+
       <ContactRequisitesCard class="md:col-span-2" />
     </div>
   </PageShell>

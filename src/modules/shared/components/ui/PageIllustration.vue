@@ -74,37 +74,51 @@ defineProps<{ kind: 'branch' | 'contacts' | 'stock' }>()
     class="block w-full"
   >
     <path
-      d="M31 45c0-17 14-30 31-30h82c18 0 32 13 32 30v35c0 17-14 30-32 30H82l-29 19v-21c-13-4-22-15-22-28V45Z"
+      d="M41 53c0-22 35-38 79-38s79 16 79 38l-11 13h-30l-9-12c-19-6-39-6-58 0l-9 12H52L41 53Z"
       fill="currentColor"
-      opacity=".13"
+      opacity=".48"
     />
     <path
-      d="M31 45c0-17 14-30 31-30h82c18 0 32 13 32 30v35c0 17-14 30-32 30H82l-29 19v-21c-13-4-22-15-22-28V45Z"
+      d="M41 53c0-22 35-38 79-38s79 16 79 38l-11 13h-30l-9-12c-19-6-39-6-58 0l-9 12H52L41 53Z"
       stroke="currentColor"
-      stroke-width="3"
+      stroke-width="4"
       stroke-linejoin="round"
     />
     <path
-      d="M174 52h19c12 0 21 9 21 21v26c0 12-9 21-21 21h-10l-17 14v-14h-20"
+      d="M52 53h30m76 0h30"
+      stroke="currentColor"
+      stroke-width="4"
+      stroke-linecap="round"
+      opacity=".62"
+    />
+    <path
+      d="M83 69c2-10 10-17 20-17h34c10 0 18 7 20 17l19 56c2 6-3 11-9 11H73c-6 0-11-5-9-11l19-56Z"
+      fill="currentColor"
+      opacity=".22"
+    />
+    <path
+      d="M83 69c2-10 10-17 20-17h34c10 0 18 7 20 17l19 56c2 6-3 11-9 11H73c-6 0-11-5-9-11l19-56Z"
+      stroke="currentColor"
+      stroke-width="4"
+      stroke-linejoin="round"
+    />
+    <path d="M101 71h38" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+    <circle cx="103" cy="88" r="4" fill="currentColor" />
+    <circle cx="120" cy="88" r="4" fill="currentColor" />
+    <circle cx="137" cy="88" r="4" fill="currentColor" />
+    <circle cx="100" cy="103" r="4" fill="currentColor" />
+    <circle cx="120" cy="103" r="4" fill="currentColor" />
+    <circle cx="140" cy="103" r="4" fill="currentColor" />
+    <circle cx="97" cy="118" r="4" fill="currentColor" />
+    <circle cx="120" cy="118" r="4" fill="currentColor" />
+    <circle cx="143" cy="118" r="4" fill="currentColor" />
+    <path
+      d="M47 138h146"
       stroke="currentColor"
       stroke-width="3"
       stroke-linecap="round"
-      stroke-linejoin="round"
-      opacity=".55"
+      opacity=".35"
     />
-    <path
-      d="M79 44c4-4 9-3 13 2l6 8c3 4 2 8-2 11l-5 4c5 9 12 16 21 21l4-5c3-4 7-5 11-2l8 6c5 4 6 9 2 13-5 6-12 8-19 5-18-7-36-25-43-43-3-7-1-14 4-20Z"
-      fill="currentColor"
-      opacity=".42"
-    />
-    <path
-      d="M79 44c4-4 9-3 13 2l6 8c3 4 2 8-2 11l-5 4c5 9 12 16 21 21l4-5c3-4 7-5 11-2l8 6c5 4 6 9 2 13-5 6-12 8-19 5-18-7-36-25-43-43-3-7-1-14 4-20Z"
-      stroke="currentColor"
-      stroke-width="3"
-      stroke-linejoin="round"
-    />
-    <circle cx="191" cy="85" r="3" fill="currentColor" />
-    <circle cx="203" cy="85" r="3" fill="currentColor" />
   </svg>
 
   <svg

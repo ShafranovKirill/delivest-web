@@ -2,24 +2,27 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
-import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 
 const { t } = useI18n()
 const email = computed(() => useFranchiseStore().legal?.email ?? null)
 </script>
 
 <template>
-  <SurfaceCard
+  <a
     v-if="email"
-    as="a"
     :href="`mailto:${email}`"
-    icon="pi-envelope"
-    :label="t('contacts.email')"
-    class="hover:border-primary transition-colors"
+    class="group flex min-w-0 items-center justify-between gap-3 border-b border-gray-200 py-4"
   >
-    <template #value>{{ email }}</template>
-    <template #aside>
-      <i class="pi pi-arrow-up-right text-gray-400" />
-    </template>
-  </SurfaceCard>
+    <span class="min-w-0">
+      <span class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+        {{ t('contacts.email') }}
+      </span>
+      <span
+        class="block break-all font-semibold text-gray-900 transition-colors group-hover:text-primary"
+      >
+        {{ email }}
+      </span>
+    </span>
+    <i class="pi pi-arrow-up-right shrink-0 text-sm text-gray-400" aria-hidden="true" />
+  </a>
 </template>
