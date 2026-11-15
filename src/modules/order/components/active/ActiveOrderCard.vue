@@ -28,6 +28,15 @@ const { t } = useI18n()
     >
       <path opacity="0.20" d="M0 -40 H1000 V110 C760 140 645 105 500 55 C345 -10 160 -30 0 -30 Z" />
       <path opacity="0.20" d="M0 -80 H1000 V56 C790 84 660 51 520 14 C355 -30 180 -60 0 -60 Z" />
+    </svg>
+    <svg
+      class="pointer-events-none absolute inset-0 -z-10 h-full w-full translate-y-[5px] text-primary"
+      viewBox="0 0 1000 300"
+      preserveAspectRatio="none"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
       <g transform="translate(0 8)">
         <path
           opacity="0.20"
