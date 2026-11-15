@@ -16,7 +16,7 @@ const branchStore = useBranchStore()
 const playIntro = ref(props.order.status === 'created' && !props.order.awaiting_payment)
 let introTimer: ReturnType<typeof setTimeout> | undefined
 onMounted(() => {
-  if (playIntro.value) introTimer = setTimeout(() => (playIntro.value = false), 1000)
+  if (playIntro.value) introTimer = setTimeout(() => (playIntro.value = false), 1150)
 })
 onUnmounted(() => clearTimeout(introTimer))
 
@@ -125,7 +125,9 @@ const activeIndex = computed(() => {
                 {{ statusText }}
               </h2>
             </Transition>
-            <p v-if="eta" class="success-eta mt-1.5 text-sm leading-snug text-gray-600">{{ eta }}</p>
+            <p v-if="eta" class="success-eta mt-1.5 text-sm leading-snug text-gray-600">
+              {{ eta }}
+            </p>
           </div>
         </div>
         <img
@@ -138,69 +140,73 @@ const activeIndex = computed(() => {
           aria-hidden="true"
         />
       </div>
-      <div class="px-5 pb-6 sm:px-6">
-        <div v-if="terminal" class="mt-4 text-center" :data-order-terminal="order.status">
-          <i class="pi pi-times text-3xl text-gray-400" aria-hidden="true" />
+      <div class="success-stages">
+        <div class="min-h-0 overflow-hidden">
+          <div class="px-5 pb-6 sm:px-6">
+            <div v-if="terminal" class="mt-4 text-center" :data-order-terminal="order.status">
+              <i class="pi pi-times text-3xl text-gray-400" aria-hidden="true" />
+            </div>
+            <ol
+              v-else
+              class="flex items-center justify-between"
+              :aria-label="t('order.success.stages')"
+            >
+              <template v-for="(step, index) in steps" :key="step">
+                <li
+                  class="success-step flex min-w-0 flex-1 items-center justify-center transition-colors duration-300"
+                  :class="
+                    index === activeIndex
+                      ? 'text-gray-950'
+                      : index < activeIndex
+                        ? 'text-slate-600'
+                        : 'text-slate-400'
+                  "
+                  :style="{ '--step-index': index }"
+                  :aria-current="index === activeIndex ? 'step' : undefined"
+                  :data-order-step="step"
+                >
+                  <span class="flex size-9 items-center justify-center">
+                    <ReceiptIcon
+                      v-if="step === 'created'"
+                      class="size-6 sm:size-7"
+                      aria-hidden="true"
+                    />
+                    <i-tabler-check
+                      v-else-if="step === 'accepted'"
+                      class="size-6 sm:size-7"
+                      aria-hidden="true"
+                    />
+                    <i-tabler-soup
+                      v-else-if="step === 'preparing'"
+                      class="size-6 sm:size-7"
+                      aria-hidden="true"
+                    />
+                    <i-tabler-truck
+                      v-else-if="step === 'delivering'"
+                      class="size-6 sm:size-7"
+                      aria-hidden="true"
+                    />
+                    <CutleryIcon v-else class="size-6 sm:size-7" aria-hidden="true" />
+                  </span>
+                  <span class="sr-only">{{
+                    step === 'accepted' ? t('order.success.accepted') : t(`order.status.${step}`)
+                  }}</span>
+                </li>
+                <li
+                  v-if="index < steps.length - 1"
+                  class="flex shrink-0 gap-1"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <span
+                    class="size-1 rounded-full"
+                    :class="index < activeIndex ? 'bg-slate-500' : 'bg-slate-300'"
+                  />
+                </li>
+              </template>
+            </ol>
+          </div>
         </div>
-        <ol
-          v-else
-          class="flex items-center justify-between"
-          :aria-label="t('order.success.stages')"
-        >
-          <template v-for="(step, index) in steps" :key="step">
-            <li
-              class="success-step flex min-w-0 flex-1 items-center justify-center transition-colors duration-300"
-              :class="
-                index === activeIndex
-                  ? 'text-gray-950'
-                  : index < activeIndex
-                    ? 'text-slate-600'
-                    : 'text-slate-400'
-              "
-              :style="{ '--step-index': index }"
-              :aria-current="index === activeIndex ? 'step' : undefined"
-              :data-order-step="step"
-            >
-              <span class="flex size-9 items-center justify-center">
-                <ReceiptIcon
-                  v-if="step === 'created'"
-                  class="size-6 sm:size-7"
-                  aria-hidden="true"
-                />
-                <i-tabler-check
-                  v-else-if="step === 'accepted'"
-                  class="size-6 sm:size-7"
-                  aria-hidden="true"
-                />
-                <i-tabler-soup
-                  v-else-if="step === 'preparing'"
-                  class="size-6 sm:size-7"
-                  aria-hidden="true"
-                />
-                <i-tabler-truck
-                  v-else-if="step === 'delivering'"
-                  class="size-6 sm:size-7"
-                  aria-hidden="true"
-                />
-                <CutleryIcon v-else class="size-6 sm:size-7" aria-hidden="true" />
-              </span>
-              <span class="sr-only">{{
-                step === 'accepted' ? t('order.success.accepted') : t(`order.status.${step}`)
-              }}</span>
-            </li>
-            <li
-              v-if="index < steps.length - 1"
-              class="flex shrink-0 gap-1"
-              role="presentation"
-              aria-hidden="true"
-            >
-              <span
-                class="size-1 rounded-full"
-                :class="index < activeIndex ? 'bg-slate-500' : 'bg-slate-300'"
-              />
-            </li>
-          </template>
-        </ol>
       </div>
     </div>
   </section>
@@ -225,9 +231,38 @@ const activeIndex = computed(() => {
 .is-intro .success-eta {
   animation: success-detail-enter 400ms ease-out 280ms both;
 }
+.success-stages {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+.is-intro .success-stages {
+  animation: success-stages-enter 470ms ease-out 360ms both;
+}
 .is-intro .success-step > span:first-child {
   animation: success-detail-enter 370ms ease-out both;
   animation-delay: calc(400ms + var(--step-index) * 65ms);
+}
+.status-update-enter-active,
+.status-update-leave-active {
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+.status-update-enter-from {
+  opacity: 0;
+  transform: translateY(7px);
+}
+.status-update-leave-to {
+  opacity: 0;
+  transform: translateY(-7px);
+}
+@keyframes success-stages-enter {
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
 }
 @keyframes success-card-enter {
   from {
@@ -264,8 +299,13 @@ const activeIndex = computed(() => {
   .is-intro .success-art,
   .is-intro .success-status,
   .is-intro .success-eta,
+  .is-intro .success-stages,
   .is-intro .success-step > span:first-child {
     animation: none;
+  }
+  .status-update-enter-active,
+  .status-update-leave-active {
+    transition: none;
   }
 }
 </style>
