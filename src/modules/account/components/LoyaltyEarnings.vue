@@ -5,7 +5,7 @@ import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { starsFor } from '../utils/stars'
 import { useStarsLabel } from '../composables/useStarsLabel'
-const props = withDefaults(defineProps<{ spendPoints?: number }>(), { spendPoints: 0 })
+const props = withDefaults(defineProps<{ spendPoints?: number; plain?: boolean }>(), { spendPoints: 0 })
 const cart = useCartStore()
 const branch = useBranchStore()
 const { t } = useI18n()
@@ -22,8 +22,11 @@ const base = computed(() =>
 const total = computed(() => base.value + cart.productStars)
 </script>
 <template>
+  <p v-if="plain && total > 0 && branch.activeBranch?.branch_info?.loyalty?.enabled" class="text-center text-xs text-gray-600">
+    {{ t('loyalty.earnTotal') }} +{{ label(total) }}
+  </p>
   <div
-    v-if="total > 0 && branch.activeBranch?.branch_info?.loyalty?.enabled"
+    v-else-if="!plain && total > 0 && branch.activeBranch?.branch_info?.loyalty?.enabled"
     class="space-y-2 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800"
   >
     <div v-if="cart.productStars > 0" class="space-y-1 text-xs text-amber-700">

@@ -566,7 +566,8 @@ export const ru = {
         tomorrow: 'Заведение откроется завтра в {time}. Оформите отложенный заказ',
         later: 'Заведение откроется {day} в {time}. Оформите отложенный заказ',
       },
-      orderTotal: 'Сумма заказа',
+      itemsSubtotal: 'Товары',
+      orderTotal: 'К оплате',
       goods: {
         one: '{count} товар',
         few: '{count} товара',

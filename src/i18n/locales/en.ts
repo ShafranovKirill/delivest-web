@@ -566,7 +566,8 @@ export const en: typeof ru = {
         tomorrow: 'The place opens tomorrow at {time}. Place a scheduled order',
         later: 'The place opens {day} at {time}. Place a scheduled order',
       },
-      orderTotal: 'Order total',
+      itemsSubtotal: 'Items',
+      orderTotal: 'Total to pay',
       goods: {
         one: '{count} item',
         few: '{count} items',

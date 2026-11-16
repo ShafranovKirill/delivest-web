@@ -7,8 +7,6 @@ import { useI18n } from 'vue-i18n'
 import { intlLocale } from '@/i18n'
 import { formatPrice } from '@/utils/money'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
-import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
-import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
 
@@ -17,8 +15,6 @@ const expanded = ref(false)
 
 const { t } = useI18n()
 const cartStore = useCartStore()
-const delivery = useDeliveryQuote()
-const fulfillmentFlow = useFulfillmentFlowStore()
 
 const goodsLabel = computed(() => {
   const count = cartStore.totalQuantity
@@ -26,8 +22,6 @@ const goodsLabel = computed(() => {
   return t(`order.form.goods.${rule}`, { count })
 })
 
-const deliveryFee = computed(() => delivery.price.value)
-const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
 </script>
 
 <template>
@@ -74,39 +68,11 @@ const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
 
     <div
       v-if="expanded || !compact"
-      class="mx-4 mt-4 flex flex-col gap-2 border-t border-gray-200 pt-4"
+      class="mx-4 mt-4 flex flex-col gap-2 pb-4 border-t border-gray-200 pt-4"
     >
       <CartPromotions />
       <PromoCodeInput />
     </div>
 
-    <div
-      v-if="expanded || !compact"
-      class="mx-4 pb-4 mt-4 flex flex-col gap-1.5 border-t border-gray-200 pt-4 text-sm text-gray-600"
-    >
-      <div class="flex justify-between">
-        <span>{{ goodsLabel }}</span>
-        <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
-      </div>
-      <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
-        <span>{{ t('cart.discount') }}</span>
-        <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
-      </div>
-      <button
-        v-if="deliveryFee !== null"
-        type="button"
-        class="flex w-full cursor-pointer justify-between text-left"
-        @click="fulfillmentFlow.openPicker('delivery')"
-      >
-        <span>{{ t('delivery.line') }}</span>
-        <span class="tabular-nums">
-          {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
-        </span>
-      </button>
-      <div class="mt-2 flex justify-between text-base font-bold text-gray-950">
-        <span>{{ t('order.form.orderTotal') }}</span>
-        <span class="tabular-nums">{{ formatPrice(total) }}</span>
-      </div>
-    </div>
   </section>
 </template>

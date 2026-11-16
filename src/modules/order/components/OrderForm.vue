@@ -627,14 +627,18 @@ function handleSubmit() {
       <ToggleSwitch v-model="useStars" />
     </label>
 
-    <div class="lg:hidden">
-      <OrderComposition compact class="mb-2" />
-      <div class="flex flex-col gap-1.5 text-sm text-gray-600">
-        <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
+    <div>
+      <OrderComposition compact class="mb-4 lg:hidden" />
+      <div class="flex flex-col gap-2 text-sm text-gray-600">
+        <div class="flex justify-between">
+          <span>{{ t('order.form.itemsSubtotal') }}</span>
+          <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
+        </div>
+        <div v-if="cartStore.discountAmount > 0" class="flex justify-between">
           <span>{{ t('cart.discount') }}</span>
           <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
         </div>
-        <div v-if="starsToSpend > 0" class="flex justify-between text-amber-700">
+        <div v-if="starsToSpend > 0" class="flex justify-between">
           <span>{{ t('loyalty.spent') }}</span>
           <span class="tabular-nums">−{{ formatPrice(starsToSpend * 100) }}</span>
         </div>
@@ -649,7 +653,7 @@ function handleSubmit() {
             {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
           </span>
         </button>
-        <div class="flex justify-between text-base font-bold text-gray-950">
+        <div class="mt-1 flex justify-between border-t border-gray-200 pt-3 text-base font-bold text-gray-950">
           <span>{{ t('order.form.orderTotal') }}</span>
           <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>
         </div>
@@ -685,7 +689,7 @@ function handleSubmit() {
       />
     </div>
 
-    <LoyaltyEarnings :spend-points="starsToSpend" />
+    <LoyaltyEarnings plain :spend-points="starsToSpend" />
     <OrderConsent />
   </form>
 </template>
