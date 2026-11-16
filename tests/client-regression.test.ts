@@ -23,7 +23,11 @@ function memoryStorage(): Storage {
 Object.defineProperty(globalThis, 'sessionStorage', { value: memoryStorage() })
 Object.defineProperty(globalThis, 'localStorage', { value: memoryStorage() })
 
-const branch = reactive<{ activeBranch: { id: string } | null }>({ activeBranch: { id: 'A' } })
+const branch = reactive({
+  activeBranch: { id: 'A' } as { id: string } | null,
+  requiresCoordinates: false,
+  operatorAddress: false,
+})
 const auth = reactive<{ sessionEpoch: number; client: { id: string } | null }>({
   sessionEpoch: 0,
   client: null,
@@ -103,6 +107,8 @@ function cart(id: string, quantity = 0) {
 beforeEach(() => {
   setActivePinia(createPinia())
   branch.activeBranch = { id: 'A' }
+  branch.requiresCoordinates = false
+  branch.operatorAddress = false
   auth.sessionEpoch = 0
   auth.client = null
   getCart.mockReset()
@@ -125,12 +131,12 @@ describe('delivery quote freshness', () => {
     getCart.mockResolvedValue(cart('A-cart', 1))
     const cartStore = useCartStore()
     await cartStore.fetchCart('A')
-    const address = ref({ latitude: 1, longitude: 2, city: 'A' })
+    const address = ref({ latitude: 1, longitude: 2, city: 'A', street: 'Main', house: '7' })
     quoteData.value = { status: 'ok', price: 100 }
     const quote = useDeliveryQuote(() => address.value as never)
     const oldKey = JSON.stringify(quoteOptions?.queryKey.value)
     expect(quote.price.value).toBe(100)
-    address.value = { latitude: 1, longitude: 2, city: 'B' }
+    address.value = { latitude: 3, longitude: 4, city: 'B', street: 'Second', house: '9' }
     quoteFetching.value = true
     expect(JSON.stringify(quoteOptions?.queryKey.value)).not.toBe(oldKey)
     expect(quote.price.value).toBeNull()
@@ -141,7 +147,7 @@ describe('delivery quote freshness', () => {
   })
 
   it('hides a cached quote after a request error and a branch change', () => {
-    const address = ref({ latitude: 1, longitude: 2, city: 'A' })
+    const address = ref({ latitude: 1, longitude: 2, city: 'A', street: 'Main', house: '7' })
     quoteData.value = { status: 'ok', price: 100 }
     const quote = useDeliveryQuote(() => address.value as never)
     expect(quote.price.value).toBe(100)
@@ -355,12 +361,55 @@ describe('fulfillment address ownership', () => {
     expect(useFulfillmentStore().current).toBeNull()
   })
 
+  it('recovers a legacy choice with the house in the street line', () => {
+    sessionStorage.setItem(
+      'fulfillment:v2',
+      JSON.stringify({
+        owner: 'guest',
+        choices: {
+          A: {
+            type: 'delivery',
+            address: { city: 'Москва', street: 'Тверская, 7 к 1', apartment: '12' },
+          },
+        },
+      }),
+    )
+    const choice = useFulfillmentStore().current
+    expect(choice?.type).toBe('delivery')
+    if (choice?.type === 'delivery') {
+      expect(choice.address?.street).toBe('Тверская')
+      expect(choice.address?.house).toBe('7 к 1')
+      expect(choice.address?.apartment).toBe('12')
+    }
+  })
+
+  it('rejects a persisted operator choice when the branch no longer allows it', () => {
+    const store = useFulfillmentStore()
+    store.choose('A', { type: 'delivery', address: null, addressByOperator: true })
+    expect(store.current).toBeNull()
+    branch.operatorAddress = true
+    expect(store.current?.type).toBe('delivery')
+  })
+
+  it('requires a point for a saved map choice but accepts a legacy manual address', () => {
+    const store = useFulfillmentStore()
+    store.choose('A', {
+      type: 'delivery',
+      address: { ...emptyDeliveryAddress(), street: 'Main', house: '7' },
+    })
+    expect(store.current?.type).toBe('delivery')
+    branch.requiresCoordinates = true
+    expect(store.current).toBeNull()
+  })
+
   it('rejects unowned legacy persisted addresses', () => {
+    auth.client = { id: 'B' }
+    setActivePinia(createPinia())
+    sessionStorage.clear()
     localStorage.setItem(
       'fulfillment',
       JSON.stringify({ choices: { A: { type: 'delivery', address: { city: 'A secret' } } } }),
     )
-    auth.client = { id: 'B' }
     const store = useFulfillmentStore()
     expect(store.deliveryAddress).toBeNull()
     expect(localStorage.getItem('fulfillment')).toBeNull()

@@ -1312,6 +1312,7 @@
               "cook_by_outside_hours",
               "fulfillment_unavailable",
               "delivery_no_coordinates",
+              "incomplete_delivery_address",
               "promo_unavailable",
               "promo_gift_not_available",
               "promo_gift_invalid",
@@ -2958,7 +2959,7 @@
     "/client/geo/suggest": {
       "get": {
         "callbacks": {},
-        "description": "Адреса DaData по введённой строке, в пределах города, если он передан.",
+        "description": "Адреса DaData по введённой строке; city ограничивает город, city_boost повышает его приоритет.",
         "operationId": "DelivestWeb.Client.Geo.GeoController.suggest",
         "parameters": [
           {
@@ -2969,9 +2970,16 @@
             "schema": { "type": "string" }
           },
           {
-            "description": "Город филиала",
+            "description": "Строгое ограничение города",
             "in": "query",
             "name": "city",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "description": "Предпочитаемый город",
+            "in": "query",
+            "name": "city_boost",
             "required": false,
             "schema": { "type": "string" }
           }

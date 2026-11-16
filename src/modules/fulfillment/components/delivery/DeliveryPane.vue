@@ -12,13 +12,20 @@ import { useDeliveryZones } from '../../composables/useDeliveryZones'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { emptyDeliveryAddress, type DeliveryAddress } from '../../utils/deliveryAddress'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
+import { lngLatOf } from '../../utils/deliveryAddress'
 
 const { t } = useI18n()
+const emit = defineEmits<{ mapUnavailable: [] }>()
 const branchStore = useBranchStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 const authStore = useAuthStore()
 const analytics = useFunnelAnalytics()
+const franchiseStore = useFranchiseStore()
+const mapRequiredUnavailable = computed(
+  () => branchStore.requiresCoordinates && !franchiseStore.addressMap && !lngLatOf(address.value),
+)
 
 const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
 
@@ -81,7 +88,8 @@ function requireZoom() {
 
 function confirm() {
   const branchId = branchStore.activeBranch?.id
-  if (!branchId) return
+  if (!branchId || !delivery.ready.value || !delivery.quote.value || delivery.notDelivered.value)
+    return
 
   fulfillmentStore.choose(branchId, { type: 'delivery', address: { ...address.value } })
   analytics.track('fulfillment_selected')
@@ -117,6 +125,7 @@ function confirmWithOperator() {
     "
     @selecting="startSelecting"
     @zoom-too-low="requireZoom"
+    @map-unavailable="emit('mapUnavailable')"
   >
     <template #map-overlay="{ ready, locating }">
       <DeliveryQuoteSummary
@@ -127,10 +136,11 @@ function confirmWithOperator() {
         :selecting="selecting"
         :needs-zoom="needsZoom"
         :error="delivery.isError.value"
+        :subtotal="delivery.subtotal.value"
       />
     </template>
     <template #default="{ ready, locating, onMap }">
-      <div class="flex h-12 items-center gap-3">
+      <div class="flex min-w-0 flex-col gap-2" :class="onMap ? 'sm:flex-row sm:items-center' : ''">
         <DeliveryQuoteSummary
           v-if="!onMap"
           :quote="selecting || needsZoom ? null : delivery.quote.value"
@@ -140,11 +150,12 @@ function confirmWithOperator() {
           :selecting="selecting"
           :needs-zoom="needsZoom"
           :error="delivery.isError.value"
+          :subtotal="delivery.subtotal.value"
         />
         <Button
           :label="t('fulfillment.confirmAddress')"
           :disabled="
-            !ready ||
+            !delivery.ready.value ||
             locating ||
             selecting ||
             needsZoom ||
@@ -154,10 +165,26 @@ function confirmWithOperator() {
             !delivery.quote.value
           "
           :loading="locating"
-          class="h-12 min-w-0 flex-1 rounded-full! px-3! text-sm! font-semibold whitespace-nowrap"
+          class="h-12! min-h-12! min-w-0 w-full flex-1 rounded-full! px-3! text-sm! font-semibold sm:w-auto"
           @click="confirm"
         />
       </div>
+      <p v-if="mapRequiredUnavailable" class="text-sm text-amber-700">
+        {{
+          t(
+            fulfillmentStore.availableModes.includes('pickup')
+              ? 'delivery.mapUnavailablePickup'
+              : 'delivery.mapUnavailable',
+          )
+        }}
+      </p>
+      <Button
+        v-if="delivery.isError.value"
+        :label="t('delivery.retry')"
+        variant="text"
+        class="w-full!"
+        @click="delivery.retry()"
+      />
       <Button
         v-if="canUseOperator"
         :label="t('fulfillment.tellOperator')"

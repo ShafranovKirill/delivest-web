@@ -3,8 +3,12 @@ import { computed, ref, watch } from 'vue'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { fulfillmentMethods } from '../utils/fulfillmentMethods'
-import { isComplete, lngLatOf, type DeliveryAddress } from '../utils/deliveryAddress'
-import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
+import {
+  isComplete,
+  lngLatOf,
+  normalizeDeliveryAddress,
+  type DeliveryAddress,
+} from '../utils/deliveryAddress'
 
 export type FulfillmentChoice =
   | { type: 'delivery'; address: DeliveryAddress | null; addressByOperator?: boolean }
@@ -14,7 +18,6 @@ const STORAGE_KEY = 'fulfillment:v2'
 
 export const useFulfillmentStore = defineStore('fulfillment', () => {
   const branchStore = useBranchStore()
-  const franchiseStore = useFranchiseStore()
   const authStore = useAuthStore()
   const owner = () => authStore.client?.id ?? 'guest'
   const choices = ref<Record<string, FulfillmentChoice>>({})
@@ -61,17 +64,13 @@ export const useFulfillmentStore = defineStore('fulfillment', () => {
     if (!choice || !availableModes.value.includes(choice.type)) return null
     if (choice.type === 'pickup') return choice
 
-    if (choice.addressByOperator === true && branchStore.operatorAddress) return choice
-    if (!choice.address || !choice.address.street?.trim()) return null
-    if (
-      franchiseStore.addressMap &&
-      branchStore.mapAddress &&
-      (!isComplete(choice.address) || !lngLatOf(choice.address))
-    ) {
-      return null
-    }
+    if (choice.addressByOperator === true) return branchStore.operatorAddress ? choice : null
+    if (!choice.address) return null
+    const address = normalizeDeliveryAddress(choice.address)
+    if (!isComplete(address)) return null
+    if (branchStore.requiresCoordinates && !lngLatOf(address)) return null
 
-    return choice
+    return address === choice.address ? choice : { ...choice, address }
   })
 
   const addressByOperator = computed(
