@@ -10,6 +10,7 @@ import { useCartStore } from '@/modules/cart/stores/cart.store'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
 import BasketFilledIcon from '~icons/tabler/basket-filled'
+import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
 
 defineProps<{ compact?: boolean }>()
 const expanded = ref(false)
@@ -40,9 +41,12 @@ const goodsLabel = computed(() => {
     </h2>
 
     <ul v-if="expanded" class="px-4 mt-4 flex flex-col gap-3">
-      <li v-for="item in cartStore.items" :key="item.key" class="flex items-start gap-3">
+      <li v-for="item in cartStore.items" :key="item.key" class="flex items-center gap-2.5">
+        <ProductImage :src="item.image_url" alt="" class="size-12 shrink-0 rounded-xl" />
         <div class="min-w-0 flex-1">
-          <p class="font-semibold leading-snug text-gray-950">{{ item.name }}</p>
+          <p class="break-words text-sm font-semibold leading-snug text-gray-950">
+            {{ item.name }}
+          </p>
           <p
             v-for="modifier in item.modifiers ?? []"
             :key="modifier.id ?? modifier.name"
@@ -59,10 +63,16 @@ const goodsLabel = computed(() => {
             {{ t('cart.soldOut') }}
           </p>
         </div>
-        <div class="shrink-0 text-right tabular-nums">
+        <div class="shrink-0 whitespace-nowrap text-right tabular-nums">
           <p v-if="item.quantity > 1" class="text-xs text-gray-500">{{ item.quantity }} ×</p>
-          <p class="font-semibold text-gray-950">
-            {{ item.gift ? t('common.free') : formatPrice(item.total_price) }}
+          <p class="text-sm font-semibold text-gray-950">
+            {{
+              item.gift
+                ? t('common.free')
+                : item.stars
+                  ? '★ ' + (item.stars_price ?? 0) * item.quantity
+                  : formatPrice(item.total_price)
+            }}
           </p>
         </div>
       </li>
