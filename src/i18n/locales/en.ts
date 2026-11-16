@@ -312,6 +312,7 @@ export const en: typeof ru = {
     minutes: '{minutes} min',
     select: {
       title: 'Choose a branch',
+      subtitle: 'The menu and ordering options depend on the branch',
       empty: 'No branches available right now',
       loadFailed: 'Failed to load the list of branches',
       selectFailed: 'Failed to change the branch. Please try again',
