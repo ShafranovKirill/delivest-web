@@ -25,13 +25,15 @@ const addresses = useDeliveryAddresses()
 
 <style>
 @media (max-width: 767px) {
-  .fulfillment-picker-stretched .saved-addresses-strip {
+  .fulfillment-picker-stretched .saved-addresses-strip,
+  .fulfillment-picker-natural .saved-addresses-strip {
     margin-inline: -20px;
     padding-inline-start: 20px;
     padding-inline-end: 0;
     scrollbar-width: none;
   }
-  .fulfillment-picker-stretched .saved-addresses-strip::-webkit-scrollbar {
+  .fulfillment-picker-stretched .saved-addresses-strip::-webkit-scrollbar,
+  .fulfillment-picker-natural .saved-addresses-strip::-webkit-scrollbar {
     display: none;
   }
 }

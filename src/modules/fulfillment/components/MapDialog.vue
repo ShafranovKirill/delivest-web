@@ -4,7 +4,7 @@ import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useI18n } from 'vue-i18n'
 
 defineEmits<{ hide: [] }>()
-defineProps<{ compact?: boolean; stretched?: boolean; checkout?: boolean }>()
+defineProps<{ compact?: boolean; stretched?: boolean; naturalHeight?: boolean; checkout?: boolean }>()
 
 const visible = defineModel<boolean>('visible', { required: true })
 const { t } = useI18n()
@@ -18,15 +18,17 @@ const viewportStore = useViewportStore()
     :aria-label="t('fulfillment.picker.title')"
     :dismissable-mask="!!compact && viewportStore.isMobile"
     :sheet-when="compact && !checkout"
+    :sheet-max-height-class="naturalHeight ? 'max-h-[calc(100dvh-env(safe-area-inset-top))]!' : undefined"
     :sheet-class="
-      stretched
-        ? 'fulfillment-picker-stretched flex! h-[min(26rem,85dvh)]! max-h-[min(26rem,85dvh)]! border-0! shadow-2xl'
-        : 'flex! max-h-[90dvh]! border-0! shadow-2xl'
+      naturalHeight
+        ? 'fulfillment-picker-natural flex! border-0! shadow-2xl'
+        : stretched
+          ? 'fulfillment-picker-stretched flex! h-[min(26rem,85dvh)]! max-h-[min(26rem,85dvh)]! border-0! shadow-2xl'
+          : 'flex! max-h-[90dvh]! border-0! shadow-2xl'
     "
     :sheet-pt="{
       content: {
-        class:
-          'relative flex! flex-col! flex-1! min-h-0! overflow-hidden! p-0! [&_.p-inputtext]:rounded-3xl! [&_.p-textarea]:rounded-3xl!',
+        class: `relative flex! flex-col! min-h-0! p-0! ${naturalHeight ? 'overflow-y-auto!' : 'flex-1! overflow-hidden!'} [&_.p-inputtext]:rounded-3xl! [&_.p-textarea]:rounded-3xl!`,
       },
     }"
     :show-header="false"
@@ -67,7 +69,11 @@ const viewportStore = useViewportStore()
     <div
       class="min-h-0"
       :class="[
-        checkout && compact ? 'overflow-y-auto' : 'flex-1 overflow-hidden',
+        naturalHeight && viewportStore.isMobile
+          ? 'overflow-visible'
+          : checkout && compact
+            ? 'overflow-y-auto'
+            : 'flex-1 overflow-hidden',
         {
           '[&_.maplibregl-ctrl-top-right]:top-[50px]!': !compact,
           '[&_.maplibregl-ctrl-top-right>.maplibregl-ctrl-attrib]:mr-3!': !compact,

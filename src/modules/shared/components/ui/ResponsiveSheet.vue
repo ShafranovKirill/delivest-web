@@ -9,6 +9,7 @@ const props = withDefaults(
     desktopClass?: string
     desktopPt?: Record<string, { class?: string }>
     sheetClass?: string
+    sheetMaxHeightClass?: string
     sheetPt?: Record<string, { class?: string }>
     sheetWhen?: boolean
     dismissableMask?: boolean
@@ -25,7 +26,7 @@ const { t } = useI18n()
 const mobile = computed(() => viewportStore.isMobile && props.sheetWhen)
 const dialogClass = computed(() =>
   mobile.value
-    ? `responsive-sheet m-0! w-full! max-w-full! max-h-[calc(100dvh-2rem)]! rounded-t-4xl! rounded-b-none! overflow-hidden ${props.sheetClass ?? ''}`
+    ? `responsive-sheet m-0! w-full! max-w-full! ${props.sheetMaxHeightClass ?? 'max-h-[calc(100dvh-2rem)]!'} rounded-t-4xl! rounded-b-none! overflow-hidden ${props.sheetClass ?? ''}`
     : props.desktopClass,
 )
 const dialogPt = computed(() => {

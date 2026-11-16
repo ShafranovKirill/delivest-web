@@ -85,6 +85,7 @@ watch(modes, (options) => {
     v-model:visible="flowStore.isPickerOpen"
     :compact="!hasMap"
     :stretched="!hasMap"
+    :natural-height="!hasMap && flowStore.pickerMode === 'delivery' && route?.name !== 'checkout'"
     :checkout="route?.name === 'checkout'"
     @hide="flowStore.dismiss"
   >
