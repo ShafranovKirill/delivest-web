@@ -138,10 +138,10 @@ watch(
 
     <div
       v-else-if="step !== 3"
-      class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-3 sm:gap-4 items-start"
+      class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[auto_auto] gap-3 sm:gap-4 items-start"
     >
       <OrderForm :isLoading="orderStore.isLoading" @submit="submitOrder" @back="returnToCart" />
-      <aside class="hidden lg:block sticky top-28">
+      <aside class="hidden lg:col-start-2 lg:row-start-2 lg:block lg:self-start sticky top-28">
         <OrderComposition />
       </aside>
     </div>

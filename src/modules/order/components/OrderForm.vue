@@ -437,7 +437,8 @@ function handleSubmit() {
 </script>
 
 <template>
-  <form class="flex flex-col gap-5 lg:gap-6" novalidate @submit.prevent="handleSubmit">
+  <form class="flex flex-col gap-5 lg:col-start-1 lg:row-span-2 lg:grid lg:grid-rows-subgrid lg:gap-y-4 lg:self-stretch" novalidate @submit.prevent="handleSubmit">
+    <div class="flex flex-col gap-5 lg:gap-6">
     <h2 class="text-xl font-bold text-gray-950">{{ headline }}</h2>
 
     <div v-if="!authenticatedPhone" ref="phoneSection" :class="sectionClass">
@@ -460,7 +461,9 @@ function handleSubmit() {
         {{ t('order.form.phoneError') }}
       </p>
     </div>
+    </div>
 
+    <div class="flex flex-col gap-5 lg:gap-6 lg:self-start">
     <div :class="sectionClass">
       <p :class="[captionClass, 'sr-only lg:not-sr-only']">{{ addressCaption }}</p>
       <div
@@ -706,5 +709,6 @@ function handleSubmit() {
     </div>
 
     <OrderConsent />
+    </div>
   </form>
 </template>
