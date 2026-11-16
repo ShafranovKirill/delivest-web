@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import LoyaltyEarnings from '@/modules/account/components/LoyaltyEarnings.vue'
+import courierIcon from '@/assets/icons/fulfillment/courier.png'
+import restaurantIcon from '@/assets/icons/fulfillment/restaurant.png'
 
 import { reactive, computed, ref, watch, onMounted } from 'vue'
 import { useToast } from 'primevue/usetoast'
@@ -480,42 +482,31 @@ function handleSubmit() {
           :aria-label="`${addressCaption}: ${addressRow.text || addressRow.title}`"
           @click="openAddressPicker"
         >
-          <svg
-            v-if="isDelivery"
-            class="h-7 w-7 shrink-0 text-gray-900"
-            viewBox="0 0 32 32"
-            fill="none"
+          <span
+            class="h-9 w-9 shrink-0 bg-current text-gray-900"
+            :style="{
+              mask: `url(${isDelivery ? courierIcon : restaurantIcon}) center / contain no-repeat`,
+              maskMode: 'alpha',
+            }"
             aria-hidden="true"
-          >
-            <circle cx="19" cy="4" r="2.5" fill="currentColor" />
-            <path
-              d="m14 10 4-2 3 3 4 1M14 10l-2 7 5 3m-3-10-4 2-2 5m9 3-3 8m3-8 5 2 2 6m-14-11-3 6m10-12 3 5"
-              stroke="currentColor"
-              stroke-width="2.4"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path d="M6 8h6v6H6z" fill="currentColor" />
-          </svg>
-          <svg
-            v-else
-            class="h-7 w-7 shrink-0 text-gray-900"
-            viewBox="0 0 32 32"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M5 13V9l2-5h18l2 5v4M5 13c0 2 3 3 5 1 1 2 4 2 6 0 2 2 5 2 6 0 2 2 5 1 5-1M7 16v12h18V16M12 28v-9h8v9M4 28h24"
-              stroke="currentColor"
-              stroke-width="2.2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+          />
           <span class="min-w-0 flex-1 text-base font-medium text-gray-900 sm:text-lg">{{
             addressRow.text || addressRow.title
           }}</span>
-          <i class="pi pi-angle-right shrink-0 text-xl text-gray-500" aria-hidden="true" />
+          <svg
+            class="h-7 w-7 shrink-0 text-gray-500"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="m9 5 7 7-7 7"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </button>
       </div>
 
