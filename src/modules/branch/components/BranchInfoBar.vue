@@ -27,7 +27,7 @@ const deliveryTime = computed(() => {
         @click="branchStore.openModal()"
         class="text-(--p-primary-500) font-bold hover:text-(--p-primary-800) focus:outline-none cursor-pointer flex items-center gap-1 transition-colors"
       >
-        <span>{{ branchStore.activeBranch?.name || t('branch.select.title') }}</span>
+        <span>{{ branchStore.activeBranch?.name || t('branch.select.fallbackTitle') }}</span>
       </button>
     </div>
 

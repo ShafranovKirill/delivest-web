@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
 import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import BranchSelectRow from './BranchSelectRow.vue'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -17,6 +18,7 @@ const branchStore = useBranchStore()
 const loading = ref(false)
 const loadFailed = ref(false)
 const selectingId = ref<string | null>(null)
+const activeBranches = computed(() => branchStore.branches.filter((branch) => branch.is_active))
 
 function isSelected(branch: Branch) {
   return branchStore.activeBranch?.id === branch.id
@@ -75,20 +77,21 @@ async function handleSelect(branch: Branch) {
 </script>
 
 <template>
-  <Dialog
-    v-model:visible="branchStore.isModalOpen"
-    :dismissable-mask="true"
-    :close-on-escape="true"
-    modal
-    :header="t('branch.select.title')"
-    class="w-[90vw] max-w-lg"
-  >
-    <div class="max-h-[70vh] overflow-y-auto pt-1">
-      <SkeletonList v-if="loading" class="flex flex-col gap-2" item-class="h-14 rounded-2xl!" />
+  <ResponsiveSheet v-model:visible="branchStore.isModalOpen" :aria-label="t('branch.select.title')">
+    <template #header>
+      <div>
+        <h2 class="text-xl font-bold tracking-tight text-gray-950">
+          {{ t('branch.select.title') }}
+        </h2>
+      </div>
+    </template>
 
-      <div v-else-if="branchStore.branches.length" class="flex flex-col gap-2">
+    <div class="max-h-[70vh] overflow-y-auto pt-1">
+      <SkeletonList v-if="loading" class="flex flex-col gap-2.5" item-class="h-31 rounded-3xl!" />
+
+      <div v-else-if="activeBranches.length" class="flex flex-col gap-2.5">
         <BranchSelectRow
-          v-for="branch in branchStore.branches.filter((item) => item.is_active)"
+          v-for="branch in activeBranches"
           :key="branch.id"
           :branch="branch"
           :selected="isSelected(branch)"
@@ -117,5 +120,5 @@ async function handleSelect(branch: Branch) {
         </button>
       </p>
     </div>
-  </Dialog>
+  </ResponsiveSheet>
 </template>

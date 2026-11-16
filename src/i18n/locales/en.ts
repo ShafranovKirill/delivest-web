@@ -311,7 +311,8 @@ export const en: typeof ru = {
     choose: 'Choose a branch',
     minutes: '{minutes} min',
     select: {
-      title: 'Choose a branch',
+      title: 'Who is cooking today?',
+      fallbackTitle: 'Choose a branch',
       empty: 'No branches available right now',
       loadFailed: 'Failed to load the list of branches',
       selectFailed: 'Failed to change the branch. Please try again',

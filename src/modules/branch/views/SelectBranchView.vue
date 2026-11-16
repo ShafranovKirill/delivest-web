@@ -2,19 +2,19 @@
   <div class="flex min-h-screen flex-col items-center justify-center bg-gray-200 px-4 py-10">
     <BrandLogo class="mb-6 h-10 max-w-64 text-4xl text-gray-950 sm:h-12 sm:text-5xl" />
 
-    <div class="w-full max-w-md sm:max-w-lg">
-      <h1 class="text-center text-2xl font-extrabold tracking-tight text-gray-950 sm:text-3xl">
+    <div class="w-full max-w-lg rounded-4xl bg-white p-5 sm:p-7">
+      <h1 class="text-2xl font-bold tracking-tight text-gray-950">
         {{ t('branch.select.title') }}
       </h1>
 
       <SkeletonList
         v-if="loading"
-        class="mt-6 flex flex-col gap-2"
-        item-class="h-16 rounded-2xl!"
+        class="mt-6 flex flex-col gap-2.5"
+        item-class="h-31 rounded-3xl!"
       />
 
       <template v-else>
-        <div v-if="branches.length" class="mt-6 flex flex-col gap-2">
+        <div v-if="branches.length" class="mt-6 flex flex-col gap-2.5">
           <BranchSelectRow
             v-for="branch in branches"
             :key="branch.id"
@@ -24,7 +24,7 @@
           />
         </div>
 
-        <div v-else class="mt-6 rounded-2xl border border-gray-100 bg-white px-4 py-8 text-center">
+        <div v-else class="mt-6 rounded-3xl bg-gray-50 px-4 py-8 text-center">
           <p class="text-gray-500">{{ t('branch.select.empty') }}</p>
           <Button
             :label="t('branch.select.retry')"
