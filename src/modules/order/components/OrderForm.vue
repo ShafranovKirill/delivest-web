@@ -463,7 +463,7 @@ function handleSubmit() {
         class="flex flex-col overflow-hidden rounded-2xl bg-gray-100 transition-colors duration-150 has-[>.address-action:hover]:bg-gray-200 has-[>.address-action:focus-visible]:bg-gray-200 motion-reduce:transition-none"
       >
         <div
-          class="mx-1.5 mt-1.5 flex rounded-xl bg-gray-200 p-1 ring-1 ring-inset ring-gray-400/45"
+          class="mx-1.5 mt-1.5 flex rounded-xl bg-gray-200 p-1"
           role="group"
           :aria-label="addressCaption"
         >
