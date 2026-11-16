@@ -18,6 +18,8 @@ import { branchLngLat, fallbackLngLat } from '../../utils/branchLocation'
 import type { LngLat } from '../../utils/deliveryAddress'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
+const props = defineProps<{ checkout?: boolean }>()
+
 const { t } = useI18n()
 const router = useRouter()
 const toast = useToast()
@@ -44,9 +46,10 @@ const pickupKind = ref<PickupKind>(
     : 'pickup',
 )
 const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() => {
-  const methods = compactList.value
-    ? [...new Set(branches.value.flatMap(fulfillmentMethods))]
-    : fulfillmentMethods(selected.value)
+  const methods =
+    compactList.value && !props.checkout && !showDetails.value
+      ? [...new Set(branches.value.flatMap(fulfillmentMethods))]
+      : fulfillmentMethods(selected.value)
   return [
     ...(methods.includes('pickup')
       ? [{ value: 'pickup' as const, label: t('order.form.takeaway') }]
@@ -92,7 +95,7 @@ const markers = computed<MapMarker[]>(() =>
 )
 
 const visibleBranches = computed(() =>
-  compactList.value
+  compactList.value && !props.checkout && !showDetails.value
     ? branches.value.filter((branch) => fulfillmentMethods(branch).includes(pickupKind.value))
     : branches.value,
 )
@@ -118,7 +121,7 @@ async function selectPreview(branch: Branch | undefined) {
 }
 
 async function selectFromList(branch: Branch) {
-  if (compactList.value) {
+  if (compactList.value && !props.checkout) {
     selectedId.value = branch.id
     await confirm(branch)
   } else {
@@ -173,7 +176,7 @@ async function confirm(branch: Branch) {
       :class="{ 'max-h-[55%]': hasMap, 'pickup-detail-panel': showDetails && selected }"
     >
       <div
-        v-if="!compactList && showDetails && selected"
+        v-if="showDetails && selected && (!compactList || checkout)"
         class="pickup-detail-content flex flex-col gap-4"
         data-testid="pickup-branch-detail"
       >
@@ -197,7 +200,7 @@ async function confirm(branch: Branch) {
       </div>
       <div v-else class="flex flex-col gap-4">
         <ModeSwitch
-          v-if="compactList && pickupOptions.length > 1"
+          v-if="compactList && !checkout && pickupOptions.length > 1"
           v-model="pickupKind"
           :options="pickupOptions"
         />
