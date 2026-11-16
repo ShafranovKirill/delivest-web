@@ -482,7 +482,7 @@ function handleSubmit() {
             @click="selectFulfillment(option.value)"
           >
             <span
-              v-if="option.value === 'dine_in' && fulfillmentStore.methods.includes('pickup')"
+              v-if="isDelivery && option.value === 'dine_in' && fulfillmentStore.methods.includes('pickup')"
               aria-hidden="true"
               class="pointer-events-none absolute start-0 top-1/2 h-5 w-px -translate-y-1/2 bg-gray-400/65"
             />
@@ -615,17 +615,20 @@ function handleSubmit() {
       </div>
     </Dialog>
 
-    <label
-      v-if="maxStars > 0"
-      id="spend-stars"
-      class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3.5"
-    >
-      <span class="flex items-center gap-2 font-semibold text-amber-800">
-        <i class="pi pi-star-fill" />
-        {{ t('loyalty.spend', { stars: starsLabel(maxStars) }) }}
-      </span>
-      <ToggleSwitch v-model="useStars" />
-    </label>
+    <div v-if="maxStars > 0" :class="sectionClass">
+      <label
+        id="spend-stars"
+        class="flex w-full cursor-pointer items-center gap-2.5 rounded-2xl bg-gray-100 px-4 py-3 transition-colors hover:bg-gray-200/70 lg:col-start-2"
+      >
+        <span class="grid h-8 w-8 shrink-0 place-items-center text-gray-900" aria-hidden="true">
+          <i class="pi pi-star-fill text-[19px]!" />
+        </span>
+        <span class="min-w-0 flex-1 text-sm font-medium leading-snug text-gray-900 sm:text-[15px]">
+          {{ t('loyalty.spend', { stars: starsLabel(maxStars) }) }}
+        </span>
+        <ToggleSwitch v-model="useStars" class="shrink-0" />
+      </label>
+    </div>
 
     <div>
       <OrderComposition compact class="mb-4 lg:hidden" />
