@@ -10,7 +10,7 @@ import { useFulfillmentFlowStore } from '../../stores/fulfillmentFlow.store'
 import { useDeliveryQuote } from '../../composables/useDeliveryQuote'
 import { useDeliveryZones } from '../../composables/useDeliveryZones'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
-import { emptyDeliveryAddress, type DeliveryAddress } from '../../utils/deliveryAddress'
+import { emptyDeliveryAddress, isComplete, type DeliveryAddress } from '../../utils/deliveryAddress'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { lngLatOf } from '../../utils/deliveryAddress'
@@ -23,6 +23,7 @@ const flowStore = useFulfillmentFlowStore()
 const authStore = useAuthStore()
 const analytics = useFunnelAnalytics()
 const franchiseStore = useFranchiseStore()
+const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddress)
 const mapRequiredUnavailable = computed(
   () => branchStore.requiresCoordinates && !franchiseStore.addressMap && !lngLatOf(address.value),
 )
@@ -59,8 +60,14 @@ watch(
   { deep: true },
 )
 
-const delivery = useDeliveryQuote(address)
-const zones = useDeliveryZones()
+const delivery = useDeliveryQuote(address, hasMap)
+const zones = useDeliveryZones(hasMap)
+const canConfirm = computed(() =>
+  hasMap.value
+    ? delivery.ready.value && Boolean(delivery.quote.value) && !delivery.notDelivered.value
+    : isComplete(address.value) &&
+      (!branchStore.requiresCoordinates || Boolean(lngLatOf(address.value))),
+)
 const canUseOperator = computed(
   () => branchStore.operatorAddress && fulfillmentStore.methods.includes('delivery'),
 )
@@ -88,8 +95,7 @@ function requireZoom() {
 
 function confirm() {
   const branchId = branchStore.activeBranch?.id
-  if (!branchId || !delivery.ready.value || !delivery.quote.value || delivery.notDelivered.value)
-    return
+  if (!branchId || !canConfirm.value) return
 
   fulfillmentStore.choose(branchId, { type: 'delivery', address: { ...address.value } })
   analytics.track('fulfillment_selected')
@@ -119,7 +125,7 @@ function confirmWithOperator() {
     :zones="zones"
     floating-labels
     :selected-zone-id="
-      selecting || needsZoom || delivery.pending.value || delivery.isError.value
+      !hasMap || selecting || needsZoom || delivery.pending.value || delivery.isError.value
         ? null
         : delivery.quote.value?.zone_id
     "
@@ -129,6 +135,7 @@ function confirmWithOperator() {
   >
     <template #map-overlay="{ ready, locating }">
       <DeliveryQuoteSummary
+        v-if="hasMap"
         :quote="selecting || needsZoom ? null : delivery.quote.value"
         :has-point="address.latitude != null && address.longitude != null"
         :ready="ready && !locating"
@@ -142,7 +149,7 @@ function confirmWithOperator() {
     <template #default="{ ready, locating, onMap }">
       <div class="flex min-w-0 flex-col gap-2" :class="onMap ? 'sm:flex-row sm:items-center' : ''">
         <DeliveryQuoteSummary
-          v-if="!onMap"
+          v-if="hasMap && !onMap"
           :quote="selecting || needsZoom ? null : delivery.quote.value"
           :has-point="address.latitude != null && address.longitude != null"
           :ready="ready && !locating"
@@ -155,14 +162,11 @@ function confirmWithOperator() {
         <Button
           :label="t('fulfillment.confirmAddress')"
           :disabled="
-            !delivery.ready.value ||
+            !canConfirm ||
             locating ||
             selecting ||
             needsZoom ||
-            delivery.pending.value ||
-            delivery.isError.value ||
-            delivery.notDelivered.value ||
-            !delivery.quote.value
+            (hasMap && (delivery.pending.value || delivery.isError.value || delivery.notDelivered.value))
           "
           :loading="locating"
           class="h-12! min-h-12! min-w-0 w-full flex-1 rounded-full! px-3! text-sm! font-semibold sm:w-auto"
@@ -179,7 +183,7 @@ function confirmWithOperator() {
         }}
       </p>
       <Button
-        v-if="delivery.isError.value"
+        v-if="hasMap && delivery.isError.value"
         :label="t('delivery.retry')"
         variant="text"
         class="w-full!"

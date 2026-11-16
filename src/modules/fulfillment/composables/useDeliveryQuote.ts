@@ -9,7 +9,10 @@ import { DeliveryService } from '../api/delivery.service'
 import type { DeliveryAddress } from '../utils/deliveryAddress'
 import { isComplete, lngLatOf } from '../utils/deliveryAddress'
 
-export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | null>) => {
+export const useDeliveryQuote = (
+  address?: MaybeRefOrGetter<DeliveryAddress | null>,
+  enabled: MaybeRefOrGetter<boolean> = true,
+) => {
   const { t } = useI18n()
   const branchStore = useBranchStore()
   const cartStore = useCartStore()
@@ -27,6 +30,7 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
       (!branchStore.requiresCoordinates || lngLatOf(target.value)),
     ),
   )
+  const canQuery = computed(() => Boolean(toValue(enabled) && branchId.value && ready.value))
 
   const query = useQuery({
     queryKey: computed(() => [
@@ -45,15 +49,15 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
         target.value?.longitude ?? null,
         cartStore.totalAmount,
       ),
-    enabled: computed(() => Boolean(branchId.value && ready.value)),
+    enabled: canQuery,
     staleTime: 60 * 1000,
   })
 
   const pending = computed(() =>
-    Boolean(ready.value && (query.isPending.value || query.isFetching.value)),
+    Boolean(canQuery.value && (query.isPending.value || query.isFetching.value)),
   )
   const quote = computed(() =>
-    ready.value && !pending.value && !query.isError.value ? (query.data.value ?? null) : null,
+    canQuery.value && !pending.value && !query.isError.value ? (query.data.value ?? null) : null,
   )
 
   const price = computed(() => (quote.value?.status === 'ok' ? (quote.value.price ?? 0) : null))

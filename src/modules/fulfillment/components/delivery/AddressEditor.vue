@@ -108,7 +108,7 @@ function mapUnavailable() {
 
         <DeliveryAddressForm
           v-model="address"
-          :suggest="franchiseStore.addressMap"
+          :suggest="hasMap"
           :city="city"
           :floating-labels="floatingLabels"
           @select="pickSuggestion"

@@ -25,7 +25,7 @@ const asyncPane = (loader: typeof loadDeliveryPane | typeof loadPickupPane, mode
               franchise.addressMap &&
               (mode === 'delivery'
                 ? branch.mapAddress
-                : branch.branches.some(
+                : branch.mapAddress && branch.branches.some(
                     (item) => item.is_active && hasOnsite(item) && branchLngLat(item),
                   )),
           })
@@ -53,7 +53,7 @@ const hasMap = computed(() => {
   if (mapUnavailable.value) return false
   if (!franchiseStore.addressMap) return false
   if (flowStore.pickerMode === 'delivery') return branchStore.mapAddress
-  return branchStore.branches.some(
+  return branchStore.mapAddress && branchStore.branches.some(
     (branch) => branch.is_active && hasOnsite(branch) && branchLngLat(branch),
   )
 })

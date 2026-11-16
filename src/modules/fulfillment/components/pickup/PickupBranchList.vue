@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Branch } from '@/modules/branch/api/branch.service'
 
-defineProps<{ branches: Branch[] }>()
+defineProps<{ branches: Branch[]; loading?: boolean }>()
 defineEmits<{ select: [branch: Branch] }>()
 
 const rows = new Map<string, HTMLButtonElement>()
@@ -23,6 +23,7 @@ defineExpose({ focusBranch })
       :key="branch.id"
       :ref="(element) => setRow(branch.id, element)"
       type="button"
+      :disabled="loading"
       class="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-gray-200 bg-white p-3 text-left transition-colors hover:border-primary"
       data-testid="pickup-branch-row"
       :data-branch-id="branch.id"

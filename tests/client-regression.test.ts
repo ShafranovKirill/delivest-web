@@ -39,7 +39,7 @@ const setFulfillment = vi.fn()
 const startCall = vi.fn()
 const confirmCode = vi.fn()
 const checkCall = vi.fn()
-let quoteOptions: { queryKey: { value: unknown[] } } | undefined
+let quoteOptions: { queryKey: { value: unknown[] }; enabled: { value: boolean } } | undefined
 const quoteData = ref<{ status: string; price: number } | null>(null)
 const quoteFetching = ref(false)
 const quotePending = ref(false)
@@ -127,6 +127,19 @@ beforeEach(() => {
 })
 
 describe('delivery quote freshness', () => {
+  it('does not request a quote in the manual picker, while checkout still can', () => {
+    const address = ref({ latitude: null, longitude: null, city: 'A', street: 'Main', house: '7' })
+    const picker = useDeliveryQuote(address as never, false)
+    expect(picker.ready.value).toBe(true)
+    expect(quoteOptions?.enabled.value).toBe(false)
+    expect(picker.pending.value).toBe(false)
+    expect(picker.quote.value).toBeNull()
+
+    const checkout = useDeliveryQuote(address as never)
+    expect(quoteOptions?.enabled.value).toBe(true)
+    expect(checkout.ready.value).toBe(true)
+  })
+
   it('hides a previous quote while a changed address or cart is pending', async () => {
     getCart.mockResolvedValue(cart('A-cart', 1))
     const cartStore = useCartStore()

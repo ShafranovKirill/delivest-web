@@ -55,7 +55,7 @@ describe('delivery address editor mode', () => {
     branch.mapAddress = enabled
     const html = await render()
     expect(html.includes('data-map')).toBe(map)
-    expect(html).toContain(`data-suggest="${integration}"`)
+    expect(html).toContain(`data-suggest="${map}"`)
     expect(html).toContain(`data-floating="${map}"`)
     expect(html.includes('data-saved-list')).toBe(!map)
     expect(html.includes('data-saved-map')).toBe(map)
@@ -66,7 +66,7 @@ describe('fulfillment picker map layout', () => {
   it.each([
     ['delivery', true, true, 'false'],
     ['delivery', false, true, 'true'],
-    ['pickup', false, true, 'false'],
+    ['pickup', false, true, 'true'],
     ['pickup', true, false, 'true'],
   ])('mode %s, branch map %s, integration %s gives compact %s', async (mode, enabled, integration, compact) => {
     flow.pickerMode = mode
@@ -101,11 +101,11 @@ describe('loading pane map placeholder', () => {
     expect(html).toContain(`data-floating="${map}"`)
   })
 
-  it('keeps the pickup placeholder with manual delivery mode', async () => {
+  it('omits the pickup placeholder with manual delivery mode', async () => {
     franchise.addressMap = true
     branch.mapAddress = false
-    const html = await renderToString(createSSRApp(PaneSkeleton, { map: true }))
-    expect(html).toContain('data-map-placeholder')
-    expect(html).toContain('data-floating="true"')
+    const html = await renderToString(createSSRApp(PaneSkeleton))
+    expect(html).not.toContain('data-map-placeholder')
+    expect(html).toContain('data-floating="false"')
   })
 })

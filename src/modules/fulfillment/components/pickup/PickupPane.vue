@@ -88,7 +88,8 @@ const markers = computed<MapMarker[]>(() =>
   }),
 )
 
-const hasMap = computed(() => franchiseStore.addressMap && markers.value.length > 0)
+const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddress && markers.value.length > 0)
+const manualPicker = computed(() => !franchiseStore.addressMap || !branchStore.mapAddress)
 
 const mapCenter = computed<LngLat>(
   () => branchLngLat(selected.value) ?? fallbackLngLat(branches.value),
@@ -107,6 +108,16 @@ async function selectPreview(branch: Branch | undefined) {
   showDetails.value = true
   await nextTick()
   backButton.value?.focus()
+}
+
+async function selectFromList(branch: Branch) {
+  const options = fulfillmentMethods(branch).filter((method) => method !== 'delivery')
+  if (manualPicker.value && options.length === 1) {
+    pickupKind.value = options[0] as PickupKind
+    await confirm(branch)
+  } else {
+    await selectPreview(branch)
+  }
 }
 
 async function returnToList() {
@@ -171,10 +182,11 @@ async function confirm(branch: Branch) {
           :branch="selected"
           :pickup-kind="pickupKind"
           :loading="isSwitching"
+          :simple="manualPicker"
           @confirm="confirm(selected)"
         />
       </div>
-      <PickupBranchList v-else ref="listRef" :branches="branches" @select="selectPreview" />
+      <PickupBranchList v-else ref="listRef" :branches="branches" :loading="isSwitching" @select="selectFromList" />
     </SheetPanel>
   </div>
 </template>
