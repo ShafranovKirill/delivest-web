@@ -78,7 +78,7 @@ watch(modes, (options) => {
 </script>
 
 <template>
-  <MapDialog v-model:visible="flowStore.isPickerOpen" :compact="!hasMap" @hide="flowStore.dismiss">
+  <MapDialog v-model:visible="flowStore.isPickerOpen" :compact="!hasMap" :stretched="!hasMap" @hide="flowStore.dismiss">
     <template #header>
       <ModeSwitch v-if="modes.length > 1" v-model="flowStore.pickerMode" :options="modes" />
       <span v-else class="font-semibold">{{ modes[0]?.label }}</span>
