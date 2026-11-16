@@ -37,7 +37,7 @@ const phone = computed(() => props.branch.branch_info?.phone_number ?? null)
     <Button
       :label="pickupKind === 'pickup' ? t('fulfillment.pickupHere') : t('fulfillment.dineInHere')"
       :loading="loading"
-      class="h-12 w-full rounded-full! font-semibold"
+      class="pickup-detail-confirm h-12 w-full rounded-full! font-semibold"
       @click="$emit('confirm')"
     />
   </div>
