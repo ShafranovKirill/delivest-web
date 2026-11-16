@@ -62,7 +62,6 @@ const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 const phoneSection = ref<HTMLElement | null>(null)
 const phoneError = ref(false)
-const compositionOpen = ref(false)
 
 type PickupKind = Extract<OrderFormValues['fulfillment_type'], 'pickup' | 'dine_in'>
 
@@ -224,12 +223,6 @@ const closedNotice = computed(() => {
     month: 'long',
   })
   return t('order.form.closed.later', { day, time })
-})
-
-const goodsLabel = computed(() => {
-  const count = cartStore.totalQuantity
-  const rule = new Intl.PluralRules(intlLocale()).select(count)
-  return t(`order.form.goods.${rule}`, { count })
 })
 
 const deliveryFee = computed(() => (isDelivery.value ? delivery.price.value : null))
@@ -650,16 +643,7 @@ function handleSubmit() {
     </label>
 
     <div class="lg:hidden">
-      <button
-        type="button"
-        class="mb-2 flex w-full items-center justify-between rounded-xl bg-gray-100 px-3.5 py-2.5 text-left text-sm font-semibold"
-        :aria-expanded="compositionOpen"
-        @click="compositionOpen = !compositionOpen"
-      >
-        <span>{{ goodsLabel }}</span>
-        <i :class="compositionOpen ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" />
-      </button>
-      <OrderComposition v-if="compositionOpen" class="mb-3" />
+      <OrderComposition compact class="mb-2" />
       <div class="flex flex-col gap-1.5 text-sm text-gray-600">
         <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
           <span>{{ t('cart.discount') }}</span>

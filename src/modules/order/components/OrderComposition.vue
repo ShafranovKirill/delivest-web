@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
 
-import { computed } from 'vue'
+import OrderPickRow from './OrderPickRow.vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { intlLocale } from '@/i18n'
 import { formatPrice } from '@/utils/money'
@@ -10,6 +11,9 @@ import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQ
 import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
+
+defineProps<{ compact?: boolean }>()
+const expanded = ref(false)
 
 const { t } = useI18n()
 const cartStore = useCartStore()
@@ -27,10 +31,19 @@ const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
 </script>
 
 <template>
-  <section class="rounded-2xl bg-gray-50 p-4">
-    <h2 class="text-lg font-bold text-gray-950">{{ t('order.composition') }}</h2>
+  <section class="rounded-2xl" :class="{ 'bg-gray-50': expanded || !compact }">
+    <h2>
+      <OrderPickRow
+        icon="pi-shopping-bag"
+        :title="t('order.composition')"
+        :text="goodsLabel"
+        :arrow="expanded ? 'up' : 'down'"
+        :aria-expanded="expanded"
+        @click="expanded = !expanded"
+      />
+    </h2>
 
-    <ul class="mt-4 flex flex-col gap-3">
+    <ul v-if="expanded" class="px-4 mt-4 flex flex-col gap-3">
       <li v-for="item in cartStore.items" :key="item.key" class="flex items-start gap-3">
         <div class="min-w-0 flex-1">
           <p class="font-semibold leading-snug text-gray-950">{{ item.name }}</p>
@@ -59,12 +72,18 @@ const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
       </li>
     </ul>
 
-    <div class="mt-4 flex flex-col gap-2 border-t border-gray-200 pt-4">
+    <div
+      v-if="expanded || !compact"
+      class="mx-4 mt-4 flex flex-col gap-2 border-t border-gray-200 pt-4"
+    >
       <CartPromotions />
       <PromoCodeInput />
     </div>
 
-    <div class="mt-4 flex flex-col gap-1.5 border-t border-gray-200 pt-4 text-sm text-gray-600">
+    <div
+      v-if="expanded || !compact"
+      class="mx-4 pb-4 mt-4 flex flex-col gap-1.5 border-t border-gray-200 pt-4 text-sm text-gray-600"
+    >
       <div class="flex justify-between">
         <span>{{ goodsLabel }}</span>
         <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
