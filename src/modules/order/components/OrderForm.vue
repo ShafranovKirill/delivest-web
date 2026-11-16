@@ -474,7 +474,7 @@ function handleSubmit() {
           class="flex flex-col gap-1.5 rounded-2xl bg-gray-100 p-1.5"
         >
           <div
-            class="flex rounded-xl bg-gray-200 p-1"
+            class="flex gap-1 rounded-xl bg-gray-200 p-1"
             role="group"
             :aria-label="addressCaption"
           >
@@ -494,7 +494,7 @@ function handleSubmit() {
               <span
                 v-if="isDelivery && option.value === 'dine_in' && fulfillmentStore.methods.includes('pickup')"
                 aria-hidden="true"
-                class="pointer-events-none absolute start-0 top-1/2 h-5 w-px -translate-y-1/2 bg-gray-400/65"
+                class="pointer-events-none absolute -start-0.5 top-1/2 h-5 w-px -translate-y-1/2 bg-gray-400/65"
               />
               {{ option.label }}
             </button>
