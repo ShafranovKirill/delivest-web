@@ -460,10 +460,10 @@ function handleSubmit() {
     <div :class="sectionClass">
       <p :class="[captionClass, 'sr-only lg:not-sr-only']">{{ addressCaption }}</p>
       <div
-        class="flex flex-col overflow-hidden rounded-2xl bg-gray-100 transition-colors duration-150 has-[>.address-action:hover]:bg-gray-300 has-[>.address-action:focus-visible]:bg-gray-300 motion-reduce:transition-none"
+        class="flex flex-col gap-1.5 rounded-2xl bg-gray-100 p-1.5"
       >
         <div
-          class="mx-1.5 mt-1.5 flex rounded-xl bg-gray-200 p-1"
+          class="flex rounded-xl bg-gray-200 p-1"
           role="group"
           :aria-label="addressCaption"
         >
@@ -485,7 +485,7 @@ function handleSubmit() {
         </div>
         <button
           type="button"
-          class="address-action flex w-full cursor-pointer items-center gap-2.5 rounded-b-2xl px-4 py-3 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+          class="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors duration-150 hover:bg-gray-200 focus-visible:bg-gray-200 motion-reduce:transition-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
           :aria-label="`${addressCaption}: ${addressRow.text || addressRow.title}`"
           @click="openAddressPicker"
         >
