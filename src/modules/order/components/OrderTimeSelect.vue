@@ -75,13 +75,13 @@ function chipClass(active: boolean) {
     <button
       v-if="days.length"
       type="button"
-      class="flex w-full cursor-pointer items-center gap-2.5 rounded-2xl bg-gray-100 px-3 py-3 text-left transition-colors hover:bg-gray-200/70 focus-visible:outline-2 focus-visible:outline-primary"
+      class="flex w-full cursor-pointer items-center gap-2.5 rounded-2xl bg-gray-100 px-4 py-3 text-left transition-colors hover:bg-gray-200/70 focus-visible:outline-2 focus-visible:outline-primary"
       :aria-label="`${caption}: ${selectedLabel}. ${changeLabel}`"
       @click="openDialog"
     >
       <span
         class="h-8 w-8 shrink-0 bg-current text-gray-900"
-        :style="{ mask: `url(${clockIcon}) center / 26px 26px no-repeat`, maskMode: 'alpha' }"
+        :style="{ mask: `url(${clockIcon}) center / 21px 21px no-repeat`, maskMode: 'alpha' }"
         aria-hidden="true"
       />
       <span class="min-w-0 flex-1">
