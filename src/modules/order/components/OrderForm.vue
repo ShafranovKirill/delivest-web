@@ -437,278 +437,282 @@ function handleSubmit() {
 </script>
 
 <template>
-  <form class="flex flex-col gap-5 lg:col-start-1 lg:row-span-2 lg:grid lg:grid-rows-subgrid lg:gap-y-4 lg:self-stretch" novalidate @submit.prevent="handleSubmit">
+  <form
+    class="flex flex-col gap-5 lg:col-start-1 lg:row-span-2 lg:grid lg:grid-rows-subgrid lg:gap-y-6 lg:self-stretch"
+    novalidate
+    @submit.prevent="handleSubmit"
+  >
     <div class="flex flex-col gap-5 lg:gap-6">
-    <h2 class="text-xl font-bold text-gray-950">{{ headline }}</h2>
+      <h2 class="text-xl font-bold text-gray-950">{{ headline }}</h2>
 
-    <div v-if="!authenticatedPhone" ref="phoneSection" :class="sectionClass">
-      <label for="checkout-phone" :class="['block', captionClass]">{{ t('order.form.phoneCaption') }}</label>
-      <div class="relative">
-        <span class="pointer-events-none absolute inset-y-0 start-4 z-10 grid w-8 place-items-center text-gray-900" aria-hidden="true">
-          <i class="pi pi-phone text-[19px]!" />
-        </span>
-        <PhoneInput
-          id="checkout-phone"
-          v-model="form.customer_phone"
-          required
-          class="w-full rounded-2xl! border-0! bg-gray-100! py-3.5! ps-[58px]! pe-4! text-base! tabular-nums text-gray-900! hover:bg-gray-200/70! focus:ring-2! focus:ring-inset!"
-          :class="phoneError ? 'ring-2! ring-inset! ring-red-500!' : 'focus:ring-primary!'"
-          :invalid="phoneError"
-          :aria-describedby="phoneError ? 'checkout-phone-error' : undefined"
-        />
+      <div v-if="!authenticatedPhone" ref="phoneSection" :class="sectionClass">
+        <label for="checkout-phone" :class="['block', captionClass]">{{ t('order.form.phoneCaption') }}</label>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 start-4 z-10 grid w-8 place-items-center text-gray-900" aria-hidden="true">
+            <i class="pi pi-phone text-[19px]!" />
+          </span>
+          <PhoneInput
+            id="checkout-phone"
+            v-model="form.customer_phone"
+            required
+            class="w-full rounded-2xl! border-0! bg-gray-100! py-3.5! ps-[58px]! pe-4! text-base! tabular-nums text-gray-900! hover:bg-gray-200/70! focus:ring-2! focus:ring-inset!"
+            :class="phoneError ? 'ring-2! ring-inset! ring-red-500!' : 'focus:ring-primary!'"
+            :invalid="phoneError"
+            :aria-describedby="phoneError ? 'checkout-phone-error' : undefined"
+          />
+        </div>
+        <p v-if="phoneError" id="checkout-phone-error" class="text-sm font-medium text-red-600" role="alert">
+          {{ t('order.form.phoneError') }}
+        </p>
       </div>
-      <p v-if="phoneError" id="checkout-phone-error" class="text-sm font-medium text-red-600" role="alert">
-        {{ t('order.form.phoneError') }}
-      </p>
-    </div>
     </div>
 
     <div class="flex flex-col gap-5 lg:gap-6 lg:self-start">
-    <div :class="sectionClass">
-      <p :class="[captionClass, 'sr-only lg:not-sr-only']">{{ addressCaption }}</p>
-      <div
-        class="flex flex-col gap-1.5 rounded-2xl bg-gray-100 p-1.5"
-      >
+      <div :class="sectionClass">
+        <p :class="[captionClass, 'sr-only lg:not-sr-only']">{{ addressCaption }}</p>
         <div
-          class="flex rounded-xl bg-gray-200 p-1"
-          role="group"
-          :aria-label="addressCaption"
+          class="flex flex-col gap-1.5 rounded-2xl bg-gray-100 p-1.5"
         >
+          <div
+            class="flex rounded-xl bg-gray-200 p-1"
+            role="group"
+            :aria-label="addressCaption"
+          >
+            <button
+              v-for="option in fulfillmentOptions"
+              :key="option.value"
+              type="button"
+              class="relative min-w-0 flex-1 cursor-pointer rounded-xl px-1 py-2 text-center text-[13px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+              :class="
+                fulfillmentType === option.value
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-700 hover:bg-white/50'
+              "
+              :aria-pressed="fulfillmentType === option.value"
+              @click="selectFulfillment(option.value)"
+            >
+              <span
+                v-if="isDelivery && option.value === 'dine_in' && fulfillmentStore.methods.includes('pickup')"
+                aria-hidden="true"
+                class="pointer-events-none absolute start-0 top-1/2 h-5 w-px -translate-y-1/2 bg-gray-400/65"
+              />
+              {{ option.label }}
+            </button>
+          </div>
           <button
-            v-for="option in fulfillmentOptions"
-            :key="option.value"
             type="button"
-            class="relative min-w-0 flex-1 cursor-pointer rounded-xl px-1 py-2 text-center text-[13px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-primary"
-            :class="
-              fulfillmentType === option.value
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-700 hover:bg-white/50'
-            "
-            :aria-pressed="fulfillmentType === option.value"
-            @click="selectFulfillment(option.value)"
+            class="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors duration-150 hover:bg-gray-200 focus-visible:bg-gray-200 motion-reduce:transition-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+            :aria-label="`${addressCaption}: ${addressRow.text || addressRow.title}`"
+            @click="openAddressPicker"
           >
             <span
-              v-if="isDelivery && option.value === 'dine_in' && fulfillmentStore.methods.includes('pickup')"
+              class="h-8 w-8 shrink-0 bg-current text-gray-900"
+              :style="{
+                mask: `url(${isDelivery ? courierIcon : restaurantIcon}) center / contain no-repeat`,
+                maskMode: 'alpha',
+              }"
               aria-hidden="true"
-              class="pointer-events-none absolute start-0 top-1/2 h-5 w-px -translate-y-1/2 bg-gray-400/65"
             />
-            {{ option.label }}
+            <span
+              class="min-w-0 flex-1 text-sm font-medium leading-snug text-gray-900 sm:text-[15px]"
+              >{{ addressRow.text || addressRow.title }}</span
+            >
+            <svg
+              class="h-7 w-7 shrink-0 text-gray-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="m9 5 7 7-7 7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
           </button>
         </div>
-        <button
-          type="button"
-          class="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors duration-150 hover:bg-gray-200 focus-visible:bg-gray-200 motion-reduce:transition-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
-          :aria-label="`${addressCaption}: ${addressRow.text || addressRow.title}`"
-          @click="openAddressPicker"
+
+        <p v-if="closedNotice" class="mt-2 text-sm font-medium text-amber-700">
+          {{ closedNotice }}
+        </p>
+
+        <p
+          v-if="isDelivery && delivery.pending.value && !form.call_operator_for_address"
+          class="mt-2 text-sm font-medium text-gray-600"
+          role="status"
         >
-          <span
-            class="h-8 w-8 shrink-0 bg-current text-gray-900"
-            :style="{
-              mask: `url(${isDelivery ? courierIcon : restaurantIcon}) center / contain no-repeat`,
-              maskMode: 'alpha',
-            }"
-            aria-hidden="true"
-          />
-          <span
-            class="min-w-0 flex-1 text-sm font-medium leading-snug text-gray-900 sm:text-[15px]"
-            >{{ addressRow.text || addressRow.title }}</span
-          >
-          <svg
-            class="h-7 w-7 shrink-0 text-gray-500"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m9 5 7 7-7 7"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
+          {{ t('delivery.checking') }}
+        </p>
+        <p
+          v-if="
+            isDelivery &&
+            delivery.hint.value &&
+            delivery.price.value !== 0 &&
+            !form.call_operator_for_address
+          "
+          class="mt-2 text-sm font-medium"
+          :class="delivery.blocked.value ? 'text-red-500' : 'text-gray-700'"
+        >
+          {{ delivery.hint.value }}
+        </p>
       </div>
 
-      <p v-if="closedNotice" class="mt-2 text-sm font-medium text-amber-700">
-        {{ closedNotice }}
-      </p>
+      <OrderTimeSelect v-model="form.cook_by" :fulfillment="fulfillmentType" />
 
-      <p
-        v-if="isDelivery && delivery.pending.value && !form.call_operator_for_address"
-        class="mt-2 text-sm font-medium text-gray-600"
-        role="status"
+      <div :class="sectionClass">
+        <p :class="captionClass">{{ t('order.form.paymentCaption') }}</p>
+        <OrderPickRow
+          :title="paymentLabel"
+          :text="t('order.form.changePayment')"
+          aria-haspopup="dialog"
+          @click="paymentOpen = true"
+        >
+          <template #icon>
+            <CashBanknoteFilledIcon v-if="form.payment_method === 'cash'" class="size-[22px]" />
+            <CreditCardFilledIcon v-else class="size-[22px]" />
+          </template>
+        </OrderPickRow>
+      </div>
+
+      <div :class="sectionClass">
+        <p :class="captionClass">{{ t('order.form.comment') }}</p>
+        <OrderPickRow
+          v-if="!commentOpen"
+          arrow="none"
+          :title="form.comment || t('order.form.addComment')"
+          :text="form.comment ? undefined : t('order.form.commentPlaceholder')"
+          class="[overflow-wrap:anywhere]"
+          @click="editComment"
+        >
+          <template #icon><MessageFilledIcon class="size-[22px]" /></template>
+        </OrderPickRow>
+        <textarea
+          v-else
+          ref="commentInput"
+          v-model="form.comment"
+          rows="2"
+          :aria-label="t('order.form.comment')"
+          :placeholder="t('order.form.commentPlaceholder')"
+          class="w-full resize-y rounded-2xl bg-gray-100 px-4 py-3 text-base text-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-primary"
+          @blur="commentOpen = false"
+        />
+      </div>
+
+      <Dialog
+        v-model:visible="paymentOpen"
+        modal
+        :dismissableMask="true"
+        :draggable="false"
+        class="w-[min(92vw,420px)]"
+        :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
       >
-        {{ t('delivery.checking') }}
+        <template #header>
+          <h3 class="text-xl font-extrabold text-gray-950">{{ t('order.form.paymentCaption') }}</h3>
+        </template>
+        <div class="flex flex-col gap-2">
+          <button
+            v-for="option in paymentOptions"
+            :key="option.value"
+            type="button"
+            class="flex items-center justify-between rounded-2xl border-2 px-4 py-3.5 text-left font-semibold transition-colors cursor-pointer"
+            :class="
+              form.payment_method === option.value
+                ? 'border-primary-fill bg-white text-gray-950'
+                : 'border-gray-100 bg-gray-50 text-gray-800 hover:border-primary'
+            "
+            @click="pickPayment(option.value)"
+          >
+            <span>{{ option.label }}</span>
+            <i v-if="form.payment_method === option.value" class="pi pi-check text-sm" />
+          </button>
+        </div>
+      </Dialog>
+
+      <div v-if="maxStars > 0" :class="sectionClass">
+        <label
+          id="spend-stars"
+          class="flex w-full cursor-pointer items-center gap-2.5 rounded-2xl bg-gray-100 px-4 py-3 transition-colors hover:bg-gray-200/70 lg:col-start-2"
+        >
+          <span class="grid h-8 w-8 shrink-0 place-items-center text-gray-900" aria-hidden="true">
+            <i class="pi pi-star-fill text-[19px]!" />
+          </span>
+          <span class="min-w-0 flex-1 text-sm font-medium leading-snug text-gray-900 sm:text-[15px]">
+            {{ t('loyalty.spend', { stars: starsLabel(maxStars) }) }}
+          </span>
+          <ToggleSwitch
+            v-model="useStars"
+            class="shrink-0"
+            style="--p-toggleswitch-background: var(--color-gray-200); --p-toggleswitch-hover-background: var(--color-gray-200)"
+          />
+        </label>
+      </div>
+
+      <div>
+        <OrderComposition compact class="mb-4 lg:hidden" />
+        <div class="flex flex-col gap-2 text-sm text-gray-600">
+          <div class="flex justify-between">
+            <span>{{ t('order.form.itemsSubtotal') }}</span>
+            <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
+          </div>
+          <div v-if="cartStore.discountAmount > 0" class="flex justify-between">
+            <span>{{ t('cart.discount') }}</span>
+            <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
+          </div>
+          <div v-if="starsToSpend > 0" class="flex justify-between">
+            <span>{{ t('loyalty.spent') }}</span>
+            <span class="tabular-nums">−{{ formatPrice(starsToSpend * 100) }}</span>
+          </div>
+          <button
+            v-if="deliveryFee !== null"
+            type="button"
+            class="flex w-full cursor-pointer justify-between text-left"
+            @click="openAddressPicker"
+          >
+            <span>{{ t('delivery.line') }}</span>
+            <span class="tabular-nums">
+              {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
+            </span>
+          </button>
+          <div class="mt-1 flex justify-between border-t border-gray-200 pt-3 text-base font-bold text-gray-950">
+            <span>{{ t('order.form.orderTotal') }}</span>
+            <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>
+          </div>
+          <LoyaltyEarnings plain :spend-points="starsToSpend" />
+        </div>
+      </div>
+
+      <p v-if="!fulfillmentStore.canOrder" class="text-center text-sm font-medium text-red-500">
+        {{ t('errors.codes.fulfillment_unavailable') }}
       </p>
-      <p
-        v-if="
-          isDelivery &&
-          delivery.hint.value &&
-          delivery.price.value !== 0 &&
-          !form.call_operator_for_address
-        "
-        class="mt-2 text-sm font-medium"
-        :class="delivery.blocked.value ? 'text-red-500' : 'text-gray-700'"
-      >
+      <p v-if="deliveryBlocked" class="text-center text-sm font-medium text-red-500">
         {{ delivery.hint.value }}
       </p>
-    </div>
-
-    <OrderTimeSelect v-model="form.cook_by" :fulfillment="fulfillmentType" />
-
-    <div :class="sectionClass">
-      <p :class="captionClass">{{ t('order.form.paymentCaption') }}</p>
-      <OrderPickRow
-        :title="paymentLabel"
-        :text="t('order.form.changePayment')"
-        aria-haspopup="dialog"
-        @click="paymentOpen = true"
-      >
-        <template #icon>
-          <CashBanknoteFilledIcon v-if="form.payment_method === 'cash'" class="size-[22px]" />
-          <CreditCardFilledIcon v-else class="size-[22px]" />
-        </template>
-      </OrderPickRow>
-    </div>
-
-    <div :class="sectionClass">
-      <p :class="captionClass">{{ t('order.form.comment') }}</p>
-      <OrderPickRow
-        v-if="!commentOpen"
-        arrow="none"
-        :title="form.comment || t('order.form.addComment')"
-        :text="form.comment ? undefined : t('order.form.commentPlaceholder')"
-        class="[overflow-wrap:anywhere]"
-        @click="editComment"
-      >
-        <template #icon><MessageFilledIcon class="size-[22px]" /></template>
-      </OrderPickRow>
-      <textarea
-        v-else
-        ref="commentInput"
-        v-model="form.comment"
-        rows="2"
-        :aria-label="t('order.form.comment')"
-        :placeholder="t('order.form.commentPlaceholder')"
-        class="w-full resize-y rounded-2xl bg-gray-100 px-4 py-3 text-base text-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-primary"
-        @blur="commentOpen = false"
-      />
-    </div>
-
-    <Dialog
-      v-model:visible="paymentOpen"
-      modal
-      :dismissableMask="true"
-      :draggable="false"
-      class="w-[min(92vw,420px)]"
-      :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
-    >
-      <template #header>
-        <h3 class="text-xl font-extrabold text-gray-950">{{ t('order.form.paymentCaption') }}</h3>
-      </template>
-      <div class="flex flex-col gap-2">
-        <button
-          v-for="option in paymentOptions"
-          :key="option.value"
-          type="button"
-          class="flex items-center justify-between rounded-2xl border-2 px-4 py-3.5 text-left font-semibold transition-colors cursor-pointer"
-          :class="
-            form.payment_method === option.value
-              ? 'border-primary-fill bg-white text-gray-950'
-              : 'border-gray-100 bg-gray-50 text-gray-800 hover:border-primary'
-          "
-          @click="pickPayment(option.value)"
-        >
-          <span>{{ option.label }}</span>
-          <i v-if="form.payment_method === option.value" class="pi pi-check text-sm" />
-        </button>
-      </div>
-    </Dialog>
-
-    <div v-if="maxStars > 0" :class="sectionClass">
-      <label
-        id="spend-stars"
-        class="flex w-full cursor-pointer items-center gap-2.5 rounded-2xl bg-gray-100 px-4 py-3 transition-colors hover:bg-gray-200/70 lg:col-start-2"
-      >
-        <span class="grid h-8 w-8 shrink-0 place-items-center text-gray-900" aria-hidden="true">
-          <i class="pi pi-star-fill text-[19px]!" />
-        </span>
-        <span class="min-w-0 flex-1 text-sm font-medium leading-snug text-gray-900 sm:text-[15px]">
-          {{ t('loyalty.spend', { stars: starsLabel(maxStars) }) }}
-        </span>
-        <ToggleSwitch
-          v-model="useStars"
-          class="shrink-0"
-          style="--p-toggleswitch-background: var(--color-gray-200); --p-toggleswitch-hover-background: var(--color-gray-200)"
-        />
-      </label>
-    </div>
-
-    <div>
-      <OrderComposition compact class="mb-4 lg:hidden" />
-      <div class="flex flex-col gap-2 text-sm text-gray-600">
-        <div class="flex justify-between">
-          <span>{{ t('order.form.itemsSubtotal') }}</span>
-          <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
+      <div class="flex items-center gap-3">
+        <div class="hidden shrink-0 md:block">
+          <Button
+            type="button"
+            :label="t('order.form.backToCart')"
+            icon="pi pi-angle-left"
+            variant="text"
+            severity="secondary"
+            class="h-12 rounded-full! text-sm font-semibold"
+            @click="emit('back')"
+          />
         </div>
-        <div v-if="cartStore.discountAmount > 0" class="flex justify-between">
-          <span>{{ t('cart.discount') }}</span>
-          <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
-        </div>
-        <div v-if="starsToSpend > 0" class="flex justify-between">
-          <span>{{ t('loyalty.spent') }}</span>
-          <span class="tabular-nums">−{{ formatPrice(starsToSpend * 100) }}</span>
-        </div>
-        <button
-          v-if="deliveryFee !== null"
-          type="button"
-          class="flex w-full cursor-pointer justify-between text-left"
-          @click="openAddressPicker"
-        >
-          <span>{{ t('delivery.line') }}</span>
-          <span class="tabular-nums">
-            {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
-          </span>
-        </button>
-        <div class="mt-1 flex justify-between border-t border-gray-200 pt-3 text-base font-bold text-gray-950">
-          <span>{{ t('order.form.orderTotal') }}</span>
-          <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>
-        </div>
-        <LoyaltyEarnings plain :spend-points="starsToSpend" />
-      </div>
-    </div>
-
-    <p v-if="!fulfillmentStore.canOrder" class="text-center text-sm font-medium text-red-500">
-      {{ t('errors.codes.fulfillment_unavailable') }}
-    </p>
-    <p v-if="deliveryBlocked" class="text-center text-sm font-medium text-red-500">
-      {{ delivery.hint.value }}
-    </p>
-    <div class="flex items-center gap-3">
-      <div class="hidden shrink-0 md:block">
         <Button
-          type="button"
-          :label="t('order.form.backToCart')"
-          icon="pi pi-angle-left"
-          variant="text"
-          severity="secondary"
-          class="h-12 rounded-full! text-sm font-semibold"
-          @click="emit('back')"
+          type="submit"
+          :label="t('order.form.submit')"
+          :disabled="deliveryBlocked || !fulfillmentStore.canOrder"
+          icon="pi pi-check"
+          iconPos="right"
+          :loading="isLoading"
+          class="min-w-0 flex-1 h-12 rounded-full! text-sm font-semibold"
         />
       </div>
-      <Button
-        type="submit"
-        :label="t('order.form.submit')"
-        :disabled="deliveryBlocked || !fulfillmentStore.canOrder"
-        icon="pi pi-check"
-        iconPos="right"
-        :loading="isLoading"
-        class="min-w-0 flex-1 h-12 rounded-full! text-sm font-semibold"
-      />
-    </div>
 
-    <OrderConsent />
+      <OrderConsent />
     </div>
   </form>
 </template>
