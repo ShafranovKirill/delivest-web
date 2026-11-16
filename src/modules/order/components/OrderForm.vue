@@ -12,7 +12,7 @@ import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 import { useOrderTime } from '@/modules/order/composables/useOrderTime'
 import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
 import { captionClass, sectionClass } from '@/modules/order/utils/formLayout'
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import { useBranchOpening } from '@/modules/branch/composables/useBranchOpening'
 import { addDays } from '@/modules/branch/utils/workWindow'
 import { formatClock, sameDay } from '@/modules/branch/utils/zonedTime'
@@ -603,13 +603,10 @@ function handleSubmit() {
         />
       </div>
 
-      <Dialog
+      <ResponsiveSheet
         v-model:visible="paymentOpen"
-        modal
-        :dismissableMask="true"
-        :draggable="false"
-        class="w-[min(92vw,420px)]"
-        :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
+        :aria-label="t('order.form.paymentCaption')"
+        desktop-class="w-[min(92vw,420px)]"
       >
         <template #header>
           <h3 class="text-xl font-extrabold text-gray-950">{{ t('order.form.paymentCaption') }}</h3>
@@ -631,7 +628,7 @@ function handleSubmit() {
             <i v-if="form.payment_method === option.value" class="pi pi-check text-sm" />
           </button>
         </div>
-      </Dialog>
+      </ResponsiveSheet>
 
       <div v-if="maxStars > 0" :class="sectionClass">
         <label

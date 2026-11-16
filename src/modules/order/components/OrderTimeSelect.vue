@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import { captionClass, sectionClass } from '../utils/formLayout'
 import type { useOrderTime, Fulfillment } from '../composables/useOrderTime'
 import { useI18n } from 'vue-i18n'
@@ -206,14 +206,10 @@ function confirm() {
     </button>
     <p v-else class="text-sm text-gray-500">{{ t('order.timeSelect.noSlots') }}</p>
 
-    <Dialog
+    <ResponsiveSheet
       v-model:visible="isDialogOpen"
-      modal
-      aria-labelledby="order-time-dialog-title"
-      :dismissableMask="true"
-      :draggable="false"
-      class="w-[min(92vw,440px)]"
-      :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
+      :aria-label="t(fulfillment === 'delivery' ? 'order.timeSelect.dialogDelivery' : 'order.timeSelect.dialogPickup')"
+      desktop-class="w-[min(92vw,440px)]"
     >
       <template #header>
         <h3 id="order-time-dialog-title" class="text-xl font-extrabold text-gray-950">
@@ -306,6 +302,6 @@ function confirm() {
           ? t('order.timeSelect.confirmAsap')
           : t(fulfillment === 'delivery' ? 'order.timeSelect.confirmDelivery' : 'order.timeSelect.confirmPickup', { time: draftTime }) }}
       </button>
-    </Dialog>
+    </ResponsiveSheet>
   </div>
 </template>
