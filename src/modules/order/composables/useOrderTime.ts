@@ -3,12 +3,11 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { WorkingHoursMap } from '@/modules/branch/composables/useBranchSchedule'
 import { addDays, isOpenAt, workWindow } from '@/modules/branch/utils/workWindow'
 import {
-  addMinutes as addWallMinutes,
+  atMinutes,
   clockMinutes,
   formatClock,
   fromClockMinutes,
-  sameDay,
-  slotValue,
+  isoDate,
   wallClock,
   type WallClock,
 } from '@/modules/branch/utils/zonedTime'
@@ -16,36 +15,28 @@ import { intlLocale, t } from '@/i18n'
 
 export type Fulfillment = 'delivery' | 'pickup' | 'dine_in'
 
-export interface TimeSlot {
-  value: string
-  date: WallClock
+export interface TimeRange {
+  start: string
+  end: string
 }
 
 export interface SlotDay {
   key: string
   label: string
-  slots: TimeSlot[]
+  ranges: TimeRange[]
+  suggestions: string[]
 }
 
-const STEP_MINUTES = 15
 const DEFAULT_DELIVERY_MINUTES = 60
 const MIN_PICKUP_MINUTES = 20
-const DAYS_AHEAD = 7
-const MAX_DAYS = 3
-const SUGGESTION_OFFSETS = [30, 60, 120]
-const END_OF_DAY_MINUTE = 24 * 60
+const DAY_MINUTES = 24 * 60
 
-function addMinutes(date: WallClock, minutes: number): WallClock {
-  return addWallMinutes(date, minutes)
+function time(clock: WallClock): string {
+  return `${String(clock.hour).padStart(2, '0')}:${String(clock.minute).padStart(2, '0')}`
 }
 
-function roundUp(date: WallClock): WallClock {
-  const minutes = clockMinutes(date)
-  return fromClockMinutes(Math.ceil(minutes / STEP_MINUTES) * STEP_MINUTES)
-}
-
-function formatDateTime(date: WallClock): string {
-  return slotValue(date)
+function minuteCeiling(clock: WallClock): number {
+  return clockMinutes(clock) + (clock.second > 0 ? 1 : 0)
 }
 
 export function useOrderTime(fulfillment: Ref<Fulfillment>) {
@@ -58,7 +49,6 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
     timer = setInterval(() => (now.value = wallClock(timezone.value)), 30_000)
   })
   onUnmounted(() => clearInterval(timer))
-
   watch(timezone, (zone) => (now.value = wallClock(zone)))
 
   const deliveryMinutes = computed(() => {
@@ -86,115 +76,117 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
 
   const isPaused = computed(() => branchStore.activeBranch?.branch_info?.intake?.mode === 'paused')
 
-  function dayWindow(day: WallClock) {
-    return workWindow(workingHours.value, day, END_OF_DAY_MINUTE, specialHours.value)
+  function dayLabel(day: WallClock, offset: number): string {
+    if (offset === 0) return t('order.timeSelect.today')
+    if (offset === 1) return t('order.timeSelect.tomorrow')
+    if (offset === 2) return t('order.timeSelect.dayAfterTomorrow')
+    return formatClock(day, intlLocale(), { weekday: 'short', day: 'numeric', month: 'short' })
   }
 
-  function dayLabel(day: WallClock): string {
-    const today = now.value
-    if (sameDay(day, today)) return t('order.timeSelect.today')
-    if (sameDay(day, addDays(today, 1))) return t('order.timeSelect.tomorrow')
-    return formatClock(day, intlLocale(), {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
+  // Each entry is a half-open interval of branch-local, whole-minute timestamps.
+  const intervals = computed(() => {
+    if (isPaused.value) return []
+    const earliest = minuteCeiling(now.value) + leadMinutes.value
+    if (!workingHours.value && !specialHours.value) {
+      return [{ start: earliest, end: clockMinutes(atMinutes(addDays(now.value, 3), 0)) }]
+    }
+    const result: Array<{ start: number; end: number }> = []
+
+    // Yesterday may still be open after midnight; the third day may contain
+    // hours carried over from the previous night.
+    for (let offset = -1; offset <= 2; offset++) {
+      const day = addDays(now.value, offset)
+      const window = workWindow(workingHours.value, day, DAY_MINUTES, specialHours.value)
+      if (!window) continue
+      // A default 24/7 day is a continuation, not a fresh opening.
+      const opensToday = workingHours.value || specialHours.value?.[isoDate(day)]
+      const start = Math.max(
+        earliest,
+        clockMinutes(window.open) + (opensToday ? leadMinutes.value : 0),
+      )
+      const end = clockMinutes(window.close)
+      if (start < end) result.push({ start, end })
+    }
+    return result
+  })
+
+  const days = computed<SlotDay[]>(() => {
+    return [0, 1, 2].map((offset) => {
+      const day = addDays(now.value, offset)
+      const dayStart = clockMinutes(atMinutes(day, 0))
+      const dayEnd = dayStart + DAY_MINUTES
+      const merged: Array<{ start: number; end: number }> = []
+
+      for (const interval of intervals.value) {
+        const start = Math.max(interval.start, dayStart)
+        const end = Math.min(interval.end, dayEnd)
+        if (start >= end) continue
+        const previous = merged[merged.length - 1]
+        if (previous && start <= previous.end) previous.end = Math.max(previous.end, end)
+        else merged.push({ start, end })
+      }
+
+      const ranges = merged.map(({ start, end }) => ({
+        start: time(fromClockMinutes(start)),
+        end: time(fromClockMinutes(end - 1)),
+      }))
+      const suggestions: string[] = []
+      const first = merged[0]?.start
+      if (first !== undefined) {
+        suggestions.push(time(fromClockMinutes(first)))
+        let target = Math.ceil((first + 1) / 15) * 15
+        while (suggestions.length < 3) {
+          const choice = merged.find((range) => range.end > target)
+          if (!choice) break
+          const selected = Math.max(target, Math.ceil(choice.start / 15) * 15)
+          if (selected >= choice.end) {
+            target = choice.end
+            continue
+          }
+          suggestions.push(time(fromClockMinutes(selected)))
+          target = selected + 15
+        }
+      }
+      return { key: isoDate(day), label: dayLabel(day, offset), ranges, suggestions }
     })
-  }
+  })
 
   const openNow = computed(
     () => !isPaused.value && isOpenAt(workingHours.value, now.value, specialHours.value),
   )
-
-  const days = computed<SlotDay[]>(() => {
-    const earliest = roundUp(addMinutes(now.value, leadMinutes.value))
-    const result: SlotDay[] = []
-
-    for (let offset = -1; offset < DAYS_AHEAD && result.length < MAX_DAYS; offset++) {
-      const day = addDays(now.value, offset)
-      const window = dayWindow(day)
-      if (!window) continue
-
-      const first = roundUp(addMinutes(window.open, leadMinutes.value))
-      const slots: TimeSlot[] = []
-
-      for (
-        let cursor = clockMinutes(earliest) > clockMinutes(first) ? earliest : first;
-        clockMinutes(cursor) < clockMinutes(window.close);
-        cursor = addMinutes(cursor, STEP_MINUTES)
-      ) {
-        slots.push({ value: formatDateTime(cursor), date: cursor })
-      }
-
-      if (slots[0]) result.push({ key: formatDateTime(day), label: dayLabel(slots[0].date), slots })
-    }
-
-    return result
-  })
-
-  const allSlots = computed(() => days.value.flatMap((day) => day.slots))
-
-  const asapAvailable = computed(() => {
-    const first = allSlots.value[0]
-    return openNow.value && !!first && sameDay(first.date, now.value)
-  })
-
-  const asapLabel = computed(() => {
-    const eta = addMinutes(now.value, leadMinutes.value)
-    return t('order.timeSelect.asapEta', { time: formatTimeLabel(roundUp(eta)) })
-  })
-
-  const suggestions = computed<TimeSlot[]>(() => {
-    const slots = allSlots.value
-    const first = slots[0]
-    if (!first) return []
-
-    const offsets = asapAvailable.value ? SUGGESTION_OFFSETS : [0, ...SUGGESTION_OFFSETS]
-    const picked: TimeSlot[] = []
-
-    for (const offset of offsets) {
-      const target = addMinutes(first.date, offset)
-      const slot = slots.find((item) => clockMinutes(item.date) >= clockMinutes(target))
-      if (slot && !picked.includes(slot)) picked.push(slot)
-      if (picked.length === 3) break
-    }
-
-    return picked
-  })
-
-  const workingUntil = computed(() => {
-    const current = now.value
-    const window = dayWindow(current)
-    return openNow.value && window ? formatTimeLabel(window.close) : null
-  })
-
-  function formatTimeLabel(date: WallClock): string {
-    return formatClock(date, intlLocale(), { hour: '2-digit', minute: '2-digit' })
-  }
-
-  function slotLabel(slot: TimeSlot): string {
-    const time = formatTimeLabel(slot.date)
-    return sameDay(slot.date, now.value) ? time : `${dayLabel(slot.date)}, ${time}`
-  }
+  const etaMinute = computed(() => minuteCeiling(now.value) + leadMinutes.value)
+  const asapAvailable = computed(
+    () =>
+      openNow.value &&
+      intervals.value.some(({ start, end }) => start <= etaMinute.value && etaMinute.value < end),
+  )
+  const asapLabel = computed(() =>
+    t('order.timeSelect.asapEta', { time: time(fromClockMinutes(etaMinute.value)) }),
+  )
 
   function isAvailable(value: string | null): boolean {
     if (value === null) return asapAvailable.value
-    return allSlots.value.some((slot) => slot.value === value)
+    const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):00$/.exec(value)
+    if (!match) return false
+    if (Number(match[2]) > 23 || Number(match[3]) > 59) return false
+    const day = days.value.find((item) => item.key === match[1])
+    if (!day) return false
+    const selected = `${match[2]}:${match[3]}`
+    return day.ranges.some((range) => selected >= range.start && selected <= range.end)
   }
 
   function fallback(): string | null {
-    return asapAvailable.value ? null : (allSlots.value[0]?.value ?? null)
+    if (asapAvailable.value) return null
+    const day = days.value.find((item) => item.ranges.length > 0)
+    if (!day) return null
+    return `${day.key}T${day.ranges[0]!.start}:00`
   }
 
-  return {
-    days,
-    suggestions,
-    asapAvailable,
-    asapLabel,
-    workingUntil,
-    leadMinutes,
-    slotLabel,
-    formatTimeLabel,
-    isAvailable,
-    fallback,
+  function selectedLabel(value: string): string {
+    if (!isAvailable(value)) return t('order.timeSelect.pick')
+    const day = days.value.find((item) => value.startsWith(`${item.key}T`))!
+    return `${day.label}, ${value.slice(11, 16)}`
   }
+
+  return { days, asapAvailable, asapLabel, leadMinutes, isAvailable, fallback, selectedLabel }
 }

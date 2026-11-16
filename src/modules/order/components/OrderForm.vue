@@ -9,6 +9,7 @@ import Button from 'primevue/button'
 import OrderConsent from './OrderConsent.vue'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
+import { useOrderTime } from '@/modules/order/composables/useOrderTime'
 import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
 import { captionClass, sectionClass } from '@/modules/order/utils/formLayout'
 import Dialog from 'primevue/dialog'
@@ -120,6 +121,7 @@ watch(
 const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
   isDelivery.value ? 'delivery' : pickupKind.value,
 )
+const orderTime = useOrderTime(fulfillmentType)
 
 watch(
   authenticatedPhone,
@@ -418,6 +420,7 @@ function handleSubmit() {
     return
   }
 
+  if (!orderTime.isAvailable(form.cook_by)) return
   if (deliveryBlocked.value) return
 
   const callOperator = canUseOperator.value && form.call_operator_for_address
@@ -559,7 +562,7 @@ function handleSubmit() {
         </p>
       </div>
 
-      <OrderTimeSelect v-model="form.cook_by" :fulfillment="fulfillmentType" />
+      <OrderTimeSelect v-model="form.cook_by" :fulfillment="fulfillmentType" :order-time="orderTime" />
 
       <div :class="sectionClass">
         <p :class="captionClass">{{ t('order.form.paymentCaption') }}</p>
@@ -704,7 +707,7 @@ function handleSubmit() {
         <Button
           type="submit"
           :label="t('order.form.submit')"
-          :disabled="deliveryBlocked || !fulfillmentStore.canOrder"
+          :disabled="deliveryBlocked || !fulfillmentStore.canOrder || !orderTime.isAvailable(form.cook_by)"
           icon="pi pi-check"
           iconPos="right"
           :loading="isLoading"
