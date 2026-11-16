@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{ title: string; icon: string; text?: string | null; arrow?: 'up' | 'down' }>()
+defineProps<{ title: string; icon: string; text?: string | null; arrow?: 'up' | 'down' | 'none' }>()
 </script>
 
 <template>
@@ -17,6 +17,7 @@ defineProps<{ title: string; icon: string; text?: string | null; arrow?: 'up' | 
       <span v-if="text" class="block text-xs text-gray-500">{{ text }}</span>
     </span>
     <svg
+      v-if="arrow !== 'none'"
       :class="{ 'rotate-90': arrow === 'down', '-rotate-90': arrow === 'up' }"
       class="h-7 w-7 shrink-0 text-gray-500"
       viewBox="0 0 24 24"

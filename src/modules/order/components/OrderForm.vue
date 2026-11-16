@@ -3,11 +3,10 @@ import LoyaltyEarnings from '@/modules/account/components/LoyaltyEarnings.vue'
 import courierIcon from '@/assets/icons/fulfillment/courier.png'
 import restaurantIcon from '@/assets/icons/fulfillment/restaurant.png'
 
-import { reactive, computed, ref, watch, onMounted } from 'vue'
+import { reactive, computed, ref, watch, onMounted, nextTick } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import OrderConsent from './OrderConsent.vue'
-import Textarea from 'primevue/textarea'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
@@ -181,16 +180,12 @@ watch(
 )
 
 const commentOpen = ref(false)
-const commentDraft = ref('')
+const commentInput = ref<HTMLTextAreaElement | null>(null)
 
-function editComment() {
-  commentDraft.value = form.comment
+async function editComment() {
   commentOpen.value = true
-}
-
-function saveComment() {
-  form.comment = commentDraft.value.trim()
-  commentOpen.value = false
+  await nextTick()
+  commentInput.value?.focus()
 }
 
 const paymentOpen = ref(false)
@@ -570,35 +565,25 @@ function handleSubmit() {
     <div :class="sectionClass">
       <p :class="captionClass">{{ t('order.form.comment') }}</p>
       <OrderPickRow
+        v-if="!commentOpen"
         icon="pi-comment"
+        arrow="none"
         :title="form.comment || t('order.form.addComment')"
         :text="form.comment ? undefined : t('order.form.commentPlaceholder')"
         class="[overflow-wrap:anywhere]"
-        aria-haspopup="dialog"
         @click="editComment"
       />
-    </div>
-
-    <Dialog
-      v-model:visible="commentOpen"
-      :header="t('order.form.comment')"
-      modal
-      dismissable-mask
-      :draggable="false"
-      class="w-[min(92vw,420px)]"
-    >
-      <Textarea
-        v-model="commentDraft"
-        autofocus
-        rows="3"
+      <textarea
+        v-else
+        ref="commentInput"
+        v-model="form.comment"
+        rows="2"
         :aria-label="t('order.form.comment')"
         :placeholder="t('order.form.commentPlaceholder')"
-        class="w-full rounded-xl! bg-gray-50! text-base! text-gray-900!"
+        class="w-full resize-y rounded-2xl bg-gray-100 px-4 py-3 text-base text-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-primary"
+        @blur="commentOpen = false"
       />
-      <template #footer>
-        <Button type="button" :label="t('common.save')" rounded @click="saveComment" />
-      </template>
-    </Dialog>
+    </div>
 
     <Dialog
       v-model:visible="paymentOpen"
