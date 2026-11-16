@@ -30,6 +30,8 @@ import { useLoyaltyQuery } from '@/modules/account/composables/useLoyaltyQuery'
 import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
 import OrderComposition from './OrderComposition.vue'
 import MessageFilledIcon from '~icons/tabler/message-filled'
+import CashBanknoteFilledIcon from '~icons/tabler/cash-banknote-filled'
+import CreditCardFilledIcon from '~icons/tabler/credit-card-filled'
 
 export interface OrderFormValues {
   customer_name: string
@@ -556,11 +558,15 @@ function handleSubmit() {
       <p :class="captionClass">{{ t('order.form.paymentCaption') }}</p>
       <OrderPickRow
         :title="paymentLabel"
-        :icon="form.payment_method === 'cash' ? 'pi-money-bill' : 'pi-credit-card'"
         :text="t('order.form.changePayment')"
         aria-haspopup="dialog"
         @click="paymentOpen = true"
-      />
+      >
+        <template #icon>
+          <CashBanknoteFilledIcon v-if="form.payment_method === 'cash'" class="size-[22px]" />
+          <CreditCardFilledIcon v-else class="size-[22px]" />
+        </template>
+      </OrderPickRow>
     </div>
 
     <div :class="sectionClass">
