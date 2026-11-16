@@ -374,13 +374,11 @@ function selectFulfillment(method: OrderFormValues['fulfillment_type']) {
     if (!isDelivery.value || !fulfillmentStore.current) flowStore.openPicker('delivery')
     return
   }
-  const branchId = branchStore.activeBranch?.id
   if (
-    branchId &&
     fulfillmentStore.methods.includes(method) &&
     (!fulfillmentStore.current || fulfillmentType.value !== method)
   )
-    fulfillmentStore.choose(branchId, { type: 'pickup', pickupKind: method })
+    flowStore.openPicker('pickup', method)
 }
 
 function openAddressPicker() {

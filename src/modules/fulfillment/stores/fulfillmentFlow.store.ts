@@ -13,6 +13,7 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
   const isPromptOpen = ref(false)
   const isPickerOpen = ref(false)
   const pickerMode = ref<PickerMode>('delivery')
+  const preferredPickupKind = ref<'pickup' | 'dine_in' | null>(null)
   const addressDrafts = ref<Record<string, DeliveryAddress>>({})
   watch(
     () => authStore.client?.id ?? 'guest',
@@ -58,7 +59,7 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
     })
   }
 
-  function openPicker(mode: PickerMode) {
+  function openPicker(mode: PickerMode, pickupKind?: 'pickup' | 'dine_in') {
     if (!fulfillmentStore.canOrder) {
       isPromptOpen.value = true
       isPickerOpen.value = false
@@ -68,6 +69,7 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
     pickerMode.value = fulfillmentStore.availableModes.includes(mode)
       ? mode
       : fulfillmentStore.availableModes[0]!
+    preferredPickupKind.value = pickupKind ?? null
     isPickerOpen.value = true
     isPromptOpen.value = false
   }
@@ -96,6 +98,7 @@ export const useFulfillmentFlowStore = defineStore('fulfillmentFlow', () => {
     isPromptOpen,
     isPickerOpen,
     pickerMode,
+    preferredPickupKind,
     addressDrafts,
     saveAddressDraft,
     clearAddressDraft,

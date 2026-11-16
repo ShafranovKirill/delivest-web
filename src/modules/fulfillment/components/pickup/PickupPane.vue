@@ -18,8 +18,6 @@ import { branchLngLat, fallbackLngLat } from '../../utils/branchLocation'
 import type { LngLat } from '../../utils/deliveryAddress'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
-const props = defineProps<{ checkout?: boolean }>()
-
 const { t } = useI18n()
 const router = useRouter()
 const toast = useToast()
@@ -41,15 +39,13 @@ const selected = computed(() => branches.value.find((branch) => branch.id === se
 const isSwitching = ref(false)
 type PickupKind = 'pickup' | 'dine_in'
 const pickupKind = ref<PickupKind>(
-  fulfillmentStore.current?.type === 'pickup' && fulfillmentStore.current.pickupKind
-    ? fulfillmentStore.current.pickupKind
-    : 'pickup',
+  flowStore.preferredPickupKind ??
+    (fulfillmentStore.current?.type === 'pickup' && fulfillmentStore.current.pickupKind
+      ? fulfillmentStore.current.pickupKind
+      : 'pickup'),
 )
 const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() => {
-  const methods =
-    compactList.value && !props.checkout && !showDetails.value
-      ? [...new Set(branches.value.flatMap(fulfillmentMethods))]
-      : fulfillmentMethods(selected.value)
+  const methods = fulfillmentMethods(selected.value)
   return [
     ...(methods.includes('pickup')
       ? [{ value: 'pickup' as const, label: t('order.form.takeaway') }]
@@ -60,8 +56,9 @@ const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() =
   ]
 })
 watch(
-  pickupOptions,
-  (options) => {
+  [pickupOptions, showDetails],
+  ([options, details]) => {
+    if (!details) return
     if (!options.some((option) => option.value === pickupKind.value))
       pickupKind.value = options[0]?.value ?? 'pickup'
   },
@@ -94,11 +91,6 @@ const markers = computed<MapMarker[]>(() =>
   }),
 )
 
-const visibleBranches = computed(() =>
-  compactList.value && !props.checkout && !showDetails.value
-    ? branches.value.filter((branch) => fulfillmentMethods(branch).includes(pickupKind.value))
-    : branches.value,
-)
 const hasMap = computed(() => !compactList.value && markers.value.length > 0)
 
 const mapCenter = computed<LngLat>(
@@ -118,15 +110,6 @@ async function selectPreview(branch: Branch | undefined) {
   showDetails.value = true
   await nextTick()
   backButton.value?.focus()
-}
-
-async function selectFromList(branch: Branch) {
-  if (compactList.value && !props.checkout) {
-    selectedId.value = branch.id
-    await confirm(branch)
-  } else {
-    await selectPreview(branch)
-  }
 }
 
 async function returnToList() {
@@ -176,7 +159,7 @@ async function confirm(branch: Branch) {
       :class="{ 'max-h-[55%]': hasMap, 'pickup-detail-panel': showDetails && selected }"
     >
       <div
-        v-if="showDetails && selected && (!compactList || checkout)"
+        v-if="showDetails && selected"
         class="pickup-detail-content flex flex-col gap-4"
         data-testid="pickup-branch-detail"
       >
@@ -199,17 +182,12 @@ async function confirm(branch: Branch) {
         />
       </div>
       <div v-else class="flex flex-col gap-4">
-        <ModeSwitch
-          v-if="compactList && !checkout && pickupOptions.length > 1"
-          v-model="pickupKind"
-          :options="pickupOptions"
-        />
         <PickupBranchList
           ref="listRef"
-          :branches="visibleBranches"
+          :branches="branches"
           :compact="compactList"
           :disabled="isSwitching"
-          @select="selectFromList"
+          @select="selectPreview"
         />
       </div>
     </SheetPanel>

@@ -98,7 +98,6 @@ watch(modes, (options) => {
     />
     <PickupPane
       v-else-if="flowStore.isPickerOpen && flowStore.pickerMode === 'pickup' && modes.length"
-      :checkout="route?.name === 'checkout'"
     />
   </MapDialog>
 </template>
