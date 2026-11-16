@@ -458,8 +458,8 @@ function handleSubmit() {
 
     <div :class="sectionClass">
       <p class="sr-only">{{ addressCaption }}</p>
-      <div class="rounded-[24px] bg-gray-100 p-2">
-        <div class="flex rounded-2xl bg-gray-200/70 p-1" role="group" :aria-label="addressCaption">
+      <div class="flex flex-col gap-2 rounded-[24px] bg-gray-100 p-2">
+        <div class="flex gap-1 rounded-2xl bg-gray-200/70 p-1" role="group" :aria-label="addressCaption">
           <button
             v-for="option in fulfillmentOptions"
             :key="option.value"
