@@ -22,8 +22,11 @@ const base = computed(() =>
 const total = computed(() => base.value + cart.productStars)
 </script>
 <template>
-  <p v-if="plain && total > 0 && branch.activeBranch?.branch_info?.loyalty?.enabled" class="text-center text-xs text-gray-600">
-    {{ t('loyalty.earnTotal') }} +{{ label(total) }}
+  <p v-if="plain && total > 0 && branch.activeBranch?.branch_info?.loyalty?.enabled" class="flex items-center justify-between gap-3 text-sm">
+    <span class="text-gray-500">{{ t('loyalty.earnForOrder') }}</span>
+    <span class="inline-flex items-center gap-1.5 whitespace-nowrap font-medium tabular-nums text-primary">
+      <i class="pi pi-star-fill" aria-hidden="true" />+{{ label(total) }}
+    </span>
   </p>
   <div
     v-else-if="!plain && total > 0 && branch.activeBranch?.branch_info?.loyalty?.enabled"

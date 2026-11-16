@@ -70,6 +70,7 @@ export const en: typeof ru = {
     continueShopping: 'Continue shopping',
 
     itemBonus: 'Extra for this product: +{stars}',
+    earnForOrder: 'Earn for this order',
     earnTotal: 'Earn after completion',
     fromAmount: 'For the order amount',
     fromProducts: 'Extra for products',

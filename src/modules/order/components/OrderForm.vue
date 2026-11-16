@@ -660,6 +660,7 @@ function handleSubmit() {
           <span>{{ t('order.form.orderTotal') }}</span>
           <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>
         </div>
+        <LoyaltyEarnings plain :spend-points="starsToSpend" />
       </div>
     </div>
 
@@ -692,7 +693,6 @@ function handleSubmit() {
       />
     </div>
 
-    <LoyaltyEarnings plain :spend-points="starsToSpend" />
     <OrderConsent />
   </form>
 </template>

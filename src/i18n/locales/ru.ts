@@ -69,6 +69,7 @@ export const ru = {
     continueShopping: 'Продолжить выбор',
 
     itemBonus: 'Дополнительно за товар: +{stars}',
+    earnForOrder: 'Начислим за заказ',
     earnTotal: 'Получите после выполнения',
     fromAmount: 'За сумму заказа',
     fromProducts: 'Дополнительно за товары',
