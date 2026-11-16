@@ -62,14 +62,6 @@ const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 const phoneSection = ref<HTMLElement | null>(null)
 const phoneError = ref(false)
-const phoneInputClass = computed(() =>
-  [
-    'w-full lg:max-w-sm rounded-xl! border! bg-gray-50! px-3.5! py-3! text-base! text-gray-900!',
-    phoneError.value
-      ? 'border-red-500! hover:border-red-500! focus:border-red-500!'
-      : 'border-gray-100! hover:border-primary! focus:border-primary!',
-  ].join(' '),
-)
 const compositionOpen = ref(false)
 
 type PickupKind = Extract<OrderFormValues['fulfillment_type'], 'pickup' | 'dine_in'>
@@ -458,14 +450,22 @@ function handleSubmit() {
     <h2 class="text-xl font-bold text-gray-950">{{ headline }}</h2>
 
     <div v-if="!authenticatedPhone" ref="phoneSection" :class="sectionClass">
-      <p :class="captionClass">{{ t('order.form.phoneCaption') }}</p>
-      <PhoneInput
-        v-model="form.customer_phone"
-        required
-        :class="phoneInputClass"
-        :invalid="phoneError"
-      />
-      <p v-if="phoneError" class="text-sm font-medium text-red-600" role="alert">
+      <label for="checkout-phone" :class="['block', captionClass]">{{ t('order.form.phoneCaption') }}</label>
+      <div class="relative">
+        <span class="pointer-events-none absolute inset-y-0 start-4 z-10 grid w-8 place-items-center text-gray-900" aria-hidden="true">
+          <i class="pi pi-phone text-[19px]!" />
+        </span>
+        <PhoneInput
+          id="checkout-phone"
+          v-model="form.customer_phone"
+          required
+          class="w-full rounded-2xl! border-0! bg-gray-100! py-3.5! ps-[58px]! pe-4! text-base! tabular-nums text-gray-900! hover:bg-gray-200/70! focus:ring-2! focus:ring-inset!"
+          :class="phoneError ? 'ring-2! ring-inset! ring-red-500!' : 'focus:ring-primary!'"
+          :invalid="phoneError"
+          :aria-describedby="phoneError ? 'checkout-phone-error' : undefined"
+        />
+      </div>
+      <p v-if="phoneError" id="checkout-phone-error" class="text-sm font-medium text-red-600" role="alert">
         {{ t('order.form.phoneError') }}
       </p>
     </div>
