@@ -518,7 +518,7 @@ export interface paths {
     }
     /**
      * Подсказки адресов
-     * @description Адреса DaData по введённой строке, в пределах города, если он передан.
+     * @description Адреса DaData по введённой строке; city ограничивает город, city_boost повышает его приоритет.
      */
     get: operations['DelivestWeb.Client.Geo.GeoController.suggest']
     put?: never
