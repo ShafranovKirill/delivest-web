@@ -29,6 +29,7 @@ import { formatPrice } from '@/utils/money'
 import { useLoyaltyQuery } from '@/modules/account/composables/useLoyaltyQuery'
 import { useStarsLabel } from '@/modules/account/composables/useStarsLabel'
 import OrderComposition from './OrderComposition.vue'
+import MessageFilledIcon from '~icons/tabler/message-filled'
 
 export interface OrderFormValues {
   customer_name: string
@@ -566,13 +567,14 @@ function handleSubmit() {
       <p :class="captionClass">{{ t('order.form.comment') }}</p>
       <OrderPickRow
         v-if="!commentOpen"
-        icon="pi-comment"
         arrow="none"
         :title="form.comment || t('order.form.addComment')"
         :text="form.comment ? undefined : t('order.form.commentPlaceholder')"
         class="[overflow-wrap:anywhere]"
         @click="editComment"
-      />
+      >
+        <template #icon><MessageFilledIcon class="size-[22px]" /></template>
+      </OrderPickRow>
       <textarea
         v-else
         ref="commentInput"

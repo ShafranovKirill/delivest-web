@@ -9,6 +9,7 @@ import { formatPrice } from '@/utils/money'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
+import BasketFilledIcon from '~icons/tabler/basket-filled'
 
 defineProps<{ compact?: boolean }>()
 const expanded = ref(false)
@@ -28,13 +29,14 @@ const goodsLabel = computed(() => {
   <section class="rounded-2xl" :class="{ 'bg-gray-50': expanded || !compact }">
     <h2>
       <OrderPickRow
-        icon="pi-shopping-bag"
         :title="t('order.composition')"
         :text="goodsLabel"
         :arrow="expanded ? 'up' : 'down'"
         :aria-expanded="expanded"
         @click="expanded = !expanded"
-      />
+      >
+        <template #icon><BasketFilledIcon class="size-[22px]" /></template>
+      </OrderPickRow>
     </h2>
 
     <ul v-if="expanded" class="px-4 mt-4 flex flex-col gap-3">
