@@ -1,11 +1,13 @@
 <script setup lang="ts">
-defineProps<{ title: string; text?: string | null; arrow?: 'up' | 'down' | 'none' }>()
+defineProps<{ title: string; text?: string | null; arrow?: 'up' | 'down' | 'none'; static?: boolean }>()
 </script>
 
 <template>
-  <button
-    type="button"
-    class="flex w-full items-center gap-2.5 rounded-2xl bg-gray-100 px-4 py-3 text-left font-normal tracking-normal transition-colors cursor-pointer hover:bg-gray-200/70 focus-visible:outline-2 focus-visible:outline-primary"
+  <component
+    :is="static ? 'span' : 'button'"
+    :type="static ? undefined : 'button'"
+    class="flex w-full items-center gap-2.5 rounded-2xl bg-gray-100 px-4 py-3 text-left font-normal tracking-normal"
+    :class="{ 'cursor-pointer transition-colors hover:bg-gray-200/70 focus-visible:outline-2 focus-visible:outline-primary': !static }"
   >
     <span class="grid h-8 w-8 shrink-0 place-items-center text-gray-900" aria-hidden="true">
       <slot name="icon" />
@@ -32,5 +34,5 @@ defineProps<{ title: string; text?: string | null; arrow?: 'up' | 'down' | 'none
         stroke-linejoin="round"
       />
     </svg>
-  </button>
+  </component>
 </template>

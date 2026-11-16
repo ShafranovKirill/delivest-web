@@ -30,6 +30,7 @@ const goodsLabel = computed(() => {
   <section class="rounded-2xl" :class="{ 'bg-gray-50': expanded || !compact }">
     <h2>
       <OrderPickRow
+        v-if="compact"
         :title="t('order.composition')"
         :text="goodsLabel"
         :arrow="expanded ? 'up' : 'down'"
@@ -38,9 +39,12 @@ const goodsLabel = computed(() => {
       >
         <template #icon><BasketFilledIcon class="size-[22px]" /></template>
       </OrderPickRow>
+      <OrderPickRow v-else static :title="t('order.composition')" :text="goodsLabel" arrow="none">
+        <template #icon><BasketFilledIcon class="size-[22px]" /></template>
+      </OrderPickRow>
     </h2>
 
-    <ul v-if="expanded" class="px-4 mt-4 flex flex-col gap-3">
+    <ul v-if="expanded || !compact" class="px-4 mt-4 flex flex-col gap-3">
       <li v-for="item in cartStore.items" :key="item.key" class="flex items-center gap-2.5">
         <ProductImage :src="item.image_url" alt="" class="size-12 shrink-0 rounded-xl" />
         <div class="min-w-0 flex-1">
