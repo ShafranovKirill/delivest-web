@@ -76,7 +76,7 @@ async function clear(id: string) {
       <button
         v-else
         type="button"
-        class="rounded-full px-3 py-2 text-xs font-medium text-gray-500 hover:bg-white disabled:opacity-40"
+        class="rounded-full px-3 py-2 text-xs font-medium text-gray-500 hover:bg-white dark:hover:bg-gray-50 disabled:opacity-40"
         :disabled="cart.isLoading"
         @click="clear(promotion.promotion_id)"
       >

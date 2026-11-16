@@ -73,7 +73,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
         :empty-search-message="t('delivery.addressNotFound')"
         :empty-selection-message="t('delivery.addressNotFound')"
         :pt="{ overlay: { class: 'address-suggest-overlay' } }"
-        input-class="h-12! border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white!"
+        input-class="h-12! border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white! dark:focus:bg-(--surface-card)!"
         fluid
         @update:model-value="onInput"
         @complete="suggest && search($event.query)"
@@ -102,7 +102,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
       :empty-search-message="t('delivery.addressNotFound')"
       :empty-selection-message="t('delivery.addressNotFound')"
       :pt="{ overlay: { class: 'address-suggest-overlay' } }"
-      input-class="h-12! border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white!"
+      input-class="h-12! border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white! dark:focus:bg-(--surface-card)!"
       fluid
       @update:model-value="onInput"
       @complete="suggest && search($event.query)"

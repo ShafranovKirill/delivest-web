@@ -43,7 +43,7 @@ function signIn() {
       </span>
       <button
         type="button"
-        class="size-9 shrink-0 rounded-full grid place-items-center text-gray-400 hover:text-red-500 hover:bg-white transition-colors cursor-pointer"
+        class="size-9 shrink-0 rounded-full grid place-items-center text-gray-400 hover:text-red-500 hover:bg-white dark:hover:bg-gray-50 transition-colors cursor-pointer"
         :aria-label="t('auth.signOut')"
         :title="t('auth.signOut')"
         @click.stop="authStore.logout"

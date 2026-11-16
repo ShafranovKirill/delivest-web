@@ -100,7 +100,7 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
           <InputText
             :id="`${detailsId}-${field}`"
             v-model="address[field]"
-            class="h-12! w-full min-w-0 border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white!"
+            class="h-12! w-full min-w-0 border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white! dark:focus:bg-(--surface-card)!"
           />
           <label :for="`${detailsId}-${field}`" class="left-4!">{{
             t(`fulfillment.form.${field}`)
@@ -115,7 +115,7 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
           <InputText
             :id="`${detailsId}-${field}`"
             v-model="address[field]"
-            class="h-12! w-full min-w-0 border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white!"
+            class="h-12! w-full min-w-0 border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white! dark:focus:bg-(--surface-card)!"
           />
         </div>
       </template>
