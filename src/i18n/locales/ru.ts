@@ -598,6 +598,7 @@ export const ru = {
       online: 'Онлайн',
       callOperator: 'Назову адрес оператору по телефону',
       comment: 'Комментарий к заказу',
+      addComment: 'Добавить комментарий',
       commentPlaceholder: 'Например: без лука',
       changeAsk: 'Сдача с…',
       changeFrom: 'Сдача с {amount}',

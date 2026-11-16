@@ -189,6 +189,19 @@ watch(
   { immediate: true },
 )
 
+const commentOpen = ref(false)
+const commentDraft = ref('')
+
+function editComment() {
+  commentDraft.value = form.comment
+  commentOpen.value = true
+}
+
+function saveComment() {
+  form.comment = commentDraft.value.trim()
+  commentOpen.value = false
+}
+
 const paymentOpen = ref(false)
 
 const paymentLabel = computed(() => t(`order.payment.${form.payment_method}`))
@@ -561,18 +574,38 @@ function handleSubmit() {
       />
     </div>
 
-    <label
-      class="flex flex-col gap-2 lg:grid lg:grid-cols-[9rem_minmax(0,1fr)] lg:gap-x-5 lg:gap-y-0"
-    >
-      <span :class="captionClass">{{ t('order.form.comment') }}</span>
-      <Textarea
-        v-model="form.comment"
-        rows="1"
-        auto-resize
-        :placeholder="t('order.form.commentPlaceholder')"
-        class="w-full resize-none rounded-xl! border! border-gray-100! bg-gray-50! px-3.5! py-3! text-base! text-gray-900! placeholder:text-gray-500! hover:border-primary! focus:border-primary!"
+    <div :class="sectionClass">
+      <p :class="captionClass">{{ t('order.form.comment') }}</p>
+      <OrderPickRow
+        icon="pi-comment"
+        :title="form.comment || t('order.form.addComment')"
+        :text="form.comment ? undefined : t('order.form.commentPlaceholder')"
+        class="[overflow-wrap:anywhere]"
+        aria-haspopup="dialog"
+        @click="editComment"
       />
-    </label>
+    </div>
+
+    <Dialog
+      v-model:visible="commentOpen"
+      :header="t('order.form.comment')"
+      modal
+      dismissable-mask
+      :draggable="false"
+      class="w-[min(92vw,420px)]"
+    >
+      <Textarea
+        v-model="commentDraft"
+        autofocus
+        rows="3"
+        :aria-label="t('order.form.comment')"
+        :placeholder="t('order.form.commentPlaceholder')"
+        class="w-full rounded-xl! bg-gray-50! text-base! text-gray-900!"
+      />
+      <template #footer>
+        <Button type="button" :label="t('common.save')" rounded @click="saveComment" />
+      </template>
+    </Dialog>
 
     <Dialog
       v-model:visible="paymentOpen"

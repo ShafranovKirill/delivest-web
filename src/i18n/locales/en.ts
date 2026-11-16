@@ -598,6 +598,7 @@ export const en: typeof ru = {
       online: 'Online',
       callOperator: 'I will tell the address to the operator by phone',
       comment: 'Order comment',
+      addComment: 'Add a comment',
       commentPlaceholder: 'For example: no onions',
       changeAsk: 'Change for…',
       changeFrom: 'Change for {amount}',
