@@ -584,6 +584,7 @@ export const ru = {
       phoneCaption: 'Номер телефона',
       phoneError: 'Введите номер телефона полностью',
       addressError: 'Укажите улицу и дом для доставки',
+      changePayment: 'Изменить способ оплаты',
       paymentCaption: 'Способ оплаты',
       contacts: 'Контактные данные',
       name: 'Ваше имя',

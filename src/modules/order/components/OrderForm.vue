@@ -552,7 +552,13 @@ function handleSubmit() {
 
     <div :class="sectionClass">
       <p :class="captionClass">{{ t('order.form.paymentCaption') }}</p>
-      <OrderPickRow :title="paymentLabel" @click="paymentOpen = true" />
+      <OrderPickRow
+        :title="paymentLabel"
+        :icon="form.payment_method === 'cash' ? 'pi-money-bill' : 'pi-credit-card'"
+        :text="t('order.form.changePayment')"
+        aria-haspopup="dialog"
+        @click="paymentOpen = true"
+      />
     </div>
 
     <label

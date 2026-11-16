@@ -584,6 +584,7 @@ export const en: typeof ru = {
       phoneCaption: 'Phone number',
       phoneError: 'Enter your full phone number',
       addressError: 'Enter the street and house for delivery',
+      changePayment: 'Change payment method',
       paymentCaption: 'Payment method',
       contacts: 'Contact details',
       name: 'Your name',
