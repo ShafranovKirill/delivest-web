@@ -66,7 +66,7 @@ describe('fulfillment picker map layout', () => {
   it.each([
     ['delivery', true, true, 'false'],
     ['delivery', false, true, 'true'],
-    ['pickup', false, true, 'false'],
+    ['pickup', false, true, 'true'],
     ['pickup', true, false, 'true'],
   ])('mode %s, branch map %s, integration %s gives compact %s', async (mode, enabled, integration, compact) => {
     flow.pickerMode = mode
@@ -101,11 +101,11 @@ describe('loading pane map placeholder', () => {
     expect(html).toContain(`data-floating="${map}"`)
   })
 
-  it('keeps the pickup placeholder with manual delivery mode', async () => {
+  it('omits the pickup placeholder with manual delivery mode', async () => {
     franchise.addressMap = true
     branch.mapAddress = false
-    const html = await renderToString(createSSRApp(PaneSkeleton, { map: true }))
-    expect(html).toContain('data-map-placeholder')
-    expect(html).toContain('data-floating="true"')
+    const html = await renderToString(createSSRApp(PaneSkeleton, { map: false }))
+    expect(html).not.toContain('data-map-placeholder')
+    expect(html).toContain('data-floating="false"')
   })
 })

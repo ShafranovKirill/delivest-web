@@ -1,16 +1,16 @@
-import { computed } from 'vue'
+import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { DeliveryService } from '../api/delivery.service'
 
-export const useDeliveryZones = () => {
+export const useDeliveryZones = (enabled: MaybeRefOrGetter<boolean> = true) => {
   const branchStore = useBranchStore()
   const branchId = computed(() => branchStore.activeBranch?.id ?? null)
 
   const query = useQuery({
     queryKey: computed(() => ['delivery-zones', branchId.value]),
     queryFn: () => DeliveryService.zones(branchId.value!),
-    enabled: computed(() => Boolean(branchId.value)),
+    enabled: computed(() => Boolean(toValue(enabled) && branchId.value)),
     staleTime: 5 * 60 * 1000,
   })
 

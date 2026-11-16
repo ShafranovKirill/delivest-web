@@ -9,7 +9,10 @@ import { DeliveryService } from '../api/delivery.service'
 import type { DeliveryAddress } from '../utils/deliveryAddress'
 import { isComplete, lngLatOf } from '../utils/deliveryAddress'
 
-export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | null>) => {
+export const useDeliveryQuote = (
+  address?: MaybeRefOrGetter<DeliveryAddress | null>,
+  enabled: MaybeRefOrGetter<boolean> = true,
+) => {
   const { t } = useI18n()
   const branchStore = useBranchStore()
   const cartStore = useCartStore()
@@ -33,19 +36,19 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
       'delivery-quote',
       branchId.value,
       branchStore.requiresCoordinates,
-      target.value?.latitude ?? null,
-      target.value?.longitude ?? null,
+      branchStore.requiresCoordinates ? (target.value?.latitude ?? null) : null,
+      branchStore.requiresCoordinates ? (target.value?.longitude ?? null) : null,
       cartStore.totalAmount,
       cartStore.revision,
     ]),
     queryFn: () =>
       DeliveryService.quote(
         branchId.value!,
-        target.value?.latitude ?? null,
-        target.value?.longitude ?? null,
+        branchStore.requiresCoordinates ? (target.value?.latitude ?? null) : null,
+        branchStore.requiresCoordinates ? (target.value?.longitude ?? null) : null,
         cartStore.totalAmount,
       ),
-    enabled: computed(() => Boolean(branchId.value && ready.value)),
+    enabled: computed(() => Boolean(toValue(enabled) && branchId.value && ready.value)),
     staleTime: 60 * 1000,
   })
 

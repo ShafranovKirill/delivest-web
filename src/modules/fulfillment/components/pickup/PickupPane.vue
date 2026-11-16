@@ -30,6 +30,7 @@ const analytics = useFunnelAnalytics()
 const branches = computed(() =>
   branchStore.branches.filter((branch) => branch.is_active && hasOnsite(branch)),
 )
+const compactList = computed(() => !franchiseStore.addressMap || !branchStore.mapAddress)
 const selectedId = ref<string | null>(branchStore.activeBranch?.id ?? null)
 const showDetails = ref(false)
 const backButton = ref<HTMLButtonElement | null>(null)
@@ -43,7 +44,9 @@ const pickupKind = ref<PickupKind>(
     : 'pickup',
 )
 const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() => {
-  const methods = fulfillmentMethods(selected.value)
+  const methods = compactList.value
+    ? [...new Set(branches.value.flatMap(fulfillmentMethods))]
+    : fulfillmentMethods(selected.value)
   return [
     ...(methods.includes('pickup')
       ? [{ value: 'pickup' as const, label: t('order.form.takeaway') }]
@@ -88,7 +91,12 @@ const markers = computed<MapMarker[]>(() =>
   }),
 )
 
-const hasMap = computed(() => franchiseStore.addressMap && markers.value.length > 0)
+const visibleBranches = computed(() =>
+  compactList.value
+    ? branches.value.filter((branch) => fulfillmentMethods(branch).includes(pickupKind.value))
+    : branches.value,
+)
+const hasMap = computed(() => !compactList.value && markers.value.length > 0)
 
 const mapCenter = computed<LngLat>(
   () => branchLngLat(selected.value) ?? fallbackLngLat(branches.value),
@@ -107,6 +115,15 @@ async function selectPreview(branch: Branch | undefined) {
   showDetails.value = true
   await nextTick()
   backButton.value?.focus()
+}
+
+async function selectFromList(branch: Branch) {
+  if (compactList.value) {
+    selectedId.value = branch.id
+    await confirm(branch)
+  } else {
+    await selectPreview(branch)
+  }
 }
 
 async function returnToList() {
@@ -153,7 +170,7 @@ async function confirm(branch: Branch) {
 
     <SheetPanel :floating="hasMap" :class="{ 'max-h-[55%]': hasMap }">
       <div
-        v-if="showDetails && selected"
+        v-if="!compactList && showDetails && selected"
         class="flex flex-col gap-4"
         data-testid="pickup-branch-detail"
       >
@@ -174,7 +191,20 @@ async function confirm(branch: Branch) {
           @confirm="confirm(selected)"
         />
       </div>
-      <PickupBranchList v-else ref="listRef" :branches="branches" @select="selectPreview" />
+      <div v-else class="flex flex-col gap-4">
+        <ModeSwitch
+          v-if="compactList && pickupOptions.length > 1"
+          v-model="pickupKind"
+          :options="pickupOptions"
+        />
+        <PickupBranchList
+          ref="listRef"
+          :branches="visibleBranches"
+          :compact="compactList"
+          :disabled="isSwitching"
+          @select="selectFromList"
+        />
+      </div>
     </SheetPanel>
   </div>
 </template>

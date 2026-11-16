@@ -39,7 +39,8 @@ const setFulfillment = vi.fn()
 const startCall = vi.fn()
 const confirmCode = vi.fn()
 const checkCall = vi.fn()
-let quoteOptions: { queryKey: { value: unknown[] } } | undefined
+let quoteOptions: { queryKey: { value: unknown[] }; queryFn: () => Promise<unknown> } | undefined
+const requestQuote = vi.fn()
 const quoteData = ref<{ status: string; price: number } | null>(null)
 const quoteFetching = ref(false)
 const quotePending = ref(false)
@@ -72,7 +73,7 @@ vi.mock('@tanstack/vue-query', () => ({
   },
 }))
 vi.mock('@/modules/fulfillment/api/delivery.service', () => ({
-  DeliveryService: { quote: vi.fn() },
+  DeliveryService: { quote: requestQuote },
 }))
 vi.mock('@/modules/fulfillment/utils/fulfillmentMethods', () => ({
   fulfillmentMethods: () => ['delivery', 'pickup'],
@@ -124,10 +125,12 @@ beforeEach(() => {
   quoteFetching.value = false
   quotePending.value = false
   quoteError.value = false
+  requestQuote.mockReset()
 })
 
 describe('delivery quote freshness', () => {
   it('hides a previous quote while a changed address or cart is pending', async () => {
+    branch.requiresCoordinates = true
     getCart.mockResolvedValue(cart('A-cart', 1))
     const cartStore = useCartStore()
     await cartStore.fetchCart('A')
@@ -144,6 +147,22 @@ describe('delivery quote freshness', () => {
     quoteFetching.value = false
     quoteData.value = { status: 'ok', price: 150 }
     expect(quote.price.value).toBe(150)
+  })
+
+  it('quotes a manual address by subtotal without coordinates', async () => {
+    const address = ref({
+      latitude: 55.75,
+      longitude: 37.61,
+      city: 'A',
+      street: 'Main',
+      house: '7',
+    })
+    const quote = useDeliveryQuote(() => address.value as never)
+    expect(quote.ready.value).toBe(true)
+    expect(quoteOptions?.queryKey.value.slice(3, 5)).toEqual([null, null])
+    requestQuote.mockResolvedValue({ status: 'ok', price: 100 })
+    await quoteOptions?.queryFn()
+    expect(requestQuote).toHaveBeenCalledWith('A', null, null, 0)
   })
 
   it('hides a cached quote after a request error and a branch change', () => {

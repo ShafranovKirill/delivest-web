@@ -47,7 +47,7 @@ const {
   isReady,
   pickSuggestion,
   pickSaved,
-} = useAddressEditor(address, () => hasMap.value)
+} = useAddressEditor(address, () => branchStore.requiresCoordinates)
 
 const markers = computed(() => (props.saved ? savedMarkers(savedAddresses.value) : []))
 
