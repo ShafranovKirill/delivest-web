@@ -434,7 +434,7 @@ function handleSubmit() {
 </script>
 
 <template>
-  <form class="flex flex-col gap-5 lg:gap-6" novalidate @submit.prevent="handleSubmit">
+  <form class="checkout-form flex flex-col gap-5 lg:gap-6" novalidate @submit.prevent="handleSubmit">
     <h2 class="text-xl font-bold text-gray-950">{{ headline }}</h2>
 
     <div v-if="!authenticatedPhone" ref="phoneSection" :class="sectionClass">
@@ -461,10 +461,10 @@ function handleSubmit() {
     <div :class="sectionClass">
       <p :class="[captionClass, 'sr-only lg:not-sr-only']">{{ addressCaption }}</p>
       <div
-        class="flex flex-col gap-1.5 rounded-2xl bg-gray-100 p-1.5"
+        class="flex flex-col gap-1.5 rounded-2xl bg-[var(--checkout-card-bg)] p-1.5"
       >
         <div
-          class="flex rounded-xl bg-gray-200 p-1"
+          class="flex rounded-xl bg-[var(--checkout-track-bg)] p-1"
           role="group"
           :aria-label="addressCaption"
         >
@@ -491,7 +491,7 @@ function handleSubmit() {
         </div>
         <button
           type="button"
-          class="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors duration-150 hover:bg-gray-200 focus-visible:bg-gray-200 motion-reduce:transition-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+          class="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors duration-150 hover:bg-[var(--checkout-card-hover-bg)] focus-visible:bg-[var(--checkout-card-hover-bg)] motion-reduce:transition-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
           :aria-label="`${addressCaption}: ${addressRow.text || addressRow.title}`"
           @click="openAddressPicker"
         >
@@ -618,7 +618,7 @@ function handleSubmit() {
     <div v-if="maxStars > 0" :class="sectionClass">
       <label
         id="spend-stars"
-        class="flex w-full cursor-pointer items-center gap-2.5 rounded-2xl bg-gray-100 px-4 py-3 transition-colors hover:bg-gray-200/70 lg:col-start-2"
+        class="flex w-full cursor-pointer items-center gap-2.5 rounded-2xl bg-[var(--checkout-card-bg)] px-4 py-3 transition-colors hover:bg-[var(--checkout-card-hover-bg)] lg:col-start-2"
       >
         <span class="grid h-8 w-8 shrink-0 place-items-center text-gray-900" aria-hidden="true">
           <i class="pi pi-star-fill text-[19px]!" />
@@ -696,3 +696,20 @@ function handleSubmit() {
     <OrderConsent />
   </form>
 </template>
+
+<style scoped>
+.checkout-form {
+  --checkout-card-bg: #f5f1ed;
+  --checkout-card-hover-bg: #eee8e1;
+  --checkout-track-bg: #e8e2db;
+  --p-toggleswitch-background: var(--checkout-track-bg);
+  --p-toggleswitch-hover-background: #ded6ce;
+}
+
+.dark .checkout-form {
+  --checkout-card-bg: #2c2928;
+  --checkout-card-hover-bg: #35302e;
+  --checkout-track-bg: #393430;
+  --p-toggleswitch-hover-background: #49413c;
+}
+</style>
