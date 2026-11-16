@@ -5,7 +5,7 @@ defineProps<{ title: string; icon: string; text?: string | null; arrow?: 'up' | 
 <template>
   <button
     type="button"
-    class="flex w-full items-center gap-2.5 rounded-2xl bg-gray-100 px-4 py-3 text-left transition-colors cursor-pointer hover:bg-gray-200/70 focus-visible:outline-2 focus-visible:outline-primary"
+    class="flex w-full items-center gap-2.5 rounded-2xl bg-gray-100 px-4 py-3 text-left font-normal tracking-normal transition-colors cursor-pointer hover:bg-gray-200/70 focus-visible:outline-2 focus-visible:outline-primary"
   >
     <span class="grid h-8 w-8 shrink-0 place-items-center text-gray-900" aria-hidden="true">
       <i class="pi text-[19px]!" :class="icon" />
