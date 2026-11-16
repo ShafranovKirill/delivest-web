@@ -3,7 +3,7 @@ import OrderEarnings from '@/modules/account/components/OrderEarnings.vue'
 
 import { computed, ref, watch } from 'vue'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import Button from 'primevue/button'
 import { OrderService, type ActiveOrder } from '../../api/order.service'
 import { ACTIVE_ORDERS_KEY } from '../../composables/useActiveOrdersQuery'
@@ -76,13 +76,12 @@ const placedDate = computed(() =>
 </script>
 
 <template>
-  <Dialog
+  <ResponsiveSheet
+    :aria-label="order ? t('order.number', { number: order.short_number }) : t('nav.myOrders')"
     v-model:visible="visible"
-    modal
-    dismissable-mask
-    :draggable="false"
-    class="w-[min(94vw,560px)]"
-    :pt="{
+    desktop-class="w-[min(94vw,560px)]"
+    :sheet-pt="{ footer: { class: 'border-t border-gray-100' } }"
+    :desktop-pt="{
       root: { class: 'max-h-[92dvh] overflow-hidden rounded-4xl!' },
       content: { class: 'overflow-y-auto!' },
       footer: { class: 'border-t border-gray-100' },
@@ -278,7 +277,7 @@ const placedDate = computed(() =>
         </div>
       </div>
     </template>
-  </Dialog>
+  </ResponsiveSheet>
 </template>
 
 <style scoped>

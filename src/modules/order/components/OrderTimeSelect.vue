@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue'
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import { captionClass, sectionClass } from '../utils/formLayout'
 import { useOrderTime, type Fulfillment } from '../composables/useOrderTime'
 import { useI18n } from 'vue-i18n'
@@ -113,13 +113,10 @@ function chipClass(active: boolean) {
     </div>
     <p v-else class="text-sm text-gray-500">{{ t('order.timeSelect.noSlots') }}</p>
 
-    <Dialog
+    <ResponsiveSheet
       v-model:visible="isDialogOpen"
-      modal
-      :dismissableMask="true"
-      :draggable="false"
-      class="w-[min(92vw,520px)]"
-      :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
+      :aria-label="t('order.timeSelect.pick')"
+      desktop-class="w-[min(92vw,520px)]"
     >
       <template #header>
         <h3 class="text-xl font-extrabold text-gray-950">{{ t('order.timeSelect.pick') }}</h3>
@@ -155,6 +152,6 @@ function chipClass(active: boolean) {
         </button>
       </div>
       <p v-else class="text-sm text-gray-500">{{ t('order.timeSelect.noSlots') }}</p>
-    </Dialog>
+    </ResponsiveSheet>
   </div>
 </template>

@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
+import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useI18n } from 'vue-i18n'
 import { useLoyaltyModalStore } from '../stores/loyalty.store'
 import LoyaltyPanel from './LoyaltyPanel.vue'
 const modal = useLoyaltyModalStore()
+const viewportStore = useViewportStore()
 const { t } = useI18n()
 </script>
 <template>
-  <Dialog
+  <ResponsiveSheet
     id="loyalty-modal"
     v-model:visible="modal.isOpen"
-    modal
-    :draggable="false"
     :block-scroll="true"
     :header="t('loyalty.title')"
-    :dismissable-mask="false"
-    :pt="{
+    :dismissable-mask="viewportStore.isMobile"
+    sheet-class="h-[calc(100dvh-2rem)]!"
+    :sheet-pt="{ content: { class: 'flex-1! p-0! bg-white' } }"
+    :desktop-pt="{
       mask: { class: 'loyalty-mask' },
       root: {
         class:
@@ -26,7 +28,7 @@ const { t } = useI18n()
     }"
   >
     <LoyaltyPanel />
-  </Dialog>
+  </ResponsiveSheet>
 </template>
 
 <style>

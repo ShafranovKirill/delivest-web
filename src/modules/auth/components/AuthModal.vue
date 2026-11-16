@@ -61,7 +61,10 @@ watch(
 </script>
 
 <template>
-  <ResponsiveSheet v-model:visible="authStore.isModalOpen">
+  <ResponsiveSheet
+    :aria-label="confirmation ? t('auth.confirmTitle') : t('auth.signInTitle')"
+    v-model:visible="authStore.isModalOpen"
+  >
     <template #header>
       <div>
         <h2 class="text-xl font-extrabold text-gray-950">

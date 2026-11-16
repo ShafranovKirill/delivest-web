@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
+import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useI18n } from 'vue-i18n'
 
 defineEmits<{ hide: [] }>()
@@ -7,24 +8,41 @@ defineProps<{ compact?: boolean }>()
 
 const visible = defineModel<boolean>('visible', { required: true })
 const { t } = useI18n()
+const viewportStore = useViewportStore()
 </script>
 
 <template>
-  <Dialog
+  <ResponsiveSheet
     v-model:visible="visible"
-    modal
     block-scroll
+    :aria-label="t('fulfillment.picker.title')"
+    :dismissable-mask="!!compact && viewportStore.isMobile"
+    :sheet-when="compact"
+    sheet-class="flex! max-h-[90dvh]! border-0! shadow-2xl"
+    :sheet-pt="{
+      content: {
+        class:
+          'relative flex! flex-col! flex-1! min-h-0! overflow-hidden! p-0! [&_.p-inputtext]:rounded-3xl! [&_.p-textarea]:rounded-3xl!',
+      },
+    }"
     :show-header="false"
-    :class="
+    :desktop-class="
       compact
         ? 'm-3! flex max-h-[calc(100dvh-1.5rem)]! w-[min(30rem,calc(100vw-1.5rem))]! max-w-none! flex-col overflow-hidden rounded-3xl! border-0! shadow-2xl'
         : 'm-0! h-dvh! max-h-dvh! w-screen max-w-none! rounded-none!'
     "
-    content-class="relative flex flex-col p-0! flex-1 min-h-0 overflow-hidden [&_.p-inputtext]:rounded-3xl! [&_.p-textarea]:rounded-3xl!"
+    :desktop-pt="{
+      root: { class: compact ? 'rounded-3xl!' : 'rounded-none!' },
+      content: {
+        class:
+          'relative flex flex-col p-0! flex-1 min-h-0 overflow-hidden [&_.p-inputtext]:rounded-3xl! [&_.p-textarea]:rounded-3xl!',
+      },
+    }"
     @hide="$emit('hide')"
   >
-    <div :class="compact ? 'flex shrink-0 items-center gap-3 px-3 pt-3 pb-1' : ''">
+    <div :class="compact ? 'flex shrink-0 items-center gap-3 px-3 pt-3 pb-1 max-md:pt-9' : ''">
       <button
+        v-if="!compact || !viewportStore.isMobile"
         type="button"
         :aria-label="t('common.close')"
         :class="
@@ -52,5 +70,5 @@ const { t } = useI18n()
     >
       <slot />
     </div>
-  </Dialog>
+  </ResponsiveSheet>
 </template>

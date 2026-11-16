@@ -7,6 +7,7 @@ import { useBranchStore } from '../stores/branch.store'
 import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import BranchSelectRow from './BranchSelectRow.vue'
 import { useI18n } from 'vue-i18n'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 
 const { t } = useI18n()
 
@@ -75,14 +76,15 @@ async function handleSelect(branch: Branch) {
 </script>
 
 <template>
-  <Dialog
+  <ResponsiveSheet
     v-model:visible="branchStore.isModalOpen"
-    :dismissable-mask="true"
     :close-on-escape="true"
-    modal
-    :header="t('branch.select.title')"
-    class="w-[90vw] max-w-lg"
+    :aria-label="t('branch.select.title')"
+    desktop-class="w-[90vw] max-w-lg"
   >
+    <template #header>
+      <h2 class="text-xl font-extrabold text-gray-950">{{ t('branch.select.title') }}</h2>
+    </template>
     <div class="max-h-[70vh] overflow-y-auto pt-1">
       <SkeletonList v-if="loading" class="flex flex-col gap-2" item-class="h-14 rounded-2xl!" />
 
@@ -117,5 +119,5 @@ async function handleSelect(branch: Branch) {
         </button>
       </p>
     </div>
-  </Dialog>
+  </ResponsiveSheet>
 </template>
