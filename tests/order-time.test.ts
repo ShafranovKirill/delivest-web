@@ -59,7 +59,7 @@ describe('useOrderTime', () => {
     expect(result.days.value[1]?.ranges).toEqual([{ start: '00:00', end: '23:59' }])
     expect(result.days.value[0]?.suggestions).toEqual(['10:46', '11:00', '11:15'])
     expect(result.asapAvailable.value).toBe(true)
-    expect(result.asapLabel.value).toBe('≈ 10:46')
+    expect(result.asapLabel.value).toBe('≈ 10:50')
     expect(result.isAvailable('2026-11-16T10:46:00')).toBe(true)
     expect(result.isAvailable('2026-11-16T10:45:00')).toBe(false)
     expect(result.isAvailable('2026-11-16T13:99:00')).toBe(false)
@@ -80,6 +80,33 @@ describe('useOrderTime', () => {
     expect(result.asapAvailable.value).toBe(false)
     expect(result.fallback()).toBe('2026-11-16T11:30:00')
     expect(result.isAvailable('2026-11-16T12:00:00')).toBe(false)
+  })
+
+  it('keeps an ASAP estimate already on a ten-minute boundary', () => {
+    vi.setSystemTime(new Date('2026-11-16T07:10:00Z')) // 10:10 Moscow
+    const result = useOrderTime(ref('delivery'))
+    expect(result.asapAvailable.value).toBe(true)
+    expect(result.asapLabel.value).toBe('≈ 10:40')
+  })
+
+  it('rounds an ASAP estimate across midnight within one overnight interval', () => {
+    vi.setSystemTime(new Date('2026-11-16T20:25:30Z')) // Monday 23:25:30 Moscow
+    branch.activeBranch.branch_info.working_hours = {
+      monday: open('22:00', '02:00'),
+      tuesday: closed,
+    }
+    const result = useOrderTime(ref('delivery'))
+    expect(result.asapAvailable.value).toBe(true)
+    expect(result.asapLabel.value).toBe('≈ 00:00')
+    expect(result.days.value[1]?.ranges).toEqual([{ start: '00:00', end: '01:59' }])
+  })
+
+  it('keeps the exact ASAP estimate when rounding would cross closing', () => {
+    vi.setSystemTime(new Date('2026-11-16T08:25:30Z')) // Monday 11:25:30 Moscow
+    branch.activeBranch.branch_info.working_hours = { monday: open('10:00', '12:00') }
+    const result = useOrderTime(ref('delivery'))
+    expect(result.asapAvailable.value).toBe(true)
+    expect(result.asapLabel.value).toBe('≈ 11:56')
   })
 
   it('suggests the first exact minute followed by convenient quarter hours', () => {

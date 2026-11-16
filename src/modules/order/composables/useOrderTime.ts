@@ -160,9 +160,16 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
       openNow.value &&
       intervals.value.some(({ start, end }) => start <= etaMinute.value && etaMinute.value < end),
   )
-  const asapLabel = computed(() =>
-    t('order.timeSelect.asapEta', { time: time(fromClockMinutes(etaMinute.value)) }),
-  )
+  const asapLabel = computed(() => {
+    const eta = etaMinute.value
+    const rounded = Math.ceil(eta / 10) * 10
+    const inSameWindow = intervals.value.some(
+      ({ start, end }) => start <= eta && rounded < end,
+    )
+    return t('order.timeSelect.asapEta', {
+      time: time(fromClockMinutes(inSameWindow ? rounded : eta)),
+    })
+  })
 
   function isAvailable(value: string | null): boolean {
     if (value === null) return asapAvailable.value
