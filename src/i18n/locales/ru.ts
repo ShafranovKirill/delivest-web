@@ -611,6 +611,8 @@ export const ru = {
       title: 'Ко времени',
       titlePickup: 'Время самовывоза',
       titleDelivery: 'Время доставки',
+      changeDelivery: 'Изменить время доставки',
+      changePickup: 'Изменить время получения',
       pick: 'Выберите время',
       asap: 'Побыстрее',
       asapEta: '≈ {time}',

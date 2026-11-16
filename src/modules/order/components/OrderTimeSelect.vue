@@ -4,21 +4,14 @@ import Dialog from 'primevue/dialog'
 import { captionClass, sectionClass } from '../utils/formLayout'
 import { useOrderTime, type Fulfillment } from '../composables/useOrderTime'
 import { useI18n } from 'vue-i18n'
+import clockIcon from '@/assets/icons/fulfillment/clock.png'
 
 const props = defineProps<{ fulfillment: Fulfillment }>()
 const modelValue = defineModel<string | null>({ required: true })
 const { t } = useI18n()
 
-const {
-  days,
-  suggestions,
-  asapAvailable,
-  asapLabel,
-  slotLabel,
-  formatTimeLabel,
-  isAvailable,
-  fallback,
-} = useOrderTime(toRef(props, 'fulfillment'))
+const { days, asapAvailable, asapLabel, slotLabel, formatTimeLabel, isAvailable, fallback } =
+  useOrderTime(toRef(props, 'fulfillment'))
 
 const isDialogOpen = ref(false)
 const activeDay = ref<string | null>(null)
@@ -27,18 +20,19 @@ const visibleDay = computed(
   () => days.value.find((day) => day.key === activeDay.value) ?? days.value[0] ?? null,
 )
 
-const customSelected = computed(
-  () =>
-    modelValue.value !== null && !suggestions.value.some((slot) => slot.value === modelValue.value),
-)
-
-const customLabel = computed(() => {
-  if (!customSelected.value) return t('order.timeSelect.custom')
+const selectedLabel = computed(() => {
+  if (modelValue.value === null) return `${t('order.timeSelect.asap')} ${asapLabel.value}`
   const slot = days.value
     .flatMap((day) => day.slots)
     .find((item) => item.value === modelValue.value)
-  return slot ? slotLabel(slot) : t('order.timeSelect.custom')
+  return slot ? slotLabel(slot) : t('order.timeSelect.pick')
 })
+
+const changeLabel = computed(() =>
+  props.fulfillment === 'delivery'
+    ? t('order.timeSelect.changeDelivery')
+    : t('order.timeSelect.changePickup'),
+)
 
 const caption = computed(() =>
   props.fulfillment === 'delivery'
@@ -62,7 +56,7 @@ function openDialog() {
   isDialogOpen.value = true
 }
 
-function pick(value: string) {
+function pick(value: string | null) {
   modelValue.value = value
   isDialogOpen.value = false
 }
@@ -78,39 +72,39 @@ function chipClass(active: boolean) {
   <div :class="sectionClass">
     <p :class="captionClass">{{ caption }}</p>
 
-    <div
+    <button
       v-if="days.length"
-      class="flex min-w-0 snap-x gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]"
+      type="button"
+      class="flex w-full cursor-pointer items-center gap-2.5 rounded-2xl bg-gray-100 px-3 py-3 text-left transition-colors hover:bg-gray-200/70 focus-visible:outline-2 focus-visible:outline-primary"
+      :aria-label="`${caption}: ${selectedLabel}. ${changeLabel}`"
+      @click="openDialog"
     >
-      <button
-        v-if="asapAvailable"
-        type="button"
-        class="flex shrink-0 snap-start flex-col items-center min-h-11 rounded-xl border px-3 py-1.5 text-sm font-semibold leading-tight transition-colors cursor-pointer"
-        :class="chipClass(modelValue === null)"
-        @click="modelValue = null"
+      <span
+        class="h-8 w-8 shrink-0 bg-current text-gray-900"
+        :style="{ mask: `url(${clockIcon}) center / 26px 26px no-repeat`, maskMode: 'alpha' }"
+        aria-hidden="true"
+      />
+      <span class="min-w-0 flex-1">
+        <span class="block text-sm font-medium leading-snug text-gray-900 sm:text-[15px]">{{
+          selectedLabel
+        }}</span>
+        <span class="block text-xs text-gray-500">{{ changeLabel }}</span>
+      </span>
+      <svg
+        class="h-7 w-7 shrink-0 text-gray-500"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
       >
-        <span>{{ t('order.timeSelect.asap') }}</span>
-        <span class="text-xs font-medium opacity-75">{{ asapLabel }}</span>
-      </button>
-      <button
-        v-for="slot in suggestions"
-        :key="slot.value"
-        type="button"
-        class="shrink-0 snap-start min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
-        :class="chipClass(modelValue === slot.value)"
-        @click="modelValue = slot.value"
-      >
-        {{ slotLabel(slot) }}
-      </button>
-      <button
-        type="button"
-        class="shrink-0 snap-start min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors cursor-pointer"
-        :class="chipClass(customSelected)"
-        @click="openDialog"
-      >
-        {{ customLabel }}
-      </button>
-    </div>
+        <path
+          d="m9 5 7 7-7 7"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
     <p v-else class="text-sm text-gray-500">{{ t('order.timeSelect.noSlots') }}</p>
 
     <Dialog
@@ -124,6 +118,17 @@ function chipClass(active: boolean) {
       <template #header>
         <h3 class="text-xl font-extrabold text-gray-950">{{ t('order.timeSelect.pick') }}</h3>
       </template>
+
+      <button
+        v-if="asapAvailable"
+        type="button"
+        class="mb-3 flex w-full cursor-pointer items-center justify-between rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition-colors"
+        :class="chipClass(modelValue === null)"
+        @click="pick(null)"
+      >
+        <span>{{ t('order.timeSelect.asap') }} {{ asapLabel }}</span>
+        <i v-if="modelValue === null" class="pi pi-check text-xs" />
+      </button>
 
       <div v-if="days.length > 1" class="mb-4 flex gap-2 overflow-x-auto">
         <button

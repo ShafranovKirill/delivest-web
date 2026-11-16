@@ -611,6 +611,8 @@ export const en: typeof ru = {
       title: 'Ready by',
       titlePickup: 'Pickup time',
       titleDelivery: 'Delivery time',
+      changeDelivery: 'Change delivery time',
+      changePickup: 'Change pickup time',
       pick: 'Choose a time',
       asap: 'ASAP',
       asapEta: '≈ {time}',
