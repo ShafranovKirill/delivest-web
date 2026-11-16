@@ -162,10 +162,13 @@ async function confirm(branch: Branch) {
       @marker-click="selectPreview(branches.find((branch) => branch.id === $event))"
     />
 
-    <SheetPanel :floating="hasMap" :class="{ 'max-h-[55%]': hasMap }">
+    <SheetPanel
+      :floating="hasMap"
+      :class="{ 'max-h-[55%]': hasMap, 'pickup-detail-panel': showDetails && selected }"
+    >
       <div
         v-if="showDetails && selected"
-        class="flex flex-col gap-4"
+        class="pickup-detail-content flex flex-col gap-4"
         data-testid="pickup-branch-detail"
       >
         <button
@@ -179,6 +182,7 @@ async function confirm(branch: Branch) {
         </button>
         <ModeSwitch v-if="pickupOptions.length > 1" v-model="pickupKind" :options="pickupOptions" />
         <PickupBranchCard
+          class="pickup-detail-card"
           :branch="selected"
           :pickup-kind="pickupKind"
           :loading="isSwitching"
@@ -190,3 +194,23 @@ async function confirm(branch: Branch) {
     </SheetPanel>
   </div>
 </template>
+
+<style>
+@media (max-width: 767px) {
+  .fulfillment-picker-stretched .pickup-detail-panel .sheet-panel-body {
+    flex: 1 0 auto;
+    min-height: 100%;
+    margin-block: 0;
+  }
+  .fulfillment-picker-stretched .pickup-detail-content,
+  .fulfillment-picker-stretched .pickup-detail-card {
+    flex: 1;
+  }
+  .fulfillment-picker-stretched .pickup-detail-confirm {
+    position: sticky;
+    bottom: 20px;
+    z-index: 1;
+    margin-top: auto;
+  }
+}
+</style>
