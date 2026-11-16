@@ -6,7 +6,6 @@
       <h1 class="text-2xl font-bold tracking-tight text-gray-950">
         {{ t('branch.select.title') }}
       </h1>
-      <p class="mt-2 text-sm text-gray-600">{{ t('branch.select.subtitle') }}</p>
 
       <SkeletonList
         v-if="loading"

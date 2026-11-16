@@ -83,7 +83,6 @@ async function handleSelect(branch: Branch) {
         <h2 class="text-xl font-bold tracking-tight text-gray-950">
           {{ t('branch.select.title') }}
         </h2>
-        <p class="mt-1 text-sm text-gray-600">{{ t('branch.select.subtitle') }}</p>
       </div>
     </template>
 
