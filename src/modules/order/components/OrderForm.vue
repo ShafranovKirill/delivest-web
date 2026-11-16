@@ -9,7 +9,6 @@ import Textarea from 'primevue/textarea'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 import { captionClass, sectionClass } from '@/modules/order/utils/formLayout'
-import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
 import Dialog from 'primevue/dialog'
 import { useBranchOpening } from '@/modules/branch/composables/useBranchOpening'
 import { addDays } from '@/modules/branch/utils/workWindow'
@@ -354,6 +353,35 @@ const addressRow = computed(() => {
   }
 })
 
+const fulfillmentOptions = computed(() =>
+  (['delivery', 'pickup', 'dine_in'] as const)
+    .filter((method) => fulfillmentStore.methods.includes(method))
+    .map((method) => ({
+      value: method,
+      label: t(
+        method === 'delivery'
+          ? 'order.form.delivery'
+          : method === 'pickup'
+            ? 'order.form.pickup'
+            : 'order.form.dineIn',
+      ),
+    })),
+)
+
+function selectFulfillment(method: OrderFormValues['fulfillment_type']) {
+  if (method === 'delivery') {
+    if (!isDelivery.value || !fulfillmentStore.current) flowStore.openPicker('delivery')
+    return
+  }
+  const branchId = branchStore.activeBranch?.id
+  if (
+    branchId &&
+    fulfillmentStore.methods.includes(method) &&
+    (!fulfillmentStore.current || fulfillmentType.value !== method)
+  )
+    fulfillmentStore.choose(branchId, { type: 'pickup', pickupKind: method })
+}
+
 function openAddressPicker() {
   flowStore.openPicker(fulfillmentStore.current?.type ?? 'delivery')
 }
@@ -427,9 +455,69 @@ function handleSubmit() {
     </div>
 
     <div :class="sectionClass">
-      <p :class="captionClass">{{ addressCaption }}</p>
-
-      <OrderPickRow :title="addressRow.title" :text="addressRow.text" @click="openAddressPicker" />
+      <p class="sr-only">{{ addressCaption }}</p>
+      <div class="rounded-[24px] bg-gray-100 p-2">
+        <div class="flex rounded-2xl bg-gray-200/70 p-1" role="group" :aria-label="addressCaption">
+          <button
+            v-for="option in fulfillmentOptions"
+            :key="option.value"
+            type="button"
+            class="min-w-0 flex-1 cursor-pointer rounded-xl px-1 py-2.5 text-center text-sm font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-primary sm:text-base"
+            :class="
+              fulfillmentType === option.value
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-700 hover:bg-white/50'
+            "
+            :aria-pressed="fulfillmentType === option.value"
+            @click="selectFulfillment(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+        <button
+          type="button"
+          class="flex w-full cursor-pointer items-center gap-4 rounded-2xl px-3 py-4 text-left hover:bg-gray-200/60 focus-visible:outline-2 focus-visible:outline-primary"
+          :aria-label="`${addressCaption}: ${addressRow.text || addressRow.title}`"
+          @click="openAddressPicker"
+        >
+          <svg
+            v-if="isDelivery"
+            class="h-7 w-7 shrink-0 text-gray-900"
+            viewBox="0 0 32 32"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle cx="19" cy="4" r="2.5" fill="currentColor" />
+            <path
+              d="m14 10 4-2 3 3 4 1M14 10l-2 7 5 3m-3-10-4 2-2 5m9 3-3 8m3-8 5 2 2 6m-14-11-3 6m10-12 3 5"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path d="M6 8h6v6H6z" fill="currentColor" />
+          </svg>
+          <svg
+            v-else
+            class="h-7 w-7 shrink-0 text-gray-900"
+            viewBox="0 0 32 32"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M5 13V9l2-5h18l2 5v4M5 13c0 2 3 3 5 1 1 2 4 2 6 0 2 2 5 2 6 0 2 2 5 1 5-1M7 16v12h18V16M12 28v-9h8v9M4 28h24"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span class="min-w-0 flex-1 text-base font-medium text-gray-900 sm:text-lg">{{
+            addressRow.text || addressRow.title
+          }}</span>
+          <i class="pi pi-angle-right shrink-0 text-xl text-gray-500" aria-hidden="true" />
+        </button>
+      </div>
 
       <p v-if="closedNotice" class="mt-2 text-sm font-medium text-amber-700">
         {{ closedNotice }}
