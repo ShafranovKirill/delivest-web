@@ -4,7 +4,7 @@ import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useI18n } from 'vue-i18n'
 
 defineEmits<{ hide: [] }>()
-defineProps<{ compact?: boolean; stretched?: boolean }>()
+defineProps<{ compact?: boolean; stretched?: boolean; checkout?: boolean }>()
 
 const visible = defineModel<boolean>('visible', { required: true })
 const { t } = useI18n()
@@ -17,7 +17,7 @@ const viewportStore = useViewportStore()
     block-scroll
     :aria-label="t('fulfillment.picker.title')"
     :dismissable-mask="!!compact && viewportStore.isMobile"
-    :sheet-when="compact"
+    :sheet-when="compact && !checkout"
     :sheet-class="
       stretched
         ? 'fulfillment-picker-stretched flex! h-[min(26rem,85dvh)]! max-h-[min(26rem,85dvh)]! border-0! shadow-2xl'
@@ -38,15 +38,14 @@ const viewportStore = useViewportStore()
     :desktop-pt="{
       root: { class: compact ? 'rounded-3xl!' : 'rounded-none!' },
       content: {
-        class:
-          'relative flex flex-col p-0! flex-1 min-h-0 overflow-hidden [&_.p-inputtext]:rounded-3xl! [&_.p-textarea]:rounded-3xl!',
+        class: `relative flex flex-col p-0! min-h-0 ${checkout && compact ? 'overflow-y-auto' : 'flex-1 overflow-hidden'} [&_.p-inputtext]:rounded-3xl! [&_.p-textarea]:rounded-3xl!`,
       },
     }"
     @hide="$emit('hide')"
   >
-    <div :class="compact ? 'flex shrink-0 items-center gap-3 px-3 pt-3 pb-1 max-md:pt-9' : ''">
+    <div :class="compact ? `flex shrink-0 items-center gap-3 px-3 pt-3 pb-1 ${checkout ? '' : 'max-md:pt-9'}` : ''">
       <button
-        v-if="!compact || !viewportStore.isMobile"
+        v-if="checkout || !compact || !viewportStore.isMobile"
         type="button"
         :aria-label="t('common.close')"
         :class="
@@ -66,11 +65,14 @@ const viewportStore = useViewportStore()
       </div>
     </div>
     <div
-      class="min-h-0 flex-1 overflow-hidden"
-      :class="{
-        '[&_.maplibregl-ctrl-top-right]:top-[50px]!': !compact,
-        '[&_.maplibregl-ctrl-top-right>.maplibregl-ctrl-attrib]:mr-3!': !compact,
-      }"
+      class="min-h-0"
+      :class="[
+        checkout && compact ? 'overflow-y-auto' : 'flex-1 overflow-hidden',
+        {
+          '[&_.maplibregl-ctrl-top-right]:top-[50px]!': !compact,
+          '[&_.maplibregl-ctrl-top-right>.maplibregl-ctrl-attrib]:mr-3!': !compact,
+        },
+      ]"
     >
       <slot />
     </div>

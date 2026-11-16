@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
 
-import { computed } from 'vue'
+import OrderPickRow from './OrderPickRow.vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { intlLocale } from '@/i18n'
 import { formatPrice } from '@/utils/money'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
-import { useDeliveryQuote } from '@/modules/fulfillment/composables/useDeliveryQuote'
-import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import CartPromotions from '@/modules/cart/components/CartPromotions.vue'
 import PromoCodeInput from '@/modules/cart/components/PromoCodeInput.vue'
+import BasketFilledIcon from '~icons/tabler/basket-filled'
+import ProductImage from '@/modules/menu/components/product/ProductImage.vue'
+
+defineProps<{ compact?: boolean }>()
+const expanded = ref(false)
 
 const { t } = useI18n()
 const cartStore = useCartStore()
-const delivery = useDeliveryQuote()
-const fulfillmentFlow = useFulfillmentFlowStore()
 
 const goodsLabel = computed(() => {
   const count = cartStore.totalQuantity
@@ -22,18 +24,33 @@ const goodsLabel = computed(() => {
   return t(`order.form.goods.${rule}`, { count })
 })
 
-const deliveryFee = computed(() => delivery.price.value)
-const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
 </script>
 
 <template>
-  <section class="rounded-3xl bg-gray-50 p-6">
-    <h2 class="text-xl font-extrabold text-gray-950">{{ t('order.composition') }}</h2>
+  <section class="rounded-2xl" :class="{ 'bg-gray-50': expanded || !compact }">
+    <h2>
+      <OrderPickRow
+        v-if="compact"
+        :title="t('order.composition')"
+        :text="goodsLabel"
+        :arrow="expanded ? 'up' : 'down'"
+        :aria-expanded="expanded"
+        @click="expanded = !expanded"
+      >
+        <template #icon><BasketFilledIcon class="size-[22px]" /></template>
+      </OrderPickRow>
+      <OrderPickRow v-else static :title="t('order.composition')" :text="goodsLabel" arrow="none">
+        <template #icon><BasketFilledIcon class="size-[22px]" /></template>
+      </OrderPickRow>
+    </h2>
 
-    <ul class="mt-5 flex flex-col gap-4">
-      <li v-for="item in cartStore.items" :key="item.key" class="flex items-start gap-4">
+    <ul v-if="expanded || !compact" class="px-4 mt-4 flex flex-col gap-3">
+      <li v-for="item in cartStore.items" :key="item.key" class="flex items-center gap-2.5">
+        <ProductImage :src="item.image_url" alt="" class="size-12 shrink-0 rounded-xl" />
         <div class="min-w-0 flex-1">
-          <p class="font-semibold leading-snug text-gray-950">{{ item.name }}</p>
+          <p class="break-words text-sm font-semibold leading-snug text-gray-950">
+            {{ item.name }}
+          </p>
           <p
             v-for="modifier in item.modifiers ?? []"
             :key="modifier.id ?? modifier.name"
@@ -50,44 +67,28 @@ const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
             {{ t('cart.soldOut') }}
           </p>
         </div>
-        <div class="shrink-0 text-right tabular-nums">
+        <div class="shrink-0 whitespace-nowrap text-right tabular-nums">
           <p v-if="item.quantity > 1" class="text-xs text-gray-500">{{ item.quantity }} ×</p>
-          <p class="font-semibold text-gray-950">
-            {{ item.gift ? t('common.free') : formatPrice(item.total_price) }}
+          <p class="text-sm font-semibold text-gray-950">
+            {{
+              item.gift
+                ? t('common.free')
+                : item.stars
+                  ? '★ ' + (item.stars_price ?? 0) * item.quantity
+                  : formatPrice(item.total_price)
+            }}
           </p>
         </div>
       </li>
     </ul>
 
-    <div class="mt-5 flex flex-col gap-3 border-t border-gray-200 pt-5">
+    <div
+      v-if="expanded || !compact"
+      class="mx-4 mt-4 flex flex-col gap-2 pb-4 border-t border-gray-200 pt-4"
+    >
       <CartPromotions />
       <PromoCodeInput />
     </div>
 
-    <div class="mt-5 flex flex-col gap-1.5 border-t border-gray-200 pt-5 text-sm text-gray-600">
-      <div class="flex justify-between">
-        <span>{{ goodsLabel }}</span>
-        <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
-      </div>
-      <div v-if="cartStore.discountAmount > 0" class="flex justify-between text-green-700">
-        <span>{{ t('cart.discount') }}</span>
-        <span class="tabular-nums">−{{ formatPrice(cartStore.discountAmount) }}</span>
-      </div>
-      <button
-        v-if="deliveryFee !== null"
-        type="button"
-        class="flex w-full cursor-pointer justify-between text-left"
-        @click="fulfillmentFlow.openPicker('delivery')"
-      >
-        <span>{{ t('delivery.line') }}</span>
-        <span class="tabular-nums">
-          {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
-        </span>
-      </button>
-      <div class="mt-2 flex justify-between text-lg font-extrabold text-gray-950">
-        <span>{{ t('order.form.orderTotal') }}</span>
-        <span class="tabular-nums">{{ formatPrice(total) }}</span>
-      </div>
-    </div>
   </section>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, defineComponent, h, ref, watch, type Component } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useFulfillmentStore } from '../stores/fulfillment.store'
 import MapDialog from './MapDialog.vue'
@@ -39,6 +40,7 @@ const PickupPane = asyncPane(loadPickupPane, 'pickup')
 
 const { t } = useI18n()
 const flowStore = useFulfillmentFlowStore()
+const route = useRoute()
 const fulfillment = useFulfillmentStore()
 const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
@@ -83,6 +85,7 @@ watch(modes, (options) => {
     v-model:visible="flowStore.isPickerOpen"
     :compact="!hasMap"
     :stretched="!hasMap"
+    :checkout="route?.name === 'checkout'"
     @hide="flowStore.dismiss"
   >
     <template #header>
