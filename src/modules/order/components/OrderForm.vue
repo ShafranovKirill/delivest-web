@@ -483,7 +483,7 @@ function handleSubmit() {
             <span
               v-if="option.value === 'dine_in' && fulfillmentStore.methods.includes('pickup')"
               aria-hidden="true"
-              class="pointer-events-none absolute start-0 top-1/2 h-3.5 w-px -translate-y-1/2 bg-gray-400/65"
+              class="pointer-events-none absolute start-0 top-1/2 h-5 w-px -translate-y-1/2 bg-gray-400/65"
             />
             {{ option.label }}
           </button>
