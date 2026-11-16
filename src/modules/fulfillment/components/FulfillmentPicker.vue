@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, defineComponent, h, watch } from 'vue'
+import { computed, defineAsyncComponent, defineComponent, h, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFulfillmentStore } from '../stores/fulfillment.store'
 import MapDialog from './MapDialog.vue'
@@ -14,7 +14,7 @@ import { branchLngLat } from '../utils/branchLocation'
 
 const asyncPane = (loader: typeof loadDeliveryPane | typeof loadPickupPane, mode: PickerMode) =>
   defineAsyncComponent({
-    loader,
+    loader: () => loader().then((module) => module.default as Component),
     loadingComponent: defineComponent({
       setup() {
         const branch = useBranchStore()
@@ -42,7 +42,15 @@ const flowStore = useFulfillmentFlowStore()
 const fulfillment = useFulfillmentStore()
 const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
+const mapUnavailable = ref(false)
+watch(
+  [() => flowStore.isPickerOpen, () => flowStore.pickerMode, () => branchStore.activeBranch?.id],
+  () => {
+    mapUnavailable.value = false
+  },
+)
 const hasMap = computed(() => {
+  if (mapUnavailable.value) return false
   if (!franchiseStore.addressMap) return false
   if (flowStore.pickerMode === 'delivery') return branchStore.mapAddress
   return branchStore.branches.some(
@@ -75,7 +83,10 @@ watch(modes, (options) => {
       <ModeSwitch v-if="modes.length > 1" v-model="flowStore.pickerMode" :options="modes" />
       <span v-else class="font-semibold">{{ modes[0]?.label }}</span>
     </template>
-    <DeliveryPane v-if="flowStore.isPickerOpen && flowStore.pickerMode === 'delivery'" />
+    <DeliveryPane
+      v-if="flowStore.isPickerOpen && flowStore.pickerMode === 'delivery'"
+      @map-unavailable="mapUnavailable = true"
+    />
     <PickupPane
       v-else-if="flowStore.isPickerOpen && flowStore.pickerMode === 'pickup' && modes.length"
     />

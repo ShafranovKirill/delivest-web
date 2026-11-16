@@ -7,6 +7,7 @@ import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useFulfillmentStore } from '../stores/fulfillment.store'
 import { DeliveryService } from '../api/delivery.service'
 import type { DeliveryAddress } from '../utils/deliveryAddress'
+import { isComplete, lngLatOf } from '../utils/deliveryAddress'
 
 export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | null>) => {
   const { t } = useI18n()
@@ -19,14 +20,21 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
   )
 
   const branchId = computed(() => branchStore.activeBranch?.id ?? null)
+  const ready = computed(() =>
+    Boolean(
+      target.value &&
+      isComplete(target.value) &&
+      (!branchStore.requiresCoordinates || lngLatOf(target.value)),
+    ),
+  )
 
   const query = useQuery({
     queryKey: computed(() => [
       'delivery-quote',
       branchId.value,
+      branchStore.requiresCoordinates,
       target.value?.latitude ?? null,
       target.value?.longitude ?? null,
-      JSON.stringify(target.value),
       cartStore.totalAmount,
       cartStore.revision,
     ]),
@@ -37,15 +45,15 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
         target.value?.longitude ?? null,
         cartStore.totalAmount,
       ),
-    enabled: computed(() => Boolean(branchId.value && target.value)),
+    enabled: computed(() => Boolean(branchId.value && ready.value)),
     staleTime: 60 * 1000,
   })
 
   const pending = computed(() =>
-    Boolean(target.value && (query.isPending.value || query.isFetching.value)),
+    Boolean(ready.value && (query.isPending.value || query.isFetching.value)),
   )
   const quote = computed(() =>
-    target.value && !pending.value && !query.isError.value ? (query.data.value ?? null) : null,
+    ready.value && !pending.value && !query.isError.value ? (query.data.value ?? null) : null,
   )
 
   const price = computed(() => (quote.value?.status === 'ok' ? (quote.value.price ?? 0) : null))
@@ -89,5 +97,8 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
     hint,
     isError: query.isError,
     isFetching: query.isFetching,
+    retry: query.refetch,
+    subtotal: computed(() => cartStore.totalAmount),
+    ready,
   }
 }

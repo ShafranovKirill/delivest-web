@@ -58,6 +58,7 @@ const emit = defineEmits<{
   moved: [center: LngLat, zoom: number]
   markerClick: [id: string]
   dragStart: []
+  unavailable: []
 }>()
 
 const container = ref<HTMLDivElement | null>(null)
@@ -131,14 +132,23 @@ function addZones() {
 }
 
 onMounted(() => {
-  map.value = new maplibregl.Map({
-    container: container.value!,
-    style: STYLE_URL,
-    center: props.center,
-    zoom: props.zoom,
-    attributionControl: false,
-  })
+  try {
+    map.value = new maplibregl.Map({
+      container: container.value!,
+      style: STYLE_URL,
+      center: props.center,
+      zoom: props.zoom,
+      attributionControl: false,
+    })
+  } catch {
+    emit('unavailable')
+    return
+  }
   map.value.addControl(new maplibregl.AttributionControl({ compact: true }), 'top-right')
+
+  map.value.on('error', (event) => {
+    if (!isLoaded.value && !('sourceId' in event) && !('tile' in event)) emit('unavailable')
+  })
 
   map.value.on('load', () => {
     map.value?.addLayer(HOUSE_NUMBERS)
@@ -204,7 +214,7 @@ watch(
     <slot />
     <div
       v-if="$slots['map-overlay']"
-      class="absolute bottom-24 left-3 z-10 w-max max-w-[calc(100%-5rem)] translate-y-[calc(100%+8px)] rounded-2xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/10"
+      class="absolute bottom-9 left-3 z-10 w-max max-w-[calc(100%-5rem)] rounded-2xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/10"
     >
       <slot name="map-overlay" />
     </div>

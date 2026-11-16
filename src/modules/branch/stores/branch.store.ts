@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import Cookies from 'js-cookie'
 import { BranchService, type Branch } from '../api/branch.service'
 import { useBranchSchedule } from '../composables/useBranchSchedule'
@@ -22,6 +23,7 @@ function writeSavedBranchId(id: string | null) {
 }
 
 export const useBranchStore = defineStore('branch', () => {
+  const franchiseStore = useFranchiseStore()
   const branches = ref<Branch[]>([])
   const activeBranch = ref<Branch | null>(null)
   const isInitialized = ref(false)
@@ -106,8 +108,16 @@ export const useBranchStore = defineStore('branch', () => {
   const mapAddress = computed(
     () => activeBranch.value?.branch_info?.delivery?.map_address !== false,
   )
+  const addressModeSet = computed(
+    () => activeBranch.value?.branch_info?.delivery?.address_mode_set === true,
+  )
+  const requiresCoordinates = computed(
+    () => mapAddress.value && (franchiseStore.addressMap || addressModeSet.value),
+  )
   const operatorAddress = computed(
-    () => activeBranch.value?.branch_info?.delivery?.operator_address === true,
+    () =>
+      activeBranch.value?.branch_info?.delivery?.map_address === false &&
+      activeBranch.value?.branch_info?.delivery?.operator_address === true,
   )
 
   return {
@@ -116,6 +126,8 @@ export const useBranchStore = defineStore('branch', () => {
     isInitialized,
     isModalOpen,
     mapAddress,
+    addressModeSet,
+    requiresCoordinates,
     operatorAddress,
     openModal,
     closeModal,

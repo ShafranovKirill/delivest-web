@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
+const reverseRemember = vi.hoisted(() => vi.fn())
+
 vi.mock('@/modules/branch/stores/branch.store', () => ({
   useBranchStore: () => ({ activeBranch: null, branches: [] }),
 }))
@@ -13,7 +15,7 @@ vi.mock('@/modules/account/composables/useAddressesQuery', () => ({
   }),
 }))
 vi.mock('@/modules/fulfillment/composables/useReverseGeocode', () => ({
-  useReverseGeocode: () => ({ isLocating: ref(false), locate: vi.fn(), remember: vi.fn() }),
+  useReverseGeocode: () => ({ isLocating: ref(false), locate: vi.fn(), remember: reverseRemember }),
 }))
 
 const { useAddressEditor } = await import('@/modules/fulfillment/composables/useAddressEditor')
@@ -22,13 +24,45 @@ const { useDeliveryAddresses } =
 const { emptyDeliveryAddress } = await import('@/modules/fulfillment/utils/deliveryAddress')
 
 describe('cross-city delivery addresses', () => {
-  it('accepts manual address text when the house is not parsed into a separate field', () => {
+  it('normalizes a legacy address containing a house before checking readiness', () => {
     const address = ref({
       ...emptyDeliveryAddress(),
       street: 'Тверская 7к1',
     })
     expect(useAddressEditor(address, () => false).isReady.value).toBe(true)
+    expect(address.value.street).toBe('Тверская')
+    expect(address.value.house).toBe('7к1')
     expect(useAddressEditor(address, () => true).isReady.value).toBe(false)
+  })
+
+  it('requires a house for a street-only manual address', () => {
+    const address = ref({ ...emptyDeliveryAddress(), street: 'Тверская' })
+    expect(useAddressEditor(address, () => false).isReady.value).toBe(false)
+  })
+
+  it('normalizes a legacy stored address without a house key', () => {
+    const address = ref({ ...emptyDeliveryAddress(), street: 'Тверская 7к1', house: undefined })
+    const editor = useAddressEditor(
+      address as unknown as Parameters<typeof useAddressEditor>[0],
+      () => false,
+    )
+    expect(editor.isReady.value).toBe(true)
+    expect(address.value.house).toBe('7к1')
+  })
+
+  it('invalidates reverse geocoding when an external draft replaces the address', () => {
+    reverseRemember.mockClear()
+    const address = ref(emptyDeliveryAddress())
+    useAddressEditor(address, () => false)
+    address.value = { ...emptyDeliveryAddress(), street: 'Арбат', house: '10' }
+    expect(reverseRemember).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not invalidate reverse geocoding for its own point update', () => {
+    reverseRemember.mockClear()
+    const address = ref(emptyDeliveryAddress())
+    useAddressEditor(address, () => true).locate([37.6, 55.7], 17)
+    expect(reverseRemember).not.toHaveBeenCalled()
   })
 
   it('allows a complete address in a neighboring city to proceed to the delivery quote', () => {

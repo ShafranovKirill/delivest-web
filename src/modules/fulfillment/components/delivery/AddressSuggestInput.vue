@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, useId, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import AutoComplete, { type AutoCompleteOptionSelectEvent } from 'primevue/autocomplete'
 import FloatLabel from 'primevue/floatlabel'
+import InputText from 'primevue/inputtext'
 import { useAddressSuggestions } from '../../composables/useAddressSuggestions'
 import type { GeoAddress } from '../../api/geo.service'
 import { shortAddressLabel } from '../../utils/deliveryAddress'
@@ -11,6 +12,7 @@ const props = defineProps<{
   value: string
   label: string
   suggest: boolean
+  city: string | null
   floatingLabels?: boolean
 }>()
 const emit = defineEmits<{ select: [address: GeoAddress]; edit: [value: string] }>()
@@ -18,7 +20,11 @@ const { t } = useI18n()
 
 const inputId = useId()
 const query = ref(props.value)
-const { suggestions, search } = useAddressSuggestions()
+const { suggestions, error, loading, hasSearched, search, clear, dispose } = useAddressSuggestions()
+type AutocompleteControl = { show: () => void; searching: boolean }
+const floatingAutocomplete = ref<AutocompleteControl | null>(null)
+const plainAutocomplete = ref<AutocompleteControl | null>(null)
+let retryRequested = false
 const options = computed(() =>
   suggestions.value.map((address) => ({
     address,
@@ -30,12 +36,46 @@ watch(
   () => props.value,
   (value) => {
     query.value = value
+    clear()
   },
 )
 
+watch(() => props.city, clear)
+onBeforeUnmount(dispose)
+
+watch(suggestions, async () => {
+  await nextTick()
+  const input = document.getElementById(inputId)
+  if (
+    hasSearched.value &&
+    query.value.trim().length >= 4 &&
+    (retryRequested || document.activeElement === input)
+  ) {
+    ;(props.floatingLabels ? floatingAutocomplete.value : plainAutocomplete.value)?.show()
+  }
+  if (hasSearched.value) retryRequested = false
+})
+
+watch(error, (failed) => {
+  if (failed) retryRequested = false
+})
+
+function retry() {
+  retryRequested = true
+  search(query.value, props.city)
+}
+
+function onBlur() {
+  retryRequested = false
+  const autocomplete = props.floatingLabels ? floatingAutocomplete.value : plainAutocomplete.value
+  if (autocomplete) autocomplete.searching = false
+}
+
 function onInput(value: unknown) {
   if (typeof value !== 'string') return
+  retryRequested = false
   query.value = value
+  clear()
   emit('edit', value)
 }
 
@@ -43,9 +83,11 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
   const { address, label } = value as { address: GeoAddress; label: string }
   if (address.house) {
     query.value = label
+    clear()
     emit('select', address)
   } else {
     query.value = `${label}, `
+    clear()
     emit('edit', query.value)
   }
 }
@@ -63,6 +105,8 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
       class="block w-full"
     >
       <AutoComplete
+        v-if="suggest"
+        ref="floatingAutocomplete"
         append-to="self"
         :model-value="query"
         :suggestions="options"
@@ -70,13 +114,15 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
         :input-id="inputId"
         :delay="0"
         :min-length="4"
+        :show-empty-message="hasSearched && !loading && !error"
         :empty-search-message="t('delivery.addressNotFound')"
-        :empty-selection-message="t('delivery.addressNotFound')"
+        :empty-selection-message="t('fulfillment.form.noAddressSelected')"
         :pt="{ overlay: { class: 'address-suggest-overlay' } }"
         input-class="h-12! border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white!"
         fluid
         @update:model-value="onInput"
-        @complete="suggest && search($event.query)"
+        @complete="search($event.query, city)"
+        @blur="onBlur"
         @option-select="onSelect"
       >
         <template #empty
@@ -88,10 +134,18 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
           ></template
         >
       </AutoComplete>
+      <InputText
+        v-else
+        :id="inputId"
+        :model-value="query"
+        class="h-12! w-full border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white!"
+        @update:model-value="onInput"
+      />
       <label :for="inputId" class="left-4!">{{ label }}</label>
     </FloatLabel>
     <AutoComplete
-      v-else
+      v-else-if="suggest"
+      ref="plainAutocomplete"
       append-to="self"
       :model-value="query"
       :suggestions="options"
@@ -99,13 +153,15 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
       :input-id="inputId"
       :delay="0"
       :min-length="4"
+      :show-empty-message="hasSearched && !loading && !error"
       :empty-search-message="t('delivery.addressNotFound')"
-      :empty-selection-message="t('delivery.addressNotFound')"
+      :empty-selection-message="t('fulfillment.form.noAddressSelected')"
       :pt="{ overlay: { class: 'address-suggest-overlay' } }"
       input-class="h-12! border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white!"
       fluid
       @update:model-value="onInput"
-      @complete="suggest && search($event.query)"
+      @complete="search($event.query, city)"
+      @blur="onBlur"
       @option-select="onSelect"
     >
       <template #empty
@@ -117,6 +173,28 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
         ></template
       >
     </AutoComplete>
+    <InputText
+      v-else
+      :id="inputId"
+      :model-value="query"
+      class="h-12! w-full border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white!"
+      @update:model-value="onInput"
+    />
+    <div v-if="suggest && error" class="px-1 text-sm text-red-600" role="alert">
+      {{ t('fulfillment.form.suggestionError') }}
+      <button type="button" class="ml-2 underline" @click="retry">
+        {{ t('fulfillment.form.retry') }}
+      </button>
+    </div>
+    <div v-else-if="suggest && loading" class="px-1 text-sm text-gray-500" role="status">
+      {{ t('fulfillment.form.searching') }}
+    </div>
+    <div
+      v-else-if="suggest && query.trim().length >= 4 && !suggestions.length && /[\s,]$/.test(query)"
+      class="px-1 text-sm text-gray-500"
+    >
+      {{ t('fulfillment.form.enterHouse') }}
+    </div>
   </div>
 </template>
 

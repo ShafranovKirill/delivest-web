@@ -1,5 +1,6 @@
 import type { GeoAddress } from '../api/geo.service'
 import type { ClientAddress } from '@/modules/account/api/account.service'
+import { parseAddress } from './parseAddress'
 
 export interface AddressGeo {
   formatted: string
@@ -79,7 +80,7 @@ export function withoutGeo(address: DeliveryAddress): DeliveryAddress {
 }
 
 export function fromClientAddress(address: ClientAddress): DeliveryAddress {
-  return {
+  return normalizeDeliveryAddress({
     city: address.city ?? '',
     street: address.street ?? '',
     house: address.house ?? '',
@@ -91,7 +92,17 @@ export function fromClientAddress(address: ClientAddress): DeliveryAddress {
     latitude: address.latitude ?? null,
     longitude: address.longitude ?? null,
     geo: savedGeoOf(address),
-  }
+  })
+}
+
+export function normalizeDeliveryAddress(address: DeliveryAddress): DeliveryAddress {
+  const street = typeof address.street === 'string' ? address.street : ''
+  const house = typeof address.house === 'string' ? address.house : ''
+  const city = typeof address.city === 'string' ? address.city : ''
+  if (house.trim() || !street.trim()) return address
+  const parsed = parseAddress(street, city)
+  if (!parsed.street || !parsed.house) return address
+  return { ...address, city: parsed.city || city, street: parsed.street, house: parsed.house }
 }
 
 export function isComplete(address: DeliveryAddress): boolean {

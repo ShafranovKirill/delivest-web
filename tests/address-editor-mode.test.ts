@@ -55,7 +55,7 @@ describe('delivery address editor mode', () => {
     branch.mapAddress = enabled
     const html = await render()
     expect(html.includes('data-map')).toBe(map)
-    expect(html).toContain(`data-suggest="${map}"`)
+    expect(html).toContain(`data-suggest="${integration}"`)
     expect(html).toContain(`data-floating="${map}"`)
     expect(html.includes('data-saved-list')).toBe(!map)
     expect(html.includes('data-saved-map')).toBe(map)

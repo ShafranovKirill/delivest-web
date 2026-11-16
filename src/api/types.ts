@@ -1911,6 +1911,7 @@ export interface components {
         | 'cook_by_outside_hours'
         | 'fulfillment_unavailable'
         | 'delivery_no_coordinates'
+        | 'incomplete_delivery_address'
         | 'promo_unavailable'
         | 'promo_gift_not_available'
         | 'promo_gift_invalid'
@@ -3347,8 +3348,10 @@ export interface operations {
       query: {
         /** @description Введённый адрес */
         query: string
-        /** @description Город филиала */
+        /** @description Строгое ограничение города */
         city?: string
+        /** @description Предпочитаемый город */
+        city_boost?: string
       }
       header?: never
       path?: never

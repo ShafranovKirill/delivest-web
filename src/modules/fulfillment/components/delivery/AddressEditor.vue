@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import BaseMap from '../map/BaseMap.vue'
 import DeliveryAddressForm from './DeliveryAddressForm.vue'
 import SavedAddresses from './SavedAddresses.vue'
@@ -24,19 +24,30 @@ const props = withDefaults(
   { saved: true, zones: () => [], selectedZoneId: null, floatingLabels: false },
 )
 
-const emit = defineEmits<{ selecting: []; zoomTooLow: [] }>()
+const emit = defineEmits<{ selecting: []; zoomTooLow: []; mapUnavailable: [] }>()
 
 const address = defineModel<DeliveryAddress>({ required: true })
 
 const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
 const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddress)
+const mapAvailable = ref(true)
+const showMap = computed(() => hasMap.value && mapAvailable.value)
 const savedAddresses = useDeliveryAddresses()
 
-const { mapCenter, isLocating, locate, isReady, pickSuggestion, pickSaved } = useAddressEditor(
-  address,
-  () => hasMap.value,
-)
+const {
+  mapCenter,
+  isLocating,
+  locateError,
+  notFound,
+  locate,
+  invalidate,
+  startMoving,
+  retryLocate,
+  isReady,
+  pickSuggestion,
+  pickSaved,
+} = useAddressEditor(address, () => hasMap.value)
 
 const markers = computed(() => (props.saved ? savedMarkers(savedAddresses.value) : []))
 
@@ -46,15 +57,25 @@ function pickMarker(id: string) {
 }
 
 function movePin(point: LngLat, zoom: number) {
+  locate(point, zoom)
   if (zoom < 15) emit('zoomTooLow')
-  else locate(point, zoom)
+}
+
+function dragStart() {
+  startMoving()
+  emit('selecting')
+}
+
+function mapUnavailable() {
+  mapAvailable.value = false
+  emit('mapUnavailable')
 }
 </script>
 
 <template>
   <div class="flex h-full flex-col">
     <BaseMap
-      v-if="hasMap"
+      v-if="showMap"
       :center="mapCenter"
       :markers="markers"
       :zones="zones"
@@ -62,8 +83,9 @@ function movePin(point: LngLat, zoom: number) {
       pin
       class="min-h-48 flex-1"
       @moved="movePin"
-      @drag-start="emit('selecting')"
+      @drag-start="dragStart"
       @marker-click="pickMarker"
+      @unavailable="mapUnavailable"
     >
       <SavedAddressesButton
         v-if="saved"
@@ -78,23 +100,36 @@ function movePin(point: LngLat, zoom: number) {
       </template>
     </BaseMap>
 
-    <SheetPanel :floating="hasMap">
+    <SheetPanel :floating="showMap">
       <div class="flex flex-col gap-4">
-        <SavedAddresses v-if="saved && !hasMap" @select="pickSaved" />
+        <SavedAddresses v-if="saved && !showMap" @select="pickSaved" />
 
         <slot name="before" />
 
         <DeliveryAddressForm
           v-model="address"
-          :suggest="hasMap"
+          :suggest="franchiseStore.addressMap"
           :city="city"
           :floating-labels="floatingLabels"
           @select="pickSuggestion"
+          @edit="invalidate"
         />
+        <div v-if="showMap && locateError" class="text-sm text-red-600" role="alert">
+          {{ $t('fulfillment.form.locateError') }}
+          <button type="button" class="ml-2 underline" @click="retryLocate">
+            {{ $t('fulfillment.form.retry') }}
+          </button>
+        </div>
+        <div v-else-if="showMap && notFound" class="text-sm text-gray-600" role="status">
+          {{ $t('fulfillment.form.houseNotFound') }}
+          <button type="button" class="ml-2 underline" @click="retryLocate">
+            {{ $t('fulfillment.form.retry') }}
+          </button>
+        </div>
       </div>
 
       <div class="flex flex-col gap-2 border-t border-gray-100 pt-4">
-        <slot :ready="isReady" :locating="isLocating" :on-map="hasMap" />
+        <slot :ready="isReady" :locating="isLocating" :on-map="showMap" />
       </div>
     </SheetPanel>
   </div>
