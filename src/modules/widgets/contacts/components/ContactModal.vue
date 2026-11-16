@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import { useContactsStore } from '../stores/constacts.store'
 import ContactList from './ContactList.vue'
 import { useI18n } from 'vue-i18n'
@@ -8,13 +9,10 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <Dialog
+  <ResponsiveSheet
+    :aria-label="t('nav.contacts')"
     v-model:visible="contactsStore.isModalOpen"
-    modal
-    :dismissableMask="true"
-    :draggable="false"
-    class="w-[min(92vw,420px)]"
-    :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
+    desktop-class="w-[min(92vw,420px)]"
   >
     <template #header>
       <div>
@@ -26,5 +24,5 @@ const { t } = useI18n()
     </template>
 
     <ContactList />
-  </Dialog>
+  </ResponsiveSheet>
 </template>

@@ -1,4 +1,6 @@
 import { api } from '@/api/client'
+import axios from 'axios'
+import { getApiBaseUrl } from '@/utils/env'
 import type { components, paths } from '@/api/types'
 
 type PushKeyResponse =
@@ -17,15 +19,35 @@ export const PushService = {
     return publicKey
   },
 
-  async subscribe(orderId: string, payload: PushSubscriptionPayload): Promise<void> {
-    await api.post(`/client/orders/${orderId}/push`, payload)
+  async subscribe(
+    orderId: string,
+    payload: PushSubscriptionPayload,
+    accessToken: string | null,
+  ): Promise<void> {
+    await axios.post(`/client/orders/${orderId}/push`, payload, {
+      baseURL: getApiBaseUrl(),
+      timeout: 10000,
+      withCredentials: true,
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    })
   },
 
-  async subscribeClient(payload: PushSubscriptionPayload): Promise<void> {
-    await api.post('/client/push', payload)
+  async subscribeClient(payload: PushSubscriptionPayload, accessToken: string): Promise<void> {
+    await axios.post('/client/push', payload, {
+      baseURL: getApiBaseUrl(),
+      timeout: 10000,
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
   },
 
-  async unsubscribeClient(endpoint: string): Promise<void> {
-    await api.delete('/client/push', { params: { endpoint } })
+  async unsubscribeClient(endpoint: string, accessToken: string): Promise<void> {
+    await axios.delete('/client/push', {
+      baseURL: getApiBaseUrl(),
+      timeout: 10000,
+      withCredentials: true,
+      params: { endpoint },
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
   },
 }

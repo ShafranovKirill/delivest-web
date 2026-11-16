@@ -9,12 +9,41 @@ import ProductTagBadges from './tags/ProductTagBadges.vue'
 
 const props = defineProps<{ product: MenuProduct }>()
 const menuStore = useMenuStore()
+function openProduct(event: MouseEvent | KeyboardEvent) {
+  if (
+    event instanceof MouseEvent &&
+    (event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey)
+  )
+    return
+  if (
+    event.target !== event.currentTarget &&
+    (event.target as HTMLElement).closest('button, a, input, select, textarea')
+  )
+    return
+  if (event instanceof KeyboardEvent) {
+    if (
+      event.target !== event.currentTarget ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.altKey ||
+      event.shiftKey
+    )
+      return
+    event.preventDefault()
+  }
+  menuStore.openProductModal(props.product)
+}
 </script>
 
 <template>
   <Card
-    @click="menuStore.openProductModal(props.product)"
-    class="group w-full h-full flex flex-col shrink-0 grow-0 rounded-4xl! p-2 overflow-hidden hover:cursor-pointer shadow-none!"
+    role="button"
+    tabindex="0"
+    :aria-label="product.name"
+    @click="openProduct"
+    @keydown.enter="openProduct"
+    @keydown.space="openProduct"
+    class="group w-full h-full flex flex-col shrink-0 grow-0 rounded-4xl! p-2 overflow-hidden hover:cursor-pointer shadow-none! focus-visible:outline-2 focus-visible:outline-primary"
   >
     <template #content>
       <div class="flex flex-col h-full items-center justify-between">

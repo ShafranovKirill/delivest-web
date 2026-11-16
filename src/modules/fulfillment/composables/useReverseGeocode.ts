@@ -1,43 +1,44 @@
 import { ref } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
 import { GeoService, type GeoAddress } from '../api/geo.service'
 import type { LngLat } from '../utils/deliveryAddress'
-import { distanceMeters } from '../utils/distance'
 
 const DELAY_MS = 700
 const MIN_ZOOM = 15
-const MIN_SHIFT_M = 20
 
 export function useReverseGeocode(onFound: (address: GeoAddress | null, point: LngLat) => void) {
   const isLocating = ref(false)
-  let lastPoint: LngLat | null = null
+  const locateError = ref(false)
+  const notFound = ref(false)
+  let generation = 0
+  let timer: ReturnType<typeof setTimeout> | undefined
 
-  async function fetch(point: LngLat) {
-    try {
-      const address = await GeoService.reverse(point[1], point[0])
-      if (point === lastPoint) onFound(address, point)
-    } catch {
-      return
-    } finally {
-      if (point === lastPoint) isLocating.value = false
-    }
+  function remember() {
+    generation++
+    clearTimeout(timer)
+    isLocating.value = false
+    locateError.value = false
+    notFound.value = false
   }
-
-  const request = useDebounceFn(fetch, DELAY_MS)
 
   function locate(point: LngLat, zoom: number) {
+    remember()
     if (zoom < MIN_ZOOM) return
-    if (lastPoint && distanceMeters(lastPoint, point) < MIN_SHIFT_M) return
-
-    lastPoint = point
+    const current = generation
     isLocating.value = true
-    request(point)
+    timer = setTimeout(async () => {
+      try {
+        const address = await GeoService.reverse(point[1], point[0])
+        if (current === generation) {
+          notFound.value = !address
+          onFound(address, point)
+        }
+      } catch {
+        if (current === generation) locateError.value = true
+      } finally {
+        if (current === generation) isLocating.value = false
+      }
+    }, DELAY_MS)
   }
 
-  function remember(point: LngLat | null) {
-    lastPoint = point
-    isLocating.value = false
-  }
-
-  return { isLocating, locate, remember }
+  return { isLocating, locateError, notFound, locate, remember }
 }

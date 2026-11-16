@@ -4,6 +4,46 @@
  */
 
 export interface paths {
+  '/client/capabilities': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Client API capabilities
+     * @description Public additive feature discovery for API version 1 clients.
+     */
+    get: operations['DelivestWeb.Client.CapabilitiesController.show']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/analytics/source/claim': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Bind signed guest advertising clicks to the authenticated client
+     * @description Uses the signed analytics cookie and verified bearer identity. Request body must be empty.
+     */
+    post: operations['DelivestWeb.Client.Analytics.SourceController.claim']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/loyalty': {
     parameters: {
       query?: never
@@ -16,6 +56,26 @@ export interface paths {
      * @description Баланс звёзд и последние движения. В филиале без бонусной системы `enabled` равен false.
      */
     get: operations['DelivestWeb.Client.Loyalty.LoyaltyController.show']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/orders/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Заказ текущей сессии
+     * @description Возвращает конкретный заказ владельцу сессии или вошедшему клиенту.
+     */
+    get: operations['DelivestWeb.Client.Order.OrderController.show']
     put?: never
     post?: never
     delete?: never
@@ -352,13 +412,13 @@ export interface paths {
     }
     /**
      * Мои заказы
-     * @description Все заказы авторизованного клиента, новые сначала.
+     * @description Заказы авторизованного клиента, новые сначала. Без limit возвращает прежний список (до 50). С limit возвращает страницу и next_cursor для следующей страницы.
      */
     get: operations['DelivestWeb.Client.Order.OrderController.index']
     put?: never
     /**
      * Создать заказ
-     * @description Создаёт заказ по cart_id и branch_id из тела запроса.
+     * @description Создаёт заказ по cart_id и branch_id. Повтор с тем же Idempotency-Key возвращает созданный заказ.
      */
     post: operations['DelivestWeb.Client.Order.OrderController.create']
     delete?: never
@@ -478,7 +538,7 @@ export interface paths {
     }
     /**
      * Подсказки адресов
-     * @description Адреса DaData по введённой строке, в пределах города, если он передан.
+     * @description Адреса DaData по введённой строке; city ограничивает город, city_boost повышает его приоритет.
      */
     get: operations['DelivestWeb.Client.Geo.GeoController.suggest']
     put?: never
@@ -728,13 +788,131 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/notifications/consents': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Маркетинговые согласия и доступность каналов */
+    get: operations['DelivestWeb.Client.Notifications.NotificationController.consents']
+    /**
+     * Изменить добровольные маркетинговые согласия
+     * @description Push по умолчанию выключен; SMS пока недоступен и true отклоняется. Настройки транзакционных уведомлений не меняются.
+     */
+    put: operations['DelivestWeb.Client.Notifications.NotificationController.update_consents']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/notifications/{id}/dismiss': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Закрыть карточку на одном устройстве */
+    post: operations['DelivestWeb.Client.Notifications.NotificationController.dismiss']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/notifications/{id}/click': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Отметить переход из текущей карточки */
+    post: operations['DelivestWeb.Client.Notifications.NotificationController.click']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/notifications': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Карточки клиента для текущего филиала и устройства
+     * @description Только канал in_app. Просмотр не закрывает карточку. Курсор проходит и через устаревшие карточки.
+     */
+    get: operations['DelivestWeb.Client.Notifications.NotificationController.index']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/analytics/events': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Записать событие воронки
+     * @description Событие создаётся только при включённой аналитике филиала. UTM поля — непроверенные клиентские метки, не подтверждение рекламы или выручки. Гость получает отдельную подписанную cookie.
+     */
+    post: operations['DelivestWeb.Client.Analytics.EventController.create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
+    /** AdvertisingSourceClaimResponse */
+    AdvertisingSourceClaimResponse: {
+      data: {
+        claimed: number
+      }
+    }
     /** ActiveOrdersResponse */
     ActiveOrdersResponse: {
       data: components['schemas']['ActiveOrder'][]
+    }
+    /** ClientCapabilitiesResponse */
+    ClientCapabilitiesResponse: {
+      /** @enum {integer} */
+      api_version: 1
+      deprecation: string | null
+      features: string[]
+      /** @enum {string} */
+      money_unit: 'kopeck'
+      /** @enum {integer} */
+      order_event_version: 1
+      push: {
+        apns_fcm: boolean
+        web_push: boolean
+      }
+      /** @enum {string} */
+      timestamp_format: 'RFC3339'
     }
     /** LegalDocumentResponse */
     LegalDocumentResponse: {
@@ -769,6 +947,11 @@ export interface components {
     CreateOrderRequest: {
       address?: components['schemas']['AddressRequest']
       /**
+       * @description Клиент назовёт адрес доставки оператору по телефону. Заказ принимается без адреса и без расчёта доставки
+       * @example false
+       */
+      address_by_operator?: boolean
+      /**
        * Format: uuid
        * @description UUID филиала
        * @example 7b45ded3-881e-4270-bc93-0ad6a904ec53
@@ -780,6 +963,8 @@ export interface components {
        * @example 8f3b2c10-91ab-4cd2-81e2-123456789abc
        */
       cart_id: string
+      /** @description Отпечаток корзины из CartResponse; при изменении вернётся cart_changed */
+      cart_revision?: string | null
       /**
        * @description Сдача с какой суммы, в копейках. Только для наличных
        * @example 500000
@@ -846,6 +1031,7 @@ export interface components {
       base_price: number
       /** @example false */
       gift: boolean
+      image_url?: string | null
       modifiers?: components['schemas']['ItemModifier'][]
       /**
        * @description Цена за единицу с учётом скидок
@@ -954,6 +1140,8 @@ export interface components {
        * @example https://storage.example.com/images/pepperoni.jpg
        */
       photo_url?: string | null
+      /** @description Хит продаж филиала: попадает в блок «Популярное» по настройке режима популярных товаров */
+      popular?: boolean
       /**
        * @description Цена в копейках
        * @example 59000
@@ -1104,6 +1292,9 @@ export interface components {
        * @example 106200
        */
       total_price: number
+      /** @description Товар или модификатор больше недоступен */
+      unavailable?: boolean
+      unavailable_reason?: string | null
     }
     /** Branch */
     Branch: {
@@ -1258,6 +1449,8 @@ export interface components {
          */
         id: string
         items: components['schemas']['OrderItemResponse'][]
+        /** Format: date_time */
+        inserted_at: string
         /** @example 261029-MSK1-042 */
         number: string
         /** @description Только в ответе на создание онлайн-заказа */
@@ -1314,7 +1507,7 @@ export interface components {
     }
     /**
      * PromoReason
-     * @description Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.
+     * @description Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация, `first_order` — только для первого заказа клиента на сайте в этом филиале.
      */
     PromoReason: {
       allowed?: ('dine_in' | 'delivery' | 'pickup')[] | null
@@ -1347,6 +1540,7 @@ export interface components {
         | 'time'
         | 'weekday'
         | 'requires_client'
+        | 'first_order'
     }
     /** DeliveryZonesResponse */
     DeliveryZonesResponse: {
@@ -1424,7 +1618,10 @@ export interface components {
          * @example #b86a69
          */
         dark_primary_color: string | null
-        /** @enum {string} */
+        /**
+         * @example light
+         * @enum {string}
+         */
         default_theme: 'light' | 'dark'
         description: string | null
         documents: components['schemas']['LegalDocumentSummary'][]
@@ -1486,6 +1683,7 @@ export interface components {
     DeliveryZone: {
       /** @example #2563eb */
       color: string
+      delivery_minutes?: number | null
       /** Format: uuid */
       id: string
       /** @example Центр */
@@ -1496,6 +1694,10 @@ export interface components {
         /** @enum {string} */
         type: 'Polygon'
       }
+      thresholds?: {
+        order_from: number
+        price: number
+      }[]
     }
     /** CartResponse */
     CartResponse: {
@@ -1521,6 +1723,8 @@ export interface components {
         product_stars?: number
         promo_code?: components['schemas']['PromoCodeState']
         promotions: components['schemas']['AppliedPromotion'][]
+        /** @description Отпечаток состава и условий корзины для оформления заказа */
+        revision?: string | null
         /** @example eceaec3d-dd25-4e19-8afc-f1d0f1412c9c */
         session_id?: string | null
         /**
@@ -1549,6 +1753,12 @@ export interface components {
       price: number | null
       /** @enum {string} */
       status: 'ok' | 'below_minimum' | 'outside_zones' | 'no_coordinates'
+      /** @example #2563eb */
+      zone_color?: string | null
+      /** Format: uuid */
+      zone_id?: string | null
+      /** @example Центр */
+      zone_name?: string | null
     }
     /** RunningPromotion */
     RunningPromotion: {
@@ -1596,6 +1806,7 @@ export interface components {
     /** ClientOrdersResponse */
     ClientOrdersResponse: {
       data: components['schemas']['ActiveOrder'][]
+      next_cursor?: string | null
     }
     /** ClientSession */
     ClientSession: {
@@ -1705,6 +1916,10 @@ export interface components {
         | 'cart_not_found'
         | 'cart_is_empty'
         | 'cart_already_ordered'
+        | 'cart_changed'
+        | 'idempotency_conflict'
+        | 'invalid_idempotency_key'
+        | 'payment_unavailable'
         | 'cart_branch_mismatch'
         | 'product_unavailable'
         | 'client_blocked'
@@ -1733,6 +1948,7 @@ export interface components {
         | 'cook_by_outside_hours'
         | 'fulfillment_unavailable'
         | 'delivery_no_coordinates'
+        | 'incomplete_delivery_address'
         | 'promo_unavailable'
         | 'promo_gift_not_available'
         | 'promo_gift_invalid'
@@ -1860,15 +2076,23 @@ export interface components {
        * @example Тюмень
        */
       city?: string | null
-      /** @description Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки */
-      timezone?: string
+      delivery?: {
+        /** @description Способ выбора адреса явно настроен для филиала */
+        address_mode_set?: boolean
+        /** @description Включён ли выбор адреса по карте на сайте */
+        map_address?: boolean
+        /** @description Разрешена ли галочка «назову адрес оператору» в форме заказа */
+        operator_address?: boolean
+        /** @description Показывать поле города при ручном вводе адреса */
+        show_city?: boolean
+      } & {
+        [key: string]: unknown
+      }
       /**
        * @description Минуты до готовности вместе с добавкой на загрузку
        * @example 30
        */
       delivery_time?: number | null
-      /** Format: float */
-      manual_rating?: number | null
       /** @description Включённые способы получения заказа */
       fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
       /**
@@ -1908,6 +2132,10 @@ export interface components {
         spend_enabled?: boolean
         stars?: number | null
       }
+      /** Format: float */
+      manual_rating?: number | null
+      /** @description Customer notification capability for this branch */
+      notifications_enabled?: boolean
       /** @description Способы оплаты, включённые на филиале */
       payment_methods?: ('cash' | 'card_offline' | 'online')[]
       /** @example +79990000000 */
@@ -1925,6 +2153,11 @@ export interface components {
       special_hours?: {
         [key: string]: unknown
       }
+      /**
+       * @description Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки
+       * @example Asia/Yekaterinburg
+       */
+      timezone?: string
       /** @example https://vk.com/group_name */
       vk_url?: string | null
       /** @example https://wa.me/79990000000 */
@@ -1956,6 +2189,10 @@ export interface components {
             [key: string]: unknown
           })
         | null
+      /** @description Funnel event capture is enabled for this branch */
+      analytics_funnel_enabled?: boolean
+      /** @description Trusted advertising link tracking is enabled for this branch */
+      analytics_links_enabled?: boolean
     }
     /** AppliedPromotion */
     AppliedPromotion: {
@@ -1978,6 +2215,83 @@ export interface components {
     StocksListResponse: {
       data?: components['schemas']['StockResponse'][]
     }
+    /** CustomerNoticeList */
+    CustomerNoticeList: {
+      data: components['schemas']['CustomerNotice'][]
+      next_cursor: string | null
+    }
+    /** CustomerNoticeClick */
+    CustomerNoticeClick: {
+      data: {
+        type?: string
+        value?: string
+      } | null
+    }
+    /** CustomerNotice */
+    CustomerNotice: {
+      body: string
+      /** Format: date-time */
+      created_at: string
+      cta?: {
+        /** @enum {string} */
+        type: 'apply_promo' | 'show_bonus'
+        value: string
+      } | null
+      /** Format: date-time */
+      expires_at?: string | null
+      /** Format: uuid */
+      id: string
+      title: string
+    }
+    /** CustomerNotificationConsentRequest */
+    CustomerNotificationConsentRequest: {
+      /** Format: uuid */
+      branch_id: string
+      push?: boolean
+      /** @description Unavailable; only false accepted */
+      sms?: boolean
+    }
+    /** CustomerNotificationConsentResponse */
+    CustomerNotificationConsentResponse: {
+      capabilities: {
+        in_app: boolean
+        push: boolean
+        sms: boolean
+      }
+      data: {
+        push: boolean
+        sms: boolean
+      }
+    }
+    /** FunnelEventResponse */
+    FunnelEventResponse: {
+      data: {
+        /** Format: uuid */
+        event_id: string
+        /** Format: uuid */
+        session_id: string
+      }
+    }
+    /** FunnelEventRequest */
+    FunnelEventRequest: {
+      /** Format: uuid */
+      branch_id: string
+      /** @enum {string} */
+      event:
+        | 'visit'
+        | 'menu_view'
+        | 'product_view'
+        | 'cart_add'
+        | 'checkout_start'
+        | 'fulfillment_selected'
+      /** Format: uuid */
+      event_id: string
+      /** @enum {string} */
+      source_type?: 'direct' | 'campaign' | 'unknown'
+      utm_campaign?: string
+      utm_medium?: string
+      utm_source?: string
+    }
   }
   responses: never
   parameters: never
@@ -1987,6 +2301,69 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  'DelivestWeb.Client.CapabilitiesController.show': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Capabilities */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ClientCapabilitiesResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Analytics.SourceController.claim': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Empty request */
+    requestBody?: {
+      content: {
+        'application/json': Record<string, never>
+      }
+    }
+    responses: {
+      /** @description Claim result */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AdvertisingSourceClaimResponse']
+        }
+      }
+      /** @description Advertising tracking unavailable */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Invalid request */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   'DelivestWeb.Client.Loyalty.LoyaltyController.show': {
     parameters: {
       query?: {
@@ -2010,6 +2387,38 @@ export interface operations {
       }
       /** @description Нужна авторизация */
       401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Order.OrderController.show': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description ID заказа */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Заказ */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['OrderResponse']
+        }
+      }
+      /** @description Заказ не найден */
+      404: {
         headers: {
           [name: string]: unknown
         }
@@ -2665,7 +3074,12 @@ export interface operations {
   }
   'DelivestWeb.Client.Order.OrderController.index': {
     parameters: {
-      query?: never
+      query?: {
+        /** @description Размер страницы от 1 до 50 */
+        limit?: number
+        /** @description Курсор предыдущей страницы; требует limit */
+        cursor?: string
+      }
       header?: never
       path?: never
       cookie?: never
@@ -2679,6 +3093,15 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['ClientOrdersResponse']
+        }
+      }
+      /** @description Неверный limit или cursor */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
         }
       }
       /** @description Нужна авторизация */
@@ -2695,7 +3118,10 @@ export interface operations {
   'DelivestWeb.Client.Order.OrderController.create': {
     parameters: {
       query?: never
-      header?: never
+      header?: {
+        /** @description UUID ключ одного оформления для владельца и филиала */
+        'Idempotency-Key'?: string
+      }
       path?: never
       cookie?: never
     }
@@ -2724,6 +3150,15 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
+      /** @description Ключ уже использован с другим запросом */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
       /** @description Ошибка создания заказа */
       422: {
         headers: {
@@ -2735,6 +3170,15 @@ export interface operations {
       }
       /** @description Слишком много запросов */
       429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Сервис оплаты недоступен */
+      502: {
         headers: {
           [name: string]: unknown
         }
@@ -2961,8 +3405,10 @@ export interface operations {
       query: {
         /** @description Введённый адрес */
         query: string
-        /** @description Город филиала */
+        /** @description Строгое ограничение города */
         city?: string
+        /** @description Предпочитаемый город */
+        city_boost?: string
       }
       header?: never
       path?: never
@@ -3500,6 +3946,272 @@ export interface operations {
       }
       /** @description Корзина не найдена */
       404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.consents': {
+    parameters: {
+      query: {
+        branch_id: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Согласия */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CustomerNotificationConsentResponse']
+        }
+      }
+      /** @description Модуль выключен */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.update_consents': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Согласия */
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CustomerNotificationConsentRequest']
+      }
+    }
+    responses: {
+      /** @description Согласия */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CustomerNotificationConsentResponse']
+        }
+      }
+      /** @description Модуль выключен */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный запрос */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.dismiss': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    /** @description Устройство и филиал */
+    requestBody?: {
+      content: {
+        'application/json': {
+          /** Format: uuid */
+          branch_id: string
+          /** Format: uuid */
+          device_id: string
+        }
+      }
+    }
+    responses: {
+      /** @description Закрыто */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Не найдено */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный запрос */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.click': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    /** @description Устройство и филиал */
+    requestBody?: {
+      content: {
+        'application/json': {
+          /** Format: uuid */
+          branch_id: string
+          /** Format: uuid */
+          device_id: string
+        }
+      }
+    }
+    responses: {
+      /** @description Действие */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CustomerNoticeClick']
+        }
+      }
+      /** @description Не найдено или истекло */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный запрос */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Notifications.NotificationController.index': {
+    parameters: {
+      query: {
+        branch_id: string
+        device_id: string
+        cursor?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Карточки */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CustomerNoticeList']
+        }
+      }
+      /** @description Модуль выключен */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный курсор или устройство */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Analytics.EventController.create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Событие */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FunnelEventRequest']
+      }
+    }
+    responses: {
+      /** @description Событие принято */
+      202: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['FunnelEventResponse']
+        }
+      }
+      /** @description Аналитика филиала недоступна */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверное событие */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Превышен лимит */
+      429: {
         headers: {
           [name: string]: unknown
         }

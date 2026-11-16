@@ -32,8 +32,7 @@ export const useFranchiseStore = defineStore(
     }
 
     async function init() {
-      const request = load()
-      if (!franchise.value) await request
+      await load()
     }
 
     return {

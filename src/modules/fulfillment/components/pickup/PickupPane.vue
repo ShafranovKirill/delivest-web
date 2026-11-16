@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
-import { hasOnsite } from '../../utils/fulfillmentMethods'
+import { fulfillmentMethods, hasOnsite } from '../../utils/fulfillmentMethods'
+import ModeSwitch from '../ModeSwitch.vue'
 import BaseMap, { type MapMarker } from '../map/BaseMap.vue'
 import PickupBranchList from './PickupBranchList.vue'
 import PickupBranchCard from './PickupBranchCard.vue'
@@ -15,6 +16,7 @@ import { useFulfillmentStore } from '../../stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '../../stores/fulfillmentFlow.store'
 import { branchLngLat, fallbackLngLat } from '../../utils/branchLocation'
 import type { LngLat } from '../../utils/deliveryAddress'
+import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -23,18 +25,52 @@ const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
 const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
+const analytics = useFunnelAnalytics()
 
 const branches = computed(() =>
   branchStore.branches.filter((branch) => branch.is_active && hasOnsite(branch)),
 )
+const compactList = computed(() => !franchiseStore.addressMap || !branchStore.mapAddress)
 const selectedId = ref<string | null>(branchStore.activeBranch?.id ?? null)
+const showDetails = ref(false)
+const backButton = ref<HTMLButtonElement | null>(null)
+const listRef = ref<InstanceType<typeof PickupBranchList> | null>(null)
 const selected = computed(() => branches.value.find((branch) => branch.id === selectedId.value))
 const isSwitching = ref(false)
+type PickupKind = 'pickup' | 'dine_in'
+const pickupKind = ref<PickupKind>(
+  flowStore.preferredPickupKind ??
+    (fulfillmentStore.current?.type === 'pickup' && fulfillmentStore.current.pickupKind
+      ? fulfillmentStore.current.pickupKind
+      : 'pickup'),
+)
+const pickupOptions = computed<Array<{ value: PickupKind; label: string }>>(() => {
+  const methods = fulfillmentMethods(selected.value)
+  return [
+    ...(methods.includes('pickup')
+      ? [{ value: 'pickup' as const, label: t('order.form.takeaway') }]
+      : []),
+    ...(methods.includes('dine_in')
+      ? [{ value: 'dine_in' as const, label: t('order.form.dineIn') }]
+      : []),
+  ]
+})
+watch(
+  [pickupOptions, showDetails],
+  ([options, details]) => {
+    if (!details) return
+    if (!options.some((option) => option.value === pickupKind.value))
+      pickupKind.value = options[0]?.value ?? 'pickup'
+  },
+  { immediate: true },
+)
 watch(
   branches,
   (available) => {
-    if (!available.some((b) => b.id === selectedId.value))
+    if (!available.some((b) => b.id === selectedId.value)) {
       selectedId.value = available[0]?.id ?? null
+      showDetails.value = false
+    }
   },
   { immediate: true },
 )
@@ -42,11 +78,20 @@ watch(
 const markers = computed<MapMarker[]>(() =>
   branches.value.flatMap((branch) => {
     const lngLat = branchLngLat(branch)
-    return lngLat ? [{ id: branch.id, lngLat, active: branch.id === selectedId.value }] : []
+    return lngLat
+      ? [
+          {
+            id: branch.id,
+            lngLat,
+            active: showDetails.value && branch.id === selectedId.value,
+            title: branch.name,
+          },
+        ]
+      : []
   }),
 )
 
-const hasMap = computed(() => franchiseStore.addressMap && markers.value.length > 0)
+const hasMap = computed(() => !compactList.value && markers.value.length > 0)
 
 const mapCenter = computed<LngLat>(
   () => branchLngLat(selected.value) ?? fallbackLngLat(branches.value),
@@ -54,10 +99,31 @@ const mapCenter = computed<LngLat>(
 
 onMounted(() => branchStore.initBranches().catch(() => null))
 
+async function selectPreview(branch: Branch | undefined) {
+  if (
+    isSwitching.value ||
+    !branch ||
+    !branches.value.some((available) => available.id === branch.id)
+  )
+    return
+  selectedId.value = branch.id
+  showDetails.value = true
+  await nextTick()
+  backButton.value?.focus()
+}
+
+async function returnToList() {
+  if (isSwitching.value) return
+  showDetails.value = false
+  await nextTick()
+  if (selectedId.value) listRef.value?.focusBranch(selectedId.value)
+}
+
 async function confirm(branch: Branch) {
   if (!hasOnsite(branch)) return
   if (branch.id === branchStore.activeBranch?.id) {
-    fulfillmentStore.choose(branch.id, { type: 'pickup' })
+    fulfillmentStore.choose(branch.id, { type: 'pickup', pickupKind: pickupKind.value })
+    analytics.track('fulfillment_selected')
     flowStore.complete()
     return
   }
@@ -65,7 +131,8 @@ async function confirm(branch: Branch) {
   isSwitching.value = true
   try {
     await branchStore.selectBranch(branch)
-    fulfillmentStore.choose(branch.id, { type: 'pickup' })
+    fulfillmentStore.choose(branch.id, { type: 'pickup', pickupKind: pickupKind.value })
+    analytics.track('fulfillment_selected')
     flowStore.abandon()
     await router.push(`/${branch.slug}`)
   } catch {
@@ -81,24 +148,68 @@ async function confirm(branch: Branch) {
     <BaseMap
       v-if="hasMap"
       :center="mapCenter"
-      :zoom="12"
+      :zoom="showDetails ? 16 : 12"
       :markers="markers"
       class="min-h-48 flex-1"
-      @marker-click="selectedId = $event"
+      @marker-click="selectPreview(branches.find((branch) => branch.id === $event))"
     />
 
-    <SheetPanel :floating="hasMap" :class="{ 'max-h-[55%]': hasMap }">
-      <PickupBranchCard
-        v-if="selected"
-        :branch="selected"
-        :loading="isSwitching"
-        @confirm="confirm(selected)"
-      />
-      <PickupBranchList
-        :branches="branches"
-        :selected-id="selectedId"
-        @select="selectedId = $event.id"
-      />
+    <SheetPanel
+      :floating="hasMap"
+      :class="{ 'max-h-[55%]': hasMap, 'pickup-detail-panel': showDetails && selected }"
+    >
+      <div
+        v-if="showDetails && selected"
+        class="pickup-detail-content flex flex-col gap-4"
+        data-testid="pickup-branch-detail"
+      >
+        <button
+          ref="backButton"
+          type="button"
+          :disabled="isSwitching"
+          class="flex w-fit cursor-pointer items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-950"
+          @click="returnToList"
+        >
+          <i class="pi pi-arrow-left" aria-hidden="true" />{{ t('common.back') }}
+        </button>
+        <ModeSwitch v-if="pickupOptions.length > 1" v-model="pickupKind" :options="pickupOptions" />
+        <PickupBranchCard
+          class="pickup-detail-card"
+          :branch="selected"
+          :pickup-kind="pickupKind"
+          :loading="isSwitching"
+          @confirm="confirm(selected)"
+        />
+      </div>
+      <div v-else class="flex flex-col gap-4">
+        <PickupBranchList
+          ref="listRef"
+          :branches="branches"
+          :compact="compactList"
+          :disabled="isSwitching"
+          @select="selectPreview"
+        />
+      </div>
     </SheetPanel>
   </div>
 </template>
+
+<style>
+@media (max-width: 767px) {
+  .fulfillment-picker-stretched .pickup-detail-panel .sheet-panel-body {
+    flex: 1 0 auto;
+    min-height: 100%;
+    margin-block: 0;
+  }
+  .fulfillment-picker-stretched .pickup-detail-content,
+  .fulfillment-picker-stretched .pickup-detail-card {
+    flex: 1;
+  }
+  .fulfillment-picker-stretched .pickup-detail-confirm {
+    position: sticky;
+    bottom: 20px;
+    z-index: 1;
+    margin-top: auto;
+  }
+}
+</style>

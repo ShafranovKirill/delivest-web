@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import Button from 'primevue/button'
 import Textarea from 'primevue/textarea'
 import Message from 'primevue/message'
@@ -44,13 +44,10 @@ async function submit() {
 </script>
 
 <template>
-  <Dialog
+  <ResponsiveSheet
+    :aria-label="address ? t('account.address.editTitle') : t('account.address.newTitle')"
     v-model:visible="isOpen"
-    modal
-    dismissable-mask
-    :draggable="false"
-    class="w-[min(92vw,480px)]"
-    :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
+    desktop-class="w-[min(92vw,480px)]"
   >
     <template #header>
       <h2 class="text-xl font-extrabold text-gray-950">
@@ -83,5 +80,5 @@ async function submit() {
         class="h-12 w-full rounded-full! font-semibold"
       />
     </form>
-  </Dialog>
+  </ResponsiveSheet>
 </template>

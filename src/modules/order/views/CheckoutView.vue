@@ -14,6 +14,7 @@ import PageShell from '@/modules/shared/components/ui/PageShell.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
 import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import { useI18n } from 'vue-i18n'
+import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 
 const router = useRouter()
 const route = useRoute()
@@ -22,6 +23,18 @@ const cartStore = useCartStore()
 const branchStore = useBranchStore()
 const orderStore = useOrderStore()
 const { t } = useI18n()
+const analytics = useFunnelAnalytics()
+watch(
+  () => [
+    route.name,
+    branchStore.activeBranch?.id,
+    branchStore.activeBranch?.branch_info?.analytics_funnel_enabled,
+  ],
+  ([name, branchId, enabled]) => {
+    if (name === 'checkout' && branchId && enabled === true) analytics.track('checkout_start')
+  },
+  { immediate: true },
+)
 
 const step = computed(() => Number(orderStore.activeStep))
 
@@ -82,7 +95,7 @@ watch(
 </script>
 
 <template>
-  <PageShell width="wide">
+  <PageShell>
     <Message
       v-if="orderStore.errorMessage"
       severity="error"
@@ -125,10 +138,10 @@ watch(
 
     <div
       v-else-if="step !== 3"
-      class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-3 sm:gap-4 items-start"
+      class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[auto_auto] gap-3 sm:gap-4 lg:gap-y-6 items-start"
     >
       <OrderForm :isLoading="orderStore.isLoading" @submit="submitOrder" @back="returnToCart" />
-      <aside class="hidden lg:block sticky top-28">
+      <aside class="hidden lg:col-start-2 lg:row-start-2 lg:block lg:self-start sticky top-28">
         <OrderComposition />
       </aside>
     </div>

@@ -10,6 +10,7 @@ import maplibregl, {
 } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import MapPlaceholder from './MapPlaceholder.vue'
+import { effectiveDeliveryZones } from './effectiveDeliveryZones'
 import type { LngLat } from '../../utils/deliveryAddress'
 import type { DeliveryZone } from '../../api/delivery.service'
 
@@ -46,16 +47,18 @@ const props = withDefaults(
     center: LngLat
     zoom?: number
     pin?: boolean
-    pinNote?: string | null
     markers?: MapMarker[]
     zones?: DeliveryZone[]
+    selectedZoneId?: string | null
   }>(),
-  { zoom: 17, pin: false, pinNote: null, markers: () => [], zones: () => [] },
+  { zoom: 17, pin: false, markers: () => [], zones: () => [], selectedZoneId: null },
 )
 
 const emit = defineEmits<{
   moved: [center: LngLat, zoom: number]
   markerClick: [id: string]
+  dragStart: []
+  unavailable: []
 }>()
 
 const container = ref<HTMLDivElement | null>(null)
@@ -92,12 +95,18 @@ function renderMarkers() {
 function zonesData(): GeoJSONSourceSpecification['data'] {
   return {
     type: 'FeatureCollection',
-    features: props.zones.map((zone) => ({
-      type: 'Feature',
-      id: zone.id,
-      geometry: zone.polygon,
-      properties: { color: zone.color, name: zone.name },
-    })),
+    features: effectiveDeliveryZones(props.zones)
+      .reverse()
+      .map((zone) => ({
+        type: 'Feature',
+        id: zone.id,
+        geometry: zone.polygon,
+        properties: {
+          zone_id: zone.id,
+          color: zone.color,
+          priority: props.zones.findIndex((item) => item.id === zone.id),
+        },
+      })),
   }
 }
 
@@ -113,17 +122,32 @@ function addZones() {
     id: 'delivery-zones-line',
     type: 'line',
     source: ZONES_SOURCE,
-    paint: { 'line-color': ['get', 'color'], 'line-width': 2, 'line-opacity': 0.8 },
+    layout: { 'line-sort-key': ['-', 0, ['get', 'priority']] },
+    paint: {
+      'line-color': ['get', 'color'],
+      'line-width': ['case', ['==', ['get', 'zone_id'], props.selectedZoneId ?? ''], 4, 2],
+      'line-opacity': 0.8,
+    },
   })
 }
 
 onMounted(() => {
-  map.value = new maplibregl.Map({
-    container: container.value!,
-    style: STYLE_URL,
-    center: props.center,
-    zoom: props.zoom,
-    attributionControl: { compact: true },
+  try {
+    map.value = new maplibregl.Map({
+      container: container.value!,
+      style: STYLE_URL,
+      center: props.center,
+      zoom: props.zoom,
+      attributionControl: false,
+    })
+  } catch {
+    emit('unavailable')
+    return
+  }
+  map.value.addControl(new maplibregl.AttributionControl({ compact: true }), 'top-right')
+
+  map.value.on('error', (event) => {
+    if (!isLoaded.value && !('sourceId' in event) && !('tile' in event)) emit('unavailable')
   })
 
   map.value.on('load', () => {
@@ -132,7 +156,10 @@ onMounted(() => {
     isLoaded.value = true
   })
   map.value.on('styleimagemissing', ({ id }) => map.value?.addImage(id, BLANK_IMAGE))
-  map.value.on('dragstart', () => (isDragging.value = true))
+  map.value.on('dragstart', () => {
+    isDragging.value = true
+    emit('dragStart')
+  })
   map.value.on('moveend', (event) => {
     isDragging.value = false
     if (!event.originalEvent) return
@@ -147,9 +174,8 @@ useResizeObserver(container, () => map.value?.resize())
 
 onBeforeUnmount(() => map.value?.remove())
 
-watch(
-  () => props.center,
-  (center) => map.value?.flyTo({ center, zoom: Math.max(map.value.getZoom(), props.zoom) }),
+watch([() => props.center, () => props.zoom], ([center, zoom]) =>
+  map.value?.flyTo({ center, zoom: Math.max(map.value.getZoom(), zoom) }),
 )
 
 watch(() => props.markers, renderMarkers, { deep: true })
@@ -158,25 +184,39 @@ watch(
   () => props.zones,
   () => map.value?.getSource<GeoJSONSource>(ZONES_SOURCE)?.setData(zonesData()),
 )
+
+watch(
+  () => props.selectedZoneId,
+  (id) => {
+    if (map.value?.getLayer('delivery-zones-line')) {
+      map.value.setPaintProperty('delivery-zones-line', 'line-width', [
+        'case',
+        ['==', ['get', 'zone_id'], id ?? ''],
+        4,
+        2,
+      ])
+    }
+  },
+)
 </script>
 
 <template>
   <div class="relative h-full w-full overflow-hidden">
-    <div ref="container" class="h-full w-full [&_.maplibregl-ctrl-bottom-right]:bottom-[25px]!" />
+    <div ref="container" class="h-full w-full" />
     <MapPlaceholder v-if="!isLoaded" class="absolute inset-0" />
     <div
       v-if="pin && isLoaded"
       class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full transition-transform"
       :class="{ '-translate-y-[calc(100%+8px)]': isDragging }"
     >
-      <span
-        v-if="pinNote && !isDragging"
-        class="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-gray-950 px-3 py-1.5 text-xs font-semibold text-white shadow-md"
-      >
-        {{ pinNote }}
-      </span>
-      <i class="pi pi-map-marker text-4xl text-primary drop-shadow-md" />
+      <i-tabler-map-pin-filled class="size-12 text-primary drop-shadow-lg" aria-hidden="true" />
     </div>
     <slot />
+    <div
+      v-if="$slots['map-overlay']"
+      class="absolute bottom-9 left-3 z-10 w-max max-w-[calc(100%-5rem)] rounded-2xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/10"
+    >
+      <slot name="map-overlay" />
+    </div>
   </div>
 </template>

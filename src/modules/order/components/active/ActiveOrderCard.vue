@@ -1,59 +1,93 @@
 <script setup lang="ts">
-import OrderEarnings from '@/modules/account/components/OrderEarnings.vue'
-
 import type { ActiveOrder } from '../../api/order.service'
 import { formatPrice } from '@/utils/money'
-import {
-  formatTime,
-  fulfillmentLabel,
-  orderStatusIcon,
-  orderStatusLabel,
-} from '../../utils/orderStatus'
+import { formatTime, fulfillmentLabel, orderStatusLabel } from '../../utils/orderStatus'
 import OrderStatusSteps from './OrderStatusSteps.vue'
+import OrderStatusIllustration from './OrderStatusIllustration.vue'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
-defineProps<{ order: ActiveOrder }>()
+const props = defineProps<{ order: ActiveOrder }>()
 defineEmits<{ open: [order: ActiveOrder] }>()
 
 const { t } = useI18n()
+const cardStatusLabel = computed(() => {
+  if (props.order.awaiting_payment) return orderStatusLabel(props.order)
+  if (props.order.status === 'created') return t('order.status.inReview')
+  return t(`order.status.${props.order.status}`)
+})
 </script>
 
 <template>
   <button
     type="button"
-    class="group flex w-full flex-col gap-3 rounded-3xl bg-white p-4 text-left shadow-xs transition-transform duration-200 hover:scale-[1.02] cursor-pointer"
+    class="order-status-card group relative isolate flex min-h-44 w-full cursor-pointer flex-col items-start overflow-hidden rounded-3xl bg-white p-5 pb-12 pt-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-strong"
     @click="$emit('open', order)"
   >
-    <div class="flex items-center gap-3">
+    <svg
+      class="pointer-events-none absolute inset-0 -z-10 h-full w-full text-primary"
+      viewBox="0 0 1000 300"
+      preserveAspectRatio="none"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path opacity="0.20" d="M0 -40 H1000 V110 C760 140 645 105 500 55 C345 -10 160 -30 0 -30 Z" />
+      <path opacity="0.20" d="M0 -80 H1000 V56 C790 84 660 51 520 14 C355 -30 180 -60 0 -60 Z" />
+    </svg>
+    <svg
+      class="pointer-events-none absolute inset-0 -z-10 h-full w-full translate-y-[5px] text-primary"
+      viewBox="0 0 1000 300"
+      preserveAspectRatio="none"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <g transform="translate(0 8)">
+        <path
+          opacity="0.20"
+          d="M0 216 C200 191 360 236 540 274 C700 314 860 282 1000 252 V340 H0 Z"
+        />
+        <path
+          opacity="0.20"
+          d="M0 246 C190 220 330 272 500 312 C680 346 840 312 1000 288 V340 H0 Z"
+        />
+      </g>
+    </svg>
+    <span class="relative z-10 block w-[65%] min-w-0">
+      <span class="block text-xs leading-snug text-gray-500">
+        {{ t('order.number', { number: order.short_number }) }} ·
+        {{ fulfillmentLabel(order.fulfillment_type) }}
+      </span>
       <span
-        class="grid place-items-center size-11 shrink-0 rounded-2xl bg-primary-soft text-primary"
+        class="mt-2 block truncate text-lg font-bold leading-tight text-gray-950 sm:text-2xl"
+        :title="orderStatusLabel(order)"
       >
-        <i :class="['pi', orderStatusIcon(order), 'text-lg']" />
+        {{ cardStatusLabel }}
       </span>
-      <div class="min-w-0 flex-1">
-        <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-          {{ t('order.number', { number: order.short_number }) }} ·
-          {{ fulfillmentLabel(order.fulfillment_type) }}
-        </p>
-        <p class="font-extrabold text-gray-950">{{ orderStatusLabel(order) }}</p>
-      </div>
-      <i class="pi pi-chevron-right text-sm text-gray-400 group-hover:text-primary" />
-    </div>
-
-    <OrderStatusSteps :order="order" />
-    <OrderEarnings :amount="order.points_earned" :status="order.status" />
-
-    <div class="flex items-center justify-between text-sm">
-      <span class="text-gray-500">
-        {{
-          order.cook_by
-            ? t('order.cookBy', { time: formatTime(order.cook_by) })
-            : t('order.placedAt', { time: formatTime(order.inserted_at) })
-        }}
+      <span class="mt-4 block max-w-52">
+        <OrderStatusSteps :order="order" />
       </span>
-      <span class="font-bold text-gray-900 tabular-nums">{{
-        formatPrice(order.total_amount)
-      }}</span>
-    </div>
+      <span v-if="order.cook_by" class="mt-3 block text-sm leading-snug text-gray-500">
+        {{ t('order.cookBy', { time: formatTime(order.cook_by) }) }}
+      </span>
+      <span
+        class="block font-semibold tabular-nums text-gray-900"
+        :class="order.cook_by ? 'mt-1' : 'mt-3'"
+      >
+        {{ formatPrice(order.total_amount) }}
+      </span>
+    </span>
+    <i
+      class="pi pi-chevron-right absolute right-4 top-5 z-20 text-xs text-gray-400 group-hover:text-primary"
+      aria-hidden="true"
+    />
+    <OrderStatusIllustration
+      :status="order.status"
+      :awaiting-payment="order.awaiting_payment"
+      class="pointer-events-none absolute bottom-2 right-2 z-0 h-24 w-[31%] text-primary-strong sm:bottom-3 sm:right-3 sm:h-28"
+      :class="order.awaiting_payment ? 'translate-y-[6px]' : order.status === 'delivering' ? 'translate-y-[14px]' : order.status === 'accepted' ? 'translate-y-[15px]' : ['created', 'preparing'].includes(order.status) ? 'translate-y-[11px]' : 'translate-y-[6px]'"
+      aria-hidden="true"
+    />
   </button>
 </template>

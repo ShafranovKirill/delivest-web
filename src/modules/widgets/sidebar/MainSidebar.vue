@@ -5,9 +5,6 @@ import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import SidebarNav from './SidebarNav.vue'
 import BranchInfoBarMobile from '@/modules/branch/components/BranchInfoBarMobile.vue'
 import SidebarUserPanel from '@/modules/auth/components/SidebarUserPanel.vue'
-import InstallAppTile from '@/modules/pwa/components/InstallAppTile.vue'
-import { useAuthStore } from '@/modules/auth/stores/auth.store'
-import { useAccountLinks } from '@/modules/auth/composables/useAccountLinks'
 import ThemeToggle from '@/modules/settings/components/ThemeToggle.vue'
 import LocaleToggle from '@/modules/settings/components/LocaleToggle.vue'
 import BrandLogo from '@/modules/franchise/components/BrandLogo.vue'
@@ -16,8 +13,6 @@ import { useI18n } from 'vue-i18n'
 
 const sidebarStore = useSidebarStore()
 const viewportStore = useViewportStore()
-const authStore = useAuthStore()
-const accountLinks = useAccountLinks()
 const { t } = useI18n()
 
 watch(
@@ -59,15 +54,12 @@ const settingClass =
       <BrandLogo class="h-8 max-w-48 text-2xl" />
     </template>
 
-    <div class="flex flex-col gap-2">
-      <SidebarUserPanel />
+    <div class="flex flex-col gap-3">
       <BranchInfoBarMobile />
-      <InstallAppTile />
+      <SidebarUserPanel />
     </div>
 
     <SidebarNav :items="mainLinks" />
-
-    <SidebarNav v-if="authStore.isAuthenticated" :title="t('nav.account')" :items="accountLinks" />
 
     <div class="mt-auto flex flex-col items-center gap-4">
       <div class="flex w-full gap-2">

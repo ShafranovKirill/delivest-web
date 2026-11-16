@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import type { ClientAddress } from '@/modules/account/api/account.service'
 import { formatAddress } from '@/modules/shared/utils/address'
-import { useCityAddresses } from '../../composables/useCityAddresses'
+import { useDeliveryAddresses } from '../../composables/useDeliveryAddresses'
 
-const props = defineProps<{ city: string | null }>()
 defineEmits<{ select: [address: ClientAddress] }>()
 
-const addresses = useCityAddresses(() => props.city)
+const addresses = useDeliveryAddresses()
 </script>
 
 <template>
-  <div v-if="addresses.length" class="flex gap-2 overflow-x-auto pb-1">
+  <div v-if="addresses.length" class="saved-addresses-strip flex gap-2 overflow-x-auto pb-1">
     <button
       v-for="address in addresses"
       :key="address.id"
@@ -23,3 +22,19 @@ const addresses = useCityAddresses(() => props.city)
     </button>
   </div>
 </template>
+
+<style>
+@media (max-width: 767px) {
+  .fulfillment-picker-stretched .saved-addresses-strip,
+  .fulfillment-picker-natural .saved-addresses-strip {
+    margin-inline: -20px;
+    padding-inline-start: 20px;
+    padding-inline-end: 0;
+    scrollbar-width: none;
+  }
+  .fulfillment-picker-stretched .saved-addresses-strip::-webkit-scrollbar,
+  .fulfillment-picker-natural .saved-addresses-strip::-webkit-scrollbar {
+    display: none;
+  }
+}
+</style>

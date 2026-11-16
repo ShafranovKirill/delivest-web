@@ -1,29 +1,24 @@
 <script setup lang="ts">
 import { useFulfillmentStore } from '../stores/fulfillment.store'
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import Button from 'primevue/button'
 import { useI18n } from 'vue-i18n'
-import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useFulfillmentFlowStore } from '../stores/fulfillmentFlow.store'
 
 const { t } = useI18n()
-const viewportStore = useViewportStore()
 const authStore = useAuthStore()
 const flowStore = useFulfillmentFlowStore()
 const fulfillment = useFulfillmentStore()
 </script>
 
 <template>
-  <Dialog
+  <ResponsiveSheet
     v-model:visible="flowStore.isPromptOpen"
-    modal
-    dismissable-mask
-    :position="viewportStore.isMobile ? 'bottom' : 'center'"
     :header="
       t(fulfillment.canOrder ? 'fulfillment.prompt.title' : 'fulfillment.prompt.unavailable')
     "
-    class="w-full max-w-md"
+    desktop-class="w-full max-w-md"
     @hide="flowStore.dismiss"
   >
     <p class="text-gray-600">
@@ -67,5 +62,5 @@ const fulfillment = useFulfillmentStore()
         {{ t('fulfillment.prompt.signIn') }}
       </button>
     </p>
-  </Dialog>
+  </ResponsiveSheet>
 </template>

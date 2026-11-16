@@ -2,12 +2,77 @@
   "components": {
     "responses": {},
     "schemas": {
+      "AdvertisingSourceClaimResponse": {"properties": {"data": {"properties": {"claimed": {"minimum": 0, "type": "integer"}}, "required": ["claimed"], "type": "object"}}, "required": ["data"], "title": "AdvertisingSourceClaimResponse", "type": "object"},
       "ActiveOrdersResponse": {
         "properties": {
           "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" }
         },
         "required": ["data"],
         "title": "ActiveOrdersResponse",
+        "type": "object"
+      },
+      "ClientCapabilitiesResponse": {
+        "properties": {
+          "api_version": {
+            "enum": [
+              1
+            ],
+            "type": "integer"
+          },
+          "deprecation": {
+            "nullable": true,
+            "type": "string"
+          },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "money_unit": {
+            "enum": [
+              "kopeck"
+            ],
+            "type": "string"
+          },
+          "order_event_version": {
+            "enum": [
+              1
+            ],
+            "type": "integer"
+          },
+          "push": {
+            "properties": {
+              "apns_fcm": {
+                "type": "boolean"
+              },
+              "web_push": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "web_push",
+              "apns_fcm"
+            ],
+            "type": "object"
+          },
+          "timestamp_format": {
+            "enum": [
+              "RFC3339"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "api_version",
+          "order_event_version",
+          "money_unit",
+          "timestamp_format",
+          "features",
+          "push",
+          "deprecation"
+        ],
+        "title": "ClientCapabilitiesResponse",
         "type": "object"
       },
       "LegalDocumentResponse": {
@@ -65,6 +130,11 @@
       "CreateOrderRequest": {
         "properties": {
           "address": { "$ref": "#/components/schemas/AddressRequest" },
+          "address_by_operator": {
+            "description": "Клиент назовёт адрес доставки оператору по телефону. Заказ принимается без адреса и без расчёта доставки",
+            "example": false,
+            "type": "boolean"
+          },
           "branch_id": {
             "description": "UUID филиала",
             "example": "7b45ded3-881e-4270-bc93-0ad6a904ec53",
@@ -75,6 +145,11 @@
             "description": "UUID корзины",
             "example": "8f3b2c10-91ab-4cd2-81e2-123456789abc",
             "format": "uuid",
+            "type": "string"
+          },
+          "cart_revision": {
+            "description": "Отпечаток корзины из CartResponse; при изменении вернётся cart_changed",
+            "nullable": true,
             "type": "string"
           },
           "cash_given": {
@@ -157,6 +232,7 @@
             "type": "integer"
           },
           "gift": { "example": false, "type": "boolean" },
+          "image_url": { "nullable": true, "type": "string" },
           "modifiers": {
             "items": { "$ref": "#/components/schemas/ItemModifier" },
             "type": "array"
@@ -287,6 +363,10 @@
             "format": "uri",
             "nullable": true,
             "type": "string"
+          },
+          "popular": {
+            "description": "Хит продаж филиала: попадает в блок «Популярное» по настройке режима популярных товаров",
+            "type": "boolean"
           },
           "price": { "description": "Цена в копейках", "example": 59000, "type": "integer" },
           "quantity": {
@@ -481,7 +561,12 @@
             "description": "Итог по строке с учётом скидок",
             "example": 106200,
             "type": "integer"
-          }
+          },
+          "unavailable": {
+            "description": "Товар или модификатор больше недоступен",
+            "type": "boolean"
+          },
+          "unavailable_reason": { "nullable": true, "type": "string" }
         },
         "required": [
           "key",
@@ -656,6 +741,7 @@
                 "items": { "$ref": "#/components/schemas/OrderItemResponse" },
                 "type": "array"
               },
+              "inserted_at": { "format": "date_time", "type": "string" },
               "number": { "example": "261029-MSK1-042", "type": "string" },
               "payment": {
                 "description": "Только в ответе на создание онлайн-заказа",
@@ -708,6 +794,7 @@
               "promotions",
               "branch_id",
               "cart_id",
+              "inserted_at",
               "items"
             ],
             "type": "object"
@@ -745,7 +832,7 @@
         "type": "object"
       },
       "PromoReason": {
-        "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация.",
+        "description": "Почему акция пока не применилась. `subtotal`/`quantity` — сколько не хватает (`missing`, для `subtotal` в копейках), `product` — какого товара не хватает, `fulfillment` — допустимые способы получения, `time`/`weekday` — когда действует, `requires_client` — нужна авторизация, `first_order` — только для первого заказа клиента на сайте в этом филиале.",
         "properties": {
           "allowed": {
             "items": { "enum": ["dine_in", "delivery", "pickup"], "type": "string" },
@@ -774,7 +861,8 @@
               "fulfillment",
               "time",
               "weekday",
-              "requires_client"
+              "requires_client",
+              "first_order"
             ],
             "type": "string"
           }
@@ -881,7 +969,7 @@
                 "nullable": true,
                 "type": "string"
               },
-              "default_theme": { "enum": ["light", "dark"], "type": "string" },
+              "default_theme": { "enum": ["light", "dark"], "example": "light", "type": "string" },
               "description": { "nullable": true, "type": "string" },
               "documents": {
                 "items": { "$ref": "#/components/schemas/LegalDocumentSummary" },
@@ -975,6 +1063,7 @@
       "DeliveryZone": {
         "properties": {
           "color": { "example": "#2563eb", "type": "string" },
+          "delivery_minutes": { "nullable": true, "type": "integer" },
           "id": { "format": "uuid", "type": "string" },
           "name": { "example": "Центр", "type": "string" },
           "polygon": {
@@ -991,6 +1080,14 @@
             },
             "required": ["type", "coordinates"],
             "type": "object"
+          },
+          "thresholds": {
+            "items": {
+              "properties": { "order_from": { "type": "integer" }, "price": { "type": "integer" } },
+              "required": ["order_from", "price"],
+              "type": "object"
+            },
+            "type": "array"
           }
         },
         "required": ["id", "name", "color", "polygon"],
@@ -1031,6 +1128,11 @@
                 "items": { "$ref": "#/components/schemas/AppliedPromotion" },
                 "type": "array"
               },
+              "revision": {
+                "description": "Отпечаток состава и условий корзины для оформления заказа",
+                "nullable": true,
+                "type": "string"
+              },
               "session_id": {
                 "example": "eceaec3d-dd25-4e19-8afc-f1d0f1412c9c",
                 "nullable": true,
@@ -1070,7 +1172,10 @@
           "status": {
             "enum": ["ok", "below_minimum", "outside_zones", "no_coordinates"],
             "type": "string"
-          }
+          },
+          "zone_color": { "example": "#2563eb", "nullable": true, "type": "string" },
+          "zone_id": { "format": "uuid", "nullable": true, "type": "string" },
+          "zone_name": { "example": "Центр", "nullable": true, "type": "string" }
         },
         "required": ["status", "price", "min_order", "free_from", "minutes"],
         "title": "DeliveryQuote",
@@ -1138,7 +1243,8 @@
       },
       "ClientOrdersResponse": {
         "properties": {
-          "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" }
+          "data": { "items": { "$ref": "#/components/schemas/ActiveOrder" }, "type": "array" },
+          "next_cursor": { "nullable": true, "type": "string" }
         },
         "required": ["data"],
         "title": "ClientOrdersResponse",
@@ -1238,6 +1344,10 @@
               "cart_not_found",
               "cart_is_empty",
               "cart_already_ordered",
+              "cart_changed",
+              "idempotency_conflict",
+              "invalid_idempotency_key",
+              "payment_unavailable",
               "cart_branch_mismatch",
               "product_unavailable",
               "client_blocked",
@@ -1266,6 +1376,7 @@
               "cook_by_outside_hours",
               "fulfillment_unavailable",
               "delivery_no_coordinates",
+              "incomplete_delivery_address",
               "promo_unavailable",
               "promo_gift_not_available",
               "promo_gift_invalid",
@@ -1445,10 +1556,27 @@
             "nullable": true,
             "type": "string"
           },
-          "timezone": {
-            "description": "Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки",
-            "example": "Asia/Yekaterinburg",
-            "type": "string"
+          "delivery": {
+            "additionalProperties": true,
+            "properties": {
+              "address_mode_set": {
+                "description": "Способ выбора адреса явно настроен для филиала",
+                "type": "boolean"
+              },
+              "map_address": {
+                "description": "Включён ли выбор адреса по карте на сайте",
+                "type": "boolean"
+              },
+              "operator_address": {
+                "description": "Разрешена ли галочка «назову адрес оператору» в форме заказа",
+                "type": "boolean"
+              },
+              "show_city": {
+                "description": "Показывать поле города при ручном вводе адреса",
+                "type": "boolean"
+              }
+            },
+            "type": "object"
           },
           "delivery_time": {
             "description": "Минуты до готовности вместе с добавкой на загрузку",
@@ -1456,7 +1584,6 @@
             "nullable": true,
             "type": "integer"
           },
-          "manual_rating": { "format": "float", "nullable": true, "type": "number" },
           "fulfillment_methods": {
             "description": "Включённые способы получения заказа",
             "items": { "enum": ["delivery", "pickup", "dine_in"], "type": "string" },
@@ -1508,6 +1635,11 @@
             },
             "type": "object"
           },
+          "manual_rating": { "format": "float", "nullable": true, "type": "number" },
+          "notifications_enabled": {
+            "description": "Customer notification capability for this branch",
+            "type": "boolean"
+          },
           "payment_methods": {
             "description": "Способы оплаты, включённые на филиале",
             "items": { "enum": ["cash", "card_offline", "online"], "type": "string" },
@@ -1519,6 +1651,11 @@
             "description": "Исключения по датам (ISO-дата → enabled, open, close) поверх недели",
             "example": { "2026-12-31": { "close": "18:00", "enabled": true, "open": "10:00" } },
             "type": "object"
+          },
+          "timezone": {
+            "description": "Часовой пояс филиала: по нему считаются часы работы, «сегодня» и время доставки",
+            "example": "Asia/Yekaterinburg",
+            "type": "string"
           },
           "vk_url": { "example": "https://vk.com/group_name", "nullable": true, "type": "string" },
           "whatsapp_url": {
@@ -1543,7 +1680,12 @@
               "yandex_org_id": { "example": "123456789", "nullable": true, "type": "string" }
             },
             "type": "object"
-          }
+          },
+          "analytics_funnel_enabled": {
+            "description": "Funnel event capture is enabled for this branch",
+            "type": "boolean"
+          },
+          "analytics_links_enabled": {"description": "Trusted advertising link tracking is enabled for this branch", "type": "boolean"}
         },
         "required": ["id"],
         "title": "BranchInfoResponse",
@@ -1569,8 +1711,245 @@
         },
         "title": "StocksListResponse",
         "type": "object"
+      },
+      "CustomerNoticeList": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerNotice"
+            },
+            "type": "array"
+          },
+          "next_cursor": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "next_cursor"
+        ],
+        "title": "CustomerNoticeList",
+        "type": "object"
+      },
+      "CustomerNoticeClick": {
+        "properties": {
+          "data": {
+            "nullable": true,
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "CustomerNoticeClick",
+        "type": "object"
+      },
+      "CustomerNotice": {
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cta": {
+            "nullable": true,
+            "properties": {
+              "type": {
+                "enum": [
+                  "apply_promo",
+                  "show_bonus"
+                ],
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "value"
+            ],
+            "type": "object"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "body",
+          "created_at"
+        ],
+        "title": "CustomerNotice",
+        "type": "object"
+      },
+      "CustomerNotificationConsentRequest": {
+        "properties": {
+          "branch_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "push": {
+            "type": "boolean"
+          },
+          "sms": {
+            "description": "Unavailable; only false accepted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "branch_id"
+        ],
+        "title": "CustomerNotificationConsentRequest",
+        "type": "object"
+      },
+      "CustomerNotificationConsentResponse": {
+        "properties": {
+          "capabilities": {
+            "properties": {
+              "in_app": {
+                "type": "boolean"
+              },
+              "push": {
+                "type": "boolean"
+              },
+              "sms": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "in_app",
+              "push",
+              "sms"
+            ],
+            "type": "object"
+          },
+          "data": {
+            "properties": {
+              "push": {
+                "type": "boolean"
+              },
+              "sms": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "push",
+              "sms"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "data",
+          "capabilities"
+        ],
+        "title": "CustomerNotificationConsentResponse",
+        "type": "object"
+      },
+      "FunnelEventResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "event_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "session_id": {
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_id",
+              "session_id"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FunnelEventResponse",
+        "type": "object"
+      },
+      "FunnelEventRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "branch_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "event": {
+            "enum": [
+              "visit",
+              "menu_view",
+              "product_view",
+              "cart_add",
+              "checkout_start",
+              "fulfillment_selected"
+            ],
+            "type": "string"
+          },
+          "event_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "direct",
+              "campaign",
+              "unknown"
+            ],
+            "type": "string"
+          },
+          "utm_campaign": {
+            "maxLength": 64,
+            "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "utm_medium": {
+            "maxLength": 64,
+            "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "utm_source": {
+            "maxLength": 64,
+            "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "branch_id",
+          "event"
+        ],
+        "title": "FunnelEventRequest",
+        "type": "object"
       }
-    }
+    },
+    "securitySchemes": {"bearer": {"bearerFormat": "JWT", "scheme": "bearer", "type": "http"}}
   },
   "info": {
     "description": "Все суммы — в копейках, целым числом.",
@@ -1579,6 +1958,8 @@
   },
   "openapi": "3.0.0",
   "paths": {
+    "/client/capabilities": {"get": {"callbacks": {}, "description": "Public additive feature discovery for API version 1 clients.", "operationId": "DelivestWeb.Client.CapabilitiesController.show", "parameters": [], "responses": {"200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/ClientCapabilitiesResponse"}}}, "description": "Capabilities"}}, "summary": "Client API capabilities", "tags": ["Client"]}},
+    "/client/analytics/source/claim": {"post": {"callbacks": {}, "description": "Uses the signed analytics cookie and verified bearer identity. Request body must be empty.", "operationId": "DelivestWeb.Client.Analytics.SourceController.claim", "parameters": [], "requestBody": {"content": {"application/json": {"schema": {"additionalProperties": false, "properties": {}, "type": "object"}}}, "description": "Empty request", "required": false}, "responses": {"200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/AdvertisingSourceClaimResponse"}}}, "description": "Claim result"}, "404": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}, "description": "Advertising tracking unavailable"}, "422": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}, "description": "Invalid request"}}, "summary": "Bind signed guest advertising clicks to the authenticated client", "tags": ["Analytics"]}},
     "/client/loyalty": {
       "get": {
         "callbacks": {},
@@ -1610,6 +1991,38 @@
         "security": [{ "bearer": [] }],
         "summary": "Бонусы клиента",
         "tags": ["Loyalty"]
+      }
+    },
+    "/client/orders/{id}": {
+      "get": {
+        "callbacks": {},
+        "description": "Возвращает конкретный заказ владельцу сессии или вошедшему клиенту.",
+        "operationId": "DelivestWeb.Client.Order.OrderController.show",
+        "parameters": [
+          {
+            "description": "ID заказа",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/OrderResponse" } }
+            },
+            "description": "Заказ"
+          },
+          "404": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Заказ не найден"
+          }
+        },
+        "summary": "Заказ текущей сессии",
+        "tags": ["Orders"]
       }
     },
     "/client/auth/refresh": {
@@ -2302,9 +2715,24 @@
     "/client/orders": {
       "get": {
         "callbacks": {},
-        "description": "Все заказы авторизованного клиента, новые сначала.",
+        "description": "Заказы авторизованного клиента, новые сначала. Без limit возвращает прежний список (до 50). С limit возвращает страницу и next_cursor для следующей страницы.",
         "operationId": "DelivestWeb.Client.Order.OrderController.index",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Размер страницы от 1 до 50",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": { "type": "integer" }
+          },
+          {
+            "description": "Курсор предыдущей страницы; требует limit",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -2313,6 +2741,12 @@
               }
             },
             "description": "Заказы клиента"
+          },
+          "400": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Неверный limit или cursor"
           },
           "401": {
             "content": {
@@ -2327,9 +2761,17 @@
       },
       "post": {
         "callbacks": {},
-        "description": "Создаёт заказ по cart_id и branch_id из тела запроса.",
+        "description": "Создаёт заказ по cart_id и branch_id. Повтор с тем же Idempotency-Key возвращает созданный заказ.",
         "operationId": "DelivestWeb.Client.Order.OrderController.create",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "UUID ключ одного оформления для владельца и филиала",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": { "format": "uuid", "type": "string" }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": { "schema": { "$ref": "#/components/schemas/CreateOrderRequest" } }
@@ -2350,6 +2792,12 @@
             },
             "description": "Требуется вход"
           },
+          "409": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Ключ уже использован с другим запросом"
+          },
           "422": {
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
@@ -2361,6 +2809,12 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             },
             "description": "Слишком много запросов"
+          },
+          "502": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            },
+            "description": "Сервис оплаты недоступен"
           }
         },
         "summary": "Создать заказ",
@@ -2571,7 +3025,7 @@
     "/client/geo/suggest": {
       "get": {
         "callbacks": {},
-        "description": "Адреса DaData по введённой строке, в пределах города, если он передан.",
+        "description": "Адреса DaData по введённой строке; city ограничивает город, city_boost повышает его приоритет.",
         "operationId": "DelivestWeb.Client.Geo.GeoController.suggest",
         "parameters": [
           {
@@ -2582,9 +3036,16 @@
             "schema": { "type": "string" }
           },
           {
-            "description": "Город филиала",
+            "description": "Строгое ограничение города",
             "in": "query",
             "name": "city",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "description": "Предпочитаемый город",
+            "in": "query",
+            "name": "city_boost",
             "required": false,
             "schema": { "type": "string" }
           }
@@ -3113,7 +3574,419 @@
         "summary": "Применить промокод",
         "tags": ["Cart"]
       }
-    }
+    },
+      "/client/notifications/consents": {
+        "get": {
+          "callbacks": {},
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.consents",
+          "parameters": [
+            {
+              "description": "",
+              "in": "query",
+              "name": "branch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CustomerNotificationConsentResponse"
+                  }
+                }
+              },
+              "description": "Согласия"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Модуль выключен"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Маркетинговые согласия и доступность каналов",
+          "tags": [
+            "Notifications"
+          ]
+        },
+        "put": {
+          "callbacks": {},
+          "description": "Push по умолчанию выключен; SMS пока недоступен и true отклоняется. Настройки транзакционных уведомлений не меняются.",
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.update_consents",
+          "parameters": [],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerNotificationConsentRequest"
+                }
+              }
+            },
+            "description": "Согласия",
+            "required": false
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CustomerNotificationConsentResponse"
+                  }
+                }
+              },
+              "description": "Согласия"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Модуль выключен"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверный запрос"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Изменить добровольные маркетинговые согласия",
+          "tags": [
+            "Notifications"
+          ]
+        }
+      },
+      "/client/notifications/{id}/dismiss": {
+        "post": {
+          "callbacks": {},
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.dismiss",
+          "parameters": [
+            {
+              "description": "",
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "branch_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "device_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "branch_id",
+                    "device_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Устройство и филиал",
+            "required": false
+          },
+          "responses": {
+            "204": {
+              "description": "Закрыто"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Не найдено"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверный запрос"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Закрыть карточку на одном устройстве",
+          "tags": [
+            "Notifications"
+          ]
+        }
+      },
+      "/client/notifications/{id}/click": {
+        "post": {
+          "callbacks": {},
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.click",
+          "parameters": [
+            {
+              "description": "",
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "branch_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "device_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "branch_id",
+                    "device_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Устройство и филиал",
+            "required": false
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CustomerNoticeClick"
+                  }
+                }
+              },
+              "description": "Действие"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Не найдено или истекло"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверный запрос"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Отметить переход из текущей карточки",
+          "tags": [
+            "Notifications"
+          ]
+        }
+      },
+      "/client/notifications": {
+        "get": {
+          "callbacks": {},
+          "description": "Только канал in_app. Просмотр не закрывает карточку. Курсор проходит и через устаревшие карточки.",
+          "operationId": "DelivestWeb.Client.Notifications.NotificationController.index",
+          "parameters": [
+            {
+              "description": "",
+              "in": "query",
+              "name": "branch_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            {
+              "description": "",
+              "in": "query",
+              "name": "device_id",
+              "required": true,
+              "schema": {
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            {
+              "description": "",
+              "in": "query",
+              "name": "cursor",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CustomerNoticeList"
+                  }
+                }
+              },
+              "description": "Карточки"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Модуль выключен"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверный курсор или устройство"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Карточки клиента для текущего филиала и устройства",
+          "tags": [
+            "Notifications"
+          ]
+        }
+      },
+      "/client/analytics/events": {
+        "post": {
+          "callbacks": {},
+          "description": "Событие создаётся только при включённой аналитике филиала. UTM поля — непроверенные клиентские метки, не подтверждение рекламы или выручки. Гость получает отдельную подписанную cookie.",
+          "operationId": "DelivestWeb.Client.Analytics.EventController.create",
+          "parameters": [],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FunnelEventRequest"
+                }
+              }
+            },
+            "description": "Событие",
+            "required": true
+          },
+          "responses": {
+            "202": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/FunnelEventResponse"
+                  }
+                }
+              },
+              "description": "Событие принято"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Аналитика филиала недоступна"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверное событие"
+            },
+            "429": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Превышен лимит"
+            }
+          },
+          "summary": "Записать событие воронки",
+          "tags": [
+            "Analytics"
+          ]
+        }
+      }
   },
   "security": [],
   "servers": [{ "url": "http://localhost:4000", "variables": {} }],

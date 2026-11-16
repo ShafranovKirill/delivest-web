@@ -16,13 +16,15 @@ export type ActiveOrder = components['schemas']['ActiveOrder']
 export type OrderStatus = ActiveOrder['status']
 
 export const OrderService = {
-  async createOrder(payload: CreateOrderPayload): Promise<Order> {
-    const { data } = await api.post<OrderResponse>('/client/orders', payload)
+  async createOrder(payload: CreateOrderPayload, idempotencyKey: string): Promise<Order> {
+    const { data } = await api.post<OrderResponse>('/client/orders', payload, {
+      headers: { 'Idempotency-Key': idempotencyKey },
+    })
     return data.data
   },
 
-  async getOrder(id: string): Promise<Order> {
-    const { data } = await api.get<OrderResponse>(`/client/orders/${id}`)
+  async getOrder(id: string, signal?: AbortSignal): Promise<Order> {
+    const { data } = await api.get<OrderResponse>(`/client/orders/${id}`, { signal })
     return data.data
   },
 
@@ -38,8 +40,8 @@ export const OrderService = {
     return data.data.confirmation_url
   },
 
-  async getActiveOrders(): Promise<ActiveOrder[]> {
-    const { data } = await api.get<ActiveOrdersResponse>('/client/orders/active')
+  async getActiveOrders(signal?: AbortSignal): Promise<ActiveOrder[]> {
+    const { data } = await api.get<ActiveOrdersResponse>('/client/orders/active', { signal })
     return data.data
   },
 }

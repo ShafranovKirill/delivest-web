@@ -1,6 +1,10 @@
 import { useLocalStorage } from '@vueuse/core'
 
-const seen = useLocalStorage<string[]>('delivest-seen-stories', [])
+const previewReset = import.meta.env.DEV && import.meta.env.VITE_PREVIEW_STORIES_RESET
+const storageKey = previewReset
+  ? `delivest-seen-stories-${previewReset}`
+  : 'delivest-seen-stories'
+const seen = useLocalStorage<string[]>(storageKey, [])
 
 export function useSeenStories() {
   function isSeen(id: string) {

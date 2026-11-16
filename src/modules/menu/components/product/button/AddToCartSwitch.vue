@@ -9,16 +9,12 @@ import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
 import SoldOutLabel from './SoldOutLabel.vue'
 import { useI18n } from 'vue-i18n'
-import { useMenuStore } from '@/modules/menu/stores/menu.store'
 
 const props = defineProps<{ product: MenuProduct }>()
 const cartStore = useCartStore()
 const flowStore = useFulfillmentFlowStore()
 const toast = useToast()
 const { t } = useI18n()
-const menuStore = useMenuStore()
-
-const hasModifiers = computed(() => (props.product.modifier_groups ?? []).length > 0)
 
 function showError(error: unknown) {
   toast.add({
@@ -40,7 +36,6 @@ const quantity = computed(() => lines.value.reduce((sum, i) => sum + i.quantity,
 const handleAdd = async (event: Event) => {
   event.stopPropagation()
   if (!props.product?.id || isPending.value) return
-  if (hasModifiers.value) return menuStore.openProductModal(props.product)
   isPending.value = true
   try {
     await cartStore.addItem(String(props.product.id))

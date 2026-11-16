@@ -3,13 +3,14 @@ import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
 
 import ProductNutrition from '../ProductNutrition.vue'
 import ProductImage from '../ProductImage.vue'
+import ModifierPicker from '../ModifierPicker.vue'
 import { useMenuStore } from '@/modules/menu/stores/menu.store.ts'
 import { storeToRefs } from 'pinia'
-import Drawer from 'primevue/drawer'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import AddToCartButton from '../button/AddToCartButton.vue'
 import ProductTagPills from '../tags/ProductTagPills.vue'
 import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const menuStore = useMenuStore()
 const { t } = useI18n()
@@ -18,63 +19,87 @@ const { activeProduct } = storeToRefs(menuStore)
 const weightKey = computed(() =>
   activeProduct.value?.measure_unit === 'ml' ? 'common.milliliters' : 'common.grams',
 )
+const groups = computed(() => activeProduct.value?.modifier_groups ?? [])
+const selected = ref<string[]>([])
 </script>
 
 <template>
-  <Drawer v-model:visible="menuStore.isProductModalOpen" position="bottom" class="h-dvh!">
-    <template #container>
-      <button
-        @click="menuStore.closeProductModal()"
-        class="absolute top-5 left-5 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-all duration-200"
-      >
-        <i class="pi pi-angle-down text-3xl! font-extralight!" />
-      </button>
+  <ResponsiveSheet
+    v-model:visible="menuStore.isProductModalOpen"
+    :aria-label="activeProduct?.name"
+    sheet-class="product-sheet h-[94dvh]!"
+    :sheet-pt="{
+      content: { class: 'min-h-0! flex-1 overflow-y-auto! overscroll-contain p-4! pt-2!' },
+      footer: { class: 'border-t border-gray-100 px-4! pt-4!' },
+    }"
+  >
+    <div>
+      <div class="w-full flex justify-center items-center shrink-0">
+        <ProductImage
+          :src="activeProduct?.photo_url"
+          :alt="activeProduct?.name"
+          class="aspect-square w-full max-w-50 rounded-4xl sm:max-w-64"
+          :class="{ 'opacity-50 grayscale': activeProduct?.stopped }"
+        />
+      </div>
 
-      <div class="flex flex-col p-4 pt-16 h-full overflow-y-auto">
-        <div class="w-full flex justify-center items-center shrink-0">
-          <ProductImage
-            :src="activeProduct?.photo_url"
-            :alt="activeProduct?.name"
-            class="w-full max-w-70 sm:max-w-xs aspect-square rounded-4xl"
-            :class="{ 'opacity-50 grayscale': activeProduct?.stopped }"
+      <div class="mt-3 flex flex-col">
+        <div class="flex flex-col gap-2">
+          <ProductTagPills :tags="activeProduct?.tags ?? []" />
+          <h2 class="text-2xl font-semibold tracking-tight text-gray-900">
+            {{ activeProduct?.name }}
+          </h2>
+
+          <div
+            v-if="activeProduct?.weight || activeProduct?.quantity"
+            class="flex items-center gap-2 text-sm text-gray-500"
+          >
+            <span v-if="activeProduct?.weight">
+              {{ t(weightKey, { value: activeProduct.weight }) }}
+            </span>
+            <span v-if="activeProduct?.weight && activeProduct?.quantity" aria-hidden="true"
+              >·</span
+            >
+            <span v-if="activeProduct?.quantity">
+              {{ t('common.pieces', { count: activeProduct.quantity }) }}
+            </span>
+          </div>
+
+          <p
+            v-if="activeProduct?.description"
+            class="text-sm leading-relaxed text-gray-600 sm:text-base"
+          >
+            {{ activeProduct.description }}
+          </p>
+          <ProductNutrition :nutrition="activeProduct?.nutrition" />
+          <StarRewardBadge :amount="activeProduct?.stars_reward" />
+          <ModifierPicker
+            v-if="groups.length && !activeProduct?.stopped"
+            :key="activeProduct?.id"
+            v-model="selected"
+            :groups="groups"
+            class="pt-2"
           />
         </div>
-
-        <div class="flex flex-col justify-between grow mt-4">
-          <div class="flex flex-col gap-3">
-            <ProductTagPills :tags="activeProduct?.tags ?? []" />
-            <h2 class="text-3xl font-normal! text-gray-900 tracking-tight">
-              {{ activeProduct?.name }}
-            </h2>
-
-            <div
-              v-if="activeProduct?.weight || activeProduct?.quantity"
-              class="flex items-center gap-3 text-sm text-gray-500 font-medium"
-            >
-              <span v-if="activeProduct?.weight" class="bg-gray-100 px-2.5 py-1 rounded-md">
-                {{ t(weightKey, { value: activeProduct.weight }) }}
-              </span>
-              <span v-if="activeProduct?.quantity" class="bg-gray-100 px-2.5 py-1 rounded-md">
-                {{ t('common.pieces', { count: activeProduct.quantity }) }}
-              </span>
-            </div>
-
-            <StarRewardBadge :amount="activeProduct?.stars_reward" />
-            <ProductNutrition :nutrition="activeProduct?.nutrition" />
-
-            <p
-              v-if="activeProduct?.description"
-              class="text-gray-600 leading-relaxed text-sm sm:text-base pb-4"
-            >
-              {{ activeProduct.description }}
-            </p>
-          </div>
-
-          <div class="pt-4 mt-auto sticky bottom-0 bg-white/80 backdrop-blur-md pb-4">
-            <AddToCartButton :product="activeProduct" @added="menuStore.closeProductModal()" />
-          </div>
-        </div>
       </div>
+    </div>
+    <template #footer>
+      <AddToCartButton
+        v-model="selected"
+        :product="activeProduct"
+        :show-modifiers="false"
+        class="w-full"
+        @added="menuStore.closeProductModal()"
+      />
     </template>
-  </Drawer>
+  </ResponsiveSheet>
 </template>
+
+<style>
+@media (max-width: 767px) {
+  .p-dialog.responsive-sheet.product-sheet {
+    max-height: 94dvh !important;
+    padding-bottom: 0 !important;
+  }
+}
+</style>

@@ -16,15 +16,25 @@ const toast = useToast()
 const { t } = useI18n()
 const phone = ref('')
 
-function onConfirmed(session: ClientSession) {
-  authStore.signIn(session)
-  authStore.closeModal()
-  toast.add({
-    severity: 'success',
-    summary: t('auth.signedIn'),
-    detail: t('auth.phoneConfirmed'),
-    life: 3000,
-  })
+async function onConfirmed(session: ClientSession) {
+  try {
+    await authStore.signIn(session)
+    if (authStore.client?.id !== session.client?.id) return
+    authStore.closeModal()
+    toast.add({
+      severity: 'success',
+      summary: t('auth.signedIn'),
+      detail: t('auth.phoneConfirmed'),
+      life: 3000,
+    })
+  } catch {
+    toast.add({
+      severity: 'error',
+      summary: t('common.error'),
+      detail: t('pwa.push.cleanupFailed'),
+      life: 6000,
+    })
+  }
 }
 
 const {
@@ -51,7 +61,10 @@ watch(
 </script>
 
 <template>
-  <ResponsiveSheet v-model:visible="authStore.isModalOpen">
+  <ResponsiveSheet
+    :aria-label="confirmation ? t('auth.confirmTitle') : t('auth.signInTitle')"
+    v-model:visible="authStore.isModalOpen"
+  >
     <template #header>
       <div>
         <h2 class="text-xl font-extrabold text-gray-950">

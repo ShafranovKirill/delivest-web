@@ -56,6 +56,11 @@ const router = createRouter({
           component: () => import('@/modules/account/views/AddressesView.vue'),
         },
         {
+          path: 'notification-channels',
+          name: 'notification-channels',
+          component: () => import('@/modules/notifications/views/NotificationChannelsView.vue'),
+        },
+        {
           path: 'legal/:kind(offer|terms|privacy|consent)',
           name: 'legal',
           component: () => import('@/modules/franchise/views/LegalDocumentView.vue'),

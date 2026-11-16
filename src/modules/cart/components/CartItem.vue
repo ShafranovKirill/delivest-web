@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { getApiErrorMessage } from '@/api/errors'
 import { useOpenPromoGiftChoice } from '../composables/useOpenPromoGiftChoice'
 import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
 
@@ -36,6 +37,18 @@ const menuStore = useMenuStore()
 const branchStore = useBranchStore()
 const desktopModalStore = useDesktopModalStore()
 const mobileModalStore = useMobileModalStore()
+const operationError = ref<string | null>(null)
+let retryAction: (() => Promise<unknown>) | null = null
+async function run(action: () => Promise<unknown>) {
+  operationError.value = null
+  try {
+    await action()
+    retryAction = null
+  } catch (error) {
+    operationError.value = getApiErrorMessage(error)
+    retryAction = action
+  }
+}
 
 function handleEdit() {
   const slug = branchStore.activeBranch?.slug
@@ -53,19 +66,15 @@ function handleEdit() {
 }
 
 function handleDecrease() {
-  if (props.item.quantity > 1) {
-    cartStore.removeItem(props.item.key)
-  } else {
-    cartStore.removeAllOfItem(props.item.key)
-  }
+  run(() => cartStore.removeItem(props.item.key))
 }
 
 function handleIncrease() {
   const modifiers = (props.item.modifiers ?? [])
     .filter((m) => m.id)
     .map((m) => ({ id: m.id!, quantity: m.quantity }))
-  if (props.item.stars) cartStore.addStarItem(props.item.product_id)
-  else cartStore.addItem(props.item.product_id, modifiers)
+  if (props.item.stars) run(() => cartStore.addStarItem(props.item.product_id))
+  else run(() => cartStore.addItem(props.item.product_id, modifiers))
 }
 </script>
 
@@ -77,19 +86,19 @@ function handleIncrease() {
           :src="item.image_url"
           :alt="item.name"
           class="size-[72px] rounded-2xl"
-          :class="{ 'opacity-50 grayscale': item.stopped }"
+          :class="{ 'opacity-50 grayscale': item.stopped || item.unavailable }"
         />
       </div>
 
       <div class="min-w-0 flex-1">
         <div class="flex items-start justify-between gap-2">
-          <h4 class="text-sm font-semibold leading-snug text-gray-950">{{ item.name }}</h4>
+          <h4 class="text-sm font-semibold leading-snug text-gray-950">{{ item.unavailable_reason === 'product_missing' ? t('cart.unavailableProduct') : item.name }}</h4>
           <button
             v-if="!item.gift"
             type="button"
             class="-mr-1 -mt-1 grid size-8 shrink-0 place-items-center rounded-full text-gray-400 transition-colors hover:text-red-500 cursor-pointer"
             :aria-label="t('cart.remove')"
-            @click="cartStore.removeAllOfItem(item.key)"
+            @click="run(() => cartStore.removeAllOfItem(item.key))"
           >
             <i class="pi pi-times text-sm" />
           </button>
@@ -104,10 +113,10 @@ function handleIncrease() {
 
         <StarRewardBadge :amount="item.stars_reward" :quantity="item.quantity" class="mt-2" />
         <span
-          v-if="item.stopped"
+          v-if="item.stopped || item.unavailable"
           class="mt-1.5 inline-block rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600"
         >
-          {{ t('cart.soldOut') }}
+          {{ item.unavailable ? t('cart.unavailable') : t('cart.soldOut') }}
         </span>
       </div>
     </div>
@@ -149,7 +158,7 @@ function handleIncrease() {
         {{ t('promo.giftChoice.change') }}
       </button>
 
-      <div v-if="!item.stopped && !item.gift" class="flex items-center gap-2">
+      <div v-if="!item.stopped && !item.unavailable && !item.gift" class="flex items-center gap-2">
         <button
           type="button"
           class="px-2 text-sm font-semibold text-primary transition-opacity hover:opacity-70 cursor-pointer"
@@ -179,6 +188,16 @@ function handleIncrease() {
           </button>
         </div>
       </div>
+    </div>
+    <div
+      v-if="operationError"
+      role="alert"
+      class="mt-2 flex items-center gap-2 text-sm text-red-600"
+    >
+      <span>{{ operationError }}</span>
+      <button type="button" class="underline" @click="retryAction && run(retryAction)">
+        {{ t('common.retry') }}
+      </button>
     </div>
   </div>
 </template>

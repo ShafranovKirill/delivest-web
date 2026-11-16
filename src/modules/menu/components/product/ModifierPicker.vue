@@ -15,6 +15,17 @@ function single(group: Group) {
   return group.is_size || group.max === 1
 }
 
+function atLimit(group: Group) {
+  return (
+    !single(group) &&
+    group.modifiers.filter((m) => selected.value.includes(m.id)).length >= group.max
+  )
+}
+
+function unavailable(group: Group, id: string, stopped: boolean) {
+  return stopped || (atLimit(group) && !selected.value.includes(id))
+}
+
 function toggle(group: Group, id: string) {
   const ids = group.modifiers.map((m) => m.id)
   const rest = selected.value.filter((s) => !ids.includes(s))
@@ -33,7 +44,9 @@ function toggle(group: Group, id: string) {
 <template>
   <div class="space-y-4">
     <div v-for="group in groups" :key="group.id">
-      <p class="mb-2 text-sm font-semibold text-gray-900">{{ group.name }}</p>
+      <p class="mb-2 text-sm font-semibold text-gray-900">
+        {{ group.name === 'Добавки' ? 'Дополни вкус' : group.name }}
+      </p>
 
       <div v-if="group.is_size" class="flex gap-1 rounded-full bg-gray-100 p-1">
         <button
@@ -41,8 +54,9 @@ function toggle(group: Group, id: string) {
           :key="modifier.id"
           type="button"
           :disabled="modifier.stopped"
+          :aria-pressed="selected.includes(modifier.id)"
           @click="toggle(group, modifier.id)"
-          class="flex-1 rounded-full px-3 py-1.5 text-sm transition-colors disabled:opacity-40"
+          class="flex-1 rounded-full px-3 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--p-primary-color) disabled:opacity-40"
           :class="
             selected.includes(modifier.id) ? 'bg-white font-semibold shadow-sm' : 'text-gray-600'
           "
@@ -51,29 +65,48 @@ function toggle(group: Group, id: string) {
         </button>
       </div>
 
-      <div v-else-if="hasPhotos(group)" class="grid grid-cols-3 gap-2">
+      <div
+        v-else-if="hasPhotos(group)"
+        class="modifier-photo-list -mx-4 flex snap-x snap-mandatory gap-2.5 overflow-x-auto overscroll-x-contain px-4 pb-1 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0"
+      >
         <button
           v-for="modifier in group.modifiers"
           :key="modifier.id"
           type="button"
-          :disabled="modifier.stopped"
+          :disabled="unavailable(group, modifier.id, modifier.stopped)"
+          :aria-pressed="selected.includes(modifier.id)"
           @click="toggle(group, modifier.id)"
-          class="flex flex-col overflow-hidden rounded-2xl border-2 bg-white text-center text-sm transition-colors disabled:opacity-40"
-          :class="selected.includes(modifier.id) ? 'border-(--p-primary-color)' : 'border-gray-100'"
+          class="relative flex w-[110px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border text-left transition-[border-color,background-color,box-shadow] duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--p-primary-color) disabled:cursor-not-allowed disabled:opacity-45 md:w-auto"
+          :class="
+            selected.includes(modifier.id)
+              ? 'border-(--p-primary-color) bg-[#f8f5f1] shadow-sm dark:border-(--p-primary-color) dark:bg-gray-100'
+              : 'border-[#e8e3dc] bg-[#faf8f5] hover:border-[#d6cfc5] hover:shadow-sm dark:border-gray-200 dark:bg-gray-50 dark:hover:border-gray-300'
+          "
         >
-          <span class="grid aspect-square w-full place-items-center bg-gray-50">
+          <span
+            class="absolute right-2 top-2 z-10 flex size-6 items-center justify-center rounded-full border text-xs shadow-sm"
+            :class="
+              selected.includes(modifier.id)
+                ? 'border-(--p-primary-color) bg-(--p-primary-color) text-white'
+                : 'border-white/80 bg-white/95 text-gray-700 dark:border-gray-300 dark:bg-gray-200 dark:text-gray-900'
+            "
+            aria-hidden="true"
+          >
+            <i :class="selected.includes(modifier.id) ? 'pi pi-check' : 'pi pi-plus'" />
+          </span>
+          <span class="grid aspect-square w-full place-items-center">
             <img
               v-if="modifier.photo_url"
               :src="modifier.photo_url"
-              :alt="modifier.name"
+              alt=""
               loading="lazy"
-              class="size-full object-cover"
+              class="block size-full object-contain"
             />
-            <i v-else class="pi pi-image text-2xl text-gray-300" />
+            <i v-else class="pi pi-image text-2xl text-gray-300" aria-hidden="true" />
           </span>
-          <span class="flex flex-1 flex-col gap-0.5 px-1.5 py-2 leading-tight">
-            <span class="font-medium text-gray-900">{{ modifier.name }}</span>
-            <span v-if="modifier.price > 0" class="text-xs text-gray-500">
+          <span class="flex min-w-0 flex-1 flex-col px-1.5 py-1.5 leading-tight">
+            <span class="break-words text-xs font-medium text-gray-900">{{ modifier.name }}</span>
+            <span v-if="modifier.price > 0" class="text-[11px] text-gray-600">
               +{{ formatPrice(modifier.price) }}
             </span>
           </span>
@@ -85,9 +118,10 @@ function toggle(group: Group, id: string) {
           v-for="modifier in group.modifiers"
           :key="modifier.id"
           type="button"
-          :disabled="modifier.stopped"
+          :disabled="unavailable(group, modifier.id, modifier.stopped)"
+          :aria-pressed="selected.includes(modifier.id)"
           @click="toggle(group, modifier.id)"
-          class="rounded-xl border px-3 py-1.5 text-sm transition-colors disabled:opacity-40"
+          class="rounded-xl border px-3 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--p-primary-color) disabled:opacity-40"
           :class="
             selected.includes(modifier.id)
               ? 'border-(--p-primary-color) bg-(--p-primary-color)/10'
@@ -103,3 +137,18 @@ function toggle(group: Group, id: string) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.modifier-photo-list {
+  scrollbar-width: none;
+  scroll-padding-inline: 1rem;
+}
+.modifier-photo-list::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 48rem) {
+  .modifier-photo-list {
+    scroll-padding-inline: 0;
+  }
+}
+</style>

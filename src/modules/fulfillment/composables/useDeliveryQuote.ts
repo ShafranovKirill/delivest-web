@@ -1,5 +1,5 @@
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
-import { keepPreviousData, useQuery } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { formatPrice } from '@/utils/money'
@@ -7,8 +7,12 @@ import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { useFulfillmentStore } from '../stores/fulfillment.store'
 import { DeliveryService } from '../api/delivery.service'
 import type { DeliveryAddress } from '../utils/deliveryAddress'
+import { isComplete, lngLatOf } from '../utils/deliveryAddress'
 
-export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | null>) => {
+export const useDeliveryQuote = (
+  address?: MaybeRefOrGetter<DeliveryAddress | null>,
+  enabled: MaybeRefOrGetter<boolean> = true,
+) => {
   const { t } = useI18n()
   const branchStore = useBranchStore()
   const cartStore = useCartStore()
@@ -19,32 +23,47 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
   )
 
   const branchId = computed(() => branchStore.activeBranch?.id ?? null)
+  const ready = computed(() =>
+    Boolean(
+      target.value &&
+      isComplete(target.value) &&
+      (!branchStore.requiresCoordinates || lngLatOf(target.value)),
+    ),
+  )
 
   const query = useQuery({
     queryKey: computed(() => [
       'delivery-quote',
       branchId.value,
-      target.value?.latitude ?? null,
-      target.value?.longitude ?? null,
+      branchStore.requiresCoordinates,
+      branchStore.requiresCoordinates ? (target.value?.latitude ?? null) : null,
+      branchStore.requiresCoordinates ? (target.value?.longitude ?? null) : null,
       cartStore.totalAmount,
+      cartStore.revision,
     ]),
     queryFn: () =>
       DeliveryService.quote(
         branchId.value!,
-        target.value?.latitude ?? null,
-        target.value?.longitude ?? null,
+        branchStore.requiresCoordinates ? (target.value?.latitude ?? null) : null,
+        branchStore.requiresCoordinates ? (target.value?.longitude ?? null) : null,
         cartStore.totalAmount,
       ),
-    enabled: computed(() => Boolean(branchId.value && target.value)),
-    placeholderData: keepPreviousData,
+    enabled: computed(() => Boolean(toValue(enabled) && branchId.value && ready.value)),
     staleTime: 60 * 1000,
   })
 
-  const quote = computed(() => (target.value ? (query.data.value ?? null) : null))
+  const pending = computed(() =>
+    Boolean(ready.value && (query.isPending.value || query.isFetching.value)),
+  )
+  const quote = computed(() =>
+    ready.value && !pending.value && !query.isError.value ? (query.data.value ?? null) : null,
+  )
 
   const price = computed(() => (quote.value?.status === 'ok' ? (quote.value.price ?? 0) : null))
 
-  const blocked = computed(() => Boolean(quote.value && quote.value.status !== 'ok'))
+  const blocked = computed(() =>
+    Boolean(target.value && (pending.value || !quote.value || quote.value.status !== 'ok')),
+  )
 
   const notDelivered = computed(() =>
     ['outside_zones', 'no_coordinates'].includes(quote.value?.status ?? ''),
@@ -72,5 +91,17 @@ export const useDeliveryQuote = (address?: MaybeRefOrGetter<DeliveryAddress | nu
     }
   })
 
-  return { quote, price, blocked, notDelivered, hint, isFetching: query.isFetching }
+  return {
+    quote,
+    price,
+    blocked,
+    pending,
+    notDelivered,
+    hint,
+    isError: query.isError,
+    isFetching: query.isFetching,
+    retry: query.refetch,
+    subtotal: computed(() => cartStore.totalAmount),
+    ready,
+  }
 }

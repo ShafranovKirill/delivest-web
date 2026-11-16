@@ -31,5 +31,5 @@ export function getApiErrorMessage(error: unknown, fallback?: string): string {
     return fallbackText
   }
 
-  return error instanceof Error && error.message ? error.message : fallbackText
+  return fallbackText
 }

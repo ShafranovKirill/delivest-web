@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       vue(),
-      vueDevTools(),
+      loadedEnv.VITE_DEVTOOLS !== 'false' && vueDevTools(),
       tailwindcss(),
       Components({
         resolvers: [

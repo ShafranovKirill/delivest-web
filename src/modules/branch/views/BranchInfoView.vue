@@ -5,6 +5,7 @@ import { useMapStore } from '../stores/map.store'
 import BaseMap from '@/modules/fulfillment/components/map/BaseMap.vue'
 import { useBranchStore } from '../stores/branch.store.ts'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
+import PageIllustration from '@/modules/shared/components/ui/PageIllustration.vue'
 import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
 import BranchScheduleCard from '../components/BranchScheduleCard.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
@@ -17,7 +18,7 @@ const branchStore = useBranchStore()
 const mapStore = useMapStore()
 
 const { activeBranch } = storeToRefs(branchStore)
-const { isMapEnabled, coordinates, yandexOrgUrl } = storeToRefs(mapStore)
+const { coordinates, yandexOrgUrl } = storeToRefs(mapStore)
 
 const info = computed(() => activeBranch.value?.branch_info ?? null)
 const phoneLabel = computed(() =>
@@ -35,24 +36,31 @@ const socials = computed(() =>
 
 <template>
   <PageShell :title="t('branch.info.title')" :subtitle="t('branch.info.subtitle')" width="default">
+    <template #illustration>
+      <PageIllustration kind="branch" />
+    </template>
     <template #actions>
       <button
         type="button"
-        class="group inline-flex items-center gap-3 rounded-full bg-gray-50 border border-gray-100 py-2 pl-2 pr-4 hover:border-primary transition-colors cursor-pointer"
+        class="group inline-flex max-w-full items-center gap-3 rounded-full bg-gray-50 border border-gray-100 py-2 pl-2 pr-4 hover:border-primary transition-colors cursor-pointer"
         @click="branchStore.openModal()"
       >
-        <span class="grid place-items-center size-9 rounded-full bg-white text-primary shadow-xs">
+        <span
+          class="grid size-9 shrink-0 place-items-center rounded-full bg-white text-primary shadow-xs"
+        >
           <i class="pi pi-map-marker" />
         </span>
-        <span class="flex flex-col items-start leading-tight">
+        <span class="flex min-w-0 flex-col items-start leading-tight">
           <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
             {{ t('branch.info.branch') }}
           </span>
-          <span class="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">
+          <span
+            class="max-w-full text-left text-sm font-bold text-gray-900 [overflow-wrap:anywhere] group-hover:text-primary transition-colors"
+          >
             {{ activeBranch?.name || t('branch.notSelected') }}
           </span>
         </span>
-        <i class="pi pi-chevron-right text-xs text-gray-400 group-hover:text-primary" />
+        <i class="pi pi-chevron-right shrink-0 text-xs text-gray-400 group-hover:text-primary" />
       </button>
     </template>
 
@@ -74,7 +82,7 @@ const socials = computed(() =>
         </template>
 
         <div
-          v-if="isMapEnabled && coordinates"
+          v-if="coordinates"
           class="h-87.5 overflow-hidden rounded-2xl border border-gray-200"
         >
           <BaseMap

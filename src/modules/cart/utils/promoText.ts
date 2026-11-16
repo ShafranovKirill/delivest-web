@@ -32,6 +32,8 @@ export function reasonText(reason: PromoReason): string {
       return t('promo.reason.weekday', { days: weekdays(reason) })
     case 'requires_client':
       return t('promo.reason.requiresClient')
+    case 'first_order':
+      return t('promo.reason.firstOrder')
   }
 }
 

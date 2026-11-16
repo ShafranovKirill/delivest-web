@@ -2,8 +2,9 @@
 import { useRouter } from 'vue-router'
 import { useContactsStore } from '@/modules/widgets/contacts/stores/constacts.store'
 import { useOrderStore } from '../stores/order.store'
-import SurfaceCard from '@/modules/shared/components/ui/SurfaceCard.vue'
-import OrderPushPrompt from '@/modules/pwa/components/OrderPushPrompt.vue'
+import { computed } from 'vue'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useOrderSuccessQuery } from '../composables/useOrderSuccessQuery'
 import OrderSuccessHero from './success/OrderSuccessHero.vue'
 import OrderSuccessDetails from './success/OrderSuccessDetails.vue'
 import { useI18n } from 'vue-i18n'
@@ -11,7 +12,15 @@ import { useI18n } from 'vue-i18n'
 const router = useRouter()
 const contactsStore = useContactsStore()
 const orderStore = useOrderStore()
+const branchStore = useBranchStore()
 const { t } = useI18n()
+const sourceOrder = computed(() => orderStore.lastCreatedOrder)
+const liveOrder = useOrderSuccessQuery(sourceOrder)
+const order = computed(() => {
+  const source = sourceOrder.value
+  if (!source || source.branch_id !== branchStore.activeBranch?.id) return null
+  return liveOrder.data.value?.id === source.id ? liveOrder.data.value : source
+})
 
 function handleReturnHome() {
   orderStore.resetOrderState()
@@ -21,26 +30,9 @@ function handleReturnHome() {
 
 <template>
   <div class="mx-auto flex max-w-lg flex-col gap-3 sm:gap-4">
-    <OrderSuccessHero :order="orderStore.lastCreatedOrder" />
+    <OrderSuccessHero v-if="order" :key="order.id" :order="order" />
 
-    <SurfaceCard
-      v-if="
-        orderStore.lastCreatedOrder?.status === 'created' &&
-        !orderStore.lastCreatedOrder.awaiting_payment
-      "
-      icon="pi-phone"
-      :title="t('order.success.operatorCall')"
-    >
-      <i18n-t keypath="order.success.hint" tag="p" class="text-sm text-gray-500 leading-relaxed">
-        <template #time>
-          <span class="font-semibold text-gray-900">{{ t('order.success.hintTime') }}</span>
-        </template>
-      </i18n-t>
-    </SurfaceCard>
-
-    <OrderSuccessDetails v-if="orderStore.lastCreatedOrder" :order="orderStore.lastCreatedOrder" />
-
-    <OrderPushPrompt :order-id="orderStore.lastCreatedOrder?.id" />
+    <OrderSuccessDetails v-if="order" :order="order" />
 
     <div class="flex flex-col gap-2 sm:flex-row sm:gap-3">
       <Button

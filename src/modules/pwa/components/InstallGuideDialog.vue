@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import { useI18n } from 'vue-i18n'
 
 const visible = defineModel<boolean>('visible', { required: true })
@@ -9,13 +9,10 @@ const steps = ['pwa.install.iosStep1', 'pwa.install.iosStep2', 'pwa.install.iosS
 </script>
 
 <template>
-  <Dialog
+  <ResponsiveSheet
+    :aria-label="t('pwa.install.iosTitle')"
     v-model:visible="visible"
-    modal
-    dismissable-mask
-    :draggable="false"
-    class="w-[min(92vw,400px)]"
-    :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
+    desktop-class="w-[min(92vw,400px)]"
   >
     <template #header>
       <h3 class="text-xl font-extrabold text-gray-950">{{ t('pwa.install.iosTitle') }}</h3>
@@ -31,5 +28,5 @@ const steps = ['pwa.install.iosStep1', 'pwa.install.iosStep2', 'pwa.install.iosS
         <span class="text-sm text-gray-800">{{ t(step) }}</span>
       </li>
     </ol>
-  </Dialog>
+  </ResponsiveSheet>
 </template>

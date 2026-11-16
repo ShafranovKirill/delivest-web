@@ -8,6 +8,7 @@ import StoryCard from '../components/StoryCard.vue'
 import StoryViewer from '../components/StoryViewer.vue'
 import RunningPromotionCard from '../components/RunningPromotionCard.vue'
 import PageShell from '@/modules/shared/components/ui/PageShell.vue'
+import PageIllustration from '@/modules/shared/components/ui/PageIllustration.vue'
 import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
 import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 
@@ -24,6 +25,9 @@ const isEmpty = computed(() => !stocks.value.length && !promotions.value.length)
 
 <template>
   <PageShell :title="t('stock.title')" width="wide">
+    <template #illustration>
+      <PageIllustration kind="stock" />
+    </template>
     <SkeletonList
       v-if="isLoading"
       :count="2"

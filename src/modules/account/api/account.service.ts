@@ -6,6 +6,7 @@ export type ClientAddress = components['schemas']['ClientAddress']
 export type AddressPayload = components['schemas']['ClientAddressRequest']
 
 type Envelope<T> = { data: T }
+export type OrdersPage = { data: ActiveOrder[]; next_cursor: string | null }
 
 export type LoyaltyEntry = {
   id: string
@@ -24,9 +25,12 @@ export type Loyalty = {
 }
 
 export const AccountService = {
-  async getOrders(): Promise<ActiveOrder[]> {
-    const { data } = await api.get<Envelope<ActiveOrder[]>>('/client/orders')
-    return data.data
+  async getOrders(cursor: string | null, signal?: AbortSignal): Promise<OrdersPage> {
+    const { data } = await api.get<OrdersPage>('/client/orders', {
+      params: { limit: 6, ...(cursor ? { cursor } : {}) },
+      signal,
+    })
+    return data
   },
 
   async getLoyalty(branchId: string): Promise<Loyalty> {
@@ -36,8 +40,8 @@ export const AccountService = {
     return data.data
   },
 
-  async getAddresses(): Promise<ClientAddress[]> {
-    const { data } = await api.get<Envelope<ClientAddress[]>>('/client/addresses')
+  async getAddresses(signal?: AbortSignal): Promise<ClientAddress[]> {
+    const { data } = await api.get<Envelope<ClientAddress[]>>('/client/addresses', { signal })
     return data.data
   },
 

@@ -6,6 +6,7 @@ export interface ModalOptions {
   component: Component
   props?: Record<string, unknown>
   headerTitle?: string
+  kind?: 'cart'
 }
 
 export const useMobileModalStore = defineStore('mobileModal', () => {
@@ -13,9 +14,10 @@ export const useMobileModalStore = defineStore('mobileModal', () => {
   const currentComponent = ref<Component | null>(null)
   const currentProps = ref<Record<string, unknown>>({})
   const title = ref<string>('')
+  const kind = ref<ModalOptions['kind']>()
   let closeTimeout: ReturnType<typeof setTimeout> | null = null
 
-  function openModal({ component, props = {}, headerTitle = '' }: ModalOptions) {
+  function openModal({ component, props = {}, headerTitle = '', kind: modalKind }: ModalOptions) {
     if (closeTimeout !== null) {
       clearTimeout(closeTimeout)
       closeTimeout = null
@@ -23,6 +25,7 @@ export const useMobileModalStore = defineStore('mobileModal', () => {
     currentComponent.value = markRaw(component)
     currentProps.value = props
     title.value = headerTitle
+    kind.value = modalKind
     isOpen.value = true
   }
 
@@ -33,6 +36,7 @@ export const useMobileModalStore = defineStore('mobileModal', () => {
       currentComponent.value = null
       currentProps.value = {}
       title.value = ''
+      kind.value = undefined
       closeTimeout = null
     }, 300)
   }
@@ -42,6 +46,7 @@ export const useMobileModalStore = defineStore('mobileModal', () => {
     currentComponent,
     currentProps,
     title,
+    kind,
     openModal,
     closeModal,
   }

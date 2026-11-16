@@ -11,7 +11,8 @@ export function useOpenCart() {
   const desktopModalStore = useDesktopModalStore()
 
   return () => {
-    const store = viewportStore.isMobile ? mobileModalStore : desktopModalStore
-    store.openModal({ component: CartComponent, headerTitle: t('cart.title') })
+    const options = { component: CartComponent, headerTitle: t('cart.title') }
+    if (viewportStore.isMobile) mobileModalStore.openModal({ ...options, kind: 'cart' })
+    else desktopModalStore.openModal(options)
   }
 }

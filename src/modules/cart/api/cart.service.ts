@@ -28,12 +28,12 @@ export const CartService = {
     )
     return data.data
   },
-  async getCart(branchId?: string, force: boolean = false): Promise<Cart> {
+  async getCart(branchId?: string, force: boolean = false, signal?: AbortSignal): Promise<Cart> {
     const params: CartQueryParams = {}
     if (force) params.force = true
     if (branchId) params.branch_id = branchId
 
-    const { data } = await api.get<CartResponse>('/client/cart', { params })
+    const { data } = await api.get<CartResponse>('/client/cart', { params, signal })
     return data.data
   },
 

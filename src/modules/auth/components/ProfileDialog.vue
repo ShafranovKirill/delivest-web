@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import Dialog from 'primevue/dialog'
+import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import { useAuthStore } from '../stores/auth.store'
 import { useAccountLinks } from '../composables/useAccountLinks'
 import { useBranchNavigation } from '@/modules/branch/composables/useBranchNavigation'
@@ -26,14 +26,10 @@ function followLink(route: string) {
 </script>
 
 <template>
-  <Dialog
+  <ResponsiveSheet
     v-model:visible="authStore.isProfileOpen"
-    modal
-    dismissable-mask
-    :draggable="false"
     :header="t('auth.profile')"
-    class="w-[min(92vw,440px)]"
-    :pt="{ root: { class: 'rounded-4xl! overflow-hidden' } }"
+    desktop-class="w-[min(92vw,440px)]"
   >
     <div class="flex flex-col gap-5 pb-1">
       <div class="flex items-center gap-4 rounded-3xl bg-gray-100 p-4">
@@ -79,5 +75,5 @@ function followLink(route: string) {
         {{ t('auth.signOut') }}
       </button>
     </div>
-  </Dialog>
+  </ResponsiveSheet>
 </template>

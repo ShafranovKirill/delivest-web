@@ -34,6 +34,9 @@ const showStepBack = computed(
     router.currentRoute.value.name === 'checkout' &&
     !orderStore.createdOrderId,
 )
+const showCartClose = computed(
+  () => viewportStore.isMobile && modalStore.isOpen && modalStore.kind === 'cart',
+)
 
 const navigateToMenu = () => {
   sidebarStore.isSidebarVisible = false
@@ -55,7 +58,7 @@ const navigateToMenu = () => {
     >
       <template #start>
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-          <template v-if="modalStore.isOpen">
+          <template v-if="showCartClose">
             <Button
               icon="pi pi-times text-3xl!"
               variant="text"

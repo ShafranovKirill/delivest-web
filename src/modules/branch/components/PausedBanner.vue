@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { intlLocale } from '@/i18n'
 import { useBranchStore } from '../stores/branch.store'
+import { formatPausedUntil } from '../utils/pausedUntil'
 
 const { t } = useI18n()
 const { activeBranch } = storeToRefs(useBranchStore())
@@ -13,10 +14,7 @@ const paused = computed(() => intake.value?.mode === 'paused')
 const until = computed(() => {
   const value = intake.value?.until
   if (!value) return null
-  const time = new Date(value).toLocaleTimeString(intlLocale(), {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  const time = formatPausedUntil(value, intlLocale(), activeBranch.value?.branch_info?.timezone)
   return t('branch.paused.until', { time })
 })
 </script>

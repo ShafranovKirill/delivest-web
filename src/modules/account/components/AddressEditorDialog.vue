@@ -7,6 +7,7 @@ import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import { getApiErrorMessage } from '@/api/errors'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import MapDialog from '@/modules/fulfillment/components/MapDialog.vue'
 import PaneSkeleton from '@/modules/fulfillment/components/PaneSkeleton.vue'
 import { loadAddressEditor } from '@/modules/fulfillment/utils/panes'
@@ -31,6 +32,9 @@ const emit = defineEmits<{ close: [] }>()
 const { t } = useI18n()
 const toast = useToast()
 const branchStore = useBranchStore()
+const franchiseStore = useFranchiseStore()
+const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddress)
+const mapFailed = ref(false)
 const { save } = useAddressMutations()
 
 const city = computed(() => branchStore.activeBranch?.branch_info?.city ?? null)
@@ -46,6 +50,7 @@ watch(
   () => props.visible,
   (visible) => {
     if (!visible) return
+    mapFailed.value = false
     draft.value = props.address
       ? fromClientAddress(props.address)
       : emptyDeliveryAddress(city.value ?? '')
@@ -67,16 +72,23 @@ async function submit() {
 </script>
 
 <template>
-  <MapDialog v-model:visible="isOpen">
+  <MapDialog v-model:visible="isOpen" :compact="!hasMap || mapFailed">
     <template #header>
       <p
-        class="grid h-11 place-items-center rounded-full bg-white px-4 font-semibold text-gray-900 shadow-lg ring-1 ring-black/10 dark:ring-white/10"
+        class="grid h-11 place-items-center rounded-full bg-white px-4 font-semibold text-gray-900"
+        :class="{ 'shadow-lg ring-1 ring-black/10 dark:ring-white/10': hasMap && !mapFailed }"
       >
         {{ address ? t('account.address.editTitle') : t('account.address.newTitle') }}
       </p>
     </template>
 
-    <AddressEditor v-model="draft" :city="city" :saved="false">
+    <AddressEditor
+      v-if="visible"
+      v-model="draft"
+      :city="city"
+      :saved="false"
+      @map-unavailable="mapFailed = true"
+    >
       <template #before>
         <InputText
           v-model="label"
