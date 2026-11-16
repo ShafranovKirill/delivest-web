@@ -79,6 +79,9 @@ const viewportStore = useViewportStore()
 
 <style>
 @media (max-width: 767px) {
+  .fulfillment-picker-stretched .sheet-panel-body:has(.saved-addresses-strip) {
+    max-width: none;
+  }
   .fulfillment-picker-stretched .sheet-panel-body {
     flex: 1;
     margin-block: 0;

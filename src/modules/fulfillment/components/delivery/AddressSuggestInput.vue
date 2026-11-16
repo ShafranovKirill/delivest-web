@@ -218,6 +218,10 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
 :deep(.address-suggest-overlay .p-autocomplete-list-container) {
   max-height: 12rem !important;
   overflow-y: auto;
+  scrollbar-width: none;
+}
+:deep(.address-suggest-overlay .p-autocomplete-list-container::-webkit-scrollbar) {
+  display: none;
 }
 :deep(.address-suggest-overlay .p-autocomplete-option) {
   padding: 0.625rem 0.75rem;
