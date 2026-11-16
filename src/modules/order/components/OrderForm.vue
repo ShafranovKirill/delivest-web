@@ -471,7 +471,7 @@ function handleSubmit() {
             v-for="option in fulfillmentOptions"
             :key="option.value"
             type="button"
-            class="min-w-0 flex-1 cursor-pointer rounded-xl px-1 py-2 text-center text-[13px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+            class="relative min-w-0 flex-1 cursor-pointer rounded-xl px-1 py-2 text-center text-[13px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-primary"
             :class="
               fulfillmentType === option.value
                 ? 'bg-white text-gray-900 shadow-sm'
@@ -480,6 +480,11 @@ function handleSubmit() {
             :aria-pressed="fulfillmentType === option.value"
             @click="selectFulfillment(option.value)"
           >
+            <span
+              v-if="option.value === 'dine_in' && fulfillmentStore.methods.includes('pickup')"
+              aria-hidden="true"
+              class="pointer-events-none absolute start-0 top-1/2 h-3.5 w-px -translate-y-1/2 bg-gray-400/65"
+            />
             {{ option.label }}
           </button>
         </div>
