@@ -626,7 +626,11 @@ function handleSubmit() {
         <span class="min-w-0 flex-1 text-sm font-medium leading-snug text-gray-900 sm:text-[15px]">
           {{ t('loyalty.spend', { stars: starsLabel(maxStars) }) }}
         </span>
-        <ToggleSwitch v-model="useStars" class="shrink-0" />
+        <ToggleSwitch
+          v-model="useStars"
+          class="shrink-0"
+          style="--p-toggleswitch-background: var(--color-gray-200); --p-toggleswitch-hover-background: var(--color-gray-200)"
+        />
       </label>
     </div>
 
