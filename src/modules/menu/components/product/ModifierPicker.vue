@@ -79,8 +79,8 @@ function toggle(group: Group, id: string) {
           class="relative flex w-[110px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border text-left transition-[border-color,background-color,box-shadow] duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--p-primary-color) disabled:cursor-not-allowed disabled:opacity-45 md:w-auto"
           :class="
             selected.includes(modifier.id)
-              ? 'border-(--p-primary-color) bg-[#f8f5f1] shadow-sm'
-              : 'border-[#e8e3dc] bg-[#faf8f5] hover:border-[#d6cfc5] hover:shadow-sm'
+              ? 'border-(--p-primary-color) bg-[#f8f5f1] shadow-sm dark:border-(--p-primary-color) dark:bg-gray-100'
+              : 'border-[#e8e3dc] bg-[#faf8f5] hover:border-[#d6cfc5] hover:shadow-sm dark:border-gray-200 dark:bg-gray-50 dark:hover:border-gray-300'
           "
         >
           <span
@@ -88,7 +88,7 @@ function toggle(group: Group, id: string) {
             :class="
               selected.includes(modifier.id)
                 ? 'border-(--p-primary-color) bg-(--p-primary-color) text-white'
-                : 'border-white/80 bg-white/95 text-gray-700'
+                : 'border-white/80 bg-white/95 text-gray-700 dark:border-gray-300 dark:bg-gray-200 dark:text-gray-900'
             "
             aria-hidden="true"
           >
