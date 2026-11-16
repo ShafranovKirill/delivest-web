@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import { useI18n } from 'vue-i18n'
 import { useViewportStore } from '@/modules/shared/stores/viewport.store'
@@ -65,9 +65,17 @@ let startY = 0
 let startX = 0
 let distance = 0
 let maxMovement = 0
-let resetTimer: ReturnType<typeof setTimeout> | null = null
 let root: HTMLElement | null = null
+let closingRoot: HTMLElement | null = null
 let suppressClick = false
+
+function clearClosingRoot() {
+  closingRoot?.style.removeProperty('--sheet-drag-y')
+  closingRoot = null
+}
+watch(visible, (isVisible) => {
+  if (isVisible) clearClosingRoot()
+})
 
 function onPointerDown(event: PointerEvent) {
   suppressClick = false
@@ -78,10 +86,8 @@ function onPointerDown(event: PointerEvent) {
   startX = event.clientX
   distance = 0
   maxMovement = 0
-  if (resetTimer !== null) clearTimeout(resetTimer)
-  resetTimer = null
   root = (event.currentTarget as HTMLElement).closest('.p-dialog')
-  if (root) root.style.transition = 'none'
+  if (root) root.style.setProperty('transition', 'none', 'important')
   ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
 }
 function onPointerMove(event: PointerEvent) {
@@ -89,7 +95,7 @@ function onPointerMove(event: PointerEvent) {
   const deltaY = event.clientY - startY
   maxMovement = Math.max(maxMovement, Math.abs(deltaY), Math.abs(event.clientX - startX))
   distance = deltaY > Math.abs(event.clientX - startX) ? Math.max(0, deltaY) : 0
-  if (root) root.style.transform = `translateY(${distance}px)`
+  if (root) root.style.setProperty('--sheet-drag-y', `${distance}px`)
 }
 function finishPointer(event: PointerEvent, cancelled = false) {
   if (pointerId !== event.pointerId) return
@@ -100,18 +106,13 @@ function finishPointer(event: PointerEvent, cancelled = false) {
   suppressClick = cancelled || maxMovement > 6
   const shouldClose = !cancelled && distance > 96 && deltaY > Math.abs(event.clientX - startX)
   if (root) {
-    const sheet = root
-    const animateBack =
-      !shouldClose && distance > 0 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    sheet.style.transition = animateBack ? 'transform 180ms ease-out' : ''
-    sheet.style.transform = ''
-    if (animateBack)
-      resetTimer = setTimeout(() => {
-        sheet.style.transition = ''
-        resetTimer = null
-      }, 190)
+    root.style.removeProperty('transition')
+    if (!shouldClose) root.style.setProperty('--sheet-drag-y', '0px')
   }
-  if (shouldClose) visible.value = false
+  if (shouldClose) {
+    closingRoot = root
+    visible.value = false
+  }
   root = null
   pointerId = null
   distance = 0
@@ -133,6 +134,7 @@ function onHandleClick(event: MouseEvent) {
     :position="mobile ? 'bottom' : 'center'"
     :class="dialogClass"
     :pt="dialogPt"
+    @after-hide="clearClosingRoot"
   >
     <template v-if="$slots.header" #header><slot name="header" /></template>
     <button
@@ -153,6 +155,12 @@ function onHandleClick(event: MouseEvent) {
 
 <style>
 @media (max-width: 767px) {
+  .p-dialog.responsive-sheet {
+    transform: translateY(var(--sheet-drag-y, 0px));
+    transition: transform 220ms ease-out !important;
+    animation: none !important;
+  }
+
   .p-dialog.responsive-sheet.p-dialog-enter-from,
   .p-dialog.responsive-sheet.p-dialog-leave-to {
     transform: translateY(100%);
@@ -161,6 +169,7 @@ function onHandleClick(event: MouseEvent) {
 @media (prefers-reduced-motion: reduce) {
   .p-dialog.responsive-sheet {
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }
 </style>
