@@ -27,11 +27,11 @@ const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
 </script>
 
 <template>
-  <section class="rounded-3xl bg-gray-50 p-6">
-    <h2 class="text-xl font-extrabold text-gray-950">{{ t('order.composition') }}</h2>
+  <section class="rounded-2xl bg-gray-50 p-4">
+    <h2 class="text-lg font-bold text-gray-950">{{ t('order.composition') }}</h2>
 
-    <ul class="mt-5 flex flex-col gap-4">
-      <li v-for="item in cartStore.items" :key="item.key" class="flex items-start gap-4">
+    <ul class="mt-4 flex flex-col gap-3">
+      <li v-for="item in cartStore.items" :key="item.key" class="flex items-start gap-3">
         <div class="min-w-0 flex-1">
           <p class="font-semibold leading-snug text-gray-950">{{ item.name }}</p>
           <p
@@ -59,12 +59,12 @@ const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
       </li>
     </ul>
 
-    <div class="mt-5 flex flex-col gap-3 border-t border-gray-200 pt-5">
+    <div class="mt-4 flex flex-col gap-2 border-t border-gray-200 pt-4">
       <CartPromotions />
       <PromoCodeInput />
     </div>
 
-    <div class="mt-5 flex flex-col gap-1.5 border-t border-gray-200 pt-5 text-sm text-gray-600">
+    <div class="mt-4 flex flex-col gap-1.5 border-t border-gray-200 pt-4 text-sm text-gray-600">
       <div class="flex justify-between">
         <span>{{ goodsLabel }}</span>
         <span class="tabular-nums">{{ formatPrice(cartStore.subtotalAmount) }}</span>
@@ -84,7 +84,7 @@ const total = computed(() => cartStore.totalAmount + (deliveryFee.value ?? 0))
           {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
         </span>
       </button>
-      <div class="mt-2 flex justify-between text-lg font-extrabold text-gray-950">
+      <div class="mt-2 flex justify-between text-base font-bold text-gray-950">
         <span>{{ t('order.form.orderTotal') }}</span>
         <span class="tabular-nums">{{ formatPrice(total) }}</span>
       </div>

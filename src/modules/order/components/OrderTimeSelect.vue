@@ -80,12 +80,12 @@ function chipClass(active: boolean) {
 
     <div
       v-if="days.length"
-      class="flex min-w-0 snap-x gap-2 overflow-x-auto pb-1 [scrollbar-width:none]"
+      class="flex min-w-0 snap-x gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]"
     >
       <button
         v-if="asapAvailable"
         type="button"
-        class="flex shrink-0 snap-start flex-col items-center rounded-2xl border-2 px-4 py-2.5 text-sm font-semibold leading-tight transition-colors cursor-pointer"
+        class="flex shrink-0 snap-start flex-col items-center min-h-11 rounded-xl border px-3 py-1.5 text-sm font-semibold leading-tight transition-colors cursor-pointer"
         :class="chipClass(modelValue === null)"
         @click="modelValue = null"
       >
@@ -96,7 +96,7 @@ function chipClass(active: boolean) {
         v-for="slot in suggestions"
         :key="slot.value"
         type="button"
-        class="shrink-0 snap-start rounded-2xl border-2 px-4 py-3 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
+        class="shrink-0 snap-start min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
         :class="chipClass(modelValue === slot.value)"
         @click="modelValue = slot.value"
       >
@@ -104,7 +104,7 @@ function chipClass(active: boolean) {
       </button>
       <button
         type="button"
-        class="shrink-0 snap-start rounded-2xl border-2 px-4 py-3 text-sm font-semibold transition-colors cursor-pointer"
+        class="shrink-0 snap-start min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors cursor-pointer"
         :class="chipClass(customSelected)"
         @click="openDialog"
       >
@@ -146,7 +146,7 @@ function chipClass(active: boolean) {
           v-for="slot in visibleDay.slots"
           :key="slot.value"
           type="button"
-          class="flex items-center justify-between rounded-2xl border-2 px-4 py-3 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
+          class="flex items-center justify-between min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold tabular-nums transition-colors cursor-pointer"
           :class="chipClass(modelValue === slot.value)"
           @click="pick(slot.value)"
         >

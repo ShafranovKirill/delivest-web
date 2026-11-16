@@ -10,6 +10,7 @@ import OrderConsent from './OrderConsent.vue'
 import Textarea from 'primevue/textarea'
 import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
+import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
 import { captionClass, sectionClass } from '@/modules/order/utils/formLayout'
 import Dialog from 'primevue/dialog'
 import { useBranchOpening } from '@/modules/branch/composables/useBranchOpening'
@@ -63,7 +64,7 @@ const phoneSection = ref<HTMLElement | null>(null)
 const phoneError = ref(false)
 const phoneInputClass = computed(() =>
   [
-    'w-full lg:max-w-sm rounded-2xl! border-2! bg-gray-50! px-4! py-3.5! text-gray-900!',
+    'w-full lg:max-w-sm rounded-xl! border! bg-gray-50! px-3.5! py-3! text-base! text-gray-900!',
     phoneError.value
       ? 'border-red-500! hover:border-red-500! focus:border-red-500!'
       : 'border-gray-100! hover:border-primary! focus:border-primary!',
@@ -440,8 +441,8 @@ function handleSubmit() {
 </script>
 
 <template>
-  <form class="flex flex-col gap-6" novalidate @submit.prevent="handleSubmit">
-    <h2 class="text-2xl font-extrabold text-gray-950">{{ headline }}</h2>
+  <form class="flex flex-col gap-5 lg:gap-6" novalidate @submit.prevent="handleSubmit">
+    <h2 class="text-xl font-bold text-gray-950">{{ headline }}</h2>
 
     <div v-if="!authenticatedPhone" ref="phoneSection" :class="sectionClass">
       <p :class="captionClass">{{ t('order.form.phoneCaption') }}</p>
@@ -457,14 +458,18 @@ function handleSubmit() {
     </div>
 
     <div :class="sectionClass">
-      <p class="sr-only">{{ addressCaption }}</p>
-      <div class="flex flex-col gap-2 rounded-[24px] bg-gray-100 p-2">
-        <div class="flex gap-1 rounded-2xl bg-gray-200/70 p-1" role="group" :aria-label="addressCaption">
+      <p :class="[captionClass, 'sr-only lg:not-sr-only']">{{ addressCaption }}</p>
+      <div class="flex flex-col gap-2 rounded-2xl bg-gray-100 p-1.5">
+        <div
+          class="flex gap-1 rounded-2xl bg-gray-200/70 p-1"
+          role="group"
+          :aria-label="addressCaption"
+        >
           <button
             v-for="option in fulfillmentOptions"
             :key="option.value"
             type="button"
-            class="min-w-0 flex-1 cursor-pointer rounded-xl px-1 py-2.5 text-center text-sm font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-primary sm:text-base"
+            class="min-w-0 flex-1 cursor-pointer rounded-xl px-1 py-2 text-center text-[13px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-primary"
             :class="
               fulfillmentType === option.value
                 ? 'bg-white text-gray-900 shadow-sm'
@@ -478,21 +483,22 @@ function handleSubmit() {
         </div>
         <button
           type="button"
-          class="flex w-full cursor-pointer items-center gap-4 rounded-2xl px-3 py-4 text-left hover:bg-gray-200/60 focus-visible:outline-2 focus-visible:outline-primary"
+          class="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-3 text-left hover:bg-gray-200/60 focus-visible:outline-2 focus-visible:outline-primary"
           :aria-label="`${addressCaption}: ${addressRow.text || addressRow.title}`"
           @click="openAddressPicker"
         >
           <span
-            class="h-9 w-9 shrink-0 bg-current text-gray-900"
+            class="h-8 w-8 shrink-0 bg-current text-gray-900"
             :style="{
               mask: `url(${isDelivery ? courierIcon : restaurantIcon}) center / contain no-repeat`,
               maskMode: 'alpha',
             }"
             aria-hidden="true"
           />
-          <span class="min-w-0 flex-1 text-base font-medium text-gray-900 sm:text-lg">{{
-            addressRow.text || addressRow.title
-          }}</span>
+          <span
+            class="min-w-0 flex-1 text-sm font-medium leading-snug text-gray-900 sm:text-[15px]"
+            >{{ addressRow.text || addressRow.title }}</span
+          >
           <svg
             class="h-7 w-7 shrink-0 text-gray-500"
             viewBox="0 0 24 24"
@@ -522,7 +528,12 @@ function handleSubmit() {
         {{ t('delivery.checking') }}
       </p>
       <p
-        v-if="isDelivery && delivery.hint.value && !form.call_operator_for_address"
+        v-if="
+          isDelivery &&
+          delivery.hint.value &&
+          delivery.price.value !== 0 &&
+          !form.call_operator_for_address
+        "
         class="mt-2 text-sm font-medium"
         :class="delivery.blocked.value ? 'text-red-500' : 'text-gray-700'"
       >
@@ -538,7 +549,7 @@ function handleSubmit() {
     </div>
 
     <label
-      class="flex flex-col gap-2 lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-x-6 lg:gap-y-0"
+      class="flex flex-col gap-2 lg:grid lg:grid-cols-[9rem_minmax(0,1fr)] lg:gap-x-5 lg:gap-y-0"
     >
       <span :class="captionClass">{{ t('order.form.comment') }}</span>
       <Textarea
@@ -546,7 +557,7 @@ function handleSubmit() {
         rows="1"
         auto-resize
         :placeholder="t('order.form.commentPlaceholder')"
-        class="w-full resize-none rounded-2xl! border-2! border-gray-100! bg-gray-50! px-4! py-3.5! text-gray-900! placeholder:text-gray-500! hover:border-primary! focus:border-primary!"
+        class="w-full resize-none rounded-xl! border! border-gray-100! bg-gray-50! px-3.5! py-3! text-base! text-gray-900! placeholder:text-gray-500! hover:border-primary! focus:border-primary!"
       />
     </label>
 
@@ -595,7 +606,7 @@ function handleSubmit() {
     <div class="lg:hidden">
       <button
         type="button"
-        class="mb-3 flex w-full items-center justify-between rounded-2xl bg-gray-100 px-4 py-3 text-left font-semibold"
+        class="mb-2 flex w-full items-center justify-between rounded-xl bg-gray-100 px-3.5 py-2.5 text-left text-sm font-semibold"
         :aria-expanded="compositionOpen"
         @click="compositionOpen = !compositionOpen"
       >
@@ -623,7 +634,7 @@ function handleSubmit() {
             {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
           </span>
         </button>
-        <div class="flex justify-between text-lg font-extrabold text-gray-950">
+        <div class="flex justify-between text-base font-bold text-gray-950">
           <span>{{ t('order.form.orderTotal') }}</span>
           <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>
         </div>
@@ -644,7 +655,7 @@ function handleSubmit() {
           icon="pi pi-angle-left"
           variant="text"
           severity="secondary"
-          class="h-14 rounded-full! text-base font-semibold"
+          class="h-12 rounded-full! text-sm font-semibold"
           @click="emit('back')"
         />
       </div>
@@ -655,7 +666,7 @@ function handleSubmit() {
         icon="pi pi-check"
         iconPos="right"
         :loading="isLoading"
-        class="min-w-0 flex-1 h-14 rounded-full! text-base font-semibold"
+        class="min-w-0 flex-1 h-12 rounded-full! text-sm font-semibold"
       />
     </div>
 
