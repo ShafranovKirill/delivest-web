@@ -12,12 +12,25 @@ export function useCartSuggestions() {
     () => new Set(cartStore.items.filter((item) => !item.gift).map((item) => item.product_id)),
   )
 
-  return computed(() =>
-    (menu.value ?? [])
+  return computed(() => {
+    const seen = new Set<string>()
+
+    return (menu.value ?? [])
       .flatMap((category) => category.products ?? [])
-      .filter((product) => product.id && !inCart.value.has(product.id))
+      .filter((product) => {
+        const id = product.id
+        if (
+          !id ||
+          inCart.value.has(id) ||
+          !(product.popular || product.suggested) ||
+          seen.has(id)
+        ) {
+          return false
+        }
+        seen.add(id)
+        return true
+      })
       .sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular)))
-      .filter((product) => product.popular || product.suggested)
-      .slice(0, LIMIT),
-  )
+      .slice(0, LIMIT)
+  })
 }
