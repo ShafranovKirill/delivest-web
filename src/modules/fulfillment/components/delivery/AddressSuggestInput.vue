@@ -138,7 +138,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
         v-else
         :id="inputId"
         :model-value="query"
-        class="h-12! w-full border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white!"
+        class="h-12! w-full border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white! dark:focus:bg-(--surface-card)!"
         @update:model-value="onInput"
       />
       <label :for="inputId" class="left-4!">{{ label }}</label>
@@ -177,7 +177,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
       v-else
       :id="inputId"
       :model-value="query"
-      class="h-12! w-full border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white!"
+      class="h-12! w-full border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white! dark:focus:bg-(--surface-card)!"
       @update:model-value="onInput"
     />
     <div v-if="suggest && error" class="px-1 text-sm text-red-600" role="alert">
