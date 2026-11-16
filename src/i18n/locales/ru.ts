@@ -173,6 +173,7 @@ export const ru = {
     guestTitle: 'Вы не вошли',
     guestName: 'Без имени',
     signIn: 'Войти',
+    signInAccount: 'Войти в аккаунт',
     signOut: 'Выйти',
     profile: 'Профиль',
     required: 'Войдите в аккаунт',
@@ -322,6 +323,8 @@ export const ru = {
   },
   branch: {
     foodDelivery: 'Доставка еды',
+    yourBranch: 'Ваш филиал',
+    switch: 'Сменить',
     notSelected: 'Не выбран',
     change: 'Изменить',
     choose: 'Выбрать филиал',

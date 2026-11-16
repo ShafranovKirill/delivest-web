@@ -173,6 +173,7 @@ export const en: typeof ru = {
     guestTitle: 'Not signed in',
     guestName: 'No name',
     signIn: 'Sign in',
+    signInAccount: 'Sign in to your account',
     signOut: 'Sign out',
     profile: 'Profile',
     required: 'Sign in to your account',
@@ -322,6 +323,8 @@ export const en: typeof ru = {
   },
   branch: {
     foodDelivery: 'Food delivery',
+    yourBranch: 'Your branch',
+    switch: 'Change',
     notSelected: 'Not selected',
     change: 'Change',
     choose: 'Choose a branch',
