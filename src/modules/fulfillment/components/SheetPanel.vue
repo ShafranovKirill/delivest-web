@@ -12,7 +12,7 @@ defineProps<{ floating: boolean }>()
     "
   >
     <div
-      class="mx-auto flex w-full max-w-2xl flex-col gap-4 p-5"
+      class="sheet-panel-body mx-auto flex w-full max-w-2xl flex-col gap-4 p-5"
       :class="{ 'my-auto shrink-0': !floating }"
     >
       <slot />

@@ -4,7 +4,7 @@ import { useViewportStore } from '@/modules/shared/stores/viewport.store'
 import { useI18n } from 'vue-i18n'
 
 defineEmits<{ hide: [] }>()
-defineProps<{ compact?: boolean }>()
+defineProps<{ compact?: boolean; stretched?: boolean }>()
 
 const visible = defineModel<boolean>('visible', { required: true })
 const { t } = useI18n()
@@ -18,7 +18,11 @@ const viewportStore = useViewportStore()
     :aria-label="t('fulfillment.picker.title')"
     :dismissable-mask="!!compact && viewportStore.isMobile"
     :sheet-when="compact"
-    sheet-class="flex! max-h-[90dvh]! border-0! shadow-2xl"
+    :sheet-class="
+      stretched
+        ? 'fulfillment-picker-stretched flex! h-[min(26rem,85dvh)]! max-h-[min(26rem,85dvh)]! border-0! shadow-2xl'
+        : 'flex! max-h-[90dvh]! border-0! shadow-2xl'
+    "
     :sheet-pt="{
       content: {
         class:
@@ -72,3 +76,13 @@ const viewportStore = useViewportStore()
     </div>
   </ResponsiveSheet>
 </template>
+
+<style>
+@media (max-width: 767px) {
+  .fulfillment-picker-stretched .sheet-panel-body {
+    flex: 1;
+    margin-block: 0;
+    justify-content: space-between;
+  }
+}
+</style>
