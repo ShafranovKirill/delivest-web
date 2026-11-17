@@ -207,7 +207,7 @@ it('retries identical failed configuration on polls without replaying stale acti
   f.runtime.configure(enabled)
   await flush()
   expect(load).toHaveBeenCalledTimes(2)
-  expect(ym.mock.calls.filter(([, method, goal]) => method === 'reachGoal').map(([, , goal]) => goal)).toEqual(['delivest_visit'])
+  expect(ym.mock.calls.filter(([, method]) => method === 'reachGoal').map(([, , goal]) => goal)).toEqual(['delivest_visit'])
   f.runtime.track('checkout_start')
   expect(ym).toHaveBeenCalledWith('12345', 'reachGoal', 'delivest_checkout_start')
 })

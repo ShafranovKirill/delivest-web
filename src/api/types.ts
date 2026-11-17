@@ -883,6 +883,57 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/branches/{branch_id}/advertising/identity': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Capture unverified external click identifiers under a signed browser identity */
+    post: operations['DelivestWeb.Client.AdvertisingController.identity']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/branches/{branch_id}/products/{product_key}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить один публичный товар филиала */
+    get: operations['DelivestWeb.Client.Menu.ProductController.show']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/branches/{branch_id}/advertising/config': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Public advertising capabilities for a branch */
+    get: operations['DelivestWeb.Client.AdvertisingController.config']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
@@ -4217,6 +4268,108 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.AdvertisingController.identity': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        branch_id: string
+      }
+      cookie?: never
+    }
+    /** @description External identifiers; identity and money cannot be supplied */
+    requestBody: {
+      content: {
+        'application/json': {
+          ad_id?: string
+          campaign_id?: string
+          client_id?: string
+          feature_version: string
+          generation: number
+          yclid?: string
+        }
+      }
+    }
+    responses: {
+      /** @description Identifiers accepted */
+      202: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': Record<string, never>
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Menu.ProductController.show': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        branch_id: string
+        product_key: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Товар с текущей ценой, модификаторами и доступностью */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductResponse']
+          }
+        }
+      }
+      /** @description Товар недоступен в этом филиале */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.AdvertisingController.config': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        branch_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Enabled streams and receiver generation; never credentials */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: {
+              capture?: boolean
+              /** @enum {string} */
+              collection_basis?: 'disabled' | 'admin_approved'
+              counter_id?: string | null
+              ecommerce?: boolean
+              enabled?: boolean
+              feature_version?: string
+              generation?: number
+              webvisor?: boolean
+            }
+          }
         }
       }
     }

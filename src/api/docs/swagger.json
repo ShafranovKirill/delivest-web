@@ -3986,7 +3986,213 @@
             "Analytics"
           ]
         }
+      },
+    "/client/branches/{branch_id}/advertising/identity": {
+      "post": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.AdvertisingController.identity",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "branch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "ad_id": {
+                    "maxLength": 128,
+                    "type": "string"
+                  },
+                  "campaign_id": {
+                    "maxLength": 128,
+                    "type": "string"
+                  },
+                  "client_id": {
+                    "maxLength": 128,
+                    "type": "string"
+                  },
+                  "feature_version": {
+                    "maxLength": 43,
+                    "minLength": 43,
+                    "type": "string"
+                  },
+                  "generation": {
+                    "type": "integer"
+                  },
+                  "yclid": {
+                    "maxLength": 128,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "generation",
+                  "feature_version"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "description": "External identifiers; identity and money cannot be supplied",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Identifiers accepted"
+          }
+        },
+        "summary": "Capture unverified external click identifiers under a signed browser identity",
+        "tags": [
+          "Analytics"
+        ]
       }
+    },
+    "/client/branches/{branch_id}/products/{product_key}": {
+      "get": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.Menu.ProductController.show",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "branch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "product_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ProductResponse"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Товар с текущей ценой, модификаторами и доступностью"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Товар недоступен в этом филиале"
+          }
+        },
+        "summary": "Получить один публичный товар филиала",
+        "tags": [
+          "Menu"
+        ]
+      }
+    },
+    "/client/branches/{branch_id}/advertising/config": {
+      "get": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.AdvertisingController.config",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "branch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "capture": {
+                          "type": "boolean"
+                        },
+                        "collection_basis": {
+                          "enum": [
+                            "disabled",
+                            "admin_approved"
+                          ],
+                          "type": "string"
+                        },
+                        "counter_id": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "ecommerce": {
+                          "type": "boolean"
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "feature_version": {
+                          "maxLength": 43,
+                          "minLength": 43,
+                          "type": "string"
+                        },
+                        "generation": {
+                          "type": "integer"
+                        },
+                        "webvisor": {
+                          "type": "boolean"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Enabled streams and receiver generation; never credentials"
+          }
+        },
+        "summary": "Public advertising capabilities for a branch",
+        "tags": [
+          "Analytics"
+        ]
+      }
+    }
   },
   "security": [],
   "servers": [{ "url": "http://localhost:4000", "variables": {} }],
