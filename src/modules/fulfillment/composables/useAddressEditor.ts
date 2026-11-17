@@ -84,10 +84,10 @@ export function useAddressEditor(address: Ref<DeliveryAddress>, requireCoordinat
     if (lastLocate) locate(lastLocate.point, lastLocate.zoom)
   }
 
-  const isReady = computed(() =>
-    requireCoordinates()
-      ? isComplete(address.value) && lngLatOf(address.value) !== null
-      : isComplete(address.value),
+  const isReady = computed(
+    () =>
+      isComplete(address.value, branchStore.mapAddress === false) &&
+      (!requireCoordinates() || lngLatOf(address.value) !== null),
   )
 
   function focus(next: DeliveryAddress) {

@@ -105,11 +105,11 @@ export function normalizeDeliveryAddress(address: DeliveryAddress): DeliveryAddr
   return { ...address, city: parsed.city || city, street: parsed.street, house: parsed.house }
 }
 
-export function isComplete(address: DeliveryAddress): boolean {
+export function isComplete(address: DeliveryAddress, allowStreetOnly = false): boolean {
   return (
     typeof address.street === 'string' &&
     typeof address.house === 'string' &&
-    Boolean(address.street.trim() && address.house.trim())
+    Boolean(address.street.trim() && (allowStreetOnly || address.house.trim()))
   )
 }
 

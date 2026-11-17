@@ -8,13 +8,19 @@ import type { GeoAddress } from '../../api/geo.service'
 import { shortAddressLabel, type DeliveryAddress } from '../../utils/deliveryAddress'
 import { parseAddress } from '../../utils/parseAddress'
 
-const props = defineProps<{ suggest: boolean; city: string | null; floatingLabels?: boolean }>()
+const props = defineProps<{
+  suggest: boolean
+  manual?: boolean
+  city: string | null
+  floatingLabels?: boolean
+}>()
 const emit = defineEmits<{ select: [address: GeoAddress]; edit: [] }>()
 const address = defineModel<DeliveryAddress>({ required: true })
 const { t } = useI18n()
 
 function addressText(value: DeliveryAddress) {
   if (!value.street && !value.house && !value.geo) return ''
+  if (props.manual && value.street && !value.house) return value.street
   return shortAddressLabel(value, value.geo?.formatted)
 }
 
@@ -33,10 +39,11 @@ watch(
 )
 
 function editAddress(value: string) {
+  const parsed = parseAddress(value, props.city || address.value.city)
   editing = true
   address.value = {
     ...address.value,
-    ...parseAddress(value, props.city || address.value.city),
+    ...(props.manual && !(parsed.street && parsed.house) ? { street: value, house: '' } : parsed),
     geo: null,
     latitude: null,
     longitude: null,

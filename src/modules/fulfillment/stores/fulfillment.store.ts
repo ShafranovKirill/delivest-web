@@ -67,7 +67,7 @@ export const useFulfillmentStore = defineStore('fulfillment', () => {
     if (choice.addressByOperator === true) return branchStore.operatorAddress ? choice : null
     if (!choice.address) return null
     const address = normalizeDeliveryAddress(choice.address)
-    if (!isComplete(address)) return null
+    if (!isComplete(address, branchStore.mapAddress === false)) return null
     if (branchStore.requiresCoordinates && !lngLatOf(address)) return null
 
     return address === choice.address ? choice : { ...choice, address }

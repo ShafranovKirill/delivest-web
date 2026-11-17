@@ -26,7 +26,7 @@ export const useDeliveryQuote = (
   const ready = computed(() =>
     Boolean(
       target.value &&
-      isComplete(target.value) &&
+      isComplete(target.value, branchStore.mapAddress === false) &&
       (!branchStore.requiresCoordinates || lngLatOf(target.value)),
     ),
   )

@@ -2,9 +2,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
 const reverseRemember = vi.hoisted(() => vi.fn())
+const branchSettings = vi.hoisted(() => ({ mapAddress: false }))
 
 vi.mock('@/modules/branch/stores/branch.store', () => ({
-  useBranchStore: () => ({ activeBranch: null, branches: [] }),
+  useBranchStore: () => ({ activeBranch: null, branches: [], get mapAddress() { return branchSettings.mapAddress } }),
 }))
 vi.mock('@/modules/account/composables/useAddressesQuery', () => ({
   useAddressesQuery: () => ({
@@ -35,9 +36,24 @@ describe('cross-city delivery addresses', () => {
     expect(useAddressEditor(address, () => true).isReady.value).toBe(false)
   })
 
-  it('requires a house for a street-only manual address', () => {
+  it('accepts a street-only manual address', () => {
     const address = ref({ ...emptyDeliveryAddress(), street: 'Тверская' })
-    expect(useAddressEditor(address, () => false).isReady.value).toBe(false)
+    expect(useAddressEditor(address, () => false).isReady.value).toBe(true)
+  })
+
+  it('keeps map mode strict about the house and coordinates', () => {
+    branchSettings.mapAddress = true
+    try {
+      const address = ref({ ...emptyDeliveryAddress(), street: 'Тверская' })
+      const editor = useAddressEditor(address, () => true)
+      expect(editor.isReady.value).toBe(false)
+      address.value = { ...address.value, latitude: 55.75, longitude: 37.62 }
+      expect(editor.isReady.value).toBe(false)
+      address.value = { ...address.value, house: '7' }
+      expect(editor.isReady.value).toBe(true)
+    } finally {
+      branchSettings.mapAddress = false
+    }
   })
 
   it('normalizes a legacy stored address without a house key', () => {

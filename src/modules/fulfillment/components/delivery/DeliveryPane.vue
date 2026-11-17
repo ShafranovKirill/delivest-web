@@ -91,7 +91,7 @@ function confirm() {
   const branchId = branchStore.activeBranch?.id
   if (!branchId) return
   if (manualMode.value) {
-    if (!isComplete(address.value)) return
+    if (!isComplete(address.value, branchStore.mapAddress === false)) return
   } else if (!delivery.ready.value || !delivery.quote.value || delivery.notDelivered.value) return
 
   fulfillmentStore.choose(branchId, { type: 'delivery', address: { ...address.value } })
