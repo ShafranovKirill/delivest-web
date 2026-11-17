@@ -194,3 +194,47 @@ it('scrubs attribution fields and private routes without floating-point minor co
   expect(minorToRub(1)).toBe('0.01')
   expect(() => minorToRub(1.1)).toThrow()
 })
+
+it('retries identical failed configuration on polls without replaying stale actions', async () => {
+  const ym = vi.fn()
+  const load = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue(ym)
+  const f = fixture(load)
+  f.runtime.configure(enabled)
+  f.runtime.track('checkout_start')
+  await flush()
+  f.runtime.track('cart_add')
+  f.runtime.configure(enabled)
+  f.runtime.configure(enabled)
+  await flush()
+  expect(load).toHaveBeenCalledTimes(2)
+  expect(ym.mock.calls.filter(([, method, goal]) => method === 'reachGoal').map(([, , goal]) => goal)).toEqual(['delivest_visit'])
+  f.runtime.track('checkout_start')
+  expect(ym).toHaveBeenCalledWith('12345', 'reachGoal', 'delivest_checkout_start')
+})
+
+it('bounds recovery attempts and allows a new epoch to recover', async () => {
+  const f = fixture(() => Promise.reject(new Error('blocked')))
+  for (let poll = 0; poll < 10; poll++) {
+    f.runtime.configure(enabled)
+    await flush()
+  }
+  expect(f.load).toHaveBeenCalledTimes(3)
+  f.runtime.reset()
+  f.load.mockResolvedValue(f.ym)
+  f.runtime.configure(enabled)
+  await flush()
+  expect(f.ym).toHaveBeenCalledWith('12345', 'init', expect.any(Object))
+})
+
+it('reset fences an in-flight recovery attempt', async () => {
+  let resolve!: (client: Ym) => void
+  const load = vi.fn().mockRejectedValueOnce(new Error('offline')).mockImplementation(() => new Promise<Ym>(done => { resolve = done }))
+  const f = fixture(load)
+  f.runtime.configure(enabled)
+  await flush()
+  f.runtime.configure(enabled)
+  f.runtime.reset()
+  resolve(f.ym)
+  await flush()
+  expect(f.ym).not.toHaveBeenCalled()
+})

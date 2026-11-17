@@ -20,6 +20,7 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
   let timer: ReturnType<typeof setInterval> | undefined
   let stop: (() => void) | undefined
   let version = 0
+  let viewedProduct: string | undefined
   const runtime = createMetrikaRuntime({
     load: loadMetrikaSdk,
     location: () => window.location,
@@ -33,7 +34,10 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
       return isMenu && document.querySelector('[id^="category-"]') !== null
     },
     ready: () => {
-      if (menu.isProductModalOpen && menu.activeProduct) runtime.detail(menu.activeProduct)
+      if (menu.isProductModalOpen && menu.activeProduct) {
+        track('product_view')
+        runtime.detail(menu.activeProduct)
+      }
     },
     layer: event => {
       if (typeof window === 'undefined') return
@@ -58,6 +62,20 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
       void pending.finally(() => { if (identityPending === pending) identityPending = null })
     },
   })
+
+  function track(event: string) {
+    if (event === 'product_view') {
+      const product = menu.activeProduct?.id
+      if (product !== viewedProduct) runtime.closeDetail()
+      viewedProduct = product
+    }
+    runtime.track(event)
+  }
+
+  function closeDetail() {
+    viewedProduct = undefined
+    runtime.closeDetail()
+  }
 
   async function refresh() {
     const branchId = branch.activeBranch?.id
@@ -107,7 +125,7 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
   }
 
   return {
-    start, flushIdentity, page: runtime.page, track: runtime.track, detail: runtime.detail, closeDetail: runtime.closeDetail,
+    start, flushIdentity, page: runtime.page, track, detail: runtime.detail, closeDetail,
     cartChange: (before: CartItem[], after: CartItem[]) => {
       for (const event of commerceDelta(before, after)) runtime.commerce(event.action, event.products)
     },

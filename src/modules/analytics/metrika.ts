@@ -101,6 +101,8 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
   let lastPage: string | null = null
   let lastDetail: string | null = null
   let failed = false
+  let attempts = 0
+  let productTracked = false
   let visitTracked = false
   let menuTracked = false
 
@@ -114,6 +116,8 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
     lastPage = null
     lastDetail = null
     failed = false
+    attempts = 0
+    productTracked = false
     visitTracked = false
     menuTracked = false
     config = DISABLED
@@ -145,8 +149,13 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
 
   function configure(next: AdvertisingConfig) {
     next = safeConfig(next)
-    if (JSON.stringify(config) === JSON.stringify(next)) return
+    const unchanged = JSON.stringify(config) === JSON.stringify(next)
+    // Polling may recover a transient provider failure, with a strict budget
+    // per configuration. Reset fences old callbacks and drops stale actions.
+    if (unchanged && (!failed || attempts >= 3)) return
+    const previousAttempts = unchanged ? attempts : 0
     reset()
+    attempts = previousAttempts
     config = next
     if (config.capture && config.collection_basis === 'admin_approved') {
       const identity = advertisingIdentity(options.location().search)
@@ -154,6 +163,7 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
     }
     if (!enabled()) return
     const version = epoch
+    attempts++
     void options.load().then(client => {
       if (version !== epoch || !enabled()) return
       ym = client
@@ -190,10 +200,12 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
 
   function track(event: string) {
     if (!['visit', 'menu_view', 'product_view', 'cart_add', 'checkout_start', 'fulfillment_selected'].includes(event)) return
-    if ((event === 'visit' && visitTracked) || (event === 'menu_view' && menuTracked)) return
+    if ((event === 'visit' && visitTracked) || (event === 'menu_view' && menuTracked) ||
+        (event === 'product_view' && productTracked)) return
     if (send(() => ym?.(config.counter_id!, 'reachGoal', `delivest_${event}`))) {
       if (event === 'visit') visitTracked = true
       if (event === 'menu_view') menuTracked = true
+      if (event === 'product_view') productTracked = true
     }
   }
 
@@ -211,7 +223,7 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
     commerce('detail', [{ id: product.id, price: minorToRub(product.price!), quantity: 1 }])
   }
 
-  return { configure, reset, page, track, detail, closeDetail: () => { lastDetail = null }, commerce }
+  return { configure, reset, page, track, detail, closeDetail: () => { lastDetail = null; productTracked = false }, commerce }
 }
 
 let sdkPromise: Promise<Ym> | null = null

@@ -3,6 +3,8 @@ import { reactive, nextTick } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 const transport = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), load: vi.fn(), ym: vi.fn(), menu: vi.fn() }))
 const auth = reactive({ client: null as { id: string } | null, sessionEpoch: 1, accessToken: null as string | null })
+const menu = reactive({ isProductModalOpen: false, activeProduct: null as { id: string; price: number } | null })
+vi.mock('@/modules/menu/stores/menu.store', () => ({ useMenuStore: () => menu }))
 const branch = reactive({ activeBranch: { id: 'branch-a' } })
 vi.mock('axios', () => ({ default: { create: () => ({ get: transport.get, post: transport.post }) } }))
 vi.mock('@/utils/env', () => ({ getApiBaseUrl: () => 'https://api.test' }))
@@ -21,6 +23,7 @@ beforeEach(() => {
   setActivePinia(createPinia())
   auth.client = null; auth.sessionEpoch = 1; auth.accessToken = null
   branch.activeBranch.id = 'branch-a'
+  menu.isProductModalOpen = false; menu.activeProduct = null
   vi.stubGlobal('window', { location: { href: 'https://shop.test/center', origin: 'https://shop.test', pathname: '/center', search: '' } })
   vi.stubGlobal('document', { referrer: '', querySelector: transport.menu })
   transport.get.mockReset().mockResolvedValue(disabled)
@@ -106,4 +109,43 @@ it('does not report a cached menu as visible while checkout is the current scree
   store = useMetrikaAnalytics(); store.start()
   await flush()
   expect(transport.ym.mock.calls.filter(([, method]) => method === 'reachGoal').map(([, , goal]) => goal)).toEqual(['delivest_visit'])
+})
+
+for (const duringLoad of [false, true]) {
+  it(`recovers the current product goal without duplicates (opened during SDK load: ${duringLoad})`, async () => {
+    let resolve!: (value: unknown) => void
+    if (duringLoad) {
+      transport.get.mockResolvedValue(enabled)
+      transport.load.mockReturnValue(new Promise(done => { resolve = done }))
+    } else transport.get.mockReturnValue(new Promise(done => { resolve = done }))
+    store = useMetrikaAnalytics(); store.start()
+    await flush()
+    menu.isProductModalOpen = true
+    menu.activeProduct = { id: '11111111-1111-4111-8111-111111111111', price: 100 }
+    store.track('product_view'); store.detail(menu.activeProduct)
+    resolve(duringLoad ? transport.ym : enabled)
+    await flush()
+    const goals = () => transport.ym.mock.calls.filter(([, method, goal]) => method === 'reachGoal' && goal === 'delivest_product_view')
+    expect(goals()).toHaveLength(1)
+    expect((window as unknown as { delivestMetrikaLayer: unknown[] }).delivestMetrikaLayer).toHaveLength(1)
+    store.closeDetail()
+    store.track('product_view'); store.detail(menu.activeProduct)
+    expect(goals()).toHaveLength(2)
+    menu.activeProduct = { id: '22222222-2222-4222-8222-222222222222', price: 100 }
+    store.track('product_view'); store.detail(menu.activeProduct)
+    expect(goals()).toHaveLength(3)
+  })
+}
+
+it('does not recover a product closed before configuration arrives', async () => {
+  let resolve!: (value: unknown) => void
+  transport.get.mockReturnValue(new Promise(done => { resolve = done }))
+  store = useMetrikaAnalytics(); store.start()
+  menu.isProductModalOpen = true
+  store.track('product_view')
+  menu.isProductModalOpen = false
+  store.closeDetail()
+  resolve(enabled)
+  await flush()
+  expect(transport.ym.mock.calls.filter(([, , goal]) => goal === 'delivest_product_view')).toHaveLength(0)
 })
