@@ -34,7 +34,7 @@ const hours = computed(() => hoursLabel(props.branch))
     @click="$emit('select')"
   >
     <span
-      class="relative z-10 flex min-w-0 flex-col items-start gap-1 break-words pr-[clamp(4.5rem,24vw,7rem)] sm:gap-1.5 sm:pr-36"
+      class="relative z-10 flex min-w-0 flex-col items-start gap-1 break-words pr-[clamp(5rem,26vw,7.5rem)] sm:gap-1.5 sm:pr-36"
     >
       <span class="w-full text-base font-semibold leading-snug text-gray-900">{{
         branch.name
@@ -52,7 +52,7 @@ const hours = computed(() => hoursLabel(props.branch))
     </span>
     <FulfillmentIllustration
       kind="pickup"
-      class="pointer-events-none absolute right-3 top-1/2 z-0 w-[clamp(3.5rem,19vw,6rem)] -translate-y-1/2 text-primary-strong opacity-25 sm:right-0 sm:w-36"
+      class="pointer-events-none absolute right-3 top-1/2 z-0 w-[clamp(4.25rem,23vw,7.25rem)] -translate-y-1/2 text-primary-strong opacity-25 sm:right-0 sm:w-36"
       aria-hidden="true"
     />
     <span
