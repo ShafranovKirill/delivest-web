@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { reactive, nextTick } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
-const transport = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), load: vi.fn(), ym: vi.fn() }))
+const transport = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), load: vi.fn(), ym: vi.fn(), menu: vi.fn() }))
 const auth = reactive({ client: null as { id: string } | null, sessionEpoch: 1, accessToken: null as string | null })
 const branch = reactive({ activeBranch: { id: 'branch-a' } })
 vi.mock('axios', () => ({ default: { create: () => ({ get: transport.get, post: transport.post }) } }))
@@ -12,8 +12,8 @@ vi.mock('../src/modules/analytics/metrika', async importOriginal => ({
   ...await importOriginal<typeof import('../src/modules/analytics/metrika')>(), loadMetrikaSdk: transport.load,
 }))
 import { useMetrikaAnalytics } from '../src/modules/analytics/useMetrikaAnalytics'
-const disabled = { data: { data: { enabled: false, counter_id: null, generation: 1, ecommerce: false, capture: false, collection_basis: 'disabled' } } }
-const enabled = { data: { data: { enabled: true, counter_id: '123', generation: 1, ecommerce: true, capture: true, collection_basis: 'admin_approved' } } }
+const disabled = { data: { data: { enabled: false, counter_id: null, generation: 1, feature_version: 'A'.repeat(43), ecommerce: false, capture: false, collection_basis: 'disabled' } } }
+const enabled = { data: { data: { enabled: true, counter_id: '123', generation: 1, feature_version: 'A'.repeat(43), ecommerce: true, capture: true, collection_basis: 'admin_approved' } } }
 let store: ReturnType<typeof useMetrikaAnalytics> | undefined
 const flush = async () => { await nextTick(); await Promise.resolve(); await Promise.resolve(); await nextTick() }
 beforeEach(() => {
@@ -21,12 +21,13 @@ beforeEach(() => {
   setActivePinia(createPinia())
   auth.client = null; auth.sessionEpoch = 1; auth.accessToken = null
   branch.activeBranch.id = 'branch-a'
-  vi.stubGlobal('window', { location: { href: 'https://shop.test/center', origin: 'https://shop.test', search: '' } })
-  vi.stubGlobal('document', { referrer: '' })
+  vi.stubGlobal('window', { location: { href: 'https://shop.test/center', origin: 'https://shop.test', pathname: '/center', search: '' } })
+  vi.stubGlobal('document', { referrer: '', querySelector: transport.menu })
   transport.get.mockReset().mockResolvedValue(disabled)
   transport.post.mockReset().mockResolvedValue({})
   transport.ym.mockReset()
   transport.load.mockReset().mockResolvedValue(transport.ym)
+  transport.menu.mockReset().mockReturnValue(null)
 })
 afterEach(() => { store?.$dispose(); store = undefined; vi.useRealTimers(); vi.unstubAllGlobals() })
 
@@ -69,7 +70,7 @@ it('disabling during poll destroys a loaded counter and fences late getClientID 
 })
 
 it('pre-order identity flush has a fixed 200ms ceiling even when optional capture stalls', async () => {
-  vi.stubGlobal('window', { location: { href: 'https://shop.test/center?yclid=123', origin: 'https://shop.test', search: '?yclid=123' } })
+  vi.stubGlobal('window', { location: { href: 'https://shop.test/center?yclid=123', origin: 'https://shop.test', pathname: '/center', search: '?yclid=123' } })
   transport.get.mockResolvedValue(enabled)
   transport.post.mockReturnValue(new Promise(() => undefined))
   store = useMetrikaAnalytics(); store.start()
@@ -81,4 +82,28 @@ it('pre-order identity flush has a fixed 200ms ceiling even when optional captur
   await vi.advanceTimersByTimeAsync(1)
   await waiting
   expect(finished).toBe(true)
+})
+
+it('late configuration records the currently visible loaded menu and forwards the feature version', async () => {
+  let resolve!: (value: unknown) => void
+  transport.get.mockReturnValueOnce(new Promise(done => { resolve = done }))
+  transport.menu.mockReturnValue({ id: 'category-rendered' })
+  store = useMetrikaAnalytics(); store.start()
+  store.track('visit'); store.track('menu_view')
+  resolve(enabled)
+  await flush()
+  store.track('visit'); store.track('menu_view')
+  expect(transport.ym.mock.calls.filter(([, method]) => method === 'reachGoal').map(([, , goal]) => goal)).toEqual(['delivest_visit', 'delivest_menu_view'])
+  const callback = transport.ym.mock.calls.find(([, method]) => method === 'getClientID')?.[2] as (value: string) => void
+  callback('12345')
+  expect(transport.post.mock.calls.at(-1)?.[1]).toEqual({ generation: 1, feature_version: 'A'.repeat(43), client_id: '12345' })
+})
+
+it('does not report a cached menu as visible while checkout is the current screen', async () => {
+  vi.stubGlobal('window', { location: { href: 'https://shop.test/center/checkout', origin: 'https://shop.test', pathname: '/center/checkout', search: '' } })
+  transport.menu.mockReturnValue({ id: 'category-rendered' })
+  transport.get.mockResolvedValue(enabled)
+  store = useMetrikaAnalytics(); store.start()
+  await flush()
+  expect(transport.ym.mock.calls.filter(([, method]) => method === 'reachGoal').map(([, , goal]) => goal)).toEqual(['delivest_visit'])
 })

@@ -24,6 +24,14 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
     load: loadMetrikaSdk,
     location: () => window.location,
     referrer: () => document.referrer,
+    menuVisible: () => {
+      const parts = window.location.pathname.split('/').filter(Boolean)
+      const isMenu = parts.length === 1 ||
+        (parts.length === 3 && ['product', 'category'].includes(parts[1]!))
+      // Category sections exist only after real menu data has rendered; cached
+      // data from another screen must not create a menu-view goal.
+      return isMenu && document.querySelector('[id^="category-"]') !== null
+    },
     ready: () => {
       if (menu.isProductModalOpen && menu.activeProduct) runtime.detail(menu.activeProduct)
     },
@@ -35,12 +43,12 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
       layer.push(event)
       if (layer.length > 20) layer.splice(0, layer.length - 20)
     },
-    identify: (identity, generation) => {
+    identify: (identity, generation, featureVersion) => {
       const branchId = branch.activeBranch?.id
       if (!branchId) return
       identityRequest?.abort()
       identityRequest = new AbortController()
-      const pending = advertisingApi.post(`/client/branches/${branchId}/advertising/identity`, { generation, ...identity }, {
+      const pending = advertisingApi.post(`/client/branches/${branchId}/advertising/identity`, { generation, feature_version: featureVersion, ...identity }, {
         baseURL: getApiBaseUrl(),
         signal: identityRequest.signal,
         timeout: 1500,

@@ -2,6 +2,7 @@ export type AdvertisingConfig = {
   enabled: boolean
   counter_id: string | null
   generation: number
+  feature_version: string
   ecommerce: boolean
   capture: boolean
   collection_basis: 'admin_approved' | 'disabled'
@@ -13,7 +14,7 @@ export type AdvertisingIdentity = Partial<Record<'client_id' | 'yclid' | 'campai
 export type CommerceProduct = { id: string; price: string; quantity: number }
 
 const DISABLED: AdvertisingConfig = {
-  enabled: false, counter_id: null, generation: 0, ecommerce: false, capture: false,
+  enabled: false, counter_id: null, generation: 0, feature_version: '', ecommerce: false, capture: false,
   collection_basis: 'disabled',
 }
 const KEY = /^[a-zA-Z0-9_-]{1,128}$/
@@ -22,12 +23,13 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 function safeConfig(value: AdvertisingConfig): AdvertisingConfig {
   if (!value || typeof value !== 'object' ||
       !['enabled', 'capture', 'ecommerce'].every(key => typeof value[key as 'enabled'] === 'boolean') ||
+      typeof value.feature_version !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(value.feature_version) ||
       !Number.isSafeInteger(value.generation) || value.generation < 0 ||
       !['admin_approved', 'disabled'].includes(value.collection_basis) ||
       !(value.counter_id === null || (typeof value.counter_id === 'string' && /^\d{1,20}$/.test(value.counter_id))) ||
       (value.enabled && (!value.counter_id || !value.capture)) ||
       (value.capture && value.collection_basis !== 'admin_approved')) return DISABLED
-  return { enabled: value.enabled, counter_id: value.counter_id, generation: value.generation,
+  return { enabled: value.enabled, counter_id: value.counter_id, generation: value.generation, feature_version: value.feature_version,
     ecommerce: value.ecommerce, capture: value.capture, collection_basis: value.collection_basis }
 }
 
@@ -86,7 +88,8 @@ type RuntimeOptions = {
   location: () => { href: string; origin: string; search: string }
   referrer: () => string
   layer: (event: unknown | null) => void
-  identify: (identity: AdvertisingIdentity, generation: number) => void
+  identify: (identity: AdvertisingIdentity, generation: number, featureVersion: string) => void
+  menuVisible?: () => boolean
   ready?: () => void
 }
 
@@ -98,6 +101,8 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
   let lastPage: string | null = null
   let lastDetail: string | null = null
   let failed = false
+  let visitTracked = false
+  let menuTracked = false
 
   function reset() {
     epoch++
@@ -109,6 +114,8 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
     lastPage = null
     lastDetail = null
     failed = false
+    visitTracked = false
+    menuTracked = false
     config = DISABLED
     options.layer(null)
   }
@@ -117,9 +124,13 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
     !!config.counter_id && /^\d{1,20}$/.test(config.counter_id)
 
   function send(action: () => void) {
-    if (!enabled() || failed) return
-    if (ym) { try { action() } catch { /* must not affect checkout */ } }
-    else if (queue.length < 20) queue.push(action)
+    if (!enabled() || failed) return false
+    if (ym) {
+      try { action() } catch { /* must not affect checkout */ }
+      return true
+    }
+    if (queue.length < 20) { queue.push(action); return true }
+    return false
   }
 
   function page() {
@@ -139,7 +150,7 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
     config = next
     if (config.capture && config.collection_basis === 'admin_approved') {
       const identity = advertisingIdentity(options.location().search)
-      if (Object.keys(identity).length) options.identify(identity, config.generation)
+      if (Object.keys(identity).length) options.identify(identity, config.generation, config.feature_version)
     }
     if (!enabled()) return
     const version = epoch
@@ -160,13 +171,17 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
         queue = []
         for (const action of pending) action()
         page()
+        // These describe the current screen after collection is approved; no
+        // actions from the disabled or unknown-config period are retained.
+        track('visit')
+        if (options.menuVisible?.()) track('menu_view')
         options.ready?.()
         if (config.capture) {
           const identity = advertisingIdentity(location.search)
           ym(config.counter_id!, 'getClientID', (clientId: string) => {
             if (version !== epoch || !enabled() || !config.capture) return
             if (typeof clientId === 'string' && /^\d{1,32}$/.test(clientId)) identity.client_id = clientId
-            if (Object.keys(identity).length) options.identify(identity, config.generation)
+            if (Object.keys(identity).length) options.identify(identity, config.generation, config.feature_version)
           })
         }
       } catch { failed = true; queue = [] }
@@ -175,7 +190,11 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
 
   function track(event: string) {
     if (!['visit', 'menu_view', 'product_view', 'cart_add', 'checkout_start', 'fulfillment_selected'].includes(event)) return
-    send(() => ym?.(config.counter_id!, 'reachGoal', `delivest_${event}`))
+    if ((event === 'visit' && visitTracked) || (event === 'menu_view' && menuTracked)) return
+    if (send(() => ym?.(config.counter_id!, 'reachGoal', `delivest_${event}`))) {
+      if (event === 'visit') visitTracked = true
+      if (event === 'menu_view') menuTracked = true
+    }
   }
 
   function commerce(action: 'detail' | 'add' | 'remove', products: CommerceProduct[]) {
