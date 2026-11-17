@@ -343,7 +343,7 @@ export const ru = {
       untilTomorrow: 'Закрыто до завтра, {time}',
       untilDay: 'Закрыто до {day}, {time}',
       untilUnknown: 'Закрыто',
-      title: 'Сейчас закрыто',
+      title: 'Кафе закрыто',
       today: 'Откроемся сегодня в {time}',
       tomorrow: 'Откроемся завтра в {time}',
       later: 'Откроемся {day} в {time}',

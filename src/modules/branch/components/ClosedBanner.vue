@@ -5,6 +5,7 @@ import { intlLocale } from '@/i18n'
 import { useBranchOpening } from '../composables/useBranchOpening'
 import { addDays } from '../utils/workWindow'
 import { formatClock, sameDay } from '../utils/zonedTime'
+import ClosedCafeIllustration from './ClosedCafeIllustration.vue'
 
 const { t } = useI18n()
 const { isOpen, isPaused, opensAt, now } = useBranchOpening()
@@ -31,13 +32,29 @@ const opening = computed(() => {
 <template>
   <div v-if="!isOpen" class="w-full max-w-7xl mx-auto px-4 pb-4">
     <div
-      class="flex items-center gap-3 rounded-3xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800"
+      class="closed-banner relative isolate min-h-32 overflow-hidden rounded-3xl p-4 sm:min-h-36 sm:p-5"
     >
-      <i-tabler-moon class="size-6 shrink-0" />
-      <div class="min-w-0">
-        <p class="font-bold leading-tight">{{ t('branch.closed.title') }} · {{ opening }}</p>
-        <p v-if="opensAt" class="mt-0.5 text-sm">{{ t('branch.closed.hint') }}</p>
+      <div class="relative z-10 min-w-0 pr-[clamp(5.5rem,29vw,13rem)]">
+        <p class="text-xl font-bold leading-tight text-gray-900 sm:text-2xl">
+          {{ t('branch.closed.title') }}
+        </p>
+        <p class="mt-2 text-base font-semibold leading-snug text-primary-strong">{{ opening }}</p>
+        <p v-if="opensAt" class="mt-1.5 text-sm leading-snug text-gray-700">
+          {{ t('branch.closed.hint') }}
+        </p>
       </div>
+      <ClosedCafeIllustration
+        class="pointer-events-none absolute bottom-1 right-2 z-0 w-[clamp(4.5rem,24vw,11.5rem)] text-primary-strong sm:bottom-2 sm:right-4"
+        aria-hidden="true"
+      />
     </div>
   </div>
 </template>
+
+<style scoped>
+.closed-banner {
+  --closed-bg: color-mix(in srgb, var(--color-primary) 18%, var(--surface-card, white));
+  --closed-bg-deep: color-mix(in srgb, var(--color-primary) 34%, var(--surface-card, white));
+  background: var(--closed-bg);
+}
+</style>

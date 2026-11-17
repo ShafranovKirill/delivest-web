@@ -343,7 +343,7 @@ export const en: typeof ru = {
       untilTomorrow: 'Closed until tomorrow, {time}',
       untilDay: 'Closed until {day}, {time}',
       untilUnknown: 'Closed',
-      title: 'Closed now',
+      title: 'Cafe closed',
       today: 'We open today at {time}',
       tomorrow: 'We open tomorrow at {time}',
       later: 'We open on {day} at {time}',
