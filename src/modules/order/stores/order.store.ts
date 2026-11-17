@@ -13,6 +13,7 @@ import { ADDRESSES_KEY } from '@/modules/account/composables/useAddressesQuery'
 import { t } from '@/i18n'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { emptyDeliveryAddress, toAddressPayload } from '@/modules/fulfillment/utils/deliveryAddress'
+import { useMetrikaAnalytics } from '@/modules/analytics/useMetrikaAnalytics'
 
 const PRICE_ERRORS = [
   'price_changed',
@@ -25,6 +26,7 @@ export const useOrderStore = defineStore('order', () => {
   const branchStore = useBranchStore()
   const cartStore = useCartStore()
   const authStore = useAuthStore()
+  const metrika = useMetrikaAnalytics()
 
   const isLoading = ref(false)
   const lastCreatedOrder = ref<Order | null>(null)
@@ -147,6 +149,8 @@ export const useOrderStore = defineStore('order', () => {
     }
 
     try {
+      await metrika.flushIdentity()
+      if (version !== submitVersion || requestedContext !== context()) return
       const order = await OrderService.createOrder(payload, cartId)
       if (version !== submitVersion || requestedContext !== context()) {
         if (requestedContext === context() && branchStore.activeBranch?.id === branchId) {

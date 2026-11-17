@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { useMetrikaAnalytics } from '@/modules/analytics/useMetrikaAnalytics'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
@@ -23,10 +25,14 @@ const viewportStore = useViewportStore()
 const branchStore = useBranchStore()
 const authStore = useAuthStore()
 const analytics = useFunnelAnalytics()
+const route = useRoute()
+const metrika = useMetrikaAnalytics()
+metrika.start()
+watch(() => route.fullPath, () => metrika.page(), { immediate: true })
 useSourceClaim()
 watch(
   () => [branchStore.activeBranch?.id, branchStore.activeBranch?.branch_info?.analytics_funnel_enabled, authStore.client?.id, authStore.sessionEpoch],
-  ([branchId, enabled]) => { if (branchId && enabled === true) analytics.track('visit') },
+  ([branchId]) => { if (branchId) analytics.track('visit') },
   { immediate: true },
 )
 useLiveOrders()

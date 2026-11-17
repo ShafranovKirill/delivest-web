@@ -129,6 +129,7 @@ export const useCartStore = defineStore('cart', () => {
         const cartId = cart.value?.id
         if (!cartId) throw new Error('Cart is unavailable')
         mutationActiveContext = queuedContext
+        const beforeItems = cart.value?.items?.map(item => ({ ...item })) ?? []
         let data: Cart
         try {
           data = await mutate(cartId)
@@ -144,6 +145,7 @@ export const useCartStore = defineStore('cart', () => {
           requestVersion++
           fetchController?.abort()
           cart.value = data
+          analytics.cartChange?.(beforeItems, data.items ?? [])
         }
         return data
       } finally {

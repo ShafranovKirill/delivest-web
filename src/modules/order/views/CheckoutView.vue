@@ -30,8 +30,8 @@ watch(
     branchStore.activeBranch?.id,
     branchStore.activeBranch?.branch_info?.analytics_funnel_enabled,
   ],
-  ([name, branchId, enabled]) => {
-    if (name === 'checkout' && branchId && enabled === true) analytics.track('checkout_start')
+  ([name, branchId]) => {
+    if (name === 'checkout' && branchId) analytics.track('checkout_start')
   },
   { immediate: true },
 )

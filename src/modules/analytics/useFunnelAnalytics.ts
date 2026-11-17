@@ -4,6 +4,7 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { AnalyticsService, type AnalyticsPayload, type FunnelEvent } from './analytics.service'
 import { sourceLabels } from './source'
+import { useMetrikaAnalytics } from './useMetrikaAnalytics'
 
 const MAX_EVENTS = 20
 
@@ -89,6 +90,7 @@ export function createFunnelTracker(getScope: () => Scope, send = AnalyticsServi
 export const useFunnelAnalytics = defineStore('funnelAnalytics', () => {
   const branch = useBranchStore()
   const auth = useAuthStore()
+  const metrika = useMetrikaAnalytics()
   const tracker = createFunnelTracker(() => ({
     branchId: branch.activeBranch?.id ?? '',
     enabled: branch.activeBranch?.branch_info?.analytics_funnel_enabled === true,
@@ -97,5 +99,10 @@ export const useFunnelAnalytics = defineStore('funnelAnalytics', () => {
     accessToken: auth.accessToken,
   }))
   onScopeDispose(tracker.dispose)
-  return { track: tracker.track }
+  return {
+    track: (event: FunnelEvent) => { tracker.track(event); metrika.track(event) },
+    product: metrika.detail,
+    closeProduct: metrika.closeDetail,
+    cartChange: metrika.cartChange,
+  }
 })
