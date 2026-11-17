@@ -34,7 +34,7 @@ const opening = computed(() => {
     <div
       class="closed-banner relative isolate min-h-32 overflow-hidden rounded-3xl p-4 sm:min-h-36 sm:p-5"
     >
-      <div class="relative z-10 min-w-0 pr-[clamp(5.5rem,29vw,13rem)]">
+      <div class="relative z-10 min-w-0 pr-[clamp(6.5rem,32vw,9.75rem)]">
         <p class="text-xl font-bold leading-tight text-gray-900 sm:text-2xl">
           {{ t('branch.closed.title') }}
         </p>
@@ -44,7 +44,7 @@ const opening = computed(() => {
         </p>
       </div>
       <ClosedCafeIllustration
-        class="pointer-events-none absolute bottom-1 right-2 z-0 w-[clamp(4.5rem,24vw,11.5rem)] text-primary-strong sm:bottom-2 sm:right-4"
+        class="pointer-events-none absolute right-3 top-1/2 z-0 h-[clamp(4.5rem,24vw,7.1875rem)] w-auto -translate-y-1/2 text-primary-strong sm:right-4"
         aria-hidden="true"
       />
     </div>
@@ -54,7 +54,6 @@ const opening = computed(() => {
 <style scoped>
 .closed-banner {
   --closed-bg: color-mix(in srgb, var(--color-primary) 18%, var(--surface-card, white));
-  --closed-bg-deep: color-mix(in srgb, var(--color-primary) 34%, var(--surface-card, white));
   background: var(--closed-bg);
 }
 </style>
