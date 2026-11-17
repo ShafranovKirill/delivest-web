@@ -51,7 +51,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { publicLandingTarget } from '@/router/publicLanding'
 import { useToast } from 'primevue/usetoast'
 import type { Branch } from '@/modules/branch/api/branch.service'
 import { useBranchStore } from '../stores/branch.store'
@@ -63,6 +64,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const router = useRouter()
+const route = useRoute()
 const toast = useToast()
 const branchStore = useBranchStore()
 
@@ -101,7 +103,7 @@ async function handleSelect(branch: Branch) {
 
   try {
     await branchStore.selectBranch(branch)
-    router.push(`/${branch.slug}`)
+    router.push(publicLandingTarget(route.query.return_to, branch.slug) ?? `/${branch.slug}`)
   } catch {
     toast.add({
       severity: 'error',

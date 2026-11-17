@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import LoyaltyModal from '@/modules/account/components/LoyaltyModal.vue'
-import { computed, onMounted, watch } from 'vue'
+import { computed, nextTick, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import { useMenuStore } from '../stores/menu.store'
 import { useMenuQuery } from '../composables/useMenuQuery'
@@ -32,6 +33,7 @@ const cartStore = useCartStore()
 const branchStore = useBranchStore()
 const authStore = useAuthStore()
 const analytics = useFunnelAnalytics()
+const route = useRoute()
 const fulfillmentStore = useFulfillmentStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
@@ -42,8 +44,8 @@ const menu = computed(() => {
 
 const menuStore = useMenuStore()
 let viewedScope: string | null = null
-watch([menu, () => branchStore.activeBranch?.id, () => branchStore.activeBranch?.branch_info?.analytics_funnel_enabled, () => authStore.client?.id, () => authStore.sessionEpoch], ([categories, branchId, enabled, clientId, epoch]) => {
-  if (enabled !== true) { viewedScope = null; return }
+watch([menu, () => branchStore.activeBranch?.id, () => branchStore.activeBranch?.branch_info?.analytics_funnel_enabled, () => authStore.client?.id, () => authStore.sessionEpoch], ([categories, branchId, , clientId, epoch]) => {
+  if (!branchId) { viewedScope = null; return }
   const scope = `${clientId ?? 'guest'}:${epoch}:${branchId}`
   if (categories?.length && branchId && viewedScope !== scope) {
     analytics.track('menu_view')
@@ -51,8 +53,25 @@ watch([menu, () => branchStore.activeBranch?.id, () => branchStore.activeBranch?
   }
 }, { immediate: true })
 watch(() => [menuStore.isProductModalOpen, menuStore.activeProduct?.id] as const, ([open, id]) => {
-  if (open && id) analytics.track('product_view')
+  if (open && id) {
+    analytics.track('product_view')
+    if (menuStore.activeProduct) analytics.product(menuStore.activeProduct)
+  } else analytics.closeProduct()
 })
+
+let categoryNavigation = 0
+let scrolledCategory: string | null = null
+watch([() => route.params.categoryId, () => branchStore.activeBranch?.id, menu], async ([key, , categories]) => {
+  const version = ++categoryNavigation
+  if (typeof key !== 'string') { scrolledCategory = null; return }
+  if (!categories?.some(category => category.id === key)) return
+  await nextTick()
+  if (version !== categoryNavigation) return
+  const navigation = `${branchStore.activeBranch?.id}:${key}`
+  if (scrolledCategory === navigation) return
+  scrolledCategory = navigation
+  await menuStore.scrollToCategory(key)
+}, { immediate: true, flush: 'post' })
 
 watch(
   menu,
@@ -72,7 +91,7 @@ useEventListener(window, 'scroll', () => {
   if (top !== undefined && top > window.innerHeight * 0.2) menuStore.setActiveCategory(first.id)
 })
 
-useProductRoute(menuData)
+useProductRoute()
 
 onMounted(() => {
   cartStore.initBranchSync()

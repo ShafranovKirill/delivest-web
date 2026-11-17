@@ -407,6 +407,10 @@ export const en: typeof ru = {
     },
   },
   menu: {
+    productLoading: 'Loading product',
+    productUnavailable: 'This product is no longer available',
+    productLoadError: 'Could not load this product',
+    returnToMenu: 'Return to menu',
     popular: 'Popular',
     saveChanges: 'Save · {price}',
     noModifiers: 'No extras',

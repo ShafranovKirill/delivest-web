@@ -407,6 +407,10 @@ export const ru = {
     },
   },
   menu: {
+    productLoading: 'Загружаем товар',
+    productUnavailable: 'Товар больше недоступен',
+    productLoadError: 'Не удалось загрузить товар',
+    returnToMenu: 'Вернуться в меню',
     popular: 'Популярные',
     saveChanges: 'Сохранить · {price}',
     noModifiers: 'Без добавок',

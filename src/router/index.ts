@@ -25,6 +25,8 @@ const router = createRouter({
           name: 'menu',
           component: MenuView,
         },
+        { path: 'product/:productKey', name: 'menu-product', component: MenuView },
+        { path: 'category/:categoryId', name: 'menu-category', component: MenuView },
         {
           path: 'promotions',
           name: 'promotions',

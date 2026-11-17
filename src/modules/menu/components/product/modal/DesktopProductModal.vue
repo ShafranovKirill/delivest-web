@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+import ProductLoadState from './ProductLoadState.vue'
 
 import ProductNutrition from '../ProductNutrition.vue'
 import { storeToRefs } from 'pinia'
@@ -40,7 +41,8 @@ const weightKey = computed(() =>
           icon="pi pi-times"
         />
 
-        <div class="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
+        <ProductLoadState v-if="menuStore.productLoadState !== 'idle'" />
+        <div v-else class="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
           <div
             class="flex aspect-square max-h-87.5 items-center justify-center rounded-2xl p-6 md:sticky md:top-2"
           >

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import StarRewardBadge from '@/modules/account/components/StarRewardBadge.vue'
+import ProductLoadState from './ProductLoadState.vue'
 
 import ProductNutrition from '../ProductNutrition.vue'
 import ProductImage from '../ProductImage.vue'
@@ -33,7 +34,8 @@ const selected = ref<string[]>([])
       footer: { class: 'border-t border-gray-100 px-4! pt-4!' },
     }"
   >
-    <div>
+    <ProductLoadState v-if="menuStore.productLoadState !== 'idle'" />
+    <div v-else>
       <div class="w-full flex justify-center items-center shrink-0">
         <ProductImage
           :src="activeProduct?.photo_url"
@@ -84,7 +86,7 @@ const selected = ref<string[]>([])
       </div>
     </div>
     <template #footer>
-      <AddToCartButton
+      <AddToCartButton v-if="menuStore.productLoadState === 'idle'"
         v-model="selected"
         :product="activeProduct"
         :show-modifiers="false"
