@@ -86,9 +86,9 @@ async function handleSelect(branch: Branch) {
       <h2 class="text-xl font-extrabold text-gray-950">{{ t('branch.select.title') }}</h2>
     </template>
     <div class="max-h-[70vh] overflow-y-auto pt-1">
-      <SkeletonList v-if="loading" class="flex flex-col gap-2" item-class="h-14 rounded-2xl!" />
+      <SkeletonList v-if="loading" class="flex flex-col gap-2.5" item-class="h-31 rounded-3xl!" />
 
-      <div v-else-if="branchStore.branches.length" class="flex flex-col gap-2">
+      <div v-else-if="branchStore.branches.length" class="flex flex-col gap-2.5">
         <BranchSelectRow
           v-for="branch in branchStore.branches.filter((item) => item.is_active)"
           :key="branch.id"

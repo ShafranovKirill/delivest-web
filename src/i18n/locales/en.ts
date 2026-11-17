@@ -337,6 +337,13 @@ export const en: typeof ru = {
       selectFailed: 'Failed to change the branch. Please try again',
       retry: 'Try again',
       current: 'Current branch',
+      hours: {
+        today: 'Today {open} — {close}',
+        overnight: 'Today {open} — until {close} tomorrow',
+        allDay: 'Open 24 hours today',
+        dayOff: 'Closed today',
+        notSet: 'Schedule not specified',
+      },
     },
     closed: {
       until: 'Closed until {time}',

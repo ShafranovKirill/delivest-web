@@ -337,6 +337,13 @@ export const ru = {
       selectFailed: 'Не удалось сменить филиал. Попробуйте ещё раз',
       retry: 'Повторить',
       current: 'Текущий филиал',
+      hours: {
+        today: 'Сегодня {open} — {close}',
+        overnight: 'Сегодня {open} — до {close} завтра',
+        allDay: 'Сегодня круглосуточно',
+        dayOff: 'Сегодня выходной',
+        notSet: 'Расписание не указано',
+      },
     },
     closed: {
       until: 'Закрыто до {time}',
