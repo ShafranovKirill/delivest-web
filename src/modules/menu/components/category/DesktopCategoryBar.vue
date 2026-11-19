@@ -123,7 +123,7 @@ watch(categories, updateVisibleCount, { deep: true })
           ref="loyaltyRef"
           class="shrink-0"
         >
-          <LoyaltyCategoryButton />
+          <LoyaltyCategoryButton page />
         </div>
         <SkeletonCategoryBar v-if="isLoading" />
         <Button

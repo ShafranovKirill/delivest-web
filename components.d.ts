@@ -19,7 +19,6 @@ declare module 'vue' {
     ITablerCheck: typeof import('~icons/tabler/check')['default']
     ITablerClockPause: typeof import('~icons/tabler/clock-pause')['default']
     ITablerMapPinFilled: typeof import('~icons/tabler/map-pin-filled')['default']
-    ITablerMoon: typeof import('~icons/tabler/moon')['default']
     ITablerPlus: typeof import('~icons/tabler/plus')['default']
     ITablerRepeat: typeof import('~icons/tabler/repeat')['default']
     ITablerRosetteDiscount: typeof import('~icons/tabler/rosette-discount')['default']
