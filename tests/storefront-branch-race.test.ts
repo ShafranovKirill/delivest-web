@@ -6,7 +6,7 @@ const { loadStorefront, locale, getBranches, selectBySlug, selectById, clearActi
   selectBySlug: vi.fn(), selectById: vi.fn(), clearActive: vi.fn(), primeSession: vi.fn(),
 }))
 vi.mock('@/api/storefront', () => ({
-  loadStorefront, bootstrapEnabled: true,
+  loadStorefront,
   rememberMenuValidity: vi.fn(), rememberWatermark: vi.fn(), seedAdvertisingConfig: vi.fn(),
 }))
 vi.mock('@/api/client', () => ({ queryClient: { setQueryData: vi.fn() } }))
@@ -71,49 +71,18 @@ it('does not commit a response for the previous locale', async () => {
   expect(store.activeBranch).toBeNull()
 })
 
-it('uses a saved pilot on root and resolves a direct slug through legacy branches', async () => {
-  vi.stubGlobal('window', { _env: { VITE_STOREFRONT_BOOTSTRAP_BRANCH_IDS: pilot.id } })
+it('uses a saved branch on root and bootstraps another direct slug', async () => {
   vi.stubGlobal('localStorage', { getItem: () => pilot.id, setItem: vi.fn() })
-  loadStorefront.mockResolvedValue(payload(pilot.slug))
+  loadStorefront.mockResolvedValueOnce(payload(pilot.slug)).mockResolvedValueOnce(payload(legacy.slug))
   const store = useBranchStore()
   await store.initBranches()
   expect(loadStorefront).toHaveBeenCalledWith(undefined, pilot.id)
-  expect(getBranches).not.toHaveBeenCalled()
-
   await store.selectBranchBySlug(legacy.slug)
-  expect(selectBySlug).toHaveBeenCalledWith(legacy.slug)
-  expect(store.activeBranch?.id).toBe(legacy.id)
-  expect(primeSession).toHaveBeenCalled()
+  expect(loadStorefront).toHaveBeenCalledWith(legacy.slug, undefined)
+  expect(selectBySlug).not.toHaveBeenCalled()
 })
 
-it('keeps a newer nonpilot selection when an older pilot response arrives late', async () => {
-  vi.stubGlobal('window', { _env: { VITE_STOREFRONT_BOOTSTRAP_BRANCH_IDS: pilot.id } })
-  const store = useBranchStore()
-  await store.initBranches(true)
-  const pending = deferred()
-  loadStorefront.mockReturnValue(pending.promise)
-  const first = store.selectBranchBySlug(pilot.slug).catch(() => null)
-  await store.selectBranchBySlug(legacy.slug)
-  pending.resolve({ ...payload(pilot.slug), selected_branch: pilot })
-  await first
-  expect(store.activeBranch?.id).toBe(legacy.id)
-})
-
-it('keeps a newer pilot when an older legacy selection arrives late', async () => {
-  vi.stubGlobal('window', { _env: { VITE_STOREFRONT_BOOTSTRAP_BRANCH_IDS: pilot.id } })
-  const store = useBranchStore()
-  await store.initBranches(true)
-  const pending = deferred()
-  selectBySlug.mockReturnValueOnce(pending.promise)
-  const first = store.selectBranchBySlug(legacy.slug).catch(() => null)
-  loadStorefront.mockResolvedValue({ ...payload(pilot.slug), selected_branch: pilot })
-  await store.selectBranchBySlug(pilot.slug)
-  pending.resolve(legacy)
-  await first
-  expect(store.activeBranch?.id).toBe(pilot.id)
-})
-
-it('does not restore a pending pilot after clearing the active branch', async () => {
+it('does not restore a pending branch after clearing the active branch', async () => {
   const store = useBranchStore()
   const pending = deferred()
   loadStorefront.mockReturnValue(pending.promise)
@@ -123,17 +92,4 @@ it('does not restore a pending pilot after clearing the active branch', async ()
   pending.resolve(payload('pilot'))
   await first
   expect(store.activeBranch).toBeNull()
-})
-
-it('does not let an older slug resume selection after a newer route resolves its branch list', async () => {
-  vi.stubGlobal('window', { _env: { VITE_STOREFRONT_BOOTSTRAP_BRANCH_IDS: pilot.id } })
-  const list = deferred()
-  getBranches.mockReturnValueOnce(list.promise).mockResolvedValue([pilot, legacy])
-  const store = useBranchStore()
-  const first = store.selectBranchBySlug(pilot.slug).catch(() => null)
-  await store.selectBranchBySlug(legacy.slug)
-  list.resolve([pilot, legacy])
-  await first
-  expect(store.activeBranch?.id).toBe(legacy.id)
-  expect(loadStorefront).not.toHaveBeenCalled()
 })

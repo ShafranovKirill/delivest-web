@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
 
 const { loadPrivateSession, cart, auth, branch, querySet, queryFetch, tokenSeed } = vi.hoisted(() => ({
   loadPrivateSession: vi.fn(),
@@ -27,27 +27,6 @@ beforeEach(() => {
   loadPrivateSession.mockReset(); cart.setSessionCart.mockReset(); querySet.mockReset(); queryFetch.mockReset().mockResolvedValue([]); tokenSeed.mockReset()
   cart.revision = 0; auth.sessionEpoch++; auth.client = null; auth.accessToken = null; auth.sessionChanging = false; branch.activeBranch.id = 'branch-a'
   cart.isInitialized = false; cart.fetchCart.mockReset().mockResolvedValue(undefined)
-})
-afterEach(() => vi.unstubAllGlobals())
-
-it('primes only pilot branches and retries after visiting a nonpilot branch', async () => {
-  const pilot = '11111111-1111-4111-8111-111111111111'
-  vi.stubGlobal('window', { _env: { VITE_STOREFRONT_BOOTSTRAP_BRANCH_IDS: pilot } })
-  branch.activeBranch.id = '22222222-2222-4222-8222-222222222222'
-  primeSession()
-  expect(loadPrivateSession).not.toHaveBeenCalled()
-
-  branch.activeBranch.id = pilot
-  loadPrivateSession.mockResolvedValue({ cart: null, active_orders: [], socket_token: 'pilot' })
-  primeSession()
-  await Promise.resolve()
-  expect(loadPrivateSession).toHaveBeenCalledOnce()
-
-  branch.activeBranch.id = '22222222-2222-4222-8222-222222222222'
-  primeSession()
-  branch.activeBranch.id = pilot
-  primeSession()
-  expect(loadPrivateSession).toHaveBeenCalledTimes(2)
 })
 
 it('does not replace a cart changed while the session request was in flight', async () => {

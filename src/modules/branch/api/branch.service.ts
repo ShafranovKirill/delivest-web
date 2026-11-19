@@ -1,6 +1,5 @@
 import { api } from '@/api/client'
 import { loadSection } from '@/api/storefront'
-import { storefrontReadsEnabled } from '@/api/storefrontPolicy'
 import type { paths } from '@/api/types'
 
 export type BranchListResponse =
@@ -16,9 +15,7 @@ export type BranchSlugResponse =
 
 export const BranchService = {
   async getBranches(): Promise<Branch[]> {
-    if (storefrontReadsEnabled()) return loadSection<Branch[]>('branches')
-    const { data } = await api.get<BranchListResponse>('/client/branches')
-    return data.data
+    return loadSection<Branch[]>('branches')
   },
 
   async selectBranch(id: string): Promise<Branch> {

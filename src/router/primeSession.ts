@@ -6,13 +6,12 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { OrderService } from '@/modules/order/api/order.service'
-import { storefrontReadsEnabled } from '@/api/storefrontPolicy'
 
 let lastStartedKey: string | null = null
 
 export function primeSession() {
   const branch = useBranchStore().activeBranch
-  if (!branch || !storefrontReadsEnabled(branch.id)) { lastStartedKey = null; return }
+  if (!branch) { lastStartedKey = null; return }
   const auth = useAuthStore()
   if (auth.sessionChanging) return
   const cartStore = useCartStore()

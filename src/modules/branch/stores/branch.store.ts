@@ -5,7 +5,6 @@ import Cookies from 'js-cookie'
 import { BranchService, type Branch } from '../api/branch.service'
 import { useBranchSchedule } from '../composables/useBranchSchedule'
 import { loadStorefront, rememberMenuValidity, rememberWatermark, seedAdvertisingConfig } from '@/api/storefront'
-import { storefrontReadsEnabled } from '@/api/storefrontPolicy'
 import { queryClient } from '@/api/client'
 import { currentLocale } from '@/i18n'
 import { primeSession } from '@/router/primeSession'
@@ -54,11 +53,10 @@ export const useBranchStore = defineStore('branch', () => {
     isInitialized.value = true
   }
 
-  async function initBranches(forceLegacy = false) {
+  async function initBranches() {
     if (isInitialized.value) return
     try {
-      if (!forceLegacy && storefrontReadsEnabled(readSavedBranchId())) await loadBootstrap()
-      else branches.value = await BranchService.getBranches()
+      await loadBootstrap()
       isInitialized.value = true
     } catch (error) {
       console.error('[BranchStore] Failed to initialize branches:', error)
@@ -96,23 +94,11 @@ export const useBranchStore = defineStore('branch', () => {
   async function selectBranch(branch: Branch) {
     if (activeBranch.value?.id === branch.id) return
     const previousBranch = activeBranch.value
-    let selectionGeneration = ++bootstrapGeneration
+    const selectionGeneration = bootstrapGeneration + 1
     try {
-      if (!storefrontReadsEnabled(branch.id)) {
-        const selected = await BranchService.selectBranch(branch.id)
-        if (selectionGeneration !== bootstrapGeneration) throw new Error('Superseded branch selection')
-        activeBranch.value = selected || branch
-        writeSavedBranchId(activeBranch.value.id)
-        primeSession()
-        return activeBranch.value
-      }
-      const pending = loadBootstrap(branch.slug)
-      selectionGeneration = bootstrapGeneration
-      const selected = await pending
+      const selected = await loadBootstrap(branch.slug)
       if (!selected.selected_branch) throw new Error('Branch not found')
-      activeBranch.value = selected.selected_branch
-      writeSavedBranchId(activeBranch.value.id)
-      return activeBranch.value
+      return selected.selected_branch
     } catch (error) {
       if (bootstrapGeneration === selectionGeneration) activeBranch.value = previousBranch
       throw error
@@ -122,27 +108,10 @@ export const useBranchStore = defineStore('branch', () => {
   async function selectBranchBySlug(slug: string): Promise<Branch> {
     if (activeBranch.value?.slug === slug) return activeBranch.value
     const previousBranch = activeBranch.value
-    let selectionGeneration = ++bootstrapGeneration
+    const selectionGeneration = bootstrapGeneration + 1
     try {
-      if (!storefrontReadsEnabled() && !isInitialized.value) {
-        await initBranches(true)
-        if (selectionGeneration !== bootstrapGeneration) throw new Error('Superseded branch selection')
-      }
-      const known = branches.value.find(branch => branch.slug === slug)
-      if (!storefrontReadsEnabled() && (!known || !storefrontReadsEnabled(known.id))) {
-        const selected = await BranchService.selectBranchBySlug(slug)
-        if (selectionGeneration !== bootstrapGeneration) throw new Error('Superseded branch selection')
-        activeBranch.value = selected
-        writeSavedBranchId(selected.id)
-        primeSession()
-        return selected
-      }
-      const pending = loadBootstrap(slug)
-      selectionGeneration = bootstrapGeneration
-      const selected = await pending
+      const selected = await loadBootstrap(slug)
       if (!selected.selected_branch) throw new Error('Branch not found')
-      activeBranch.value = selected.selected_branch
-      writeSavedBranchId(selected.selected_branch.id)
       return selected.selected_branch
     } catch (error) {
       if (bootstrapGeneration === selectionGeneration) activeBranch.value = previousBranch

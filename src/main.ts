@@ -18,8 +18,6 @@ import { registerServiceWorker } from './modules/pwa/registerServiceWorker'
 import { watch } from 'vue'
 import { useAuthStore } from './modules/auth/stores/auth.store'
 import { primeSession } from './router/primeSession'
-import { useBranchStore } from './modules/branch/stores/branch.store'
-import { storefrontReadsEnabled } from './api/storefrontPolicy'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -51,7 +49,6 @@ watch(() => [auth.sessionEpoch, auth.client?.id, auth.accessToken, auth.sessionC
 }, { flush: 'sync' })
 
 void router.isReady().then(async () => {
-  if (!storefrontReadsEnabled(useBranchStore(pinia).activeBranch?.id) ||
-    !useFranchiseStore(pinia).franchise) await useFranchiseStore(pinia).init()
+  if (!useFranchiseStore(pinia).franchise) await useFranchiseStore(pinia).init()
 }).catch(error => console.error('[Storefront] Route initialization failed:', error))
   .finally(() => app.mount('#app'))

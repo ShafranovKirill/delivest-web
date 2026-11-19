@@ -40,29 +40,17 @@ beforeEach(() => {
 })
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals() })
 
-async function run(flags: Record<string, string>) {
-  vi.stubGlobal('window', { _env: flags })
+it('subscribes to updates and polls the manifest when no watermark arrives', async () => {
   const scope = effectScope()
   scope.run(() => useStorefrontUpdates())
   await Promise.resolve()
-  const subscribed = getSocket.mock.calls.length
+  expect(getSocket).toHaveBeenCalledOnce()
   await vi.advanceTimersByTimeAsync(21_000)
-  const polled = loadManifest.mock.calls.length
+  expect(loadManifest).toHaveBeenCalledOnce()
   scope.stop()
-  return { subscribed, polled }
-}
-
-it('keeps manifest polling with reads on and updates off', async () => {
-  expect(await run({ VITE_STOREFRONT_UPDATES: 'false' })).toEqual({ subscribed: 0, polled: 1 })
 })
 
-it('subscribes and polls with reads off and updates explicitly on', async () => {
-  expect(await run({ VITE_STOREFRONT_BOOTSTRAP: 'false', VITE_STOREFRONT_UPDATES: 'true' }))
-    .toEqual({ subscribed: 1, polled: 1 })
-})
-
-it('applies an update to legacy menu queries when reads are off', async () => {
-  vi.stubGlobal('window', { _env: { VITE_STOREFRONT_BOOTSTRAP: 'false', VITE_STOREFRONT_UPDATES: 'true' } })
+it('applies a socket revision to menu queries', async () => {
   const scope = effectScope()
   scope.run(() => useStorefrontUpdates())
   await Promise.resolve()
@@ -71,8 +59,4 @@ it('applies an update to legacy menu queries when reads are off', async () => {
   revision({ revisions: { menu: '2' }, valid_until: new Date(Date.now() + 60_000).toISOString() })
   expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['menu', pilot, 'ru'] })
   scope.stop()
-})
-
-it('does no storefront metadata work when both are off, including legacy default', async () => {
-  expect(await run({ VITE_STOREFRONT_BOOTSTRAP: 'false' })).toEqual({ subscribed: 0, polled: 0 })
 })
