@@ -3,7 +3,7 @@ import LoyaltyEarnings from '@/modules/account/components/LoyaltyEarnings.vue'
 import courierIcon from '@/assets/icons/fulfillment/courier.png'
 import restaurantIcon from '@/assets/icons/fulfillment/restaurant.png'
 
-import { reactive, computed, ref, watch, onMounted, nextTick } from 'vue'
+import { reactive, computed, ref, watch, nextTick } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import OrderConsent from './OrderConsent.vue'
