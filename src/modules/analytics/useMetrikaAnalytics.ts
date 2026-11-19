@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { onScopeDispose, watch } from 'vue'
 import axios from 'axios'
 import { getApiBaseUrl } from '@/utils/env'
+import { bootstrapEnabled, takeAdvertisingConfig } from '@/api/storefront'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { commerceDelta, createMetrikaRuntime, loadMetrikaSdk, type AdvertisingConfig } from './metrika'
@@ -20,9 +21,16 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
   let timer: ReturnType<typeof setInterval> | undefined
   let stop: (() => void) | undefined
   let version = 0
+  let liveUntil = 0
+  let lastFallback = 0
+  let currentConfig: AdvertisingConfig | null = null
+  let bootstrapMode = false
+  const permitted = () => liveUntil > Date.now()
+  const expire = () => { if (liveUntil && !permitted()) { liveUntil = 0; runtime.reset() } }
   let viewedProduct: string | undefined
   const runtime = createMetrikaRuntime({
     load: loadMetrikaSdk,
+    permitted,
     location: () => window.location,
     referrer: () => document.referrer,
     menuVisible: () => {
@@ -48,6 +56,7 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
       if (layer.length > 20) layer.splice(0, layer.length - 20)
     },
     identify: (identity, generation, featureVersion) => {
+      if (!permitted()) return
       const branchId = branch.activeBranch?.id
       if (!branchId) return
       identityRequest?.abort()
@@ -64,6 +73,8 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
   })
 
   function track(event: string) {
+    expire()
+    if (!permitted()) return
     if (event === 'product_view') {
       const product = menu.activeProduct?.id
       if (product !== viewedProduct) runtime.closeDetail()
@@ -80,6 +91,8 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
   async function refresh() {
     const branchId = branch.activeBranch?.id
     if (!branchId) return
+    const seeded = takeAdvertisingConfig(branchId)
+    if (seeded) { bootstrapMode = true; liveUntil = seeded.until; currentConfig = seeded.config; runtime.configure(seeded.config); return }
     const epoch = version
     request?.abort()
     const controller = new AbortController()
@@ -88,9 +101,9 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
       const response = await advertisingApi.get<{ data: AdvertisingConfig }>(`/client/branches/${branchId}/advertising/config`, {
         baseURL: getApiBaseUrl(), signal: controller.signal, timeout: 3000,
       })
-      if (epoch === version && !controller.signal.aborted) runtime.configure(response.data.data)
+      if (epoch === version && !controller.signal.aborted) { liveUntil = Date.now() + 20_000; currentConfig = response.data.data; runtime.configure(response.data.data) }
     } catch {
-      if (epoch === version && !controller.signal.aborted) runtime.reset()
+      if (epoch === version && !controller.signal.aborted) { liveUntil = 0; currentConfig = null; runtime.reset() }
     }
   }
 
@@ -102,9 +115,18 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
       identityRequest?.abort()
       identityPending = null
       runtime.reset()
+      liveUntil = 0
+      currentConfig = null
+      bootstrapMode = false
+      lastFallback = Date.now()
       void refresh()
     }, { immediate: true, flush: 'sync' })
-    timer = setInterval(() => { void refresh() }, 20_000)
+    timer = setInterval(() => {
+      expire()
+      if ((bootstrapEnabled && bootstrapMode) || document.visibilityState === 'hidden' || liveUntil || Date.now() - lastFallback < 20_000) return
+      lastFallback = Date.now()
+      void refresh()
+    }, 1000)
   }
 
   onScopeDispose(() => {
@@ -115,6 +137,11 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
     identityRequest?.abort()
     runtime.reset()
   })
+  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    const checkVisibility = () => { if (document.visibilityState === 'visible') expire() }
+    document.addEventListener('visibilitychange', checkVisibility)
+    onScopeDispose(() => document.removeEventListener('visibilitychange', checkVisibility))
+  }
 
   async function flushIdentity() {
     if (!identityPending) return
@@ -125,8 +152,29 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
   }
 
   return {
-    start, flushIdentity, page: runtime.page, track, detail: runtime.detail, closeDetail,
+    start, flushIdentity, page: () => { expire(); if (permitted()) runtime.page() }, track,
+    detail: (...args: Parameters<typeof runtime.detail>) => { expire(); if (permitted()) runtime.detail(...args) },
+    closeDetail,
+    confirmWatermark: (validUntil: string) => {
+      const until = Date.parse(validUntil)
+      if (!Number.isFinite(until) || until <= Date.now()) { liveUntil = 0; runtime.reset(); return }
+      const wasExpired = !permitted()
+      liveUntil = Math.min(until, Date.now() + 20_000)
+      if (wasExpired && currentConfig) runtime.configure(currentConfig)
+    },
+    applyConfig: (config: AdvertisingConfig | null, validUntil: string) => {
+      const until = Date.parse(validUntil)
+      if (!config || !Number.isFinite(until) || until <= Date.now()) { liveUntil = 0; currentConfig = null; runtime.reset(); return }
+      liveUntil = Math.min(until, Date.now() + 20_000)
+      currentConfig = config
+      bootstrapMode = true
+      runtime.configure(config)
+    },
+    revalidate: refresh,
+    disable: () => { liveUntil = 0; currentConfig = null; runtime.reset() },
     cartChange: (before: CartItem[], after: CartItem[]) => {
+      expire()
+      if (!permitted()) return
       for (const event of commerceDelta(before, after)) runtime.commerce(event.action, event.products)
     },
   }

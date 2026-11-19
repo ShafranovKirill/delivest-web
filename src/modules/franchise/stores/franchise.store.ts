@@ -35,6 +35,8 @@ export const useFranchiseStore = defineStore(
       await load()
     }
 
+    function setFranchise(value: Franchise) { franchise.value = value }
+
     return {
       franchise,
       name,
@@ -51,6 +53,7 @@ export const useFranchiseStore = defineStore(
       rating,
       loginCallMode,
       init,
+      setFranchise,
     }
   },
   { persist: { pick: ['franchise'] } },

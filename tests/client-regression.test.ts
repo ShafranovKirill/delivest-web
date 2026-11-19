@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { reactive, nextTick, effectScope, ref } from 'vue'
 import { emptyDeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
+const session = vi.hoisted(() => ({ pending: null as Promise<unknown> | null }))
 
 function memoryStorage(): Storage {
   const entries = new Map<string, string>()
@@ -54,6 +55,7 @@ vi.mock('@/modules/franchise/stores/franchise.store', () => ({
 vi.mock('@/modules/cart/api/cart.service', () => ({
   CartService: { getCart, addItem, removeItem, setFulfillment },
 }))
+vi.mock('@/api/storefront', () => ({ pendingPrivateSession: () => session.pending }))
 vi.mock('@/api/errors', () => ({ getApiErrorCode: () => null }))
 vi.mock('@/api/socket', () => ({ getSocket: vi.fn() }))
 vi.mock('@/i18n', () => ({ t: (key: string) => key }))
@@ -126,6 +128,7 @@ beforeEach(() => {
   quotePending.value = false
   quoteError.value = false
   requestQuote.mockReset()
+  session.pending = null
 })
 
 describe('delivery quote freshness', () => {
@@ -230,6 +233,56 @@ describe('call confirmation attempts', () => {
 })
 
 describe('cart response ownership', () => {
+  it('checkout freshness expires after five seconds without a reactive clock', async () => {
+    vi.useFakeTimers()
+    try {
+      const store = useCartStore()
+      store.setSessionCart(cart('existing-cart') as never)
+      expect(store.hasFreshCart()).toBe(true)
+      vi.advanceTimersByTime(5_001)
+      expect(store.hasFreshCart()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+  it('first add waits for a private session and creates a cart after its null response', async () => {
+    const privateRequest = deferred<unknown>()
+    session.pending = privateRequest.promise
+    getCart.mockResolvedValue(cart('new-cart'))
+    addItem.mockResolvedValue(cart('new-cart', 1))
+    const store = useCartStore()
+    const adding = store.addItem('p')
+    await Promise.resolve()
+    expect(getCart).not.toHaveBeenCalled()
+    privateRequest.resolve({ cart: null })
+    await adding
+    expect(getCart).toHaveBeenCalledOnce()
+    expect(addItem).toHaveBeenCalledWith('new-cart', 'p', undefined)
+    expect(store.totalQuantity).toBe(1)
+  })
+  it('first add reuses an existing cart returned by a private session', async () => {
+    const privateRequest = deferred<unknown>()
+    session.pending = privateRequest.promise
+    addItem.mockResolvedValue(cart('existing-cart', 1))
+    const store = useCartStore()
+    const adding = store.addItem('p')
+    privateRequest.resolve({ cart: cart('existing-cart') })
+    await adding
+    expect(getCart).not.toHaveBeenCalled()
+    expect(addItem).toHaveBeenCalledWith('existing-cart', 'p', undefined)
+  })
+  it('first add recovers through cart GET when private bootstrap fails', async () => {
+    const privateRequest = deferred<unknown>()
+    session.pending = privateRequest.promise
+    getCart.mockResolvedValue(cart('fallback-cart'))
+    addItem.mockResolvedValue(cart('fallback-cart', 1))
+    const store = useCartStore()
+    const adding = store.addItem('p')
+    privateRequest.reject(new Error('offline'))
+    await adding
+    expect(getCart).toHaveBeenCalledOnce()
+    expect(addItem).toHaveBeenCalledWith('fallback-cart', 'p', undefined)
+  })
   it('ignores a late A response after switching to B', async () => {
     const a = deferred<ReturnType<typeof cart>>()
     const b = deferred<ReturnType<typeof cart>>()

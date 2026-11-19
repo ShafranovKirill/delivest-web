@@ -1,4 +1,6 @@
 import { expect, it, vi } from 'vitest'
+const privateSession = vi.hoisted(() => ({ pending: null as Promise<{ socket_token: string }> | null }))
+vi.mock('@/api/storefront', () => ({ pendingPrivateSessionForEpoch: () => privateSession.pending }))
 
 const requests: Array<{ resolve: (value: unknown) => void }> = []
 const connections: Array<{
@@ -40,4 +42,16 @@ it('starts a new epoch socket without waiting for old token and ignores late A t
   expect(connections).toHaveLength(1)
   expect(connections[0]!.token()).toBe('B')
   expect(connections[0]!.connect).toHaveBeenCalledTimes(1)
+})
+
+it('falls back to the legacy socket token after private bootstrap fails', async () => {
+  let reject!: (reason: unknown) => void
+  privateSession.pending = new Promise((_resolve, fail) => { reject = fail })
+  const connecting = getSocket(3, () => true)
+  reject(new Error('private bootstrap unavailable'))
+  await vi.waitFor(() => expect(requests).toHaveLength(3))
+  requests[2]!.resolve({ data: { data: { token: 'fallback' } } })
+  await connecting
+  expect(connections[0]!.token()).toBe('fallback')
+  privateSession.pending = null
 })

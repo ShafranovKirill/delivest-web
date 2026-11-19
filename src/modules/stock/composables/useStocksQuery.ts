@@ -10,7 +10,7 @@ export function useStocksQuery() {
 
   return useQuery({
     queryKey: computed(() => ['stocks', branchId.value]),
-    queryFn: () => StockService.getStocks(branchId.value),
+    queryFn: ({ queryKey, signal }) => StockService.getStocks(queryKey[1] as string, signal),
     enabled: computed(() => !!branchId.value),
     staleTime: 1000 * 60 * 5,
   })

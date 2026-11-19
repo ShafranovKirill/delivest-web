@@ -13,12 +13,15 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { getApiErrorCode } from '@/api/errors'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
+import { pendingPrivateSession } from '@/api/storefront'
 
 export const useCartStore = defineStore('cart', () => {
   const cart = ref<Cart | null>(null)
   const isLoading = ref(false)
   const isInitialized = ref(false)
   const revision = ref(0)
+  const freshUntil = ref(0)
+  const hasFreshCart = () => Boolean(cart.value?.id) && freshUntil.value > Date.now()
 
   const items = computed<CartItem[]>(() => cart.value?.items ?? [])
   const totalQuantity = computed<number>(() => cart.value?.total_quantity ?? 0)
@@ -55,6 +58,7 @@ export const useCartStore = defineStore('cart', () => {
       mutationQueue = Promise.resolve()
       mutationActiveContext = null
       cart.value = null
+      freshUntil.value = 0
       isInitialized.value = false
       isLoading.value = false
     },
@@ -82,6 +86,7 @@ export const useCartStore = defineStore('cart', () => {
         mutationActiveContext !== requestedContext
       ) {
         cart.value = data
+        freshUntil.value = Date.now() + 5_000
         revision.value++
         isInitialized.value = true
       }
@@ -97,6 +102,16 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  function setSessionCart(value: Cart | null) {
+    requestVersion++
+    fetchController?.abort()
+    cart.value = value
+    freshUntil.value = value?.id ? Date.now() + 5_000 : 0
+    revision.value++
+    isInitialized.value = true
+    isLoading.value = false
+  }
+
   let stopBranchSync: WatchStopHandle | null = null
 
   function initBranchSync() {
@@ -105,6 +120,7 @@ export const useCartStore = defineStore('cart', () => {
     stopBranchSync = watch(context, async () => {
       const newBranchId = branchStore.activeBranch?.id
       if (newBranchId) {
+        if (pendingPrivateSession(newBranchId, authStore.sessionEpoch)) return
         try {
           await fetchCart(newBranchId, true)
         } catch (error) {
@@ -117,6 +133,8 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   function withCart(mutate: (cartId: string) => Promise<Cart>): Promise<Cart> {
+    // Fence a private bootstrap response as soon as a mutation is requested.
+    revision.value++
     const queuedContext = context()
     const queuedGeneration = contextGeneration
     const isCurrent = () => queuedGeneration === contextGeneration && queuedContext === context()
@@ -124,6 +142,12 @@ export const useCartStore = defineStore('cart', () => {
       if (!isCurrent()) throw new Error('Cart context changed')
       isLoading.value = true
       try {
+        // A first add may race the session response. Let its cart seed settle
+        // before creating a cart; on bootstrap failure the legacy GET recovers.
+        const pending = pendingPrivateSession(branchStore.activeBranch?.id ?? '', authStore.sessionEpoch)
+        const session = pending ? await pending.catch(() => undefined) : undefined
+        if (!isCurrent()) throw new Error('Cart context changed')
+        if (!cart.value?.id && session?.cart) setSessionCart(session.cart)
         if (!cart.value?.id) await fetchCart()
         if (!isCurrent()) throw new Error('Cart context changed')
         const cartId = cart.value?.id
@@ -145,6 +169,7 @@ export const useCartStore = defineStore('cart', () => {
           requestVersion++
           fetchController?.abort()
           cart.value = data
+          freshUntil.value = Date.now() + 5_000
           analytics.cartChange?.(beforeItems, data.items ?? [])
         }
         return data
@@ -259,8 +284,10 @@ export const useCartStore = defineStore('cart', () => {
     isLoading,
     isInitialized,
     revision,
+    hasFreshCart,
 
     fetchCart,
+    setSessionCart,
     initBranchSync,
     addStarItem,
     addItem,

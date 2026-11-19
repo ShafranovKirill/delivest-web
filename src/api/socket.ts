@@ -2,6 +2,7 @@ import { Socket } from 'phoenix'
 import { api } from '@/api/client'
 import { getApiBaseUrl } from '@/utils/env'
 import { createEpochCommitGuard } from '@/modules/auth/api/auth-session.js'
+import { pendingPrivateSessionForEpoch } from './storefront'
 
 type TokenResponse = { data: { token: string } }
 
@@ -17,11 +18,26 @@ const tokenEpoch = createEpochCommitGuard()
 
 async function fetchToken(epoch: number, isCurrent: () => boolean) {
   if (!isCurrent() || !tokenEpoch.begin(epoch)) throw new Error('Stale socket token request')
+  const pending = pendingPrivateSessionForEpoch(epoch)
+  if (pending) {
+    const session = await pending.catch(() => null)
+    if (session) {
+      if (!isCurrent() || !tokenEpoch.canCommit(epoch)) throw new Error('Stale socket token response')
+      seedSocketToken(session.socket_token, epoch)
+      return
+    }
+  }
   const { data } = await api.get<TokenResponse>('/client/socket_token')
   if (!isCurrent() || !tokenEpoch.canCommit(epoch)) {
     throw new Error('Stale socket token response')
   }
   token = data.data.token
+  socketTokenEpoch = epoch
+}
+
+export function seedSocketToken(value: string, epoch: number) {
+  if (epoch < latestEpoch || !tokenEpoch.begin(epoch)) return
+  token = value
   socketTokenEpoch = epoch
 }
 
@@ -46,7 +62,8 @@ export function getSocket(epoch: number, isCurrent: () => boolean): Promise<Sock
   if (pending?.epoch === epoch) return pending.promise
   pending = null
 
-  const promise = fetchToken(epoch, isCurrent).then(() => {
+  const initialToken = socketTokenEpoch === epoch && token ? Promise.resolve() : fetchToken(epoch, isCurrent)
+  const promise = initialToken.then(() => {
     if (!isCurrent() || epoch !== latestEpoch || !tokenEpoch.canCommit(epoch)) {
       throw new Error('Stale socket connection request')
     }

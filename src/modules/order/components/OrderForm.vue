@@ -159,7 +159,6 @@ watch(
   },
   { immediate: true },
 )
-onMounted(() => branchStore.refreshBranches().catch(console.error))
 
 const allPaymentOptions = computed<
   Array<{ value: OrderFormValues['payment_method']; label: string }>

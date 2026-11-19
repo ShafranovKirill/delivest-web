@@ -15,6 +15,10 @@ import { MyPreset } from './assets/colorPreset.ts'
 import { i18n } from './i18n'
 import { useFranchiseStore } from './modules/franchise/stores/franchise.store'
 import { registerServiceWorker } from './modules/pwa/registerServiceWorker'
+import { watch } from 'vue'
+import { useAuthStore } from './modules/auth/stores/auth.store'
+import { primeSession } from './router/primeSession'
+import { bootstrapEnabled } from './api/storefront'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -40,7 +44,12 @@ app.use(pinia)
 app.use(ToastService)
 installAuthInterceptor(api)
 registerServiceWorker()
+const auth = useAuthStore(pinia)
+watch(() => [auth.sessionEpoch, auth.client?.id, auth.accessToken, auth.sessionChanging], () => {
+  if (bootstrapEnabled && !auth.sessionChanging) primeSession()
+}, { flush: 'sync' })
 
-Promise.allSettled([useFranchiseStore(pinia).init(), router.isReady()]).then(() =>
-  app.mount('#app'),
-)
+void router.isReady().then(async () => {
+  if (!bootstrapEnabled || !useFranchiseStore(pinia).franchise) await useFranchiseStore(pinia).init()
+}).catch(error => console.error('[Storefront] Route initialization failed:', error))
+  .finally(() => app.mount('#app'))
