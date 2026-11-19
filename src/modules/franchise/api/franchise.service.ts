@@ -1,4 +1,5 @@
 import { api } from '@/api/client'
+import { bootstrapEnabled, loadSection } from '@/api/storefront'
 import type { paths } from '@/api/types'
 
 type FranchiseResponse =
@@ -13,6 +14,7 @@ export type LegalKind = LegalDocument['kind']
 
 export const FranchiseService = {
   async getFranchise(): Promise<Franchise> {
+    if (bootstrapEnabled) return loadSection<Franchise>('franchise')
     const { data } = await api.get<FranchiseResponse>('/client/franchise')
     return data.data
   },

@@ -45,6 +45,68 @@ const menuValidity = new Map<string, number>()
 export type StorefrontWatermark = { revisions: Record<string, string | number>; valid_until: string; section?: string; advertising?: AdvertisingConfig | null }
 const watermarks = new Map<string, StorefrontWatermark>()
 
+type SectionName = 'franchise' | 'branches' | 'menu' | 'stories' | 'advertising'
+type SectionEntry = { etag: string; data: unknown; validUntil: string }
+const sectionCache = new Map<string, SectionEntry>()
+const sectionGenerations = new Map<string, number>()
+let nextSectionGeneration = 0
+
+function rememberSection(key: string, entry: SectionEntry) {
+  sectionCache.delete(key)
+  sectionCache.set(key, entry)
+  if (sectionCache.size > 32) sectionCache.delete(sectionCache.keys().next().value!)
+}
+
+export async function loadSectionResponse<T>(section: SectionName, branchId?: string, locale?: string, signal?: AbortSignal): Promise<{ data: T; validUntil: string }> {
+  const scopedBranch = section === 'franchise' || section === 'branches' ? '' : branchId ?? ''
+  const scopedLocale = section === 'menu' ? locale ?? currentLocale() : ''
+  const key = `${section}:${scopedBranch}:${scopedLocale}`
+  const generation = ++nextSectionGeneration
+  sectionGenerations.set(key, generation)
+  const cached = sectionCache.get(key)
+  const url = new URL(`/client/storefront/v1/sections/${section}`, `${getApiBaseUrl().replace(/\/$/, '')}/`)
+  if (scopedBranch) url.searchParams.set('branch_id', scopedBranch)
+  if (scopedLocale) url.searchParams.set('locale', scopedLocale)
+  const boundedSignal = signal ? AbortSignal.any([signal, AbortSignal.timeout(10_000)]) : AbortSignal.timeout(10_000)
+
+  async function request(entry?: SectionEntry, retried = false): Promise<{ data: T; validUntil: string }> {
+    const response = await fetch(url, {
+      credentials: 'omit', signal: boundedSignal,
+      headers: entry ? { 'If-None-Match': entry.etag } : undefined,
+    })
+    if (sectionGenerations.get(key) !== generation || boundedSignal.aborted)
+      throw new Error('Superseded storefront section response')
+    if (response.status === 304) {
+      if (!entry) {
+        if (retried) throw new Error('Storefront section returned 304 without cached data')
+        return request(undefined, true)
+      }
+      const validUntil = response.headers.get('x-storefront-valid-until')
+      if (validUntil) rememberSection(key, { ...entry, validUntil })
+      return { data: entry.data as T, validUntil: validUntil ?? entry.validUntil }
+    }
+    if (!response.ok) throw new Error(`Storefront section request failed: ${response.status}`)
+    const body = await response.json() as { data: T; valid_until: string }
+    if (sectionGenerations.get(key) !== generation || boundedSignal.aborted)
+      throw new Error('Superseded storefront section response')
+    const etag = response.headers.get('etag')
+    if (etag) {
+      rememberSection(key, { etag, data: body.data, validUntil: body.valid_until })
+    }
+    return { data: body.data, validUntil: body.valid_until }
+  }
+
+  try {
+    return await request(cached)
+  } finally {
+    if (sectionGenerations.get(key) === generation) sectionGenerations.delete(key)
+  }
+}
+
+export async function loadSection<T>(section: SectionName, branchId?: string, locale?: string, signal?: AbortSignal): Promise<T> {
+  return (await loadSectionResponse<T>(section, branchId, locale, signal)).data
+}
+
 export function rememberWatermark(branchId: string, value: StorefrontWatermark) { watermarks.set(branchId, value) }
 export function previousWatermark(branchId: string) { return watermarks.get(branchId) }
 export async function loadManifest(branchId: string) {
@@ -63,7 +125,10 @@ export function invalidateMenuValidity(branchId: string, locale: string) {
 }
 
 export function renewMenuValidity(branchId: string, locale: string, validUntil: string) {
-  if (menuValidity.has(`${branchId}:${locale}`)) rememberMenuValidity(branchId, locale, validUntil)
+  if (!menuValidity.has(`${branchId}:${locale}`)) return
+  const sectionUntil = sectionCache.get(`menu:${branchId}:${locale}`)?.validUntil
+  const until = Math.min(Date.parse(validUntil), sectionUntil ? Date.parse(sectionUntil) : Infinity)
+  if (Number.isFinite(until)) rememberMenuValidity(branchId, locale, new Date(until).toISOString())
 }
 
 export function publicMenuFresh(branchId: string, locale: string) {

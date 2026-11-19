@@ -17,7 +17,11 @@ import { useMetrikaAnalytics } from '../src/modules/analytics/useMetrikaAnalytic
 const disabled = { data: { data: { enabled: false, counter_id: null, generation: 1, feature_version: 'A'.repeat(43), ecommerce: false, capture: false, collection_basis: 'disabled' } } }
 const enabled = { data: { data: { enabled: true, counter_id: '123', generation: 1, feature_version: 'A'.repeat(43), ecommerce: true, capture: true, collection_basis: 'admin_approved' } } }
 let store: ReturnType<typeof useMetrikaAnalytics> | undefined
-const flush = async () => { await nextTick(); await Promise.resolve(); await Promise.resolve(); await nextTick() }
+const flush = async () => {
+  await nextTick()
+  for (let index = 0; index < 12; index++) await Promise.resolve()
+  await nextTick()
+}
 beforeEach(() => {
   vi.useFakeTimers()
   setActivePinia(createPinia())
@@ -31,6 +35,11 @@ beforeEach(() => {
   transport.ym.mockReset()
   transport.load.mockReset().mockResolvedValue(transport.ym)
   transport.menu.mockReset().mockReturnValue(null)
+  vi.stubGlobal('fetch', async (url: string, options: RequestInit) => {
+    const result = await transport.get(url, options)
+    if (result instanceof Response) return result
+    return new Response(JSON.stringify({ data: result.data.data, valid_until: new Date(Date.now() + 20_000).toISOString() }), { status: 200 })
+  })
 })
 afterEach(() => { store?.$dispose(); store = undefined; vi.useRealTimers(); vi.unstubAllGlobals() })
 
@@ -43,6 +52,31 @@ it('disabled config only polls our config endpoint and allocates no provider lay
   expect(transport.load).not.toHaveBeenCalled()
   expect(transport.post).not.toHaveBeenCalled()
   expect(window).not.toHaveProperty('delivestMetrikaLayer')
+})
+
+it('uses the server lease on 200 and refreshes that lease from 304', async () => {
+  const response = new Response(JSON.stringify({
+    data: enabled.data.data,
+    valid_until: new Date(Date.now() + 1_000).toISOString(),
+  }), { status: 200, headers: { etag: 'W/"advertising-one"' } })
+  transport.get.mockResolvedValueOnce(response)
+  store = useMetrikaAnalytics(); store.start()
+  await flush()
+  expect(transport.load).toHaveBeenCalledTimes(1)
+
+  await vi.advanceTimersByTimeAsync(1_100)
+  expect(transport.ym.mock.calls.filter(([, method]) => method === 'destruct')).toHaveLength(1)
+
+  transport.get.mockResolvedValueOnce(new Response(null, {
+    status: 304,
+    headers: { 'x-storefront-valid-until': new Date(Date.now() + 1_000).toISOString() },
+  }))
+  await store.revalidate()
+  await flush()
+  expect((transport.get.mock.calls.at(-1)?.[1] as RequestInit).headers).toEqual({ 'If-None-Match': 'W/"advertising-one"' })
+  await vi.advanceTimersByTimeAsync(1_100)
+  store.track('visit')
+  expect(transport.ym.mock.calls.filter(([, method]) => method === 'destruct')).toHaveLength(2)
 })
 
 it('a stale config response cannot reenable the old branch after identity changes', async () => {

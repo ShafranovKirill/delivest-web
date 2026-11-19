@@ -1,7 +1,7 @@
 import { api } from '@/api/client'
 import { currentLocale } from '@/i18n'
 import { queryClient } from '@/api/client'
-import { previousWatermark, publicMenuFresh, rememberMenuValidity } from '@/api/storefront'
+import { bootstrapEnabled, loadSectionResponse, previousWatermark, publicMenuFresh, rememberMenuValidity } from '@/api/storefront'
 import type { paths } from '@/api/types'
 
 type MenuApiResponse =
@@ -26,13 +26,18 @@ export const MenuService = {
   },
   async getMenu(branchId: string, locale: string = currentLocale(), signal?: AbortSignal): Promise<MenuCategory[]> {
     const revision = previousWatermark(branchId)?.revisions.menu
-    const { data } = await api.get<MenuApiResponse>(`/client/branches/${branchId}/menu`, {
-      headers: { 'Accept-Language': locale }, signal,
-    })
+    const section = bootstrapEnabled
+      ? await loadSectionResponse<MenuCategory[]>('menu', branchId, locale, signal)
+      : { data: (await api.get<MenuApiResponse>(`/client/branches/${branchId}/menu`, {
+          headers: { 'Accept-Language': locale }, signal,
+        })).data.data ?? [], validUntil: undefined }
     const watermark = previousWatermark(branchId)
     if (revision !== watermark?.revisions.menu) throw new Error('Stale menu response')
-    if (watermark && Date.parse(watermark.valid_until) > Date.now())
-      rememberMenuValidity(branchId, locale, watermark.valid_until)
-    return data.data ?? []
+    if (watermark && Date.parse(watermark.valid_until) > Date.now()) {
+      const serverUntil = Date.parse(section.validUntil ?? watermark.valid_until)
+      const until = Math.min(Date.parse(watermark.valid_until), serverUntil)
+      if (until > Date.now()) rememberMenuValidity(branchId, locale, new Date(until).toISOString())
+    }
+    return section.data
   },
 }

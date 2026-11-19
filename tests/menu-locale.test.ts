@@ -4,6 +4,7 @@ import { ref } from 'vue'
 
 const locale = ref<'ru' | 'en'>('ru')
 const get = vi.fn()
+const fetchMock = vi.fn()
 const useBranchStore = defineStore('menu-locale-test-branch', () => ({
   activeBranch: ref({ id: 'demo-center' }),
 }))
@@ -13,6 +14,7 @@ vi.mock('@/i18n', () => ({
   currentLocale: () => locale.value,
 }))
 vi.mock('@/api/client', () => ({ api: { get } }))
+vi.mock('@/utils/env', () => ({ getApiBaseUrl: () => 'http://localhost:4000' }))
 vi.mock('@/modules/branch/stores/branch.store', () => ({ useBranchStore }))
 vi.mock('@tanstack/vue-query', () => ({ useQuery: (options: unknown) => options }))
 
@@ -25,22 +27,24 @@ beforeEach(() => {
   setActivePinia(createPinia())
   locale.value = 'ru'
   get.mockReset()
+  fetchMock.mockReset()
+  vi.stubGlobal('fetch', fetchMock)
 })
+
+function menuResponse(data: unknown[] = []) {
+  return new Response(JSON.stringify({ data, valid_until: new Date(Date.now() + 20_000).toISOString() }), { status: 200 })
+}
 
 describe('menu locale', () => {
   it('sends the current locale in the menu request', async () => {
-    get.mockResolvedValue({ data: { data: [] } })
+    fetchMock.mockImplementation(async () => menuResponse())
 
     await MenuService.getMenu('branch-1')
-    expect(get).toHaveBeenLastCalledWith('/client/branches/branch-1/menu', {
-      headers: { 'Accept-Language': 'ru' },
-    })
+    expect(String(fetchMock.mock.lastCall?.[0])).toContain('/client/storefront/v1/sections/menu?branch_id=branch-1&locale=ru')
 
     locale.value = 'en'
     await MenuService.getMenu('branch-1')
-    expect(get).toHaveBeenLastCalledWith('/client/branches/branch-1/menu', {
-      headers: { 'Accept-Language': 'en' },
-    })
+    expect(String(fetchMock.mock.lastCall?.[0])).toContain('/client/storefront/v1/sections/menu?branch_id=branch-1&locale=en')
   })
 
   it('changes the menu query key when the locale changes', () => {
@@ -52,35 +56,34 @@ describe('menu locale', () => {
   })
 
   it('a retried old query keeps its original branch and locale', async () => {
-    get.mockResolvedValue({ data: { data: [] } })
+    fetchMock.mockImplementation(async () => menuResponse())
     const branch = useBranchStore()
     const query = useMenuQuery() as unknown as { queryFn: (context: { queryKey: string[]; signal: AbortSignal }) => Promise<unknown> }
     const signal = new AbortController().signal
     branch.activeBranch = { id: 'another-branch' }
     locale.value = 'en'
     await query.queryFn({ queryKey: ['menu', 'demo-center', 'ru'], signal })
-    expect(get).toHaveBeenCalledWith('/client/branches/demo-center/menu', {
-      headers: { 'Accept-Language': 'ru' }, signal,
-    })
+    expect(String(fetchMock.mock.lastCall?.[0])).toContain('branch_id=demo-center&locale=ru')
+    expect((fetchMock.mock.lastCall?.[1] as RequestInit).signal).toBeDefined()
   })
 
   it('a retried stories query keeps its original branch', async () => {
-    get.mockResolvedValue({ data: { data: [] } })
+    fetchMock.mockImplementation(async () => menuResponse())
     const query = useStocksQuery() as unknown as { queryFn: (context: { queryKey: string[]; signal: AbortSignal }) => Promise<unknown> }
     const signal = new AbortController().signal
     useBranchStore().activeBranch = { id: 'another-branch' }
     await query.queryFn({ queryKey: ['stocks', 'demo-center'], signal })
-    expect(get).toHaveBeenCalledWith('/client/demo-center/stocks', { signal })
+    expect(String(fetchMock.mock.lastCall?.[0])).toContain('/sections/stories?branch_id=demo-center')
   })
 
   it('does not accept a menu response from an obsolete revision', async () => {
     let resolve!: (value: unknown) => void
-    get.mockReturnValue(new Promise(done => { resolve = done }))
+    fetchMock.mockReturnValue(new Promise(done => { resolve = done }))
     const until = new Date(Date.now() + 20_000).toISOString()
     rememberWatermark('demo-center', { revisions: { menu: 'one' }, valid_until: until })
     const request = MenuService.getMenu('demo-center', 'ru')
     rememberWatermark('demo-center', { revisions: { menu: 'two' }, valid_until: until })
-    resolve({ data: { data: [] } })
+    resolve(menuResponse())
     await expect(request).rejects.toThrow('Stale menu response')
   })
 

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { onScopeDispose, watch } from 'vue'
 import axios from 'axios'
 import { getApiBaseUrl } from '@/utils/env'
-import { bootstrapEnabled, takeAdvertisingConfig } from '@/api/storefront'
+import { bootstrapEnabled, loadSectionResponse, takeAdvertisingConfig } from '@/api/storefront'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { commerceDelta, createMetrikaRuntime, loadMetrikaSdk, type AdvertisingConfig } from './metrika'
@@ -98,10 +98,17 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
     const controller = new AbortController()
     request = controller
     try {
-      const response = await advertisingApi.get<{ data: AdvertisingConfig }>(`/client/branches/${branchId}/advertising/config`, {
-        baseURL: getApiBaseUrl(), signal: controller.signal, timeout: 3000,
-      })
-      if (epoch === version && !controller.signal.aborted) { liveUntil = Date.now() + 20_000; currentConfig = response.data.data; runtime.configure(response.data.data) }
+      const section = bootstrapEnabled
+        ? await loadSectionResponse<AdvertisingConfig>('advertising', branchId, undefined, controller.signal)
+        : { data: (await advertisingApi.get<{ data: AdvertisingConfig }>(`/client/branches/${branchId}/advertising/config`, {
+            baseURL: getApiBaseUrl(), signal: controller.signal, timeout: 3000,
+          })).data.data, validUntil: new Date(Date.now() + 20_000).toISOString() }
+      if (epoch === version && !controller.signal.aborted) {
+        liveUntil = Math.min(Date.parse(section.validUntil), Date.now() + 20_000)
+        currentConfig = section.data
+        if (Number.isFinite(liveUntil) && liveUntil > Date.now()) runtime.configure(section.data)
+        else { liveUntil = 0; runtime.reset() }
+      }
     } catch {
       if (epoch === version && !controller.signal.aborted) { liveUntil = 0; currentConfig = null; runtime.reset() }
     }
