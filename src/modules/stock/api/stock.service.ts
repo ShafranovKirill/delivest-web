@@ -7,8 +7,8 @@ type StockApiResponse =
 export type Stock = NonNullable<StockApiResponse['data']>[number]
 
 export const StockService = {
-  async getStocks(branchId: string): Promise<Stock[]> {
-    const { data } = await api.get<StockApiResponse>(`/client/${branchId}/stocks`)
+  async getStocks(branchId: string, signal?: AbortSignal): Promise<Stock[]> {
+    const { data } = await api.get<StockApiResponse>(`/client/${branchId}/stocks`, { signal })
     return data.data ?? []
   },
 }

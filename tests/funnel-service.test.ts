@@ -20,3 +20,30 @@ it('uses one short credentialed request without adding identity or session field
     baseURL: 'https://api.example.test', signal, headers: undefined,
   })
 })
+
+it('sends every bounded batch as one credentialed keepalive request', async () => {
+  const fetcher = vi.fn().mockResolvedValue({ ok: true })
+  vi.stubGlobal('fetch', fetcher)
+  const signal = new AbortController().signal
+  await AnalyticsService.sendBatch([payload, payload], signal, 'token')
+  expect(fetcher).toHaveBeenCalledExactlyOnceWith('https://api.example.test/client/analytics/events/batch', expect.objectContaining({
+    method: 'POST', credentials: 'include', keepalive: true, signal,
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token' },
+    body: JSON.stringify({ events: [payload, payload] }),
+  }))
+  await expect(AnalyticsService.sendBatch(Array(21).fill(payload), signal, null)).rejects.toThrow('size')
+  vi.unstubAllGlobals()
+})
+
+it('guest batch uses the same bounded keepalive transport from first dispatch', async () => {
+  const fetcher = vi.fn().mockResolvedValue({ ok: true })
+  vi.stubGlobal('fetch', fetcher)
+  try {
+    const signal = new AbortController().signal
+    await AnalyticsService.sendBatch([payload], signal, null)
+    expect(fetcher).toHaveBeenCalledExactlyOnceWith('https://api.example.test/client/analytics/events/batch', expect.objectContaining({
+      method: 'POST', credentials: 'include', keepalive: true, signal,
+      body: JSON.stringify({ events: [payload] }),
+    }))
+  } finally { vi.unstubAllGlobals() }
+})

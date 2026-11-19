@@ -1,9 +1,24 @@
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { RouteLocationNormalized } from 'vue-router'
 import { publicLandingTarget } from '../publicLanding'
+import { primeSession } from '../primeSession'
+import { bootstrapEnabled } from '@/api/storefront'
 
 export async function branchMiddleware(to: RouteLocationNormalized) {
   const branchStore = useBranchStore()
+  const urlSlug = to.params.slug as string | undefined
+
+  if (urlSlug) {
+    try {
+      if (!bootstrapEnabled && !branchStore.isInitialized) await branchStore.initBranches()
+      if (branchStore.activeBranch?.slug !== urlSlug) await branchStore.selectBranchBySlug(urlSlug)
+      if (bootstrapEnabled) primeSession()
+      return true
+    } catch {
+      const target = publicLandingTarget(to.fullPath)
+      return { name: 'select-branch', query: target ? { return_to: target } : {} }
+    }
+  }
 
   if (!branchStore.isInitialized) {
     try {
@@ -17,7 +32,6 @@ export async function branchMiddleware(to: RouteLocationNormalized) {
     }
   }
 
-  const urlSlug = to.params.slug as string | undefined
   const cookieBranchId = branchStore.getBranchIdFromCookie()
 
   const activeBranches = branchStore.branches.filter((b) => b.is_active)
@@ -28,18 +42,6 @@ export async function branchMiddleware(to: RouteLocationNormalized) {
 
   const preferredBranch = branchByCookie ?? (activeBranches.length === 1 ? activeBranches[0] : null)
 
-  if (urlSlug) {
-    try {
-      if (branchStore.activeBranch?.slug !== urlSlug) {
-        await branchStore.selectBranchBySlug(urlSlug)
-      }
-      return true
-    } catch {
-      const target = publicLandingTarget(to.fullPath)
-      return { name: 'select-branch', query: target ? { return_to: target } : {} }
-    }
-  }
-
   if (to.name === 'select-branch' && publicLandingTarget(to.query.return_to)) return true
 
   if (preferredBranch) {
@@ -47,6 +49,7 @@ export async function branchMiddleware(to: RouteLocationNormalized) {
       if (branchStore.activeBranch?.id !== preferredBranch.id) {
         await branchStore.selectBranch(preferredBranch)
       }
+      if (bootstrapEnabled) primeSession()
 
       if (to.name === 'select-branch' || to.path === '/') {
         return `/${preferredBranch.slug}`

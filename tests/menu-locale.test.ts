@@ -18,6 +18,8 @@ vi.mock('@tanstack/vue-query', () => ({ useQuery: (options: unknown) => options 
 
 const { MenuService } = await import('@/modules/menu/api/menu.service')
 const { useMenuQuery } = await import('@/modules/menu/composables/useMenuQuery')
+const { useStocksQuery } = await import('@/modules/stock/composables/useStocksQuery')
+const { rememberWatermark, rememberMenuValidity, renewMenuValidity, invalidateMenuValidity, publicMenuFresh } = await import('@/api/storefront')
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -47,5 +49,47 @@ describe('menu locale', () => {
     expect(query.queryKey.value).toEqual(['menu', 'demo-center', 'ru'])
     locale.value = 'en'
     expect(query.queryKey.value).toEqual(['menu', 'demo-center', 'en'])
+  })
+
+  it('a retried old query keeps its original branch and locale', async () => {
+    get.mockResolvedValue({ data: { data: [] } })
+    const branch = useBranchStore()
+    const query = useMenuQuery() as unknown as { queryFn: (context: { queryKey: string[]; signal: AbortSignal }) => Promise<unknown> }
+    const signal = new AbortController().signal
+    branch.activeBranch = { id: 'another-branch' }
+    locale.value = 'en'
+    await query.queryFn({ queryKey: ['menu', 'demo-center', 'ru'], signal })
+    expect(get).toHaveBeenCalledWith('/client/branches/demo-center/menu', {
+      headers: { 'Accept-Language': 'ru' }, signal,
+    })
+  })
+
+  it('a retried stories query keeps its original branch', async () => {
+    get.mockResolvedValue({ data: { data: [] } })
+    const query = useStocksQuery() as unknown as { queryFn: (context: { queryKey: string[]; signal: AbortSignal }) => Promise<unknown> }
+    const signal = new AbortController().signal
+    useBranchStore().activeBranch = { id: 'another-branch' }
+    await query.queryFn({ queryKey: ['stocks', 'demo-center'], signal })
+    expect(get).toHaveBeenCalledWith('/client/demo-center/stocks', { signal })
+  })
+
+  it('does not accept a menu response from an obsolete revision', async () => {
+    let resolve!: (value: unknown) => void
+    get.mockReturnValue(new Promise(done => { resolve = done }))
+    const until = new Date(Date.now() + 20_000).toISOString()
+    rememberWatermark('demo-center', { revisions: { menu: 'one' }, valid_until: until })
+    const request = MenuService.getMenu('demo-center', 'ru')
+    rememberWatermark('demo-center', { revisions: { menu: 'two' }, valid_until: until })
+    resolve({ data: { data: [] } })
+    await expect(request).rejects.toThrow('Stale menu response')
+  })
+
+  it('renews a known complete menu projection only while its revision is unchanged', () => {
+    rememberMenuValidity('demo-center', 'ru', new Date(Date.now() - 1_000).toISOString())
+    renewMenuValidity('demo-center', 'ru', new Date(Date.now() + 20_000).toISOString())
+    expect(publicMenuFresh('demo-center', 'ru')).toBe(true)
+    invalidateMenuValidity('demo-center', 'ru')
+    renewMenuValidity('demo-center', 'ru', new Date(Date.now() + 20_000).toISOString())
+    expect(publicMenuFresh('demo-center', 'ru')).toBe(false)
   })
 })
