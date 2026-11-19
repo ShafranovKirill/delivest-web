@@ -1,7 +1,8 @@
 import { api } from '@/api/client'
 import { currentLocale } from '@/i18n'
 import { queryClient } from '@/api/client'
-import { bootstrapEnabled, loadSectionResponse, previousWatermark, publicMenuFresh, rememberMenuValidity } from '@/api/storefront'
+import { loadSectionResponse, previousWatermark, publicMenuFresh, rememberMenuValidity } from '@/api/storefront'
+import { storefrontReadsEnabled } from '@/api/storefrontPolicy'
 import type { paths } from '@/api/types'
 
 type MenuApiResponse =
@@ -26,7 +27,7 @@ export const MenuService = {
   },
   async getMenu(branchId: string, locale: string = currentLocale(), signal?: AbortSignal): Promise<MenuCategory[]> {
     const revision = previousWatermark(branchId)?.revisions.menu
-    const section = bootstrapEnabled
+    const section = storefrontReadsEnabled(branchId)
       ? await loadSectionResponse<MenuCategory[]>('menu', branchId, locale, signal)
       : { data: (await api.get<MenuApiResponse>(`/client/branches/${branchId}/menu`, {
           headers: { 'Accept-Language': locale }, signal,

@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { onScopeDispose, watch } from 'vue'
 import axios from 'axios'
 import { getApiBaseUrl } from '@/utils/env'
-import { bootstrapEnabled, loadSectionResponse, takeAdvertisingConfig } from '@/api/storefront'
+import { loadSectionResponse, takeAdvertisingConfig } from '@/api/storefront'
+import { storefrontReadsEnabled, storefrontUpdatesEnabled } from '@/api/storefrontPolicy'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { commerceDelta, createMetrikaRuntime, loadMetrikaSdk, type AdvertisingConfig } from './metrika'
@@ -98,7 +99,7 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
     const controller = new AbortController()
     request = controller
     try {
-      const section = bootstrapEnabled
+      const section = storefrontReadsEnabled(branchId)
         ? await loadSectionResponse<AdvertisingConfig>('advertising', branchId, undefined, controller.signal)
         : { data: (await advertisingApi.get<{ data: AdvertisingConfig }>(`/client/branches/${branchId}/advertising/config`, {
             baseURL: getApiBaseUrl(), signal: controller.signal, timeout: 3000,
@@ -130,7 +131,7 @@ export const useMetrikaAnalytics = defineStore('metrikaAnalytics', () => {
     }, { immediate: true, flush: 'sync' })
     timer = setInterval(() => {
       expire()
-      if ((bootstrapEnabled && bootstrapMode) || document.visibilityState === 'hidden' || liveUntil || Date.now() - lastFallback < 20_000) return
+      if ((storefrontUpdatesEnabled(branch.activeBranch?.id) && bootstrapMode) || document.visibilityState === 'hidden' || liveUntil || Date.now() - lastFallback < 20_000) return
       lastFallback = Date.now()
       void refresh()
     }, 1000)

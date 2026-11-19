@@ -14,6 +14,7 @@ vi.mock('../src/modules/analytics/metrika', async importOriginal => ({
   ...await importOriginal<typeof import('../src/modules/analytics/metrika')>(), loadMetrikaSdk: transport.load,
 }))
 import { useMetrikaAnalytics } from '../src/modules/analytics/useMetrikaAnalytics'
+import { seedAdvertisingConfig } from '../src/api/storefront'
 const disabled = { data: { data: { enabled: false, counter_id: null, generation: 1, feature_version: 'A'.repeat(43), ecommerce: false, capture: false, collection_basis: 'disabled' } } }
 const enabled = { data: { data: { enabled: true, counter_id: '123', generation: 1, feature_version: 'A'.repeat(43), ecommerce: true, capture: true, collection_basis: 'admin_approved' } } }
 let store: ReturnType<typeof useMetrikaAnalytics> | undefined
@@ -52,6 +53,22 @@ it('disabled config only polls our config endpoint and allocates no provider lay
   expect(transport.load).not.toHaveBeenCalled()
   expect(transport.post).not.toHaveBeenCalled()
   expect(window).not.toHaveProperty('delivestMetrikaLayer')
+})
+
+it('revalidates a bootstrap seed after its lease when updates are off', async () => {
+  window._env = { VITE_STOREFRONT_UPDATES: 'false' }
+  seedAdvertisingConfig('branch-a', enabled.data.data as Parameters<typeof seedAdvertisingConfig>[1],
+    new Date(Date.now() + 20_000).toISOString())
+  transport.get.mockResolvedValue(enabled)
+  store = useMetrikaAnalytics(); store.start()
+  await flush()
+  expect(transport.get).not.toHaveBeenCalled()
+  expect(transport.load).toHaveBeenCalledOnce()
+
+  await vi.advanceTimersByTimeAsync(20_000)
+  await flush()
+  expect(transport.get).toHaveBeenCalledOnce()
+  expect(String(transport.get.mock.calls[0]?.[0])).toContain('/client/storefront/v1/sections/advertising')
 })
 
 it('uses the server lease on 200 and refreshes that lease from 304', async () => {

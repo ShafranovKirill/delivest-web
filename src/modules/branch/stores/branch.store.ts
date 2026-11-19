@@ -4,7 +4,8 @@ import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import Cookies from 'js-cookie'
 import { BranchService, type Branch } from '../api/branch.service'
 import { useBranchSchedule } from '../composables/useBranchSchedule'
-import { bootstrapEnabled, loadStorefront, rememberMenuValidity, rememberWatermark, seedAdvertisingConfig } from '@/api/storefront'
+import { loadStorefront, rememberMenuValidity, rememberWatermark, seedAdvertisingConfig } from '@/api/storefront'
+import { storefrontReadsEnabled } from '@/api/storefrontPolicy'
 import { queryClient } from '@/api/client'
 import { currentLocale } from '@/i18n'
 import { primeSession } from '@/router/primeSession'
@@ -53,10 +54,10 @@ export const useBranchStore = defineStore('branch', () => {
     isInitialized.value = true
   }
 
-  async function initBranches() {
+  async function initBranches(forceLegacy = false) {
     if (isInitialized.value) return
     try {
-      if (bootstrapEnabled) await loadBootstrap()
+      if (!forceLegacy && storefrontReadsEnabled(readSavedBranchId())) await loadBootstrap()
       else branches.value = await BranchService.getBranches()
       isInitialized.value = true
     } catch (error) {
@@ -95,21 +96,25 @@ export const useBranchStore = defineStore('branch', () => {
   async function selectBranch(branch: Branch) {
     if (activeBranch.value?.id === branch.id) return
     const previousBranch = activeBranch.value
-    const selectionGeneration = bootstrapGeneration + 1
+    let selectionGeneration = ++bootstrapGeneration
     try {
-      if (!bootstrapEnabled) {
+      if (!storefrontReadsEnabled(branch.id)) {
         const selected = await BranchService.selectBranch(branch.id)
+        if (selectionGeneration !== bootstrapGeneration) throw new Error('Superseded branch selection')
         activeBranch.value = selected || branch
         writeSavedBranchId(activeBranch.value.id)
+        primeSession()
         return activeBranch.value
       }
-      const selected = await loadBootstrap(branch.slug)
+      const pending = loadBootstrap(branch.slug)
+      selectionGeneration = bootstrapGeneration
+      const selected = await pending
       if (!selected.selected_branch) throw new Error('Branch not found')
       activeBranch.value = selected.selected_branch
       writeSavedBranchId(activeBranch.value.id)
       return activeBranch.value
     } catch (error) {
-      if (!bootstrapEnabled || bootstrapGeneration === selectionGeneration) activeBranch.value = previousBranch
+      if (bootstrapGeneration === selectionGeneration) activeBranch.value = previousBranch
       throw error
     }
   }
@@ -117,33 +122,44 @@ export const useBranchStore = defineStore('branch', () => {
   async function selectBranchBySlug(slug: string): Promise<Branch> {
     if (activeBranch.value?.slug === slug) return activeBranch.value
     const previousBranch = activeBranch.value
-    const selectionGeneration = bootstrapGeneration + 1
+    let selectionGeneration = ++bootstrapGeneration
     try {
-      if (!bootstrapEnabled) {
+      if (!storefrontReadsEnabled() && !isInitialized.value) {
+        await initBranches(true)
+        if (selectionGeneration !== bootstrapGeneration) throw new Error('Superseded branch selection')
+      }
+      const known = branches.value.find(branch => branch.slug === slug)
+      if (!storefrontReadsEnabled() && (!known || !storefrontReadsEnabled(known.id))) {
         const selected = await BranchService.selectBranchBySlug(slug)
+        if (selectionGeneration !== bootstrapGeneration) throw new Error('Superseded branch selection')
         activeBranch.value = selected
         writeSavedBranchId(selected.id)
+        primeSession()
         return selected
       }
-      const selected = await loadBootstrap(slug)
+      const pending = loadBootstrap(slug)
+      selectionGeneration = bootstrapGeneration
+      const selected = await pending
       if (!selected.selected_branch) throw new Error('Branch not found')
       activeBranch.value = selected.selected_branch
       writeSavedBranchId(selected.selected_branch.id)
       return selected.selected_branch
     } catch (error) {
-      if (!bootstrapEnabled || bootstrapGeneration === selectionGeneration) activeBranch.value = previousBranch
+      if (bootstrapGeneration === selectionGeneration) activeBranch.value = previousBranch
       throw error
     }
   }
 
   async function clearActiveBranch() {
     const previousBranch = activeBranch.value
+    const generation = ++bootstrapGeneration
     activeBranch.value = null
     writeSavedBranchId(null)
+    primeSession()
     try {
       await BranchService.clearActive()
     } catch (error) {
-      activeBranch.value = previousBranch
+      if (generation === bootstrapGeneration) activeBranch.value = previousBranch
       throw error
     }
   }

@@ -1,7 +1,8 @@
 import { onScopeDispose, watch } from 'vue'
 import type { Channel } from 'phoenix'
 import { getSocket } from '@/api/socket'
-import { bootstrapEnabled, invalidateMenuValidity, loadManifest, previousWatermark, rememberWatermark, renewMenuValidity, type StorefrontWatermark } from '@/api/storefront'
+import { invalidateMenuValidity, loadManifest, previousWatermark, rememberWatermark, renewMenuValidity, type StorefrontWatermark } from '@/api/storefront'
+import { storefrontReadsEnabled, storefrontUpdatesEnabled } from '@/api/storefrontPolicy'
 import { queryClient } from '@/api/client'
 import { currentLocale } from '@/i18n'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
@@ -10,7 +11,6 @@ import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useMetrikaAnalytics } from '@/modules/analytics/useMetrikaAnalytics'
 
 export function useStorefrontUpdates() {
-  if (!bootstrapEnabled) return
   const branch = useBranchStore()
   const auth = useAuthStore()
   const metrika = useMetrikaAnalytics()
@@ -62,12 +62,13 @@ export function useStorefrontUpdates() {
     generation++
     disconnect()
     lastWatermark = Date.now()
-    if (branchId) void connect(branchId, epoch, generation)
+    if (branchId && storefrontUpdatesEnabled(branchId)) void connect(branchId, epoch, generation)
   }, { immediate: true })
 
   async function refreshManifest() {
     const branchId = branch.activeBranch?.id
-    if (!branchId || document.visibilityState === 'hidden' ||
+    if (!branchId || (!storefrontReadsEnabled(branchId) && !storefrontUpdatesEnabled(branchId)) ||
+      document.visibilityState === 'hidden' ||
       Date.now() - lastWatermark < 20_000 || manifestPending) return
     const current = generation
     manifestPending = true

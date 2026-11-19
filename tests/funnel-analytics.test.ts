@@ -205,3 +205,39 @@ it('swallows synchronous transport and ID failures', async () => {
   tracker.dispose()
   scope.stop()
 })
+
+it('sends unbatched events immediately in order and clears queued events on epoch reset', async () => {
+  vi.stubGlobal('window', {
+    _env: { VITE_FUNNEL_BATCHING: 'false' },
+    location: { search: '' }, addEventListener: vi.fn(), removeEventListener: vi.fn(),
+  })
+  vi.stubGlobal('document', { referrer: '' })
+  let serial = 0
+  vi.stubGlobal('crypto', { randomUUID: () => `event-${++serial}` })
+  const scopeState = reactive({ branchId: 'branch', enabled: true, epoch: 1, identity: 'guest', accessToken: null })
+  const first = deferred()
+  const batch = vi.fn()
+  const single = vi.fn().mockReturnValueOnce(first.promise).mockResolvedValue(undefined)
+  const scope = effectScope()
+  const tracker = scope.run(() => createFunnelTracker(() => scopeState, batch, single))!
+  tracker.track('cart_add')
+  tracker.track('menu_view')
+  expect(single).toHaveBeenCalledOnce()
+  expect(single.mock.calls[0]?.[0].event_id).toBe('event-1')
+  expect(batch).not.toHaveBeenCalled()
+  first.resolve()
+  await vi.waitFor(() => expect(single).toHaveBeenCalledTimes(2))
+  expect(single.mock.calls[1]?.[0].event_id).toBe('event-2')
+
+  const delayed = deferred()
+  single.mockReturnValueOnce(delayed.promise)
+  tracker.track('cart_add')
+  tracker.track('cart_add')
+  scopeState.epoch++
+  expect((single.mock.calls[2]?.[1] as AbortSignal).aborted).toBe(true)
+  delayed.resolve()
+  await Promise.resolve()
+  expect(single).toHaveBeenCalledTimes(3)
+  tracker.dispose()
+  scope.stop()
+})

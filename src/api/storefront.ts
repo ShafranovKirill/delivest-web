@@ -7,6 +7,7 @@ import type { Stock } from '@/modules/stock/api/stock.service'
 import type { AdvertisingConfig } from '@/modules/analytics/metrika'
 import type { Cart } from '@/modules/cart/api/cart.service'
 import type { ActiveOrder } from '@/modules/order/api/order.service'
+import { storefrontReadsEnabled } from './storefrontPolicy'
 
 export type StorefrontBranch = Pick<Branch, 'id' | 'slug' | 'name' | 'is_active'> &
   Partial<Branch>
@@ -37,7 +38,8 @@ async function publicGet<T>(path: string, params: Record<string, string>, signal
   if (!response.ok) throw new Error(`Storefront request failed: ${response.status}`)
   return response.json() as Promise<T>
 }
-export const bootstrapEnabled = import.meta.env.VITE_STOREFRONT_BOOTSTRAP !== 'false'
+// Kept for existing callers that only need the unscoped fast path.
+export const bootstrapEnabled = storefrontReadsEnabled()
 const publicPending = new Map<string, { controller: AbortController; promise: Promise<Storefront> }>()
 let privatePending: { branchId: string; epoch: number; promise: Promise<PrivateSession> } | null = null
 let advertisingSeed: { branchId: string; until: number; config: AdvertisingConfig } | null = null

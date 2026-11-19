@@ -5,12 +5,13 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { AnalyticsService, type AnalyticsPayload, type FunnelEvent } from './analytics.service'
 import { sourceLabels } from './source'
 import { useMetrikaAnalytics } from './useMetrikaAnalytics'
+import { funnelBatchingEnabled } from '@/api/storefrontPolicy'
 
 const MAX_EVENTS = 20
 
 type Scope = { branchId: string; enabled: boolean; epoch: number; identity: string; accessToken: string | null }
 
-export function createFunnelTracker(getScope: () => Scope, send = AnalyticsService.sendBatch) {
+export function createFunnelTracker(getScope: () => Scope, send = AnalyticsService.sendBatch, sendSingle = AnalyticsService.send) {
   let pending: AnalyticsPayload[] = []
   let current: { controller: AbortController } | null = null
   let timer: ReturnType<typeof setTimeout> | null = null
@@ -36,13 +37,16 @@ export function createFunnelTracker(getScope: () => Scope, send = AnalyticsServi
     if (current || !pending.length) return
     const scope = getScope()
     if (!scope.enabled || !scope.branchId) { pending = []; return }
-    const payload = pending.splice(0, MAX_EVENTS)
+    const batching = funnelBatchingEnabled(scope.branchId)
+    const payload = pending.splice(0, batching ? MAX_EVENTS : 1)
     const controller = new AbortController()
     const requestGeneration = generation
     current = { controller }
     let request: Promise<void>
     try {
-      request = send(payload, controller.signal, scope.accessToken)
+      request = batching
+        ? send(payload, controller.signal, scope.accessToken)
+        : sendSingle(payload[0]!, controller.signal, scope.accessToken)
     } catch (error) {
       request = Promise.reject(error)
     }
@@ -77,6 +81,7 @@ export function createFunnelTracker(getScope: () => Scope, send = AnalyticsServi
       const scope = getScope()
       if (!scope.enabled || !scope.branchId) return
       if (event === 'visit' && visited) return
+      const batching = funnelBatchingEnabled(scope.branchId)
       if (pending.length >= MAX_EVENTS) return
       const payload: AnalyticsPayload = {
         event_id: crypto.randomUUID(),
@@ -88,7 +93,8 @@ export function createFunnelTracker(getScope: () => Scope, send = AnalyticsServi
       }
       if (event === 'visit') visited = true
       pending.push(payload)
-      if (pending.length === MAX_EVENTS) flush()
+      if (!batching) pump()
+      else if (pending.length === MAX_EVENTS) flush()
       else if (!timer) timer = setTimeout(() => flush(), 1000)
     } catch {
       // Missing browser APIs and malformed source data must not break the action.

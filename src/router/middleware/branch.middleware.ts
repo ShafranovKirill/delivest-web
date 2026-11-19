@@ -2,7 +2,6 @@ import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import type { RouteLocationNormalized } from 'vue-router'
 import { publicLandingTarget } from '../publicLanding'
 import { primeSession } from '../primeSession'
-import { bootstrapEnabled } from '@/api/storefront'
 
 export async function branchMiddleware(to: RouteLocationNormalized) {
   const branchStore = useBranchStore()
@@ -10,9 +9,8 @@ export async function branchMiddleware(to: RouteLocationNormalized) {
 
   if (urlSlug) {
     try {
-      if (!bootstrapEnabled && !branchStore.isInitialized) await branchStore.initBranches()
       if (branchStore.activeBranch?.slug !== urlSlug) await branchStore.selectBranchBySlug(urlSlug)
-      if (bootstrapEnabled) primeSession()
+      primeSession()
       return true
     } catch {
       const target = publicLandingTarget(to.fullPath)
@@ -49,7 +47,7 @@ export async function branchMiddleware(to: RouteLocationNormalized) {
       if (branchStore.activeBranch?.id !== preferredBranch.id) {
         await branchStore.selectBranch(preferredBranch)
       }
-      if (bootstrapEnabled) primeSession()
+      primeSession()
 
       if (to.name === 'select-branch' || to.path === '/') {
         return `/${preferredBranch.slug}`

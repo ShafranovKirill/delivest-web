@@ -1,5 +1,6 @@
 import { api } from '@/api/client'
-import { bootstrapEnabled, loadSection } from '@/api/storefront'
+import { loadSection } from '@/api/storefront'
+import { storefrontReadsEnabled } from '@/api/storefrontPolicy'
 import type { paths } from '@/api/types'
 
 export type BranchListResponse =
@@ -15,7 +16,7 @@ export type BranchSlugResponse =
 
 export const BranchService = {
   async getBranches(): Promise<Branch[]> {
-    if (bootstrapEnabled) return loadSection<Branch[]>('branches')
+    if (storefrontReadsEnabled()) return loadSection<Branch[]>('branches')
     const { data } = await api.get<BranchListResponse>('/client/branches')
     return data.data
   },
