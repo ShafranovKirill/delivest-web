@@ -1,4 +1,5 @@
 import { api } from '@/api/client'
+import { loadSection } from '@/api/storefront'
 import type { paths } from '@/api/types'
 
 export type BranchListResponse =
@@ -14,8 +15,7 @@ export type BranchSlugResponse =
 
 export const BranchService = {
   async getBranches(): Promise<Branch[]> {
-    const { data } = await api.get<BranchListResponse>('/client/branches')
-    return data.data
+    return loadSection<Branch[]>('branches')
   },
 
   async selectBranch(id: string): Promise<Branch> {

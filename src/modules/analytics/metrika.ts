@@ -91,6 +91,7 @@ type RuntimeOptions = {
   identify: (identity: AdvertisingIdentity, generation: number, featureVersion: string) => void
   menuVisible?: () => boolean
   ready?: () => void
+  permitted?: () => boolean
 }
 
 export function createMetrikaRuntime(options: RuntimeOptions) {
@@ -124,7 +125,7 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
     options.layer(null)
   }
 
-  const enabled = () => config.enabled && config.collection_basis === 'admin_approved' &&
+  const enabled = () => (options.permitted?.() ?? true) && config.enabled && config.collection_basis === 'admin_approved' &&
     !!config.counter_id && /^\d{1,20}$/.test(config.counter_id)
 
   function send(action: () => void) {
@@ -165,6 +166,7 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
     const version = epoch
     attempts++
     void options.load().then(client => {
+      if (version === epoch && !(options.permitted?.() ?? true)) { reset(); return }
       if (version !== epoch || !enabled()) return
       ym = client
       const location = options.location()
@@ -179,7 +181,7 @@ export function createMetrikaRuntime(options: RuntimeOptions) {
         })
         const pending = queue
         queue = []
-        for (const action of pending) action()
+        for (const action of pending) if (enabled()) action()
         page()
         // These describe the current screen after collection is approved; no
         // actions from the disabled or unknown-config period are retained.

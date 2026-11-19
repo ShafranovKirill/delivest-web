@@ -13,6 +13,7 @@ export const useAuthStore = defineStore(
     const refreshToken = ref<string | null>(null)
     const client = ref<ClientProfile | null>(null)
     const sessionEpoch = ref(0)
+    const sessionChanging = ref(false)
     const lastPhone = ref<string | null>(null)
     const isModalOpen = ref(false)
     const isProfileOpen = ref(false)
@@ -35,43 +36,48 @@ export const useAuthStore = defineStore(
     async function signIn(session: ClientSession) {
       const previousId = client.value?.id
       clearPrivateQueries(queryClient, client.value?.id)
+      sessionChanging.value = true
       sessionEpoch.value++
       const epoch = sessionEpoch.value
-      if (previousId && previousId !== session.client?.id) {
-        try {
+      try {
+        if (previousId && previousId !== session.client?.id) {
           await beginPushIdentityChange(accessToken.value, () => {
             pushCleanupError.value = true
           })
-        } catch {
-          pushCleanupError.value = true
-          throw new Error('Push identity protection failed')
         }
+        if (epoch !== sessionEpoch.value) return
+        setSession(session)
+        queryClient.invalidateQueries()
+      } catch {
+        pushCleanupError.value = true
+        throw new Error('Push identity protection failed')
+      } finally {
+        if (epoch === sessionEpoch.value) sessionChanging.value = false
       }
-      if (epoch !== sessionEpoch.value) return
-      setSession(session)
-      queryClient.invalidateQueries()
     }
 
     async function logout() {
       clearPrivateQueries(queryClient, client.value?.id)
+      sessionChanging.value = true
       sessionEpoch.value++
       const epoch = sessionEpoch.value
-      if (client.value) {
-        try {
+      try {
+        if (client.value) {
           await beginPushIdentityChange(accessToken.value, () => {
             pushCleanupError.value = true
           })
-        } catch {
-          pushCleanupError.value = true
-          return
         }
+        if (epoch !== sessionEpoch.value) return
+        isProfileOpen.value = false
+        accessToken.value = null
+        refreshToken.value = null
+        client.value = null
+        queryClient.invalidateQueries()
+      } catch {
+        pushCleanupError.value = true
+      } finally {
+        if (epoch === sessionEpoch.value) sessionChanging.value = false
       }
-      if (epoch !== sessionEpoch.value) return
-      isProfileOpen.value = false
-      accessToken.value = null
-      refreshToken.value = null
-      client.value = null
-      queryClient.invalidateQueries()
     }
 
     watch(isAuthenticated, (signedIn) => {
@@ -107,6 +113,7 @@ export const useAuthStore = defineStore(
       refreshToken,
       client,
       sessionEpoch,
+      sessionChanging,
       lastPhone,
       isModalOpen,
       isProfileOpen,

@@ -20,6 +20,7 @@ import ProfileDialog from '@/modules/auth/components/ProfileDialog.vue'
 import AddressPrompt from '@/modules/fulfillment/components/AddressPrompt.vue'
 import FulfillmentPicker from '@/modules/fulfillment/components/FulfillmentPicker.vue'
 import { useLiveOrders } from '@/modules/order/composables/useLiveOrders'
+import { useStorefrontUpdates } from '@/modules/branch/composables/useStorefrontUpdates'
 
 const viewportStore = useViewportStore()
 const branchStore = useBranchStore()
@@ -36,6 +37,7 @@ watch(
   { immediate: true },
 )
 useLiveOrders()
+useStorefrontUpdates()
 </script>
 <template>
   <div

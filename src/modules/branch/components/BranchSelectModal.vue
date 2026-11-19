@@ -28,7 +28,7 @@ async function load() {
   loadFailed.value = false
 
   try {
-    await branchStore.refreshBranches()
+    if (!branchStore.isInitialized) await branchStore.initBranches()
   } catch {
     loadFailed.value = true
     toast.add({

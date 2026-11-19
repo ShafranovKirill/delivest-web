@@ -80,7 +80,7 @@ async function load() {
   loadFailed.value = false
 
   try {
-    await branchStore.refreshBranches()
+    if (!branchStore.isInitialized) await branchStore.initBranches()
     branches.value = branchStore.branches.filter((b) => b.is_active)
   } catch {
     loadFailed.value = true

@@ -13,7 +13,7 @@ export const useMenuQuery = () => {
 
   return useQuery({
     queryKey: computed(() => ['menu', branchId.value, i18n.global.locale.value]),
-    queryFn: () => MenuService.getMenu(branchId.value),
+    queryFn: ({ queryKey, signal }) => MenuService.getMenu(queryKey[1] as string, queryKey[2] as string, signal),
     enabled: computed(() => !!branchId.value),
     staleTime: 1000 * 60 * 5,
     retry: 2,

@@ -15,12 +15,15 @@ import EmptyState from '@/modules/shared/components/ui/EmptyState.vue'
 import SkeletonList from '@/modules/shared/components/ui/SkeletonList.vue'
 import { useI18n } from 'vue-i18n'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
+import { pendingPrivateSession } from '@/api/storefront'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
 
 const router = useRouter()
 const route = useRoute()
 const returnToCart = useReturnToCart()
 const cartStore = useCartStore()
 const branchStore = useBranchStore()
+const authStore = useAuthStore()
 const orderStore = useOrderStore()
 const { t } = useI18n()
 const analytics = useFunnelAnalytics()
@@ -50,7 +53,9 @@ onMounted(async () => {
   }
   orderStore.resetOrderState()
   try {
-    await cartStore.fetchCart(branchStore.activeBranch?.id, true)
+    const pending = pendingPrivateSession(branchStore.activeBranch?.id ?? '', authStore.sessionEpoch)
+    if (pending) await pending.catch(() => undefined)
+    if (!cartStore.hasFreshCart()) await cartStore.fetchCart(branchStore.activeBranch?.id, true)
   } catch (e) {
     console.error(e)
   }

@@ -22,6 +22,28 @@ function fixture(load?: () => Promise<Ym>, menuVisible = () => false) {
 }
 
 describe('optional Metrika runtime', () => {
+  it('does not initialize the SDK or replay queued goals after its lease expires during loading', async () => {
+    let resolve!: (value: Ym) => void
+    let until = 100
+    let now = 0
+    const f = fixture(() => new Promise(done => { resolve = done }))
+    const runtime = createMetrikaRuntime({
+      load: f.load, location: f.location, referrer: f.referrer, layer: f.layer,
+      identify: f.identify, permitted: () => now < until,
+    })
+    runtime.configure(enabled)
+    runtime.track('cart_add')
+    now = 200
+    resolve(f.ym)
+    await flush()
+    expect(f.ym).not.toHaveBeenCalled()
+    expect(f.identify).toHaveBeenCalledOnce()
+    until = 300
+    runtime.configure(enabled)
+    expect(f.load).toHaveBeenCalledTimes(2)
+    runtime.track('menu_view')
+    expect(f.ym).not.toHaveBeenCalled()
+  })
   it('disabled collection creates no SDK requests, identifiers, goals or ecommerce buffers', async () => {
     const f = fixture()
     f.runtime.configure({ ...enabled, enabled: false, capture: false, collection_basis: 'disabled' })

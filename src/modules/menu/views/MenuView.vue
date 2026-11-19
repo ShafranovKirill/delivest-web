@@ -21,6 +21,7 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import NotificationCards from '@/modules/notifications/components/NotificationCards.vue'
 import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { pendingPrivateSession } from '@/api/storefront'
 import MobileCategoryBar from '../components/category/MobileCategoryBar.vue'
 import DesktopCategoryBar from '../components/category/DesktopCategoryBar.vue'
 import SkeletonCategory from '../components/category/SkeletonCategory.vue'
@@ -96,7 +97,7 @@ useProductRoute()
 onMounted(() => {
   cartStore.initBranchSync()
 
-  if (!cartStore.isInitialized) {
+  if (!cartStore.isInitialized && !pendingPrivateSession(branchStore.activeBranch?.id ?? '', authStore.sessionEpoch)) {
     cartStore.fetchCart(branchStore.activeBranch?.id).catch(console.error)
   }
 })

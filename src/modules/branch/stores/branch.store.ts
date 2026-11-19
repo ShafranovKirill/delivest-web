@@ -4,6 +4,10 @@ import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import Cookies from 'js-cookie'
 import { BranchService, type Branch } from '../api/branch.service'
 import { useBranchSchedule } from '../composables/useBranchSchedule'
+import { loadStorefront, rememberMenuValidity, rememberWatermark, seedAdvertisingConfig } from '@/api/storefront'
+import { queryClient } from '@/api/client'
+import { currentLocale } from '@/i18n'
+import { primeSession } from '@/router/primeSession'
 
 const SAVED_BRANCH_KEY = 'delivest:active_branch_id'
 
@@ -28,6 +32,7 @@ export const useBranchStore = defineStore('branch', () => {
   const activeBranch = ref<Branch | null>(null)
   const isInitialized = ref(false)
   const isModalOpen = ref(false)
+  let bootstrapGeneration = 0
 
   const schedule = useBranchSchedule(activeBranch)
 
@@ -51,7 +56,7 @@ export const useBranchStore = defineStore('branch', () => {
   async function initBranches() {
     if (isInitialized.value) return
     try {
-      branches.value = await BranchService.getBranches()
+      await loadBootstrap()
       isInitialized.value = true
     } catch (error) {
       console.error('[BranchStore] Failed to initialize branches:', error)
@@ -59,16 +64,43 @@ export const useBranchStore = defineStore('branch', () => {
     }
   }
 
+  async function loadBootstrap(slug?: string) {
+    const generation = ++bootstrapGeneration
+    const requestedLocale = currentLocale()
+    const response = await loadStorefront(slug, slug ? undefined : readSavedBranchId())
+    if (generation !== bootstrapGeneration || requestedLocale !== currentLocale()) throw new Error('Superseded storefront response')
+    if (slug && response.selected_branch?.slug !== slug) throw new Error('Branch not found')
+    franchiseStore.setFranchise(response.franchise)
+    branches.value = response.branches as Branch[]
+    activeBranch.value = response.selected_branch
+    // Create the private request in the same turn as selection, before cart's
+    // branch watcher can issue its legacy GET in the next microtask.
+    if (response.selected_branch) primeSession()
+    if (response.selected_branch) {
+      const id = response.selected_branch.id
+      seedAdvertisingConfig(id, response.advertising, response.valid_until)
+      rememberWatermark(id, { revisions: response.revisions, valid_until: response.valid_until })
+      writeSavedBranchId(id)
+      if (response.menu) {
+        queryClient.setQueryData(['menu', id, requestedLocale], response.menu, { updatedAt: Date.now() })
+        rememberMenuValidity(id, requestedLocale, response.valid_until)
+      }
+      if (response.stories) queryClient.setQueryData(['stocks', id], response.stories, { updatedAt: Date.now() })
+    }
+    isInitialized.value = true
+    return response
+  }
+
   async function selectBranch(branch: Branch) {
     if (activeBranch.value?.id === branch.id) return
     const previousBranch = activeBranch.value
+    const selectionGeneration = bootstrapGeneration + 1
     try {
-      const selected = await BranchService.selectBranch(branch.id)
-      activeBranch.value = selected || branch
-      writeSavedBranchId(activeBranch.value.id)
-      return activeBranch.value
+      const selected = await loadBootstrap(branch.slug)
+      if (!selected.selected_branch) throw new Error('Branch not found')
+      return selected.selected_branch
     } catch (error) {
-      activeBranch.value = previousBranch
+      if (bootstrapGeneration === selectionGeneration) activeBranch.value = previousBranch
       throw error
     }
   }
@@ -76,31 +108,33 @@ export const useBranchStore = defineStore('branch', () => {
   async function selectBranchBySlug(slug: string): Promise<Branch> {
     if (activeBranch.value?.slug === slug) return activeBranch.value
     const previousBranch = activeBranch.value
+    const selectionGeneration = bootstrapGeneration + 1
     try {
-      const selected = await BranchService.selectBranchBySlug(slug)
-      activeBranch.value = selected
-      writeSavedBranchId(selected.id)
-      return selected
+      const selected = await loadBootstrap(slug)
+      if (!selected.selected_branch) throw new Error('Branch not found')
+      return selected.selected_branch
     } catch (error) {
-      activeBranch.value = previousBranch
+      if (bootstrapGeneration === selectionGeneration) activeBranch.value = previousBranch
       throw error
     }
   }
 
   async function clearActiveBranch() {
     const previousBranch = activeBranch.value
+    const generation = ++bootstrapGeneration
     activeBranch.value = null
     writeSavedBranchId(null)
+    primeSession()
     try {
       await BranchService.clearActive()
     } catch (error) {
-      activeBranch.value = previousBranch
+      if (generation === bootstrapGeneration) activeBranch.value = previousBranch
       throw error
     }
   }
 
   function getBranchIdFromCookie(): string | undefined {
-    return Cookies.get('active_branch_id') ?? readSavedBranchId()
+    return readSavedBranchId() ?? Cookies.get('active_branch_id')
   }
 
   // Delivery address settings of the active branch. The site asks for the address
@@ -133,6 +167,7 @@ export const useBranchStore = defineStore('branch', () => {
     closeModal,
     toggleModal,
     initBranches,
+    loadBootstrap,
     refreshBranches,
     selectBranch,
     selectBranchBySlug,
