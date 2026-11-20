@@ -883,6 +883,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/analytics/events/batch': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Записать пакет событий воронки */
+    post: operations['DelivestWeb.Client.Analytics.BatchController.create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/branches/{branch_id}/advertising/identity': {
     parameters: {
       query?: never
@@ -2321,6 +2338,21 @@ export interface components {
         event_id: string
         /** Format: uuid */
         session_id: string
+      }
+    }
+    /** FunnelBatchRequest */
+    FunnelBatchRequest: {
+      events: components['schemas']['FunnelEventRequest'][]
+    }
+    /** FunnelBatchResponse */
+    FunnelBatchResponse: {
+      data: {
+        events: {
+          /** Format: uuid */
+          event_id: string
+          /** Format: uuid */
+          session_id: string
+        }[]
       }
     }
     /** FunnelEventRequest */
@@ -4253,6 +4285,58 @@ export interface operations {
         }
       }
       /** @description Неверное событие */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Превышен лимит */
+      429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.Analytics.BatchController.create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Пакет до 20 событий */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FunnelBatchRequest']
+      }
+    }
+    responses: {
+      /** @description Пакет принят */
+      202: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['FunnelBatchResponse']
+        }
+      }
+      /** @description Аналитика филиала недоступна */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Неверный пакет */
       422: {
         headers: {
           [name: string]: unknown

@@ -1894,6 +1894,61 @@
         "title": "FunnelEventResponse",
         "type": "object"
       },
+      "FunnelBatchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/FunnelEventRequest"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "events"
+        ],
+        "title": "FunnelBatchRequest",
+        "type": "object"
+      },
+      "FunnelBatchResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "events": {
+                "items": {
+                  "properties": {
+                    "event_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "session_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "event_id",
+                    "session_id"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "events"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FunnelBatchResponse",
+        "type": "object"
+      },
       "FunnelEventRequest": {
         "additionalProperties": false,
         "properties": {
@@ -3982,6 +4037,70 @@
             }
           },
           "summary": "Записать событие воронки",
+          "tags": [
+            "Analytics"
+          ]
+        }
+      },
+      "/client/analytics/events/batch": {
+        "post": {
+          "callbacks": {},
+          "operationId": "DelivestWeb.Client.Analytics.BatchController.create",
+          "parameters": [],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FunnelBatchRequest"
+                }
+              }
+            },
+            "description": "Пакет до 20 событий",
+            "required": true
+          },
+          "responses": {
+            "202": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/FunnelBatchResponse"
+                  }
+                }
+              },
+              "description": "Пакет принят"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Аналитика филиала недоступна"
+            },
+            "422": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Неверный пакет"
+            },
+            "429": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "description": "Превышен лимит"
+            }
+          },
+          "summary": "Записать пакет событий воронки",
           "tags": [
             "Analytics"
           ]
