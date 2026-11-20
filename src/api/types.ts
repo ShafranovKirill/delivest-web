@@ -2257,6 +2257,10 @@ export interface components {
             [key: string]: unknown
           })
         | null
+      vk_ads?: {
+        counter_id?: string | null
+        enabled?: boolean
+      }
       /** @description Funnel event capture is enabled for this branch */
       analytics_funnel_enabled?: boolean
       /** @description Trusted advertising link tracking is enabled for this branch */

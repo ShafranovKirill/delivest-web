@@ -2,6 +2,7 @@
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMetrikaAnalytics } from '@/modules/analytics/useMetrikaAnalytics'
+import { useTopMailAnalytics } from '@/modules/analytics/useTopMailAnalytics'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
@@ -29,6 +30,7 @@ const analytics = useFunnelAnalytics()
 const route = useRoute()
 const metrika = useMetrikaAnalytics()
 metrika.start()
+useTopMailAnalytics()
 watch(() => route.fullPath, () => metrika.page(), { immediate: true })
 useSourceClaim()
 watch(

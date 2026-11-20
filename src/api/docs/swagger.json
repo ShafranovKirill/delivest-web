@@ -1681,6 +1681,18 @@
             },
             "type": "object"
           },
+          "vk_ads": {
+            "properties": {
+              "counter_id": {
+                "nullable": true,
+                "type": "string"
+              },
+              "enabled": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
           "analytics_funnel_enabled": {
             "description": "Funnel event capture is enabled for this branch",
             "type": "boolean"
