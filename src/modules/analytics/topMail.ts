@@ -68,7 +68,10 @@ export function topMailPublicUrl(href: string, origin: string, slug: string): st
     if (parts[0] !== slug) return null
     if (
       parts.length === 1 ||
-      (parts.length === 3 && ['product', 'category'].includes(parts[1]!) && KEY.test(parts[2]!))
+      (parts.length === 2 && ['promotions', 'branch-info', 'contacts'].includes(parts[1]!)) ||
+      (parts.length === 3 &&
+        ((['product', 'category'].includes(parts[1]!) && KEY.test(parts[2]!)) ||
+          (parts[1] === 'legal' && ['offer', 'terms', 'privacy', 'consent'].includes(parts[2]!))))
     ) {
       return `${origin}/${parts.join('/')}`
     }

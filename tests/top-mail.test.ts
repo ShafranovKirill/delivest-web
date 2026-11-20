@@ -49,10 +49,33 @@ describe('Top.Mail.Ru public page tracking', () => {
     expect(
       topMailPublicUrl('https://shop.test/center/category/sushi', 'https://shop.test', 'center'),
     ).toBe('https://shop.test/center/category/sushi')
+    for (const path of [
+      'promotions',
+      'branch-info',
+      'contacts',
+      'legal/offer',
+      'legal/terms',
+      'legal/privacy',
+      'legal/consent',
+    ]) {
+      expect(
+        topMailPublicUrl(
+          `https://shop.test/center/${path}?phone=secret#section`,
+          'https://shop.test',
+          'center',
+        ),
+      ).toBe(`https://shop.test/center/${path}`)
+    }
     for (const url of [
       'https://shop.test/other',
       'https://shop.test/center/checkout/order/123',
       'https://shop.test/center/account',
+      'https://shop.test/center/orders',
+      'https://shop.test/center/stars',
+      'https://shop.test/center/addresses',
+      'https://shop.test/center/notification-channels',
+      'https://shop.test/center/legal/account',
+      'https://shop.test/center/legal/privacy/extra',
       'https://shop.test/select-branch',
       'https://elsewhere.test/center',
     ])
