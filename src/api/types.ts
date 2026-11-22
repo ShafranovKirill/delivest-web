@@ -2181,8 +2181,10 @@ export interface components {
         /** Format: date-time */
         until?: string | null
       }
+      /** @description Эффективный режим технических работ витрины */
       maintenance?: {
         enabled: boolean
+        /** @enum {string|null} */
         reason: 'franchise' | 'branch' | null
       }
       /**
