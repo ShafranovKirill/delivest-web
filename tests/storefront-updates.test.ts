@@ -2,15 +2,18 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
 
 const pilot = '11111111-1111-4111-8111-111111111111'
-const { branch, auth, getSocket, loadManifest, invalidateQueries, channelOn } = vi.hoisted(() => ({
-  branch: { activeBranch: { id: '11111111-1111-4111-8111-111111111111' }, refreshBranches: vi.fn() },
+const { branch, auth, getSocket, loadManifest, invalidateQueries, channelOn, getBranches, getFranchise, setFranchise } = vi.hoisted(() => ({
+  branch: { activeBranch: { id: '11111111-1111-4111-8111-111111111111' }, refreshBranches: vi.fn(), setBranches: vi.fn() },
   auth: { sessionEpoch: 1 },
   getSocket: vi.fn(), loadManifest: vi.fn(), invalidateQueries: vi.fn(), channelOn: vi.fn(),
+  getBranches: vi.fn(), getFranchise: vi.fn(), setFranchise: vi.fn(),
 }))
 
 vi.mock('@/modules/branch/stores/branch.store', () => ({ useBranchStore: () => branch }))
 vi.mock('@/modules/auth/stores/auth.store', () => ({ useAuthStore: () => auth }))
-vi.mock('@/modules/franchise/stores/franchise.store', () => ({ useFranchiseStore: () => ({ init: vi.fn() }) }))
+vi.mock('@/modules/franchise/stores/franchise.store', () => ({ useFranchiseStore: () => ({ setFranchise }) }))
+vi.mock('@/modules/franchise/api/franchise.service', () => ({ FranchiseService: { getFranchise } }))
+vi.mock('@/modules/branch/api/branch.service', () => ({ BranchService: { getBranches } }))
 vi.mock('@/modules/analytics/useMetrikaAnalytics', () => ({ useMetrikaAnalytics: () => ({
   disable: vi.fn(), applyConfig: vi.fn(), revalidate: vi.fn(), confirmWatermark: vi.fn(),
 }) }))
@@ -34,6 +37,10 @@ beforeEach(() => {
   })
   invalidateQueries.mockReset()
   channelOn.mockReset()
+  getBranches.mockReset().mockResolvedValue([])
+  getFranchise.mockReset().mockResolvedValue({ maintenance_enabled: false })
+  branch.setBranches.mockReset()
+  setFranchise.mockReset()
   const channel = { on: channelOn, join: () => ({ receive: vi.fn() }), leave: vi.fn() }
   getSocket.mockResolvedValue({ channel: () => channel })
   vi.stubGlobal('document', { visibilityState: 'visible', addEventListener: vi.fn(), removeEventListener: vi.fn() })
@@ -58,5 +65,29 @@ it('applies a socket revision to menu queries', async () => {
   expect(revision).toBeTypeOf('function')
   revision({ revisions: { menu: '2' }, valid_until: new Date(Date.now() + 60_000).toISOString() })
   expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['menu', pilot, 'ru'] })
+  scope.stop()
+})
+
+it('retries a failed branch refresh for the same franchise revision', async () => {
+  const scope = effectScope()
+  scope.run(() => useStorefrontUpdates())
+  await Promise.resolve()
+  const revision = channelOn.mock.calls.find(call => call[0] === 'revision')?.[1] as ((value: unknown) => void)
+  getBranches.mockRejectedValueOnce(new Error('temporary failure')).mockResolvedValueOnce([{ id: pilot }])
+  const watermark = {
+    revisions: { franchise: 'new', branches: 'same' },
+    valid_until: new Date(Date.now() + 60_000).toISOString(),
+  }
+  revision(watermark)
+  await Promise.resolve()
+  await Promise.resolve()
+  expect(branch.setBranches).not.toHaveBeenCalled()
+
+  revision(watermark)
+  await Promise.resolve()
+  await Promise.resolve()
+  expect(getBranches).toHaveBeenCalledTimes(2)
+  expect(branch.setBranches).toHaveBeenCalledOnce()
+  expect(setFranchise).toHaveBeenCalledOnce()
   scope.stop()
 })

@@ -8,12 +8,28 @@ import { useBrandColor } from '@/modules/franchise/composables/useBrandColor'
 import AppToast from '@/modules/shared/components/ui/AppToast.vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { useRoute } from 'vue-router'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useStorefrontUpdates } from '@/modules/branch/composables/useStorefrontUpdates'
+import MaintenanceView from '@/modules/branch/views/MaintenanceView.vue'
 
 useThemeStore()
 useBrandColor()
 const localeStore = useLocaleStore()
 const franchiseStore = useFranchiseStore()
 const authStore = useAuthStore()
+const branchStore = useBranchStore()
+const route = useRoute()
+useStorefrontUpdates()
+const maintenance = computed(() => {
+  if (route.name === 'order-confirmation' || route.name === 'my-orders') return false
+  if (franchiseStore.franchise?.maintenance_enabled) return true
+  return route.name !== 'select-branch' && branchStore.activeBranch?.branch_info?.maintenance?.enabled === true
+})
+let selectionRefresh: ReturnType<typeof setInterval> | undefined
+function refreshSelection() {
+  if (route.name === 'select-branch' && document.visibilityState === 'visible') void franchiseStore.init()
+}
 function retryPushCleanup() {
   window.location.reload()
 }
@@ -38,11 +54,15 @@ onMounted(() => {
   online.value = navigator.onLine
   window.addEventListener('offline', onOffline)
   window.addEventListener('online', onOnline)
+  selectionRefresh = setInterval(refreshSelection, 20_000)
+  document.addEventListener('visibilitychange', refreshSelection)
 })
 onUnmounted(() => {
   clearTimeout(reconnectTimer)
   window.removeEventListener('offline', onOffline)
   window.removeEventListener('online', onOnline)
+  clearInterval(selectionRefresh)
+  document.removeEventListener('visibilitychange', refreshSelection)
 })
 
 useHead({
@@ -70,5 +90,6 @@ useHead({
   >
     {{ online ? t('errors.reconnected') : t('errors.offline') }}
   </div>
-  <RouterView />
+  <MaintenanceView v-if="maintenance" />
+  <RouterView v-else />
 </template>

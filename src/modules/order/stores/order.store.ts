@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { OrderService, type Order, type CreateOrderPayload } from '../api/order.service'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
 import { getApiErrorCode, getApiErrorMessage } from '@/api/errors'
 import { queryClient } from '@/api/client'
@@ -185,6 +186,10 @@ export const useOrderStore = defineStore('order', () => {
       }
       if (errorCode === 'fulfillment_unavailable') {
         await branchStore.refreshBranches().catch(() => null)
+      }
+      if (errorCode === 'storefront_maintenance') {
+        await branchStore.refreshBranches().catch(() => null)
+        await useFranchiseStore().init().catch(() => null)
       }
       if (PRICE_ERRORS.includes(errorCode ?? '')) {
         await cartStore.fetchCart(branchId, true).catch(() => null)

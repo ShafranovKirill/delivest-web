@@ -1,6 +1,13 @@
 import type { ru } from './ru'
 
 export const en: typeof ru = {
+  maintenance: {
+    kicker: 'We will be back soon',
+    title: 'The site is under maintenance',
+    description: 'We are updating the storefront. Orders already placed are still being processed.',
+    activeOrder: 'Open active order',
+    otherBranch: 'Choose another branch',
+  },
   notifications: {
     offers: 'Offers',
     orderUpdates: 'Orders and account',
@@ -152,6 +159,7 @@ export const en: typeof ru = {
       fulfillment_unavailable:
         'This fulfillment method is unavailable. Choose another method or branch',
       branch_paused: 'This branch is not taking orders for now. Please try again later',
+      storefront_maintenance: 'The site is under maintenance. Please try again later',
       branch_closed: 'The branch is closed. Choose another time or branch',
       cook_by_in_past: 'Choose an order time in the future',
       cook_by_outside_hours: 'Choose a time during the branch’s opening hours',

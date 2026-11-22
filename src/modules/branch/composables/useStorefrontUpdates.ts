@@ -7,6 +7,8 @@ import { currentLocale } from '@/i18n'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { useBranchStore } from '../stores/branch.store'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
+import { FranchiseService } from '@/modules/franchise/api/franchise.service'
+import { BranchService } from '../api/branch.service'
 import { useMetrikaAnalytics } from '@/modules/analytics/useMetrikaAnalytics'
 
 export function useStorefrontUpdates() {
@@ -18,6 +20,9 @@ export function useStorefrontUpdates() {
   let generation = 0
   let lastWatermark = Date.now()
   let manifestPending = false
+  let settingsPending = false
+  let appliedFranchiseRevision: string | number | undefined
+  let appliedBranchesRevision: string | number | undefined
 
   function apply(branchId: string, watermark: StorefrontWatermark) {
     if (branch.activeBranch?.id !== branchId) return
@@ -39,8 +44,28 @@ export function useStorefrontUpdates() {
       renewMenuValidity(branchId, currentLocale(), watermark.valid_until)
     }
     if (changed('stories')) void queryClient.invalidateQueries({ queryKey: ['stocks', branchId] })
-    if (changed('franchise')) void franchise.init()
-    if (changed('branches')) void branch.refreshBranches()
+    if (!settingsPending &&
+      (appliedFranchiseRevision !== watermark.revisions.franchise ||
+        appliedBranchesRevision !== watermark.revisions.branches)) {
+      settingsPending = true
+      const current = generation
+      void (async () => {
+        try {
+          const [nextFranchise, nextBranches] = await Promise.all([
+            appliedFranchiseRevision !== watermark.revisions.franchise
+              ? FranchiseService.getFranchise()
+              : Promise.resolve(null),
+            BranchService.getBranches(),
+          ])
+          if (current !== generation) return
+          if (nextFranchise) franchise.setFranchise(nextFranchise)
+          branch.setBranches(nextBranches)
+          appliedFranchiseRevision = watermark.revisions.franchise
+          appliedBranchesRevision = watermark.revisions.branches
+        } catch { /* The next watermark retries the same revision. */ }
+        finally { settingsPending = false }
+      })()
+    }
   }
 
   function disconnect() { channel?.leave(); channel = null }
@@ -61,6 +86,8 @@ export function useStorefrontUpdates() {
     generation++
     disconnect()
     lastWatermark = Date.now()
+    appliedFranchiseRevision = branchId ? previousWatermark(branchId)?.revisions.franchise : undefined
+    appliedBranchesRevision = branchId ? previousWatermark(branchId)?.revisions.branches : undefined
     if (branchId) void connect(branchId, epoch, generation)
   }, { immediate: true })
 

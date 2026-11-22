@@ -1681,6 +1681,7 @@ export interface components {
         client_auth: boolean
         /** @description Клиенты должны войти перед оформлением заказа */
         client_auth_required: boolean
+        maintenance_enabled?: boolean
         /**
          * @description Цвет для тёмной темы; если пусто, подбирается из основного
          * @example #b86a69
@@ -2011,6 +2012,7 @@ export interface components {
         | 'delivery_below_minimum'
         | 'delivery_outside_zones'
         | 'branch_paused'
+        | 'storefront_maintenance'
         | 'branch_closed'
         | 'cook_by_in_past'
         | 'cook_by_outside_hours'
@@ -2178,6 +2180,10 @@ export interface components {
         reason?: string | null
         /** Format: date-time */
         until?: string | null
+      }
+      maintenance?: {
+        enabled: boolean
+        reason: 'franchise' | 'branch' | null
       }
       /**
        * Format: float
@@ -3266,6 +3272,15 @@ export interface operations {
       }
       /** @description Сервис оплаты недоступен */
       502: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description На витрине технические работы */
+      503: {
         headers: {
           [name: string]: unknown
         }
