@@ -2179,10 +2179,10 @@ export interface components {
         [key: string]: unknown
       }
       /**
-       * @description Полный фиксированный срок доставки; при отсутствии настройки 60 минут
+       * @description Общий срок доставки до выбора адреса: фиксированное время или базовый расчёт
        * @example 30
        */
-      delivery_time?: number | null
+      delivery_time?: number
       fixed_delivery_minutes?: number
       kitchen_minutes?: number
       packing_minutes?: number
