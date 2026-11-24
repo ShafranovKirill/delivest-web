@@ -292,6 +292,7 @@ export const en: typeof ru = {
       unavailable: 'Ordering unavailable',
 
       title: "What's your address?",
+      methodTitle: 'How would you like to receive your order?',
       text: "We want to make sure you're in the delivery area. We'll save the address for future orders.",
       delivery: 'Set delivery address',
       pickup: "I'll pick it up",
@@ -303,6 +304,7 @@ export const en: typeof ru = {
     },
     form: {
       fullAddress: 'Street, house',
+      city: 'City',
       suggestionError: 'Could not load address suggestions.',
       locateError: 'Could not find the address on the map.',
       houseNotFound: 'No house found at this point. Move the map or retry.',

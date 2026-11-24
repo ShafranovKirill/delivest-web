@@ -4,7 +4,12 @@ import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import Cookies from 'js-cookie'
 import { BranchService, type Branch } from '../api/branch.service'
 import { useBranchSchedule } from '../composables/useBranchSchedule'
-import { loadStorefront, rememberMenuValidity, rememberWatermark, seedAdvertisingConfig } from '@/api/storefront'
+import {
+  loadStorefront,
+  rememberMenuValidity,
+  rememberWatermark,
+  seedAdvertisingConfig,
+} from '@/api/storefront'
 import { queryClient } from '@/api/client'
 import { currentLocale } from '@/i18n'
 import { primeSession } from '@/router/primeSession'
@@ -72,7 +77,8 @@ export const useBranchStore = defineStore('branch', () => {
     const generation = ++bootstrapGeneration
     const requestedLocale = currentLocale()
     const response = await loadStorefront(slug, slug ? undefined : readSavedBranchId())
-    if (generation !== bootstrapGeneration || requestedLocale !== currentLocale()) throw new Error('Superseded storefront response')
+    if (generation !== bootstrapGeneration || requestedLocale !== currentLocale())
+      throw new Error('Superseded storefront response')
     if (slug && response.selected_branch?.slug !== slug) throw new Error('Branch not found')
     franchiseStore.setFranchise(response.franchise)
     branches.value = response.branches as Branch[]
@@ -86,10 +92,13 @@ export const useBranchStore = defineStore('branch', () => {
       rememberWatermark(id, { revisions: response.revisions, valid_until: response.valid_until })
       writeSavedBranchId(id)
       if (response.menu) {
-        queryClient.setQueryData(['menu', id, requestedLocale], response.menu, { updatedAt: Date.now() })
+        queryClient.setQueryData(['menu', id, requestedLocale], response.menu, {
+          updatedAt: Date.now(),
+        })
         rememberMenuValidity(id, requestedLocale, response.valid_until)
       }
-      if (response.stories) queryClient.setQueryData(['stocks', id], response.stories, { updatedAt: Date.now() })
+      if (response.stories)
+        queryClient.setQueryData(['stocks', id], response.stories, { updatedAt: Date.now() })
     }
     isInitialized.value = true
     return response
@@ -157,6 +166,9 @@ export const useBranchStore = defineStore('branch', () => {
       activeBranch.value?.branch_info?.delivery?.map_address === false &&
       activeBranch.value?.branch_info?.delivery?.operator_address === true,
   )
+  const showCity = computed(
+    () => !mapAddress.value && activeBranch.value?.branch_info?.delivery?.show_city === true,
+  )
 
   return {
     branches,
@@ -167,6 +179,7 @@ export const useBranchStore = defineStore('branch', () => {
     addressModeSet,
     requiresCoordinates,
     operatorAddress,
+    showCity,
     openModal,
     closeModal,
     toggleModal,

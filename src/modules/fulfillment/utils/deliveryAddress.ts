@@ -113,6 +113,10 @@ export function isComplete(address: DeliveryAddress, allowStreetOnly = false): b
   )
 }
 
+export function isManualAddressReady(address: DeliveryAddress, requireCity: boolean): boolean {
+  return isComplete(address, true) && (!requireCity || Boolean(address.city.trim()))
+}
+
 const normalizeCity = (city: string) =>
   city
     .trim()

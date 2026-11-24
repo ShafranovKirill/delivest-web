@@ -18,7 +18,10 @@ const { hint, blocked } = useDeliveryQuote()
 
 const summary = computed(() => {
   const choice = fulfillmentStore.current
-  if (!choice) return null
+  if (!choice)
+    return flowStore.manualDeliverySelected
+      ? { illustration: 'delivery' as const, title: t('order.form.delivery'), text: '' }
+      : null
   if (choice.type === 'pickup') {
     return {
       illustration: 'pickup' as const,
