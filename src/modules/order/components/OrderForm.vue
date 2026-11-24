@@ -167,6 +167,9 @@ watch(
 const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
   isDelivery.value ? 'delivery' : pickupKind.value,
 )
+const hasFulfillmentChoice = computed(() =>
+  Boolean(fulfillmentStore.current || flowStore.manualDeliverySelected),
+)
 const orderTime = useOrderTime(
   fulfillmentType,
   computed(() => (delivery.quote.value?.status === 'ok' ? delivery.quote.value.minutes : null)),
@@ -188,9 +191,9 @@ watch(
 )
 
 watch(
-  [fulfillmentType, () => fulfillmentStore.current, () => flowStore.manualDeliverySelected],
-  ([type, choice, manualSelected]) => {
-    if (choice || manualSelected) cartStore.setFulfillment(type).catch(console.error)
+  [fulfillmentType, () => branchStore.activeBranch?.id, hasFulfillmentChoice],
+  ([type, , hasChoice]) => {
+    if (hasChoice) cartStore.setFulfillment(type).catch(console.error)
   },
   { immediate: true },
 )
