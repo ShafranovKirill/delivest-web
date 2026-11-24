@@ -2147,6 +2147,7 @@ export interface components {
      * @description Курьер, который взял заказ. Есть с назначения курьера до вручения
      */
     OrderCourier: {
+      /** @enum {string} */
       provider?: 'staff' | 'yandex'
       /** @example Иван */
       name: string | null
