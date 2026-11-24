@@ -5,12 +5,13 @@ import AddressSuggestInput from './AddressSuggestInput.vue'
 import InputText from 'primevue/inputtext'
 import FloatLabel from 'primevue/floatlabel'
 import type { GeoAddress } from '../../api/geo.service'
-import { shortAddressLabel, type DeliveryAddress } from '../../utils/deliveryAddress'
+import { shortAddressLabel, streetLine, type DeliveryAddress } from '../../utils/deliveryAddress'
 import { parseAddress } from '../../utils/parseAddress'
 
 const props = defineProps<{
   suggest: boolean
   manual?: boolean
+  showCity?: boolean
   city: string | null
   floatingLabels?: boolean
 }>()
@@ -20,7 +21,7 @@ const { t } = useI18n()
 
 function addressText(value: DeliveryAddress) {
   if (!value.street && !value.house && !value.geo) return ''
-  if (props.manual && value.street && !value.house) return value.street
+  if (props.manual) return streetLine(value)
   return shortAddressLabel(value, value.geo?.formatted)
 }
 
@@ -43,12 +44,23 @@ function editAddress(value: string) {
   editing = true
   address.value = {
     ...address.value,
-    ...(props.manual && !(parsed.street && parsed.house) ? { street: value, house: '' } : parsed),
+    ...(props.manual
+      ? { city: address.value.city, street: parsed.street || value, house: parsed.house }
+      : parsed),
     geo: null,
     latitude: null,
     longitude: null,
   }
   emit('edit')
+}
+
+function updateCity(value: string | undefined) {
+  address.value = { ...address.value, city: value ?? '' }
+  emit('edit')
+}
+
+function updateDetail(field: (typeof details)[number], value: string | undefined) {
+  address.value = { ...address.value, [field]: value ?? '' }
 }
 
 function selectAddress(value: GeoAddress) {
@@ -63,11 +75,20 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
 
 <template>
   <div class="flex flex-col" :class="floatingLabels ? 'gap-3' : 'gap-4'">
+    <FloatLabel v-if="manual && showCity" variant="in" class="block min-w-0">
+      <InputText
+        :id="`${detailsId}-city`"
+        :model-value="address.city"
+        class="h-12! w-full min-w-0 border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white! dark:focus:bg-(--surface-card)!"
+        @update:model-value="updateCity"
+      />
+      <label :for="`${detailsId}-city`" class="left-4!">{{ t('fulfillment.form.city') }}</label>
+    </FloatLabel>
     <AddressSuggestInput
       :value="inputValue"
       :suggest="suggest"
       :city="city"
-      :label="t('fulfillment.form.fullAddress')"
+      :label="t(manual ? 'fulfillment.form.streetHouse' : 'fulfillment.form.fullAddress')"
       :floating-labels="floatingLabels"
       @select="selectAddress"
       @edit="editAddress"
@@ -83,7 +104,8 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
         >
           <InputText
             :id="`${detailsId}-${field}`"
-            v-model="address[field]"
+            :model-value="address[field]"
+            @update:model-value="updateDetail(field, $event)"
             class="h-12! w-full min-w-0 border-gray-200! bg-gray-50! px-4! pt-5! pb-1! text-base! focus:bg-white! dark:focus:bg-(--surface-card)!"
           />
           <label :for="`${detailsId}-${field}`" class="left-4!">{{
@@ -98,7 +120,8 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
           </label>
           <InputText
             :id="`${detailsId}-${field}`"
-            v-model="address[field]"
+            :model-value="address[field]"
+            @update:model-value="updateDetail(field, $event)"
             class="h-12! w-full min-w-0 border-gray-200! bg-gray-50! px-4! text-base! focus:bg-white! dark:focus:bg-(--surface-card)!"
           />
         </div>

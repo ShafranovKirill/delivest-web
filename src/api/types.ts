@@ -1502,6 +1502,15 @@ export interface components {
         customer_phone?: string | null
         /** @example 1234 */
         customer_phone_ext?: string | null
+        /** Format: date_time */
+        estimated_delivery_at?: string | null
+        /** Format: date_time */
+        estimated_ready_at?: string | null
+        /**
+         * Format: date_time
+         * @description Подтверждённый крайний срок вручения (UTC), не желаемое cook_by
+         */
+        promised_delivery_at?: string | null
         /**
          * @description Стоимость доставки, входит в total_amount
          * @example 20000
@@ -1789,6 +1798,8 @@ export interface components {
         id: string
         items: components['schemas']['CartItemResponse'][]
         points_earned?: number
+        /** @description Оценка готовности корзины в расчётном режиме */
+        prep_minutes?: number | null
         product_stars?: number
         promo_code?: components['schemas']['PromoCodeState']
         promotions: components['schemas']['AppliedPromotion'][]
@@ -2078,6 +2089,15 @@ export interface components {
       /** Format: date_time */
       cook_by?: string | null
       courier: components['schemas']['OrderCourier']
+      /** Format: date_time */
+      estimated_delivery_at?: string | null
+      /** Format: date_time */
+      estimated_ready_at?: string | null
+      /**
+       * Format: date_time
+       * @description Подтверждённый крайний срок вручения (UTC)
+       */
+      promised_delivery_at?: string | null
       /**
        * @description Стоимость доставки, входит в total_amount
        * @example 20000
@@ -2159,10 +2179,16 @@ export interface components {
         [key: string]: unknown
       }
       /**
-       * @description Минуты до готовности вместе с добавкой на загрузку
+       * @description Общий срок доставки до выбора адреса: фиксированное время или базовый расчёт
        * @example 30
        */
-      delivery_time?: number | null
+      delivery_time?: number
+      fixed_delivery_minutes?: number
+      kitchen_minutes?: number
+      packing_minutes?: number
+      /** @enum {string} */
+      timing_mode?: 'fixed' | 'calculated'
+      travel_minutes?: number
       /** @description Включённые способы получения заказа */
       fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
       /**

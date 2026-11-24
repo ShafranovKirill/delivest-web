@@ -1,14 +1,20 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { parseAddress } from '../src/modules/fulfillment/utils/parseAddress'
+import { ref } from 'vue'
+import { emptyDeliveryAddress } from '../src/modules/fulfillment/utils/deliveryAddress'
 
 const reverse = vi.fn()
 const suggest = vi.fn()
 vi.mock('../src/modules/fulfillment/api/geo.service', () => ({ GeoService: { reverse, suggest } }))
+vi.mock('@/modules/branch/stores/branch.store', () => ({
+  useBranchStore: () => ({ activeBranch: null, branches: [], mapAddress: true }),
+}))
 
 const { useReverseGeocode } =
   await import('../src/modules/fulfillment/composables/useReverseGeocode')
 const { useAddressSuggestions } =
   await import('../src/modules/fulfillment/composables/useAddressSuggestions')
+const { useAddressEditor } = await import('../src/modules/fulfillment/composables/useAddressEditor')
 
 afterEach(() => {
   vi.useRealTimers()
@@ -58,6 +64,40 @@ describe('reverse geocode', () => {
     await vi.advanceTimersByTimeAsync(700)
     expect(flow.notFound.value).toBe(true)
     expect(found).toHaveBeenCalledWith(null, [1, 2])
+  })
+})
+
+describe('map pin selection', () => {
+  it('clears the previous address while moving and ignores a late reverse result after manual edit', async () => {
+    vi.useFakeTimers()
+    let finish!: (value: unknown) => void
+    reverse.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve
+        }),
+    )
+    const address = ref({
+      ...emptyDeliveryAddress('Москва'),
+      street: 'Старая',
+      house: '7',
+      latitude: 55,
+      longitude: 37,
+    })
+    const editor = useAddressEditor(address, () => true)
+    expect(editor.isReady.value).toBe(true)
+    editor.startMoving()
+    expect(editor.isReady.value).toBe(false)
+    expect(address.value.street).toBe('')
+    expect(address.value.latitude).toBeNull()
+
+    editor.locate([38, 56], 17)
+    await vi.advanceTimersByTimeAsync(700)
+    address.value = { ...address.value, street: 'Вручную' }
+    finish({ value: 'Поздний ответ', city: 'Москва', street: 'Поздняя', house: '8' })
+    await Promise.resolve()
+    expect(address.value.street).toBe('Вручную')
+    expect(editor.isReady.value).toBe(false)
   })
 })
 

@@ -8,9 +8,14 @@ const branch = reactive<{
     branch_info: {
       timezone: string
       delivery_time: number
+      fixed_delivery_minutes?: number
+      timing_mode?: 'fixed' | 'calculated'
+      kitchen_minutes?: number
+      packing_minutes?: number
+      travel_minutes?: number
       working_hours: Record<string, Schedule> | null
       special_hours: Record<string, Schedule> | null
-      intake: { mode: string }
+      intake: { mode: string; extra_minutes?: number }
     }
   }
 }>({
@@ -41,6 +46,12 @@ beforeEach(() => {
   vi.setSystemTime(new Date('2026-11-16T07:15:30Z'))
   branch.activeBranch.branch_info.timezone = 'Europe/Moscow'
   branch.activeBranch.branch_info.delivery_time = 30
+  branch.activeBranch.branch_info.fixed_delivery_minutes = undefined
+  branch.activeBranch.branch_info.timing_mode = 'fixed'
+  branch.activeBranch.branch_info.kitchen_minutes = undefined
+  branch.activeBranch.branch_info.packing_minutes = undefined
+  branch.activeBranch.branch_info.travel_minutes = undefined
+  branch.activeBranch.branch_info.intake.extra_minutes = undefined
   branch.activeBranch.branch_info.working_hours = null
   branch.activeBranch.branch_info.special_hours = null
   branch.activeBranch.branch_info.intake.mode = 'open'
@@ -48,6 +59,35 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers())
 
 describe('useOrderTime', () => {
+  it('uses the full fixed delivery value without changing for zone or cart', () => {
+    branch.activeBranch.branch_info.fixed_delivery_minutes = 45
+    const zone = ref<number | null>(20)
+    const prep = ref<number | null>(16)
+    const result = useOrderTime(ref('delivery'), zone, prep)
+    expect(result.leadMinutes.value).toBe(45)
+    zone.value = 55
+    prep.value = 31
+    expect(result.leadMinutes.value).toBe(45)
+  })
+
+  it('combines cart preparation and zone travel only in calculated mode', () => {
+    branch.activeBranch.branch_info.timing_mode = 'calculated'
+    branch.activeBranch.branch_info.kitchen_minutes = 25
+    branch.activeBranch.branch_info.packing_minutes = 3
+    branch.activeBranch.branch_info.travel_minutes = 35
+    branch.activeBranch.branch_info.intake.extra_minutes = 10
+    const fulfillment = ref<'delivery' | 'pickup'>('delivery')
+    const zone = ref<number | null>(null)
+    const prep = ref<number | null>(null)
+    const result = useOrderTime(fulfillment, zone, prep)
+    expect(result.leadMinutes.value).toBe(73)
+    prep.value = 31
+    zone.value = 20
+    expect(result.leadMinutes.value).toBe(51)
+    fulfillment.value = 'pickup'
+    expect(result.leadMinutes.value).toBe(31)
+  })
+
   it('shows exact minutes and the next three branch calendar days, including 24/7 carryover', () => {
     const result = useOrderTime(ref('delivery'))
     expect(result.days.value.map((day) => day.key)).toEqual([

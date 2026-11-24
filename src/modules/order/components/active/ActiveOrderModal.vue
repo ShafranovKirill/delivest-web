@@ -149,6 +149,11 @@ const placedDate = computed(() =>
           </p>
           <p class="mt-1 font-semibold text-gray-950">{{ paymentLabel(order.payment_method) }}</p>
         </div>
+        <div v-if="order.fulfillment_type === 'delivery' && order.promised_delivery_at" class="col-span-2">
+          <p class="font-semibold text-primary-strong">
+            {{ t('order.confirmedDeliveryBy', { time: formatTime(order.promised_delivery_at) }) }}
+          </p>
+        </div>
         <div v-if="order.comment" class="col-span-2 min-w-0">
           <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">
             {{ t('order.comment') }}

@@ -42,6 +42,10 @@ const place = computed(() =>
     : branchStore.activeBranch?.branch_info?.address || t('order.atBranch'),
 )
 const eta = computed(() => {
+  if (props.order.fulfillment_type === 'delivery' && props.order.promised_delivery_at)
+    return t('order.confirmedDeliveryBy', {
+      time: formatDateTime(props.order.promised_delivery_at),
+    })
   if (
     props.order.status === 'cancelled' ||
     props.order.status === 'completed' ||
@@ -49,16 +53,24 @@ const eta = computed(() => {
   )
     return null
   if (props.order.cook_by) return t('order.cookBy', { time: formatDateTime(props.order.cook_by) })
-  const configured = branchStore.activeBranch?.branch_info?.delivery_time
-  if (typeof configured !== 'number' || configured <= 0) return null
-  const minutes =
-    props.order.fulfillment_type === 'delivery'
-      ? configured
-      : Math.max(20, Math.round(configured / 2))
+  if (props.order.fulfillment_type === 'delivery' && props.order.estimated_delivery_at)
+    return t('order.estimatedDeliveryBy', {
+      time: formatDateTime(props.order.estimated_delivery_at),
+    })
+  if (props.order.estimated_ready_at)
+    return t('order.cookBy', { time: formatDateTime(props.order.estimated_ready_at) })
+  const info = branchStore.activeBranch?.branch_info
+  const configured = info?.fixed_delivery_minutes ?? info?.delivery_time
+  const minutes = typeof configured === 'number' && configured > 0 ? configured : 60
   return t(
     `order.timeSelect.${props.order.fulfillment_type === 'delivery' ? 'deliveryLead' : 'pickupLead'}`,
-    { minutes },
-  ).replace(/(\d) (\S+)/, '$1\u00a0$2')
+    {
+      minutes:
+        props.order.fulfillment_type === 'delivery'
+          ? minutes
+          : Math.max(20, Math.round(minutes / 2)),
+    },
+  )
 })
 const statusText = computed(() =>
   props.order.status === 'accepted' &&

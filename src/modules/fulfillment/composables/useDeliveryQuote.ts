@@ -39,7 +39,6 @@ export const useDeliveryQuote = (
       branchStore.requiresCoordinates ? (target.value?.latitude ?? null) : null,
       branchStore.requiresCoordinates ? (target.value?.longitude ?? null) : null,
       cartStore.totalAmount,
-      cartStore.revision,
     ]),
     queryFn: () =>
       DeliveryService.quote(

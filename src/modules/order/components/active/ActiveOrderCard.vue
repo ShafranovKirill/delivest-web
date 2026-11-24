@@ -71,6 +71,9 @@ const cardStatusLabel = computed(() => {
       <span v-if="order.cook_by" class="mt-3 block text-sm leading-snug text-gray-500">
         {{ t('order.cookBy', { time: formatTime(order.cook_by) }) }}
       </span>
+      <span v-if="order.fulfillment_type === 'delivery' && order.promised_delivery_at" class="mt-1 block text-sm font-semibold text-primary-strong">
+        {{ t('order.confirmedDeliveryBy', { time: formatTime(order.promised_delivery_at) }) }}
+      </span>
       <span
         class="block font-semibold tabular-nums text-gray-900"
         :class="order.cook_by ? 'mt-1' : 'mt-3'"

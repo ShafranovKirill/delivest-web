@@ -725,6 +725,9 @@
               "customer_name": { "example": "Иван", "nullable": true, "type": "string" },
               "customer_phone": { "example": "+79990000000", "nullable": true, "type": "string" },
               "customer_phone_ext": { "example": "1234", "nullable": true, "type": "string" },
+              "estimated_delivery_at": {"format": "date_time", "nullable": true, "type": "string"},
+              "estimated_ready_at": {"format": "date_time", "nullable": true, "type": "string"},
+              "promised_delivery_at": {"description": "Подтверждённый крайний срок вручения (UTC), не желаемое cook_by", "format": "date_time", "nullable": true, "type": "string"},
               "delivery_amount": {
                 "description": "Стоимость доставки, входит в total_amount",
                 "example": 20000,
@@ -1123,6 +1126,7 @@
                 "type": "array"
               },
               "points_earned": { "type": "integer" },
+              "prep_minutes": {"description": "Оценка готовности корзины в расчётном режиме", "nullable": true, "type": "integer"},
               "product_stars": { "type": "integer" },
               "promo_code": { "$ref": "#/components/schemas/PromoCodeState" },
               "promotions": {
@@ -1449,6 +1453,9 @@
           "comment": { "nullable": true, "type": "string" },
           "cook_by": { "format": "date_time", "nullable": true, "type": "string" },
           "courier": { "$ref": "#/components/schemas/OrderCourier" },
+          "estimated_delivery_at": {"format": "date_time", "nullable": true, "type": "string"},
+          "estimated_ready_at": {"format": "date_time", "nullable": true, "type": "string"},
+          "promised_delivery_at": {"description": "Подтверждённый крайний срок вручения (UTC)", "format": "date_time", "nullable": true, "type": "string"},
           "delivery_amount": {
             "description": "Стоимость доставки, входит в total_amount",
             "example": 20000,
@@ -1581,11 +1588,15 @@
             "type": "object"
           },
           "delivery_time": {
-            "description": "Минуты до готовности вместе с добавкой на загрузку",
+            "description": "Общий срок доставки до выбора адреса: фиксированное время или базовый расчёт",
             "example": "30",
-            "nullable": true,
             "type": "integer"
           },
+          "fixed_delivery_minutes": {"type": "integer"},
+          "kitchen_minutes": {"type": "integer"},
+          "packing_minutes": {"type": "integer"},
+          "timing_mode": {"enum": ["fixed", "calculated"], "type": "string"},
+          "travel_minutes": {"type": "integer"},
           "fulfillment_methods": {
             "description": "Включённые способы получения заказа",
             "items": { "enum": ["delivery", "pickup", "dine_in"], "type": "string" },

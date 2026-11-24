@@ -11,6 +11,7 @@ import PhoneInput from '@/modules/order/components/PhoneInput.vue'
 import OrderTimeSelect from '@/modules/order/components/OrderTimeSelect.vue'
 import { useOrderTime } from '@/modules/order/composables/useOrderTime'
 import OrderPickRow from '@/modules/order/components/OrderPickRow.vue'
+import DeliveryAddressForm from '@/modules/fulfillment/components/delivery/DeliveryAddressForm.vue'
 import { captionClass, sectionClass } from '@/modules/order/utils/formLayout'
 import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import { useBranchOpening } from '@/modules/branch/composables/useBranchOpening'
@@ -18,7 +19,11 @@ import { addDays } from '@/modules/branch/utils/workWindow'
 import { formatClock, sameDay } from '@/modules/branch/utils/zonedTime'
 import { intlLocale } from '@/i18n'
 import { formatAddress } from '@/modules/shared/utils/address'
-import type { DeliveryAddress } from '@/modules/fulfillment/utils/deliveryAddress'
+import {
+  emptyDeliveryAddress,
+  isManualAddressReady,
+  type DeliveryAddress,
+} from '@/modules/fulfillment/utils/deliveryAddress'
 import { useFulfillmentStore } from '@/modules/fulfillment/stores/fulfillment.store'
 import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
@@ -65,6 +70,8 @@ const fulfillmentStore = useFulfillmentStore()
 const flowStore = useFulfillmentFlowStore()
 const phoneSection = ref<HTMLElement | null>(null)
 const phoneError = ref(false)
+const addressError = ref(false)
+const addressSection = ref<HTMLElement | null>(null)
 
 type PickupKind = Extract<OrderFormValues['fulfillment_type'], 'pickup' | 'dine_in'>
 
@@ -96,10 +103,28 @@ const starsLabel = useStarsLabel()
 
 const isDelivery = computed(
   () =>
+    flowStore.manualDeliverySelected ||
     fulfillmentStore.current?.type === 'delivery' ||
     (!fulfillmentStore.current && fulfillmentStore.availableModes[0] === 'delivery'),
 )
 const canUseOperator = computed(() => isDelivery.value && branchStore.operatorAddress)
+const needsAddressEntry = computed(() => isDelivery.value && !branchStore.mapAddress)
+const inlineAddress = computed<DeliveryAddress>(() => {
+  const branchId = branchStore.activeBranch?.id ?? ''
+  return (
+    flowStore.addressDrafts[branchId] ??
+    (fulfillmentStore.current?.type === 'delivery' ? fulfillmentStore.current.address : null) ??
+    emptyDeliveryAddress(
+      branchStore.showCity ? '' : (branchStore.activeBranch?.branch_info?.city ?? ''),
+    )
+  )
+})
+const inlineAddressMissing = computed(
+  () =>
+    needsAddressEntry.value &&
+    !form.call_operator_for_address &&
+    !isManualAddressReady(inlineAddress.value, branchStore.showCity),
+)
 const authenticatedPhone = computed(() => {
   const phone = authStore.client?.phone
   return authStore.isAuthenticated && phone && /^\+7\d{10}$/.test(phone) ? phone : null
@@ -109,6 +134,27 @@ const delivery = useDeliveryQuote()
 
 const deliveryBlocked = computed(
   () => isDelivery.value && !form.call_operator_for_address && delivery.blocked.value,
+)
+
+watch(inlineAddressMissing, (missing) => {
+  if (!missing) addressError.value = false
+})
+watch(canUseOperator, (enabled) => {
+  if (!enabled) form.call_operator_for_address = false
+})
+watch(
+  () => form.call_operator_for_address,
+  (enabled) => {
+    if (!needsAddressEntry.value) return
+    const branchId = branchStore.activeBranch?.id
+    if (!branchId) return
+    fulfillmentStore.choose(
+      branchId,
+      enabled
+        ? { type: 'delivery', address: null, addressByOperator: true }
+        : { type: 'delivery', address: { ...inlineAddress.value } },
+    )
+  },
 )
 
 watch(
@@ -121,7 +167,14 @@ watch(
 const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
   isDelivery.value ? 'delivery' : pickupKind.value,
 )
-const orderTime = useOrderTime(fulfillmentType)
+const hasFulfillmentChoice = computed(() =>
+  Boolean(fulfillmentStore.current || flowStore.manualDeliverySelected),
+)
+const orderTime = useOrderTime(
+  fulfillmentType,
+  computed(() => (delivery.quote.value?.status === 'ok' ? delivery.quote.value.minutes : null)),
+  computed(() => cartStore.cart?.prep_minutes ?? null),
+)
 
 watch(
   authenticatedPhone,
@@ -138,9 +191,9 @@ watch(
 )
 
 watch(
-  () => fulfillmentStore.current,
-  (choice) => {
-    if (choice) cartStore.setFulfillment(fulfillmentType.value).catch(console.error)
+  [fulfillmentType, () => branchStore.activeBranch?.id, hasFulfillmentChoice],
+  ([type, , hasChoice]) => {
+    if (hasChoice) cartStore.setFulfillment(type).catch(console.error)
   },
   { immediate: true },
 )
@@ -150,6 +203,7 @@ watch(
     if (
       branchId &&
       !choice &&
+      !flowStore.manualDeliverySelected &&
       fulfillmentStore.canOrder &&
       !flowStore.isPickerOpen &&
       !flowStore.isPromptOpen
@@ -384,6 +438,18 @@ function openAddressPicker() {
   flowStore.openPicker(fulfillmentStore.current?.type ?? 'delivery')
 }
 
+function updateInlineAddress(address: DeliveryAddress) {
+  const branchId = branchStore.activeBranch?.id
+  if (!branchId) return
+  const normalized = {
+    ...address,
+    city: branchStore.showCity ? address.city : (branchStore.activeBranch?.branch_info?.city ?? ''),
+  }
+  flowStore.saveAddressDraft(branchId, normalized)
+  if (!form.call_operator_for_address)
+    fulfillmentStore.choose(branchId, { type: 'delivery', address: normalized })
+}
+
 function handleSubmit() {
   if (authStore.isRequired && !authStore.isAuthenticated) {
     if (authStore.isEnabled) {
@@ -411,6 +477,16 @@ function handleSubmit() {
   }
 
   if (!fulfillmentStore.canOrder) return
+
+  if (inlineAddressMissing.value) {
+    addressError.value = true
+    requestAnimationFrame(() => {
+      const input = addressSection.value?.querySelector<HTMLInputElement>('input')
+      input?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      input?.focus()
+    })
+    return
+  }
 
   if (!fulfillmentStore.current) {
     flowStore.openPicker(fulfillmentStore.availableModes[0] ?? 'delivery')
@@ -446,9 +522,14 @@ function handleSubmit() {
       <h2 class="text-xl font-bold text-gray-950">{{ headline }}</h2>
 
       <div v-if="!authenticatedPhone" ref="phoneSection" :class="sectionClass">
-        <label for="checkout-phone" :class="['block', captionClass]">{{ t('order.form.phoneCaption') }}</label>
+        <label for="checkout-phone" :class="['block', captionClass]">{{
+          t('order.form.phoneCaption')
+        }}</label>
         <div class="relative">
-          <span class="pointer-events-none absolute inset-y-0 start-4 z-10 grid w-8 place-items-center text-gray-900" aria-hidden="true">
+          <span
+            class="pointer-events-none absolute inset-y-0 start-4 z-10 grid w-8 place-items-center text-gray-900"
+            aria-hidden="true"
+          >
             <i class="pi pi-phone text-[19px]!" />
           </span>
           <PhoneInput
@@ -461,18 +542,21 @@ function handleSubmit() {
             :aria-describedby="phoneError ? 'checkout-phone-error' : undefined"
           />
         </div>
-        <p v-if="phoneError" id="checkout-phone-error" class="text-sm font-medium text-red-600" role="alert">
+        <p
+          v-if="phoneError"
+          id="checkout-phone-error"
+          class="text-sm font-medium text-red-600"
+          role="alert"
+        >
           {{ t('order.form.phoneError') }}
         </p>
       </div>
     </div>
 
     <div class="flex flex-col gap-5 lg:gap-6 lg:self-start">
-      <div :class="sectionClass">
+      <div ref="addressSection" :class="sectionClass">
         <p :class="[captionClass, 'sr-only lg:not-sr-only']">{{ addressCaption }}</p>
-        <div
-          class="flex flex-col gap-1.5 rounded-2xl bg-gray-100 p-1.5"
-        >
+        <div class="flex flex-col gap-1.5 rounded-2xl bg-gray-100 p-1.5">
           <div
             class="flex gap-1 rounded-xl bg-gray-200 p-1"
             role="group"
@@ -492,14 +576,30 @@ function handleSubmit() {
               @click="selectFulfillment(option.value)"
             >
               <span
-                v-if="isDelivery && option.value === 'dine_in' && fulfillmentStore.methods.includes('pickup')"
+                v-if="
+                  isDelivery &&
+                  option.value === 'dine_in' &&
+                  fulfillmentStore.methods.includes('pickup')
+                "
                 aria-hidden="true"
                 class="pointer-events-none absolute -start-0.5 top-1/2 h-5 w-px -translate-y-1/2 bg-gray-400/65"
               />
               {{ option.label }}
             </button>
           </div>
+          <DeliveryAddressForm
+            v-if="needsAddressEntry && !form.call_operator_for_address"
+            :model-value="inlineAddress"
+            :suggest="false"
+            manual
+            :show-city="branchStore.showCity"
+            :city="branchStore.activeBranch?.branch_info?.city ?? null"
+            floating-labels
+            class="px-2 pb-2"
+            @update:model-value="updateInlineAddress"
+          />
           <button
+            v-else
             type="button"
             class="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors duration-150 hover:bg-gray-200 focus-visible:bg-gray-200 motion-reduce:transition-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
             :aria-label="`${addressCaption}: ${addressRow.text || addressRow.title}`"
@@ -534,6 +634,21 @@ function handleSubmit() {
           </button>
         </div>
 
+        <label
+          v-if="canUseOperator"
+          class="mt-3 flex cursor-pointer items-center gap-2 text-sm text-gray-700"
+        >
+          <input v-model="form.call_operator_for_address" type="checkbox" class="accent-primary" />
+          {{ t('fulfillment.tellOperator') }}
+        </label>
+        <p
+          v-if="addressError && inlineAddressMissing"
+          class="mt-2 text-sm font-medium text-red-600"
+          role="alert"
+        >
+          {{ t('order.form.addressError') }}
+        </p>
+
         <p v-if="closedNotice" class="mt-2 text-sm font-medium text-amber-700">
           {{ closedNotice }}
         </p>
@@ -559,7 +674,11 @@ function handleSubmit() {
         </p>
       </div>
 
-      <OrderTimeSelect v-model="form.cook_by" :fulfillment="fulfillmentType" :order-time="orderTime" />
+      <OrderTimeSelect
+        v-model="form.cook_by"
+        :fulfillment="fulfillmentType"
+        :order-time="orderTime"
+      />
 
       <div :class="sectionClass">
         <p :class="captionClass">{{ t('order.form.paymentCaption') }}</p>
@@ -635,13 +754,18 @@ function handleSubmit() {
           <span class="grid h-8 w-8 shrink-0 place-items-center text-gray-900" aria-hidden="true">
             <i class="pi pi-star-fill text-[19px]!" />
           </span>
-          <span class="min-w-0 flex-1 text-sm font-medium leading-snug text-gray-900 sm:text-[15px]">
+          <span
+            class="min-w-0 flex-1 text-sm font-medium leading-snug text-gray-900 sm:text-[15px]"
+          >
             {{ t('loyalty.spend', { stars: starsLabel(maxStars) }) }}
           </span>
           <ToggleSwitch
             v-model="useStars"
             class="shrink-0"
-            style="--p-toggleswitch-background: var(--color-gray-200); --p-toggleswitch-hover-background: var(--color-gray-200)"
+            style="
+              --p-toggleswitch-background: var(--color-gray-200);
+              --p-toggleswitch-hover-background: var(--color-gray-200);
+            "
           />
         </label>
       </div>
@@ -672,7 +796,9 @@ function handleSubmit() {
               {{ deliveryFee ? formatPrice(deliveryFee) : t('common.free') }}
             </span>
           </button>
-          <div class="mt-1 flex justify-between border-t border-gray-200 pt-3 text-base font-bold text-gray-950">
+          <div
+            class="mt-1 flex justify-between border-t border-gray-200 pt-3 text-base font-bold text-gray-950"
+          >
             <span>{{ t('order.form.orderTotal') }}</span>
             <span class="tabular-nums">{{ formatPrice(orderTotal) }}</span>
           </div>
@@ -701,7 +827,9 @@ function handleSubmit() {
         <Button
           type="submit"
           :label="t('order.form.submit')"
-          :disabled="deliveryBlocked || !fulfillmentStore.canOrder || !orderTime.isAvailable(form.cook_by)"
+          :disabled="
+            deliveryBlocked || !fulfillmentStore.canOrder || !orderTime.isAvailable(form.cook_by)
+          "
           icon="pi pi-check"
           iconPos="right"
           :loading="isLoading"
