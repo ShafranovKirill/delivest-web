@@ -42,6 +42,8 @@ const place = computed(() =>
     : branchStore.activeBranch?.branch_info?.address || t('order.atBranch'),
 )
 const eta = computed(() => {
+  if (props.order.fulfillment_type === 'delivery' && props.order.promised_delivery_at)
+    return t('order.confirmedDeliveryBy', { time: formatDateTime(props.order.promised_delivery_at) })
   if (
     props.order.status === 'cancelled' ||
     props.order.status === 'completed' ||

@@ -550,6 +550,7 @@ export const ru = {
     number: 'Заказ {number}',
     placedAt: 'Оформлен в {time}',
     cookBy: 'К {time}',
+    confirmedDeliveryBy: 'Подтверждённое вручение до {time}',
     asap: 'Как можно скорее',
     time: 'Время',
     comment: 'Комментарий',
