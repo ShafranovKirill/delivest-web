@@ -21,12 +21,26 @@ import OrderPushPrompt from '@/modules/pwa/components/OrderPushPrompt.vue'
 import OrderReceiptIllustration from './OrderReceiptIllustration.vue'
 import { formatAddress, type AddressParts } from '@/modules/shared/utils/address'
 import { useI18n } from 'vue-i18n'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
+import { courierDetailsEnabled } from './courierVisibility'
 
 const props = defineProps<{ order: ActiveOrder | null; repeatable?: boolean }>()
 const emit = defineEmits<{ close: []; repeat: [] }>()
 
 const contactsStore = useContactsStore()
+const branchStore = useBranchStore()
 const { t, locale } = useI18n()
+
+const showCourier = computed(
+  () =>
+    props.order?.courier &&
+    courierDetailsEnabled(
+      props.order.branch_id,
+      props.order.courier.provider,
+      branchStore.branches,
+      branchStore.activeBranch,
+    ),
+)
 
 const visible = computed({
   get: () => props.order !== null,
@@ -111,7 +125,7 @@ const placedDate = computed(() =>
       </div>
 
       <OrderCourierCard
-        v-if="!repeatable && order.courier"
+        v-if="!repeatable && showCourier && order.courier"
         :courier="order.courier"
         :status="order.status"
       />
@@ -149,7 +163,10 @@ const placedDate = computed(() =>
           </p>
           <p class="mt-1 font-semibold text-gray-950">{{ paymentLabel(order.payment_method) }}</p>
         </div>
-        <div v-if="order.fulfillment_type === 'delivery' && order.promised_delivery_at" class="col-span-2">
+        <div
+          v-if="order.fulfillment_type === 'delivery' && order.promised_delivery_at"
+          class="col-span-2"
+        >
           <p class="font-semibold text-primary-strong">
             {{ t('order.confirmedDeliveryBy', { time: formatTime(order.promised_delivery_at) }) }}
           </p>

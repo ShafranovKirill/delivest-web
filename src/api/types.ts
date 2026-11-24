@@ -2147,6 +2147,7 @@ export interface components {
      * @description Курьер, который взял заказ. Есть с назначения курьера до вручения
      */
     OrderCourier: {
+      provider?: 'staff' | 'yandex'
       /** @example Иван */
       name: string | null
       /**
@@ -2241,6 +2242,7 @@ export interface components {
       stocks_enabled?: boolean
       promotions_enabled?: boolean
       couriers_enabled?: boolean
+      yandex_delivery_enabled?: boolean
       /** @description Способы оплаты, включённые на филиале */
       payment_methods?: ('cash' | 'card_offline' | 'online')[]
       /** @example +79990000000 */
