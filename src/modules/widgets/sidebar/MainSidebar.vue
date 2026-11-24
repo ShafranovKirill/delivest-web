@@ -10,10 +10,12 @@ import LocaleToggle from '@/modules/settings/components/LocaleToggle.vue'
 import BrandLogo from '@/modules/franchise/components/BrandLogo.vue'
 import PoweredByDelivest from '@/modules/widgets/powered-by/PoweredByDelivest.vue'
 import { useI18n } from 'vue-i18n'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 
 const sidebarStore = useSidebarStore()
 const viewportStore = useViewportStore()
 const { t } = useI18n()
+const branchStore = useBranchStore()
 
 watch(
   () => viewportStore.isMobile,
@@ -30,7 +32,7 @@ function restoreMenuButtonFocus() {
 
 const mainLinks = computed(() => [
   { route: 'menu', label: t('nav.menu'), icon: 'pi pi-list' },
-  { route: 'promotions', label: t('nav.promotions'), icon: 'pi pi-percentage' },
+  ...(branchStore.activeBranch?.branch_info?.stocks_enabled ? [{ route: 'promotions', label: t('nav.promotions'), icon: 'pi pi-percentage' }] : []),
   { route: 'branch-info', label: t('nav.about'), icon: 'pi pi-info-circle' },
   { route: 'contacts', label: t('nav.contacts'), icon: 'pi pi-phone' },
 ])

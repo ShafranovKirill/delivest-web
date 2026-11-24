@@ -5,13 +5,15 @@ import AccountMenu from '@/modules/auth/components/AccountMenu.vue'
 import ThemeToggle from '@/modules/settings/components/ThemeToggle.vue'
 import LocaleToggle from '@/modules/settings/components/LocaleToggle.vue'
 import { useI18n } from 'vue-i18n'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 
 const navigateTo = useBranchNavigation()
 const { t } = useI18n()
+const branchStore = useBranchStore()
 
 const links = computed(() => [
   { label: t('nav.menu'), action: () => navigateTo('menu') },
-  { label: t('nav.promotions'), action: () => navigateTo('promotions') },
+  ...(branchStore.activeBranch?.branch_info?.stocks_enabled ? [{ label: t('nav.promotions'), action: () => navigateTo('promotions') }] : []),
   { label: t('nav.about'), action: () => navigateTo('branch-info') },
   { label: t('nav.contacts'), action: () => navigateTo('contacts') },
 ])

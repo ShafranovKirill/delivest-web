@@ -2238,6 +2238,9 @@ export interface components {
       manual_rating?: number | null
       /** @description Customer notification capability for this branch */
       notifications_enabled?: boolean
+      stocks_enabled?: boolean
+      promotions_enabled?: boolean
+      couriers_enabled?: boolean
       /** @description Способы оплаты, включённые на филиале */
       payment_methods?: ('cash' | 'card_offline' | 'online')[]
       /** @example +79990000000 */
