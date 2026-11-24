@@ -107,7 +107,7 @@ onMounted(() => {
   <div class="bg-gray-200">
     <PausedBanner />
     <ClosedBanner />
-    <StoryStrip />
+    <StoryStrip v-if="branchStore.activeBranch?.branch_info?.stocks_enabled" />
     <div v-if="fulfillmentStore.current" class="w-full max-w-7xl mx-auto px-4 pb-4">
       <FulfillmentSummary />
     </div>
@@ -127,6 +127,6 @@ onMounted(() => {
   </div>
   <LoyaltyModal />
   <ProductModal />
-  <StoryViewer />
+  <StoryViewer v-if="branchStore.activeBranch?.branch_info?.stocks_enabled" />
   <CartButtonMobile v-if="viewportStore.isMobile" />
 </template>

@@ -11,6 +11,9 @@ export async function branchMiddleware(to: RouteLocationNormalized) {
     try {
       if (branchStore.activeBranch?.slug !== urlSlug) await branchStore.selectBranchBySlug(urlSlug)
       primeSession()
+      if (to.name === 'promotions' && !branchStore.activeBranch?.branch_info?.stocks_enabled) return { name: 'menu', params: { slug: urlSlug } }
+      if (to.name === 'my-stars' && !branchStore.activeBranch?.branch_info?.loyalty?.enabled) return { name: 'menu', params: { slug: urlSlug } }
+      if (to.name === 'notification-channels' && !branchStore.activeBranch?.branch_info?.notifications_enabled) return { name: 'menu', params: { slug: urlSlug } }
       return true
     } catch {
       const target = publicLandingTarget(to.fullPath)

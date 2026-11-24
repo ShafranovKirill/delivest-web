@@ -7,14 +7,16 @@ import PoweredByDelivest from '../powered-by/PoweredByDelivest.vue'
 import { useBranchNavigation } from '@/modules/branch/composables/useBranchNavigation'
 import { useLegalLinks } from '@/modules/franchise/composables/useLegalLinks'
 import { useI18n } from 'vue-i18n'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 
 const navigateTo = useBranchNavigation()
 const legalLinks = useLegalLinks()
 const { t } = useI18n()
+const branchStore = useBranchStore()
 
 const customerLinks = computed(() => [
   { label: t('nav.menu'), action: () => navigateTo('menu') },
-  { label: t('nav.promotions'), action: () => navigateTo('promotions') },
+  ...(branchStore.activeBranch?.branch_info?.stocks_enabled ? [{ label: t('nav.promotions'), action: () => navigateTo('promotions') }] : []),
   { label: t('nav.about'), action: () => navigateTo('branch-info') },
   { label: t('nav.contacts'), action: () => navigateTo('contacts') },
 ])

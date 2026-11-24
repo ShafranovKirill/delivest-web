@@ -21,6 +21,7 @@ vi.mock('@/modules/branch/api/branch.service', () => ({ BranchService: {
 } }))
 
 const { useBranchStore } = await import('@/modules/branch/stores/branch.store')
+const { branchMiddleware } = await import('@/router/middleware/branch.middleware')
 
 function deferred() {
   let resolve!: (value: unknown) => void
@@ -92,4 +93,17 @@ it('does not restore a pending branch after clearing the active branch', async (
   pending.resolve(payload('pilot'))
   await first
   expect(store.activeBranch).toBeNull()
+})
+
+it('rejects direct routes for disabled optional customer pages while keeping the menu', async () => {
+  const branch = { ...pilot, branch_info: {
+    stocks_enabled: false, loyalty: { enabled: false }, notifications_enabled: false,
+  } }
+  loadStorefront.mockResolvedValue({ ...payload('pilot'), selected_branch: branch, branches: [branch] })
+
+  for (const name of ['promotions', 'my-stars', 'notification-channels']) {
+    expect(await branchMiddleware({ name, params: { slug: 'pilot' }, fullPath: `/pilot/${name}` } as Parameters<typeof branchMiddleware>[0]))
+      .toEqual({ name: 'menu', params: { slug: 'pilot' } })
+  }
+  expect(await branchMiddleware({ name: 'menu', params: { slug: 'pilot' }, fullPath: '/pilot' } as Parameters<typeof branchMiddleware>[0])).toBe(true)
 })

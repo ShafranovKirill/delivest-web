@@ -5,8 +5,10 @@ import { useCartStore } from '../stores/cart.store'
 import { getApiErrorMessage } from '@/api/errors'
 import { reasonsText, rejectedText } from '../utils/promoText'
 import { useI18n } from 'vue-i18n'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 
 const cartStore = useCartStore()
+const branchStore = useBranchStore()
 const openGiftChoice = useOpenPromoGiftChoice()
 const { t } = useI18n()
 
@@ -63,7 +65,7 @@ async function remove() {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <div v-if="branchStore.activeBranch?.branch_info?.promotions_enabled" class="flex flex-col gap-2">
     <div
       v-if="state"
       class="flex items-start gap-3 rounded-2xl border p-3 text-sm"

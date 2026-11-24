@@ -5,10 +5,12 @@ import { useCartStore } from '../stores/cart.store'
 import { reasonsText } from '../utils/promoText'
 import { useI18n } from 'vue-i18n'
 import CartPromotionHints from './CartPromotionHints.vue'
+import { useBranchStore } from '@/modules/branch/stores/branch.store'
 
 withDefaults(defineProps<{ hintsMode?: 'list' | 'carousel' }>(), { hintsMode: 'list' })
 
 const cartStore = useCartStore()
+const branchStore = useBranchStore()
 const { t } = useI18n()
 const summaries = computed(() =>
   cartStore.promotions.filter((p) => !p.gift_choice || p.discount > 0),
@@ -16,7 +18,7 @@ const summaries = computed(() =>
 </script>
 
 <template>
-  <div v-if="summaries.length || cartStore.hints.length" class="flex flex-col gap-2 text-sm">
+  <div v-if="branchStore.activeBranch?.branch_info?.promotions_enabled && (summaries.length || cartStore.hints.length)" class="flex flex-col gap-2 text-sm">
     <div
       v-for="promotion in summaries"
       :key="promotion.promotion_id"
