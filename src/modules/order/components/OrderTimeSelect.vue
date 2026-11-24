@@ -13,7 +13,7 @@ const props = defineProps<{
 const modelValue = defineModel<string | null>({ required: true })
 const { t } = useI18n()
 
-const { days, asapAvailable, asapLabel, isAvailable, fallback, selectedLabel: scheduledLabel } =
+const { days, asapAvailable, asapLabel, leadMinutes, isAvailable, fallback, selectedLabel: scheduledLabel } =
   props.orderTime
 
 const isDialogOpen = ref(false)
@@ -160,6 +160,11 @@ function onTimeInput(event: Event) {
   draftTouched.value = true
 }
 
+function pickSuggestedTime(time: string) {
+  draftTime.value = time
+  draftTouched.value = true
+}
+
 function confirm() {
   if (!canConfirm.value) return
   modelValue.value = draftValue.value
@@ -187,7 +192,8 @@ function confirm() {
         <span class="block text-sm font-medium leading-snug text-gray-900 sm:text-[15px]">{{
           selectedLabel
         }}</span>
-        <span class="block text-xs text-gray-500">{{ changeLabel }}</span>
+        <span v-if="modelValue === null" data-testid="checkout-eta-duration" class="block text-xs text-gray-500">{{ t(fulfillment === 'delivery' ? 'order.timeSelect.deliveryLead' : 'order.timeSelect.pickupLead', { minutes: leadMinutes }) }}</span>
+        <span v-else class="block text-xs text-gray-500">{{ changeLabel }}</span>
       </span>
       <svg
         class="h-7 w-7 shrink-0 text-gray-500"
@@ -280,7 +286,7 @@ function confirm() {
             :key="time"
             type="button"
             class="min-h-10 rounded-xl bg-gray-100 px-3 text-sm font-medium tabular-nums text-gray-900 transition-colors hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-primary"
-            @click="draftTime = time; draftTouched = true"
+            @click="pickSuggestedTime(time)"
           >
             {{ time }}
           </button>
@@ -289,6 +295,7 @@ function confirm() {
       <div v-else-if="draftMode === 'asap'" class="mt-4 rounded-2xl bg-gray-100 px-5 py-4">
         <span class="block text-sm text-gray-500">{{ t('order.timeSelect.asapEstimate') }}</span>
         <strong class="block text-[42px] leading-tight tabular-nums tracking-tight text-gray-900">{{ asapLabel }}</strong>
+        <span class="block text-sm text-gray-500">{{ t(fulfillment === 'delivery' ? 'order.timeSelect.deliveryLead' : 'order.timeSelect.pickupLead', { minutes: leadMinutes }) }}</span>
       </div>
       <p v-else class="mt-4 text-sm text-gray-500">{{ t('order.timeSelect.noSlots') }}</p>
 

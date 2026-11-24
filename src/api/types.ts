@@ -1498,6 +1498,10 @@ export interface components {
         cook_by?: string | null
         /** Format: date_time; confirmed delivery deadline (UTC) */
         promised_delivery_at?: string | null
+        /** Format: date_time; initial estimated ready time (UTC) */
+        estimated_ready_at?: string | null
+        /** Format: date_time; initial estimated delivery time (UTC) */
+        estimated_delivery_at?: string | null
         /** @example Иван */
         customer_name?: string | null
         /** @example +79990000000 */
@@ -1791,6 +1795,8 @@ export interface components {
         id: string
         items: components['schemas']['CartItemResponse'][]
         points_earned?: number
+        /** Estimated kitchen time for the current cart, including packing and load */
+        prep_minutes?: number | null
         product_stars?: number
         promo_code?: components['schemas']['PromoCodeState']
         promotions: components['schemas']['AppliedPromotion'][]
@@ -2081,6 +2087,10 @@ export interface components {
       cook_by?: string | null
       /** Format: date_time; confirmed delivery deadline (UTC) */
       promised_delivery_at?: string | null
+      /** Format: date_time; initial estimated ready time (UTC) */
+      estimated_ready_at?: string | null
+      /** Format: date_time; initial estimated delivery time (UTC) */
+      estimated_delivery_at?: string | null
       courier: components['schemas']['OrderCourier']
       /**
        * @description Стоимость доставки, входит в total_amount
@@ -2167,6 +2177,14 @@ export interface components {
        * @example 30
        */
       delivery_time?: number | null
+      /** ETA mode for this branch */
+      timing_mode?: 'fixed' | 'calculated'
+      /** Full order-to-delivery time in fixed mode */
+      fixed_delivery_minutes?: number
+      /** Travel after preparation when a delivery zone has no duration */
+      travel_minutes?: number
+      kitchen_minutes?: number
+      packing_minutes?: number
       /** @description Включённые способы получения заказа */
       fulfillment_methods?: ('delivery' | 'pickup' | 'dine_in')[]
       /**

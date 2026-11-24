@@ -121,7 +121,11 @@ watch(
 const fulfillmentType = computed<OrderFormValues['fulfillment_type']>(() =>
   isDelivery.value ? 'delivery' : pickupKind.value,
 )
-const orderTime = useOrderTime(fulfillmentType)
+const orderTime = useOrderTime(
+  fulfillmentType,
+  computed(() => (delivery.quote.value?.status === 'ok' ? delivery.quote.value.minutes : null)),
+  computed(() => cartStore.cart?.prep_minutes ?? null),
+)
 
 watch(
   authenticatedPhone,

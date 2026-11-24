@@ -39,7 +39,11 @@ function minuteCeiling(clock: WallClock): number {
   return clockMinutes(clock) + (clock.second > 0 ? 1 : 0)
 }
 
-export function useOrderTime(fulfillment: Ref<Fulfillment>) {
+export function useOrderTime(
+  fulfillment: Ref<Fulfillment>,
+  zoneMinutes: Ref<number | null> = ref(null),
+  cartPrepMinutes: Ref<number | null> = ref(null),
+) {
   const branchStore = useBranchStore()
   const timezone = computed(() => branchStore.activeBranch?.branch_info?.timezone ?? null)
   const now = ref<WallClock>(wallClock(timezone.value))
@@ -52,15 +56,29 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
   watch(timezone, (zone) => (now.value = wallClock(zone)))
 
   const deliveryMinutes = computed(() => {
-    const minutes = branchStore.activeBranch?.branch_info?.delivery_time
+    const info = branchStore.activeBranch?.branch_info
+    const minutes = info?.fixed_delivery_minutes ?? info?.delivery_time
     return typeof minutes === 'number' && minutes > 0 ? minutes : DEFAULT_DELIVERY_MINUTES
   })
 
-  const leadMinutes = computed(() =>
-    fulfillment.value === 'delivery'
+  const leadMinutes = computed(() => {
+    const info = branchStore.activeBranch?.branch_info
+    if (info?.timing_mode === 'calculated') {
+      const preparation =
+        cartPrepMinutes.value && cartPrepMinutes.value > 0
+          ? cartPrepMinutes.value
+          : (info.kitchen_minutes ?? 25) +
+            (info.packing_minutes ?? 0) +
+            (info.intake?.extra_minutes ?? 0)
+      if (fulfillment.value !== 'delivery') return preparation
+      const travel =
+        zoneMinutes.value && zoneMinutes.value > 0 ? zoneMinutes.value : (info.travel_minutes ?? 35)
+      return preparation + travel
+    }
+    return fulfillment.value === 'delivery'
       ? deliveryMinutes.value
-      : Math.max(MIN_PICKUP_MINUTES, Math.round(deliveryMinutes.value / 2)),
-  )
+      : Math.max(MIN_PICKUP_MINUTES, Math.round(deliveryMinutes.value / 2))
+  })
 
   const workingHours = computed(() => {
     const hours = branchStore.activeBranch?.branch_info?.working_hours
@@ -163,9 +181,7 @@ export function useOrderTime(fulfillment: Ref<Fulfillment>) {
   const asapLabel = computed(() => {
     const eta = etaMinute.value
     const rounded = Math.ceil(eta / 10) * 10
-    const inSameWindow = intervals.value.some(
-      ({ start, end }) => start <= eta && rounded < end,
-    )
+    const inSameWindow = intervals.value.some(({ start, end }) => start <= eta && rounded < end)
     return t('order.timeSelect.asapEta', {
       time: time(fromClockMinutes(inSameWindow ? rounded : eta)),
     })

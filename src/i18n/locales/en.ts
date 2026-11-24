@@ -551,6 +551,7 @@ export const en: typeof ru = {
     placedAt: 'Placed at {time}',
     cookBy: 'By {time}',
     confirmedDeliveryBy: 'Confirmed delivery by {time}',
+    estimatedDeliveryBy: 'Expected delivery by {time}',
     asap: 'As soon as possible',
     time: 'Time',
     comment: 'Comment',
