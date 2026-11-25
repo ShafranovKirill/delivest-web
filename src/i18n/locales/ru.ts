@@ -441,6 +441,11 @@ export const ru = {
     loadFailedHint: 'Попробуйте обновить страницу или повторить запрос позже.',
   },
   cart: {
+    cutlery: {
+      title: 'Количество персон',
+      decrease: 'Убрать один прибор',
+      increase: 'Добавить один прибор',
+    },
     edit: 'Изменить',
     removeShort: 'Убрать',
     decrease: 'Убавить',

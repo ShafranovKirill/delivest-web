@@ -68,7 +68,7 @@ async function remove() {
   <div v-if="branchStore.activeBranch?.branch_info?.promotions_enabled" class="flex flex-col gap-2">
     <div
       v-if="state"
-      class="flex items-start gap-3 rounded-2xl border p-3 text-sm"
+      class="flex items-start gap-3 rounded-xl border p-3 text-sm"
       :class="{
         'border-green-200 bg-green-50 text-green-800': state.status === 'applied',
         'border-amber-200 bg-amber-50 text-amber-800': state.status === 'pending',

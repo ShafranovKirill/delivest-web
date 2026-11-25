@@ -12,6 +12,7 @@ import {
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { getApiErrorCode } from '@/api/errors'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 import { pendingPrivateSession } from '@/api/storefront'
 
@@ -38,6 +39,41 @@ export const useCartStore = defineStore('cart', () => {
 
   const branchStore = useBranchStore()
   const authStore = useAuthStore()
+  const franchiseStore = useFranchiseStore()
+  const cutlerySelection = ref<{
+    cartId: string
+    branchId: string
+    ownerId: string
+    quantity: number
+  } | null>(null)
+  const cutleryEnabled = computed(() => franchiseStore.cutleryEnabled)
+  const cutleryCount = computed(() => {
+    if (!cutleryEnabled.value || isEmpty.value) return 0
+    const selection = cutlerySelection.value
+    if (
+      selection &&
+      selection.cartId === cart.value?.id &&
+      selection.branchId === branchStore.activeBranch?.id &&
+      selection.ownerId === (authStore.client?.id ?? 'guest')
+    )
+      return selection.quantity
+    return Math.min(99, Math.max(1, Math.ceil(totalAmount.value / 100_000)))
+  })
+
+  function setCutleryCount(quantity: number) {
+    if (!cutleryEnabled.value || isEmpty.value || !cart.value?.id || !Number.isFinite(quantity))
+      return
+    cutlerySelection.value = {
+      cartId: cart.value.id,
+      branchId: branchStore.activeBranch?.id ?? '',
+      ownerId: authStore.client?.id ?? 'guest',
+      quantity: Math.min(99, Math.max(0, Math.trunc(quantity))),
+    }
+  }
+
+  function resetCutleryCount() {
+    cutlerySelection.value = null
+  }
   const analytics = useFunnelAnalytics()
   let requestVersion = 0
   let mutationVersion = 0
@@ -49,7 +85,7 @@ export const useCartStore = defineStore('cart', () => {
 
   watch(
     context,
-    () => {
+    (_next, previous) => {
       contextGeneration++
       requestVersion++
       mutationVersion++
@@ -57,10 +93,26 @@ export const useCartStore = defineStore('cart', () => {
       fetchController?.abort()
       mutationQueue = Promise.resolve()
       mutationActiveContext = null
+      if (previous.split(':')[0] || authStore.sessionEpoch !== Number(previous.split(':')[1])) {
+        resetCutleryCount()
+      }
+      isInitialized.value = false
       cart.value = null
       freshUntil.value = 0
-      isInitialized.value = false
       isLoading.value = false
+    },
+    { flush: 'sync' },
+  )
+
+  watch(
+    [() => cart.value?.id, isEmpty, isInitialized],
+    () => {
+      if (
+        isInitialized.value &&
+        (!cart.value?.id || isEmpty.value || cutlerySelection.value?.cartId !== cart.value.id)
+      ) {
+        resetCutleryCount()
+      }
     },
     { flush: 'sync' },
   )
@@ -281,6 +333,9 @@ export const useCartStore = defineStore('cart', () => {
     promoCode,
     isEmpty,
     hasStopped,
+    cutleryEnabled,
+    cutleryCount,
+    cutlerySelection,
     isLoading,
     isInitialized,
     revision,
@@ -295,6 +350,8 @@ export const useCartStore = defineStore('cart', () => {
     removeItem,
     removeAllOfItem,
     clearCart,
+    setCutleryCount,
+    resetCutleryCount,
     getItemQuantity,
     repeatOrder,
     choosePromoGifts,
@@ -302,4 +359,4 @@ export const useCartStore = defineStore('cart', () => {
     removePromoCode,
     setFulfillment,
   }
-})
+}, { persist: { pick: ['cutlerySelection'] } })

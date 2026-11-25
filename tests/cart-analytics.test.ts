@@ -5,8 +5,13 @@ const getCart = vi.fn()
 const addItem = vi.fn()
 const track = vi.fn()
 vi.mock('@/modules/cart/api/cart.service', () => ({ CartService: { getCart, addItem } }))
-vi.mock('@/modules/branch/stores/branch.store', () => ({ useBranchStore: () => ({ activeBranch: { id: 'branch' } }) }))
+vi.mock('@/modules/branch/stores/branch.store', () => ({
+  useBranchStore: () => ({ activeBranch: { id: 'branch' } }),
+}))
 vi.mock('@/modules/auth/stores/auth.store', () => ({ useAuthStore: () => ({ sessionEpoch: 1 }) }))
+vi.mock('@/modules/franchise/stores/franchise.store', () => ({
+  useFranchiseStore: () => ({ cutleryEnabled: false }),
+}))
 vi.mock('@/api/errors', () => ({ getApiErrorCode: () => null }))
 vi.mock('@/modules/analytics/useFunnelAnalytics', () => ({ useFunnelAnalytics: () => ({ track }) }))
 const { useCartStore } = await import('../src/modules/cart/stores/cart.store')

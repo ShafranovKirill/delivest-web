@@ -440,6 +440,11 @@ export const en: typeof ru = {
     loadFailedHint: 'Try refreshing the page or retry later.',
   },
   cart: {
+    cutlery: {
+      title: 'Number of people',
+      decrease: 'Remove one cutlery set',
+      increase: 'Add one cutlery set',
+    },
     edit: 'Edit',
     removeShort: 'Remove',
     decrease: 'Decrease',

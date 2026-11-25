@@ -6,6 +6,7 @@ import CartGiftChoiceCards from './CartGiftChoiceCards.vue'
 import CartPromotions from './CartPromotions.vue'
 import CartSuggestions from './CartSuggestions.vue'
 import CartTotals from './CartTotals.vue'
+import CartCutlery from './CartCutlery.vue'
 import PromoCodeInput from './PromoCodeInput.vue'
 import { useCartStore } from '../stores/cart.store.ts'
 import { useRoute, useRouter } from 'vue-router'
@@ -102,18 +103,19 @@ function goToCatalog() {
         <div class="flex flex-col gap-3">
           <CartItemCard v-for="item in cartStore.items" :key="item.key" :item="item" />
           <CartGiftChoiceCards />
+          <CartCutlery v-if="cartStore.cutleryEnabled" />
         </div>
 
         <CartSuggestions class="pt-2" />
 
-        <div class="pt-4 pb-2 mt-auto border-t flex flex-col gap-3">
+        <div class="mt-auto flex flex-col gap-4 border-t border-gray-200 pb-1 pt-4">
           <CartPromotions hints-mode="carousel" />
           <PromoCodeInput />
           <CartTotals />
         </div>
       </div>
 
-      <div class="pt-3 pb-[calc(env(safe-area-inset-bottom))] bg-white z-20">
+      <div class="z-20 bg-white pt-2 pb-[env(safe-area-inset-bottom)]">
         <p v-if="!fulfillment.canOrder" class="mb-2 text-center text-sm text-red-500">
           {{ t('errors.codes.fulfillment_unavailable') }}
         </p>
@@ -135,9 +137,10 @@ function goToCatalog() {
             !fulfillment.canOrder ||
             (fulfillment.current?.type === 'delivery' && delivery.blocked.value)
           "
-          class="w-full py-3.5 px-4 rounded-2xl bg-(--p-primary-500) text-white font-medium text-base transition-opacity hover:opacity-90 disabled:opacity-50 shadow-sm"
+          class="flex min-h-12 w-full items-center justify-between gap-3 px-5 rounded-2xl bg-(--p-primary-500) text-white font-medium text-base transition-opacity hover:opacity-90 disabled:opacity-50 shadow-sm"
         >
-          {{ t('cart.checkout') }}
+          <span>{{ t('cart.checkout') }}</span>
+          <i class="pi pi-arrow-right text-sm" aria-hidden="true" />
         </button>
       </div>
     </template>

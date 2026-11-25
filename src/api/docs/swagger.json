@@ -958,6 +958,9 @@
                 "description": "Адрес выбирается на карте с подсказками DaData",
                 "type": "boolean"
               },
+              "cutlery_enabled": {
+                "type": "boolean"
+              },
               "client_auth": {
                 "description": "Клиенты могут войти по звонку; иначе все заказывают как гости",
                 "type": "boolean"
@@ -1007,6 +1010,7 @@
               "primary_color",
               "dark_primary_color",
               "default_theme",
+              "cutlery_enabled",
               "logo_url",
               "logo_dark_url",
               "address_map",

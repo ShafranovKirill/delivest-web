@@ -147,6 +147,7 @@ export const useOrderStore = defineStore('order', () => {
       cart_id: cartId,
       cart_revision: cartStore.cart?.revision ?? undefined,
       expected_total: cartStore.totalAmount,
+      ...(useFranchiseStore().cutleryEnabled ? { persons: cartStore.cutleryCount } : {}),
     }
 
     try {
@@ -164,6 +165,8 @@ export const useOrderStore = defineStore('order', () => {
       lastCreatedOrder.value = order
       createdOrderId.value = order.id
       activeStep.value = 3
+
+      cartStore.resetCutleryCount()
 
       void cartStore.fetchCart(branchId, true).catch((error) => {
         console.error('[OrderStore] Failed to refresh cart after order creation:', error)
@@ -189,7 +192,9 @@ export const useOrderStore = defineStore('order', () => {
       }
       if (errorCode === 'storefront_maintenance') {
         await branchStore.refreshBranches().catch(() => null)
-        await useFranchiseStore().init().catch(() => null)
+        await useFranchiseStore()
+          .init()
+          .catch(() => null)
       }
       if (PRICE_ERRORS.includes(errorCode ?? '')) {
         await cartStore.fetchCart(branchId, true).catch(() => null)
