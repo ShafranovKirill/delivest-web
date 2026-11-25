@@ -441,8 +441,7 @@ export const en: typeof ru = {
   },
   cart: {
     cutlery: {
-      title: 'Cutlery',
-      hint: 'Free · how many sets would you like?',
+      title: 'Number of people',
       decrease: 'Remove one cutlery set',
       increase: 'Add one cutlery set',
     },

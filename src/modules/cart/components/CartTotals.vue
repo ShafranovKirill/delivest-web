@@ -41,7 +41,7 @@ const total = computed(() => cartStore.totalAmount + (deliveryPrice.value ?? 0))
         {{ deliveryPrice ? formatPrice(deliveryPrice) : t('common.free') }}
       </span>
     </div>
-    <div class="flex justify-between text-lg font-extrabold text-gray-950">
+    <div class="mt-1 flex justify-between gap-3 text-lg font-extrabold text-gray-950">
       <span>{{ t('common.total') }}</span>
       <span class="tabular-nums">{{ formatPrice(total) }}</span>
     </div>
