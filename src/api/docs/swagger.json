@@ -997,9 +997,6 @@
                 "description": "Адрес выбирается на карте с подсказками DaData",
                 "type": "boolean"
               },
-              "cutlery_enabled": {
-                "type": "boolean"
-              },
               "client_auth": {
                 "description": "Клиенты могут войти по звонку; иначе все заказывают как гости",
                 "type": "boolean"
@@ -1008,6 +1005,7 @@
                 "description": "Клиенты должны войти перед оформлением заказа",
                 "type": "boolean"
               },
+              "cutlery_enabled": { "type": "boolean" },
               "dark_primary_color": {
                 "description": "Цвет для тёмной темы; если пусто, подбирается из основного",
                 "example": "#b86a69",
@@ -2757,6 +2755,7 @@
                               "description": "Клиенты должны войти перед оформлением заказа",
                               "type": "boolean"
                             },
+                            "cutlery_enabled": { "type": "boolean" },
                             "dark_primary_color": {
                               "description": "Цвет для тёмной темы; если пусто, подбирается из основного",
                               "example": "#b86a69",
@@ -2806,6 +2805,7 @@
                             "primary_color",
                             "dark_primary_color",
                             "default_theme",
+                            "cutlery_enabled",
                             "logo_url",
                             "logo_dark_url",
                             "address_map",
@@ -5025,6 +5025,7 @@
                           "description": "Клиенты должны войти перед оформлением заказа",
                           "type": "boolean"
                         },
+                        "cutlery_enabled": { "type": "boolean" },
                         "dark_primary_color": {
                           "description": "Цвет для тёмной темы; если пусто, подбирается из основного",
                           "example": "#b86a69",
@@ -5070,6 +5071,7 @@
                         "primary_color",
                         "dark_primary_color",
                         "default_theme",
+                        "cutlery_enabled",
                         "logo_url",
                         "logo_dark_url",
                         "address_map",

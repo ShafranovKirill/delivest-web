@@ -2132,11 +2132,11 @@ export interface components {
       data: {
         /** @description Адрес выбирается на карте с подсказками DaData */
         address_map: boolean
-        cutlery_enabled: boolean
         /** @description Клиенты могут войти по звонку; иначе все заказывают как гости */
         client_auth: boolean
         /** @description Клиенты должны войти перед оформлением заказа */
         client_auth_required: boolean
+        cutlery_enabled: boolean
         /**
          * @description Цвет для тёмной темы; если пусто, подбирается из основного
          * @example #b86a69
@@ -3410,6 +3410,7 @@ export interface operations {
                   client_auth: boolean
                   /** @description Клиенты должны войти перед оформлением заказа */
                   client_auth_required: boolean
+                  cutlery_enabled: boolean
                   /**
                    * @description Цвет для тёмной темы; если пусто, подбирается из основного
                    * @example #b86a69
@@ -5062,6 +5063,7 @@ export interface operations {
               client_auth: boolean
               /** @description Клиенты должны войти перед оформлением заказа */
               client_auth_required: boolean
+              cutlery_enabled: boolean
               /**
                * @description Цвет для тёмной темы; если пусто, подбирается из основного
                * @example #b86a69
