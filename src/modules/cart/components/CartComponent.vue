@@ -6,6 +6,7 @@ import CartGiftChoiceCards from './CartGiftChoiceCards.vue'
 import CartPromotions from './CartPromotions.vue'
 import CartSuggestions from './CartSuggestions.vue'
 import CartTotals from './CartTotals.vue'
+import CartCutlery from './CartCutlery.vue'
 import PromoCodeInput from './PromoCodeInput.vue'
 import { useCartStore } from '../stores/cart.store.ts'
 import { useRoute, useRouter } from 'vue-router'
@@ -103,6 +104,8 @@ function goToCatalog() {
           <CartItemCard v-for="item in cartStore.items" :key="item.key" :item="item" />
           <CartGiftChoiceCards />
         </div>
+
+        <CartCutlery v-if="cartStore.cutleryEnabled" />
 
         <CartSuggestions class="pt-2" />
 

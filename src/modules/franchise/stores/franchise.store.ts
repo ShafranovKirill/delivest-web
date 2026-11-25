@@ -18,6 +18,7 @@ export const useFranchiseStore = defineStore(
     const logoUrl = computed(() => franchise.value?.logo_url ?? null)
     const logoDarkUrl = computed(() => franchise.value?.logo_dark_url ?? null)
     const addressMap = computed(() => franchise.value?.address_map ?? false)
+    const cutleryEnabled = computed(() => franchise.value?.cutlery_enabled ?? false)
     const rating = computed(() => franchise.value?.rating ?? null)
     const loginCallMode = computed(() => franchise.value?.login_call_mode ?? 'inbound')
     const clientAuth = computed(() => franchise.value?.client_auth ?? true)
@@ -35,7 +36,9 @@ export const useFranchiseStore = defineStore(
       await load()
     }
 
-    function setFranchise(value: Franchise) { franchise.value = value }
+    function setFranchise(value: Franchise) {
+      franchise.value = value
+    }
 
     return {
       franchise,
@@ -48,6 +51,7 @@ export const useFranchiseStore = defineStore(
       logoUrl,
       logoDarkUrl,
       addressMap,
+      cutleryEnabled,
       clientAuth,
       clientAuthRequired,
       rating,
