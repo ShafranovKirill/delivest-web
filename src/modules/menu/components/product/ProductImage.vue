@@ -21,11 +21,17 @@ const element = ref<HTMLElement | null>(null)
 const source = computed(() => props.src)
 const queue = props.coordinated ? inject(productPhotoQueueKey, null) : null
 const nearbySource = useProximityImageSource(element, source, '500px')
-const currentNearbySource = computed(() => nearbySource.value === source.value ? nearbySource.value : undefined)
+const currentNearbySource = computed(() =>
+  nearbySource.value === source.value ? nearbySource.value : undefined,
+)
 const backgroundGranted = ref(false)
 const forceVisible = ref(false)
 const imageSource = computed(() =>
-  currentNearbySource.value || (forceVisible.value || backgroundGranted.value ? source.value : undefined),
+  queue
+    ? forceVisible.value || backgroundGranted.value
+      ? source.value
+      : undefined
+    : currentNearbySource.value,
 )
 const photoVersion = ref(0)
 let handle: ProductPhotoHandle | null = null
@@ -36,48 +42,60 @@ const { state, srcset, hasPhoto, onError } = useProductImageState(
   imageSource,
 )
 
-const signature = computed(() => source.value ? `${source.value}\u0000${productImageSrcset(props.variants)}` : '')
+const signature = computed(() =>
+  source.value ? `${source.value}\u0000${productImageSrcset(props.variants)}` : '',
+)
 onMounted(() => {
   if (!queue || !element.value) return
   handle = queue.register(
     element.value,
     signature.value,
-    Boolean(currentNearbySource.value),
-    kind => {
+    false,
+    (kind) => {
       if (kind === 'background') backgroundGranted.value = true
-      else { forceVisible.value = true; backgroundGranted.value = false }
+      else {
+        forceVisible.value = true
+        backgroundGranted.value = false
+      }
     },
-    () => { backgroundGranted.value = false },
+    () => {
+      backgroundGranted.value = false
+    },
   )
   if (state.value === 'loaded' || state.value === 'failed') handle.settle()
 })
 onUnmounted(() => handle?.remove())
-watch(signature, next => {
-  const sourceChanged = source.value !== previousSource
-  previousSource = source.value
-  // Added variants may leave the browser's selected candidate unchanged.
-  // Keep a photo that already loaded visible and settled in that case.
-  if (!sourceChanged && state.value === 'loaded') {
-    handle?.update(next, Boolean(currentNearbySource.value))
-    handle?.settle()
-    return
-  }
-  photoVersion.value++
-  backgroundGranted.value = false
-  forceVisible.value = false
-  if (state.value === 'loaded') state.value = 'loading'
-  handle?.update(next, Boolean(currentNearbySource.value))
-}, { flush: 'sync' })
-watch(currentNearbySource, value => handle?.setNear(Boolean(value)), { flush: 'sync' })
+watch(
+  signature,
+  (next) => {
+    const sourceChanged = source.value !== previousSource
+    previousSource = source.value
+    // Added variants may leave the browser's selected candidate unchanged.
+    // Keep a photo that already loaded visible and settled in that case.
+    if (!sourceChanged && state.value === 'loaded') {
+      handle?.update(next, false)
+      handle?.settle()
+      return
+    }
+    photoVersion.value++
+    backgroundGranted.value = false
+    forceVisible.value = false
+    if (state.value === 'loaded') state.value = 'loading'
+    handle?.update(next, false)
+  },
+  { flush: 'sync' },
+)
 
 function imageLoaded(event: Event) {
-  if (Number((event.currentTarget as HTMLElement).dataset.photoVersion) !== photoVersion.value) return
+  if (Number((event.currentTarget as HTMLElement).dataset.photoVersion) !== photoVersion.value)
+    return
   state.value = 'loaded'
   handle?.settle()
 }
 
 function imageFailed(event: Event) {
-  if (Number((event.currentTarget as HTMLElement).dataset.photoVersion) !== photoVersion.value) return
+  if (Number((event.currentTarget as HTMLElement).dataset.photoVersion) !== photoVersion.value)
+    return
   onError()
   if (state.value === 'failed') handle?.settle()
 }

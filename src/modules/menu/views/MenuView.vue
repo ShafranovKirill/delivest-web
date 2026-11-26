@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, nextTick, onMounted, onScopeDispose, provide, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onMounted,
+  onScopeDispose,
+  provide,
+  watch,
+} from 'vue'
 import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import { useMenuStore } from '../stores/menu.store'
@@ -32,9 +40,23 @@ import { useI18n } from 'vue-i18n'
 import { menuDisplayState } from '../utils/menuDisplayState'
 import ProductModalPending from '../components/product/modal/ProductModalPending.vue'
 import { ProductPhotoQueue, productPhotoQueueKey } from '../utils/productPhotoQueue'
+import type { ProductPhotoHandle } from '../utils/productPhotoQueue'
+import { useStocksQuery } from '@/modules/stock/composables/useStocksQuery'
 
+let productModalModule: Promise<
+  typeof import('../components/product/modal/ProductModal.vue')
+> | null = null
+function loadProductModal() {
+  if (!productModalModule) {
+    productModalModule = import('../components/product/modal/ProductModal.vue').catch((error) => {
+      productModalModule = null
+      throw error
+    })
+  }
+  return productModalModule
+}
 const ProductModal = defineAsyncComponent({
-  loader: () => import('../components/product/modal/ProductModal.vue'),
+  loader: loadProductModal,
   loadingComponent: ProductModalPending,
   errorComponent: ProductModalPending,
   delay: 0,
@@ -59,14 +81,102 @@ const route = useRoute()
 const fulfillmentStore = useFulfillmentStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
+const stocksEnabled = computed(() => !!branchStore.activeBranch?.branch_info?.stocks_enabled)
+const { isLoading: storiesLoading } = useStocksQuery(stocksEnabled)
 const menuStore = useMenuStore()
 const photoQueue = new ProductPhotoQueue()
+photoQueue.setBackgroundEnabled(false)
 provide(productPhotoQueueKey, photoQueue)
 onScopeDispose(() => photoQueue.dispose())
-watch([() => branchStore.activeBranch?.id, locale], () => photoQueue.reset(), { flush: 'sync' })
+const backgroundHandles = new Map<string, ProductPhotoHandle>()
+let backgroundScope = ''
+let backgroundVersion = 0
+function clearBackground() {
+  for (const handle of backgroundHandles.values()) handle.remove()
+  backgroundHandles.clear()
+}
 watch(
-  [menuData, isLoading, () => branchStore.activeBranch?.id, locale],
-  ([data, loading]) => { if (data && !loading) photoQueue.resume() },
+  [() => branchStore.activeBranch?.id, locale],
+  () => {
+    backgroundVersion++
+    photoQueue.reset()
+    clearBackground()
+    backgroundScope = ''
+    photoQueue.setBackgroundEnabled(false)
+    photoQueue.resume()
+  },
+  { flush: 'sync' },
+)
+watch(
+  [menuData, isLoading, storiesLoading, stocksEnabled],
+  ([data, loading, loadingStories, stocks]) => {
+    photoQueue.setBackgroundEnabled(Boolean(data) && !loading && (!stocks || !loadingStories))
+  },
+  { flush: 'sync', immediate: true },
+)
+watch(
+  [menuData, isLoading, storiesLoading, () => branchStore.activeBranch?.id, locale],
+  async ([data, loading, loadingStories, branchId, language]) => {
+    const version = ++backgroundVersion
+    if (!data || loading || (stocksEnabled.value && loadingStories) || !branchId) return
+    const scope = `${branchId}:${language}`
+    await nextTick()
+    if (version !== backgroundVersion) return
+    const newScope = backgroundScope !== scope
+    if (newScope) clearBackground()
+    backgroundScope = scope
+    const urls = new Set(
+      data.flatMap((category) =>
+        (category.products ?? []).flatMap((product) =>
+          (product.modifier_groups ?? []).flatMap((group) =>
+            group.modifiers
+              .map((modifier) => modifier.photo_url)
+              .filter((url): url is string => !!url),
+          ),
+        ),
+      ),
+    )
+    for (const [url, handle] of backgroundHandles) {
+      if (!urls.has(url)) {
+        handle.remove()
+        backgroundHandles.delete(url)
+      }
+    }
+    for (const url of urls) {
+      if (backgroundHandles.has(url)) continue
+      let image: HTMLImageElement | null = null
+      let handle: ProductPhotoHandle
+      handle = photoQueue.register(
+        document.createElement('span'),
+        url,
+        false,
+        () => {
+          image = new Image()
+          image.decoding = 'async'
+          image.fetchPriority = 'low'
+          image.onload = image.onerror = () => {
+            image = null
+            handle.settle()
+          }
+          image.src = url
+        },
+        () => {
+          if (image) {
+            image.onload = image.onerror = null
+            image.removeAttribute('src')
+            image = null
+          }
+        },
+        () => false,
+      )
+      backgroundHandles.set(url, handle)
+    }
+    if (newScope) {
+      photoQueue.whenVisibleReady(() => {
+        void loadProductModal().catch(() => {})
+      })
+    }
+  },
   { flush: 'post', immediate: true },
 )
 useEventListener(window, 'scroll', () => photoQueue.viewportChanged(), { passive: true })

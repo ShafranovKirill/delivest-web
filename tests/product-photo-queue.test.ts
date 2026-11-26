@@ -5,14 +5,19 @@ function harness() {
   const frames = new Map<number, FrameRequestCallback>()
   let nextFrame = 0
   const queue = new ProductPhotoQueue(
-    callback => { frames.set(++nextFrame, callback); return nextFrame },
-    id => { frames.delete(id) },
+    (callback) => {
+      frames.set(++nextFrame, callback)
+      return nextFrame
+    },
+    (id) => {
+      frames.delete(id)
+    },
     () => ({ width: 390, height: 844 }),
   )
   const flush = () => {
     const pending = [...frames.values()]
     frames.clear()
-    pending.forEach(callback => callback(0))
+    pending.forEach((callback) => callback(0))
   }
   const add = (name: string, top: number, signature = name, near = false) => {
     const element = {
@@ -139,5 +144,41 @@ describe('product photo queue', () => {
     flush()
     expect(empty.activate).not.toHaveBeenCalled()
     expect(far.activate).toHaveBeenCalledWith('background')
+  })
+
+  it('uses a horizontal strip boundary and waits before background grants', () => {
+    const { queue, flush, add } = harness()
+    queue.setBackgroundEnabled(false)
+    const first = add('first', 0)
+    const far = add('far', 1200)
+    const clipped = {
+      getBoundingClientRect: () => ({ left: 500, right: 640, top: 0, bottom: 192 }),
+    } as HTMLElement
+    const activate = vi.fn()
+    const handle = queue.register(clipped, 'story-cover', false, activate, vi.fn(), () => false)
+    flush()
+    expect(first.activate).toHaveBeenCalledWith('visible')
+    expect(activate).not.toHaveBeenCalled()
+    first.handle.settle()
+    queue.setBackgroundEnabled(true)
+    flush()
+    expect(far.activate).toHaveBeenCalledWith('background')
+    expect(activate).toHaveBeenCalledWith('background')
+    handle.remove()
+  })
+
+  it('warms the modal only once visible photos settle', () => {
+    const { queue, flush, add } = harness()
+    const ready = vi.fn()
+    const first = add('first', 0)
+    queue.whenVisibleReady(ready)
+    flush()
+    expect(ready).not.toHaveBeenCalled()
+    first.handle.settle()
+    flush()
+    expect(ready).toHaveBeenCalledOnce()
+    queue.viewportChanged()
+    flush()
+    expect(ready).toHaveBeenCalledOnce()
   })
 })

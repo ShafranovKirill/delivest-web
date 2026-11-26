@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, inject, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { productPhotoQueueKey } from '@/modules/menu/utils/productPhotoQueue'
 import { useStocksQuery } from '../composables/useStocksQuery'
 import { useStoryRoute } from '../composables/useStoryRoute'
 import StoryCard from './StoryCard.vue'
 
 const { data, isLoading } = useStocksQuery()
 const { open } = useStoryRoute()
+const photoQueue = inject(productPhotoQueueKey, null)
 
 const stories = computed(() => data.value ?? [])
 const storyKey = computed(() =>
@@ -71,6 +73,7 @@ onBeforeUnmount(() => coverObserver?.disconnect())
   >
     <div
       ref="cards"
+      @scroll.passive="photoQueue?.viewportChanged()"
       class="story-cards flex min-h-52 gap-3 overflow-x-auto snap-x snap-mandatory scroll-px-[21px] pl-[21px] pr-4 py-2 [scrollbar-width:none] sm:min-h-[15.667rem]"
     >
       <StoryCard

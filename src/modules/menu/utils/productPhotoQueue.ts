@@ -10,6 +10,7 @@ type Entry = {
   background: boolean
   activate: (kind: Activation) => void
   revoke: () => void
+  visible?: (element: HTMLElement, viewport: { width: number; height: number }) => boolean
 }
 
 export type ProductPhotoHandle = {
@@ -23,11 +24,15 @@ export class ProductPhotoQueue {
   private entries = new Set<Entry>()
   private frame = 0
   private paused = false
+  private backgroundEnabled = true
   private disposed = false
+  private onVisibleReady?: () => void
+  private visibleReadySent = false
 
   constructor(
-    private requestFrame: (callback: FrameRequestCallback) => number = callback => window.requestAnimationFrame(callback),
-    private cancelFrame: (handle: number) => void = handle => window.cancelAnimationFrame(handle),
+    private requestFrame: (callback: FrameRequestCallback) => number = (callback) =>
+      window.requestAnimationFrame(callback),
+    private cancelFrame: (handle: number) => void = (handle) => window.cancelAnimationFrame(handle),
     private viewport: () => { width: number; height: number } = () => ({
       width: window.innerWidth,
       height: window.innerHeight,
@@ -40,10 +45,18 @@ export class ProductPhotoQueue {
     near: boolean,
     activate: Entry['activate'],
     revoke: Entry['revoke'],
+    visible?: Entry['visible'],
   ): ProductPhotoHandle {
     const entry: Entry = {
-      element, signature, near, activated: near && Boolean(signature),
-      settled: !signature, background: false, activate, revoke,
+      element,
+      signature,
+      near,
+      activated: near && Boolean(signature),
+      settled: !signature,
+      background: false,
+      activate,
+      revoke,
+      visible,
     }
     this.entries.add(entry)
     this.schedule()
@@ -60,7 +73,7 @@ export class ProductPhotoQueue {
         entry.near = isNear
         this.schedule()
       },
-      setNear: isNear => {
+      setNear: (isNear) => {
         if (!this.entries.has(entry)) return
         entry.near = isNear
         if (isNear && entry.signature) {
@@ -88,6 +101,7 @@ export class ProductPhotoQueue {
 
   reset() {
     this.paused = true
+    this.visibleReadySent = false
     for (const entry of this.entries) {
       if (entry.background && !entry.settled) {
         entry.revoke()
@@ -97,8 +111,22 @@ export class ProductPhotoQueue {
     }
   }
 
-  resume() { this.paused = false; this.schedule() }
-  viewportChanged() { this.schedule() }
+  resume() {
+    this.paused = false
+    this.schedule()
+  }
+  setBackgroundEnabled(enabled: boolean) {
+    this.backgroundEnabled = enabled
+    this.schedule()
+  }
+  whenVisibleReady(callback: () => void) {
+    this.onVisibleReady = callback
+    this.visibleReadySent = false
+    this.schedule()
+  }
+  viewportChanged() {
+    this.schedule()
+  }
 
   dispose() {
     this.disposed = true
@@ -110,16 +138,24 @@ export class ProductPhotoQueue {
 
   private schedule() {
     if (this.disposed || this.paused || this.frame) return
-    this.frame = this.requestFrame(() => { this.frame = 0; this.reconcile() })
+    this.frame = this.requestFrame(() => {
+      this.frame = 0
+      this.reconcile()
+    })
   }
 
   private reconcile() {
     if (this.paused || this.disposed) return
     const viewport = this.viewport()
     const visible = (entry: Entry) => {
+      if (entry.visible) return entry.visible(entry.element, viewport)
       const rect = entry.element.getBoundingClientRect()
-      return rect.bottom > 0 && rect.top < viewport.height &&
-        rect.right > 0 && rect.left < viewport.width
+      return (
+        rect.bottom > 0 &&
+        rect.top < viewport.height &&
+        rect.right > 0 &&
+        rect.left < viewport.width
+      )
     }
     let visiblePending = false
     for (const entry of this.entries) {
@@ -132,8 +168,13 @@ export class ProductPhotoQueue {
       if (!entry.settled) visiblePending = true
     }
     if (visiblePending) return
+    if (!this.visibleReadySent) {
+      this.visibleReadySent = true
+      this.onVisibleReady?.()
+    }
+    if (!this.backgroundEnabled) return
 
-    let slots = 2 - [...this.entries].filter(entry => entry.background && !entry.settled).length
+    let slots = 2 - [...this.entries].filter((entry) => entry.background && !entry.settled).length
     for (const entry of this.entries) {
       if (slots === 0) break
       if (!entry.signature || entry.activated || entry.near || entry.settled) continue
