@@ -1608,6 +1608,12 @@ export interface components {
        * @example https://storage.example.com/images/pepperoni.jpg
        */
       photo_url?: string | null
+      /** @description Доступные WebP варианты изображения с фактической шириной в пикселях; для старых файлов может быть пустым */
+      photo_variants?: {
+        /** Format: uri */
+        url: string
+        width: number
+      }[]
       /** @description Хит продаж филиала: попадает в блок «Популярное» по настройке режима популярных товаров */
       popular?: boolean
       /**

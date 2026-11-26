@@ -4,7 +4,7 @@ import ResponsiveSheet from '@/modules/shared/components/ui/ResponsiveSheet.vue'
 import { captionClass, sectionClass } from '../utils/formLayout'
 import type { useOrderTime, Fulfillment } from '../composables/useOrderTime'
 import { useI18n } from 'vue-i18n'
-import clockIcon from '@/assets/icons/fulfillment/clock.png'
+import clockIcon from '@/assets/icons/fulfillment/clock.webp'
 
 const props = defineProps<{
   fulfillment: Fulfillment

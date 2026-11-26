@@ -417,6 +417,7 @@ export const en: typeof ru = {
     },
   },
   menu: {
+    empty: 'No products in this menu yet.',
     productLoading: 'Loading product',
     productUnavailable: 'This product is no longer available',
     productLoadError: 'Could not load this product',

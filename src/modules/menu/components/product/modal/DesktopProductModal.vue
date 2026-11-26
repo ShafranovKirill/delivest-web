@@ -48,6 +48,8 @@ const weightKey = computed(() =>
           >
             <ProductImage
               :src="activeProduct?.photo_url"
+              :variants="activeProduct?.photo_variants"
+              sizes="(min-width: 768px) 350px, 80vw"
               :alt="activeProduct?.name"
               fit="contain"
               class="w-full max-h-[35vh] aspect-square rounded-3xl"

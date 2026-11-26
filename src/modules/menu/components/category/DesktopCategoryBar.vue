@@ -125,7 +125,7 @@ watch(categories, updateVisibleCount, { deep: true })
         >
           <LoyaltyCategoryButton page />
         </div>
-        <SkeletonCategoryBar v-if="isLoading" />
+        <SkeletonCategoryBar v-if="isLoading && !menu" />
         <Button
           v-for="category in categories.slice(0, visibleCount)"
           :key="category.id"

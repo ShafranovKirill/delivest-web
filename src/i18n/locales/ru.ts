@@ -418,6 +418,7 @@ export const ru = {
     },
   },
   menu: {
+    empty: 'В этом меню пока нет товаров.',
     productLoading: 'Загружаем товар',
     productUnavailable: 'Товар больше недоступен',
     productLoadError: 'Не удалось загрузить товар',

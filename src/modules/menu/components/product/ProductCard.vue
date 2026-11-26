@@ -6,6 +6,7 @@ import ProductImage from './ProductImage.vue'
 import { useMenuStore } from '../../stores/menu.store'
 import AddToCartSwitch from './button/AddToCartSwitch.vue'
 import ProductTagBadges from './tags/ProductTagBadges.vue'
+import { CARD_IMAGE_SIZES } from '../../utils/productImageSources'
 
 const props = defineProps<{ product: MenuProduct }>()
 const menuStore = useMenuStore()
@@ -54,8 +55,10 @@ function openProduct(event: MouseEvent | KeyboardEvent) {
           </div>
           <ProductImage
             :src="product.photo_url"
+            :variants="product.photo_variants"
+            :sizes="CARD_IMAGE_SIZES"
             :alt="product.name"
-            class="w-full mb-2 aspect-square rounded-4xl transition-transform duration-500 ease-in-out group-hover:translate-y-1.5"
+            class="w-full mb-2 aspect-square rounded-4xl transition-transform duration-500 ease-in-out group-hover:translate-y-1.5 motion-reduce:transition-none motion-reduce:transform-none"
             :class="{ 'opacity-50 grayscale': product.stopped }"
           />
           <p class="text-xl font-bold text-center mb-2">{{ product.name }}</p>

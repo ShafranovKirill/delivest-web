@@ -3,7 +3,7 @@ const widths = ['6rem', '8rem', '5rem', '7rem', '9rem', '6rem']
 </script>
 
 <template>
-  <div class="flex gap-4 overflow-hidden" aria-busy="true">
+  <div class="flex gap-4 overflow-hidden items-center" aria-busy="true">
     <Skeleton
       v-for="(width, index) in widths"
       :key="index"
@@ -14,3 +14,11 @@ const widths = ['6rem', '8rem', '5rem', '7rem', '9rem', '6rem']
     />
   </div>
 </template>
+
+<style scoped>
+@media (prefers-reduced-motion: reduce) {
+  :deep(.p-skeleton::after) {
+    animation: none;
+  }
+}
+</style>

@@ -1,0 +1,49 @@
+{
+  "measurement": "Offline Vite 8.2.2 build --manifest; traverse static imports from index.html; gzip.compress each emitted JS/CSS asset with mtime=0. Excludes dynamic imports, image transfers, browser cache and network overhead.",
+  "baseline": {
+    "revision": "6311b18",
+    "git_state": "clean source checkout before build",
+    "graph": {
+      "static_js_css_chunk_count": 33,
+      "static_js_css_raw_bytes": 1088224,
+      "static_js_css_gzip_bytes": 312443
+    }
+  },
+  "final": {
+    "revision": "uncommitted codex/menu-performance working tree",
+    "git_state": "dirty source checkout before build",
+    "graph": {
+      "static_js_css_chunk_count": 36,
+      "static_js_css_raw_bytes": 1071425,
+      "static_js_css_gzip_bytes": 308825
+    }
+  },
+  "icons": [
+    {
+      "source": "src/assets/cart-basket-bold.png",
+      "baseline_png_bytes": 465565,
+      "replacement": "src/assets/cart-basket-bold.webp",
+      "final_webp_bytes": 4672
+    },
+    {
+      "source": "src/assets/icons/fulfillment/clock.png",
+      "baseline_png_bytes": 366166,
+      "replacement": "src/assets/icons/fulfillment/clock.webp",
+      "final_webp_bytes": 1788
+    },
+    {
+      "source": "src/assets/icons/fulfillment/courier.png",
+      "baseline_png_bytes": 192185,
+      "replacement": "src/assets/icons/fulfillment/courier.webp",
+      "final_webp_bytes": 1654
+    },
+    {
+      "source": "src/assets/icons/fulfillment/restaurant.png",
+      "baseline_png_bytes": 173283,
+      "replacement": "src/assets/icons/fulfillment/restaurant.webp",
+      "final_webp_bytes": 1348
+    }
+  ],
+  "browser_metrics": "not measured: Chromium/listen blocked by EPERM",
+  "visualizer": "Optional ANALYZE_BUNDLE=1 mode configured; rollup-plugin-visualizer not installed offline, so no HTML/JSON visualizer report generated."
+}
