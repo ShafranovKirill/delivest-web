@@ -98,7 +98,13 @@ async function submit() {
         />
       </template>
 
-      <template #default="{ ready, locating }">
+      <template #default="{ ready, locating, notice }">
+        <div v-if="notice" class="text-sm text-gray-600" role="status">
+          <span>{{ notice.message }}</span>
+          <button v-if="notice.retry" type="button" class="ml-2 underline" @click="notice.retry()">
+            {{ t('fulfillment.form.retry') }}
+          </button>
+        </div>
         <Textarea
           v-model="draft.comment"
           :placeholder="t('fulfillment.form.comment')"

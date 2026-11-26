@@ -17,8 +17,8 @@ const opening = computed(() => {
   if (!date) return t('branch.closed.noOpening')
 
   const time = formatClock(date, intlLocale(), { hour: '2-digit', minute: '2-digit' })
-  if (sameDay(date, now.value)) return t('branch.closed.today', { time })
-  if (sameDay(date, addDays(now.value, 1))) return t('branch.closed.tomorrow', { time })
+  if (sameDay(date, now.value)) return t('branch.closed.todayBanner', { time })
+  if (sameDay(date, addDays(now.value, 1))) return t('branch.closed.tomorrowBanner', { time })
 
   const day = formatClock(date, intlLocale(), {
     weekday: 'short',
@@ -32,16 +32,13 @@ const opening = computed(() => {
 <template>
   <div v-if="!isOpen" class="w-full max-w-7xl mx-auto px-4 pb-4">
     <div
-      class="closed-banner relative isolate min-h-32 overflow-hidden rounded-3xl p-4 sm:min-h-36 sm:p-5"
+      class="closed-banner relative isolate flex min-h-32 items-center overflow-hidden rounded-3xl p-4 sm:min-h-36 sm:p-5"
     >
-      <div class="relative z-10 min-w-0 pr-[clamp(6.5rem,32vw,9.75rem)]">
-        <p class="text-xl font-bold leading-tight text-gray-900 sm:text-2xl">
+      <div class="relative z-10 min-w-0 pr-[clamp(5rem,24vw,7.1875rem)]">
+        <p class="closed-banner__title text-xl font-semibold leading-tight sm:text-2xl">
           {{ t('branch.closed.title') }}
         </p>
-        <p class="mt-2 text-base font-semibold leading-snug text-primary-strong">{{ opening }}</p>
-        <p v-if="opensAt" class="mt-1.5 text-sm leading-snug text-gray-700">
-          {{ t('branch.closed.hint') }}
-        </p>
+        <p class="mt-2 text-base leading-snug text-gray-700">{{ opening }}</p>
       </div>
       <ClosedCafeIllustration
         class="pointer-events-none absolute right-3 top-1/2 z-0 h-[clamp(4.5rem,24vw,7.1875rem)] w-auto -translate-y-1/2 text-primary-strong sm:right-4"
@@ -55,5 +52,9 @@ const opening = computed(() => {
 .closed-banner {
   --closed-bg: color-mix(in srgb, var(--color-primary) 18%, var(--surface-card, white));
   background: var(--closed-bg);
+}
+
+.closed-banner__title {
+  color: color-mix(in srgb, var(--color-primary) 55%, var(--color-gray-600));
 }
 </style>

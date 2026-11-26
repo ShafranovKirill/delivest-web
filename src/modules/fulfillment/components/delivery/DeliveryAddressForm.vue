@@ -7,6 +7,7 @@ import FloatLabel from 'primevue/floatlabel'
 import type { GeoAddress } from '../../api/geo.service'
 import { shortAddressLabel, streetLine, type DeliveryAddress } from '../../utils/deliveryAddress'
 import { parseAddress } from '../../utils/parseAddress'
+import type { AddressNotice } from './addressNotice'
 
 const props = defineProps<{
   suggest: boolean
@@ -15,7 +16,11 @@ const props = defineProps<{
   city: string | null
   floatingLabels?: boolean
 }>()
-const emit = defineEmits<{ select: [address: GeoAddress]; edit: [] }>()
+const emit = defineEmits<{
+  select: [address: GeoAddress]
+  edit: []
+  notice: [notice: AddressNotice | null]
+}>()
 const address = defineModel<DeliveryAddress>({ required: true })
 const { t } = useI18n()
 
@@ -92,6 +97,7 @@ const details = ['entrance', 'intercom', 'floor', 'apartment'] as const
       :floating-labels="floatingLabels"
       @select="selectAddress"
       @edit="editAddress"
+      @notice="emit('notice', $event)"
     />
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
       <template v-if="floatingLabels">

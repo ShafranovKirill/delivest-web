@@ -364,8 +364,9 @@ export const ru = {
       title: 'Кафе закрыто',
       today: 'Откроемся сегодня в {time}',
       tomorrow: 'Откроемся завтра в {time}',
+      todayBanner: 'Сегодня откроемся в {time}',
+      tomorrowBanner: 'Завтра откроемся в {time}',
       later: 'Откроемся {day} в {time}',
-      hint: 'Заказ можно оформить заранее, ко времени открытия',
       noOpening: 'Приём заказов временно приостановлен',
     },
     paused: {

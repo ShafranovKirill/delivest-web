@@ -363,8 +363,9 @@ export const en: typeof ru = {
       title: 'Cafe closed',
       today: 'We open today at {time}',
       tomorrow: 'We open tomorrow at {time}',
+      todayBanner: 'We open today at {time}',
+      tomorrowBanner: 'We open tomorrow at {time}',
       later: 'We open on {day} at {time}',
-      hint: 'You can order ahead for when we open',
       noOpening: 'Orders are paused for now',
     },
     paused: {
