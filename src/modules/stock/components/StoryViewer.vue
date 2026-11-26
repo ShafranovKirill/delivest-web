@@ -9,6 +9,7 @@ import { useStoryRoute } from '../composables/useStoryRoute'
 import { useStoryPlayer } from '../composables/useStoryPlayer'
 import { useSeenStories } from '../composables/useSeenStories'
 import StoryProgress from './StoryProgress.vue'
+import StoryLoading from './StoryLoading.vue'
 
 const STORY_DURATION = 6000
 const SWIPE_CLOSE_DISTANCE = 80
@@ -25,6 +26,7 @@ const index = computed(() => stories.value.findIndex((story) => story.id === sto
 const current = computed(() => stories.value[index.value] ?? null)
 
 const loaded = ref(false)
+const imageFailed = ref(false)
 const frame = ref<HTMLElement | null>(null)
 const isOpen = computed(() => current.value !== null)
 const playing = computed(() => isOpen.value && loaded.value)
@@ -35,9 +37,10 @@ const scrollLock = useScrollLock(document.body)
 watch(isOpen, (open) => (scrollLock.value = open), { immediate: true })
 
 watch(
-  () => current.value?.id,
-  (id) => {
-    loaded.value = false
+  () => [current.value?.id, current.value?.photo_url] as const,
+  ([id, photoUrl]) => {
+    loaded.value = !!id && !photoUrl
+    imageFailed.value = !photoUrl
     restart()
     if (id) markSeen(id)
   },
@@ -54,6 +57,11 @@ function previous() {
   const preceding = stories.value[index.value - 1]
   if (preceding?.id) show(preceding.id)
   else restart()
+}
+
+function onImageError() {
+  imageFailed.value = true
+  loaded.value = true
 }
 
 let start = { x: 0, y: 0, at: 0 }
@@ -109,12 +117,14 @@ function openProduct() {
         <div
           ref="frame"
           class="relative h-dvh w-full overflow-hidden bg-black select-none touch-none md:h-[min(90vh,820px)] md:w-auto md:aspect-9/16 md:rounded-3xl"
+          :aria-busy="!loaded"
           @pointerdown="onPointerDown"
           @pointerup="onPointerUp"
           @pointercancel="held = false"
           @contextmenu.prevent
         >
           <img
+            v-if="current.photo_url && !imageFailed"
             :key="`${current.id}-backdrop`"
             :src="current.photo_url"
             alt=""
@@ -123,13 +133,27 @@ function openProduct() {
             class="absolute inset-0 size-full scale-125 object-cover blur-2xl brightness-50 saturate-150"
           />
           <img
-            :key="current.id"
+            v-if="current.photo_url && !imageFailed"
+            :key="`${current.id}-${current.photo_url}`"
             :src="current.photo_url"
             :alt="current.text || t('stock.single')"
             draggable="false"
-            class="absolute inset-0 size-full object-contain"
+            class="absolute inset-0 size-full object-contain transition-opacity duration-200 motion-reduce:transition-none"
+            :class="loaded ? 'opacity-100' : 'opacity-0'"
             @load="loaded = true"
-            @error="loaded = true"
+            @error="onImageError"
+          />
+          <div
+            v-if="imageFailed"
+            class="absolute inset-0 grid place-items-center p-6 text-center font-semibold text-white"
+          >
+            {{ current.text || t('stock.single') }}
+          </div>
+          <StoryLoading v-if="!loaded" />
+          <span
+            v-if="!loaded"
+            aria-hidden="true"
+            class="pointer-events-none absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30 border-t-white motion-safe:animate-spin"
           />
 
           <div
@@ -154,7 +178,10 @@ function openProduct() {
             v-if="current.text || current.product_slug"
             class="absolute inset-x-0 bottom-0 flex flex-col gap-4 bg-linear-to-t from-black/80 via-black/40 to-transparent px-5 pt-20 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
           >
-            <p v-if="current.text" class="text-lg font-semibold leading-snug text-white">
+            <p
+              v-if="current.text && !imageFailed"
+              class="text-lg font-semibold leading-snug text-white"
+            >
               {{ current.text }}
             </p>
             <button
