@@ -27,24 +27,14 @@ const { state, srcset, hasPhoto, onError } = useProductImageState(
 
 <template>
   <span ref="element" class="relative block overflow-hidden">
-    <svg
+    <img
       v-if="state !== 'loaded'"
-      viewBox="0 0 100 100"
+      src="/placeholder/product-placeholder.svg"
+      alt=""
       aria-hidden="true"
-      class="absolute inset-0 size-full text-[#ebeaea]"
+      class="absolute inset-0 size-full object-contain"
       :class="{ 'opacity-70 motion-safe:animate-[spin_8s_linear_infinite]': hasPhoto }"
-    >
-      <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="3" />
-      <path
-        d="M50 12v76M17 31l66 38M83 31 17 69"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="3"
-      />
-      <circle cx="38" cy="35" r="4" fill="currentColor" />
-      <circle cx="67" cy="52" r="4" fill="currentColor" />
-      <circle cx="43" cy="69" r="4" fill="currentColor" />
-    </svg>
+    />
     <img
       v-if="hasPhoto && imageSource"
       :src="imageSource"
