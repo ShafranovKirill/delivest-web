@@ -50,7 +50,7 @@ const selected = ref<string[]>([])
       <div class="mt-3 flex flex-col">
         <div class="flex flex-col gap-2">
           <ProductTagPills :tags="activeProduct?.tags ?? []" />
-          <h2 class="text-2xl font-semibold tracking-tight text-gray-900">
+          <h2 class="min-w-0 text-2xl font-semibold tracking-tight text-gray-900 [overflow-wrap:anywhere]">
             {{ activeProduct?.name }}
           </h2>
 

@@ -45,6 +45,12 @@ describe('image loading and fallback', () => {
       image.state.value = 'loaded'
       variants.value = [{ url: '/small.webp', width: 320 }]
       expect(image.state.value).toBe('loaded')
+      // A partial backfill can add a smaller choice while the current photo stays loaded.
+      variants.value = [
+        { url: '/tiny.webp', width: 192 },
+        { url: '/small.webp', width: 320 },
+      ]
+      expect(image.state.value).toBe('loaded')
       variants.value = [{ url: '/medium.webp', width: 640 }]
       expect(image.state.value).toBe('loaded')
       photo.value = '/next.jpg'

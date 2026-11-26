@@ -54,6 +54,7 @@ function openProduct(event: MouseEvent | KeyboardEvent) {
             <StarRewardBadge :amount="product.stars_reward" compact />
           </div>
           <ProductImage
+            coordinated
             :src="product.photo_url"
             :variants="product.photo_variants"
             :sizes="CARD_IMAGE_SIZES"

@@ -61,7 +61,7 @@ const weightKey = computed(() =>
             <div class="space-y-3">
               <div>
                 <ProductTagPills :tags="activeProduct?.tags ?? []" class="mb-3" />
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                <h2 class="min-w-0 pr-12 text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight [overflow-wrap:anywhere]">
                   {{ activeProduct?.name }}
                 </h2>
 

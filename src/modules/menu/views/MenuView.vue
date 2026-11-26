@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, nextTick, onMounted, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onMounted, onScopeDispose, provide, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import { useMenuStore } from '../stores/menu.store'
@@ -31,6 +31,7 @@ import { useLoyaltyModalStore } from '@/modules/account/stores/loyalty.store'
 import { useI18n } from 'vue-i18n'
 import { menuDisplayState } from '../utils/menuDisplayState'
 import ProductModalPending from '../components/product/modal/ProductModalPending.vue'
+import { ProductPhotoQueue, productPhotoQueueKey } from '../utils/productPhotoQueue'
 
 const ProductModal = defineAsyncComponent({
   loader: () => import('../components/product/modal/ProductModal.vue'),
@@ -46,7 +47,7 @@ const LoyaltyModal = defineAsyncComponent(
   () => import('@/modules/account/components/LoyaltyModal.vue'),
 )
 const loyaltyModal = useLoyaltyModalStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const viewportStore = useViewportStore()
 const cartStore = useCartStore()
@@ -59,6 +60,17 @@ const fulfillmentStore = useFulfillmentStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
 const menuStore = useMenuStore()
+const photoQueue = new ProductPhotoQueue()
+provide(productPhotoQueueKey, photoQueue)
+onScopeDispose(() => photoQueue.dispose())
+watch([() => branchStore.activeBranch?.id, locale], () => photoQueue.reset(), { flush: 'sync' })
+watch(
+  [menuData, isLoading, () => branchStore.activeBranch?.id, locale],
+  ([data, loading]) => { if (data && !loading) photoQueue.resume() },
+  { flush: 'post', immediate: true },
+)
+useEventListener(window, 'scroll', () => photoQueue.viewportChanged(), { passive: true })
+useEventListener(window, 'resize', () => photoQueue.viewportChanged())
 watch(
   () => menuStore.isProductModalOpen,
   async (open, wasOpen) => {
