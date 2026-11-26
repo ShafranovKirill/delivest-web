@@ -1,10 +1,13 @@
 # Bundle analysis
 
-The visualizer is optional and installed separately from the client dependency tree:
+The visualizer is pinned and locked separately from the client dependency tree:
 
 ```sh
-npm install --prefix tools/bundle-analysis
+npm ci --prefix tools/bundle-analysis
 ANALYZE_BUNDLE=1 pnpm build-only
 ```
 
-The build writes `artifacts/bundle/report.html`, `report.json`, and `dist/.vite/manifest.json`. The first install creates a lockfile in this directory; commit that lockfile after a networked install. Normal builds need no analyzer package. This offline checkout has no analyzer package, so no visualizer report was produced. The separate build graph and icon measurements are in `docs/menu-performance-build.json`.
+The build writes `artifacts/bundle/report.html`, `report.json`, and `dist/.vite/manifest.json`.
+Normal builds do not need the analyzer package. The Lighthouse workflow installs the
+locked analyzer and uploads its reports. Measured browser transfers and verification
+results are in the parent repository's `docs/tasks/menu-performance/RESULTS.md`.
