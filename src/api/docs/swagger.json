@@ -260,6 +260,7 @@
             "type": "string"
           },
           "is_active": { "example": true, "type": "boolean" },
+          "is_combo": { "description": "Комбо с выбором компонентов", "type": "boolean" },
           "measure_unit": {
             "description": "Единица измерения веса: граммы или миллилитры",
             "enum": ["g", "ml"],
@@ -277,6 +278,11 @@
                 "modifiers": {
                   "items": {
                     "properties": {
+                      "component_product_id": {
+                        "format": "uuid",
+                        "nullable": true,
+                        "type": "string"
+                      },
                       "id": { "format": "uuid", "type": "string" },
                       "is_default": { "type": "boolean" },
                       "max_quantity": { "example": 1, "type": "integer" },
@@ -1454,6 +1460,7 @@
               "cart_is_empty",
               "cart_already_ordered",
               "cart_changed",
+              "combo_requires_delivest",
               "idempotency_conflict",
               "invalid_idempotency_key",
               "payment_unavailable",

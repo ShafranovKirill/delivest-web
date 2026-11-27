@@ -19,6 +19,7 @@ import { useMetrikaAnalytics } from '@/modules/analytics/useMetrikaAnalytics'
 const PRICE_ERRORS = [
   'price_changed',
   'cart_changed',
+  'combo_requires_delivest',
   'promo_unavailable',
   'promo_gift_not_available',
 ]

@@ -52,8 +52,9 @@ export interface OrderFormValues {
   call_operator_for_address: boolean
 }
 
-defineProps<{
+const props = defineProps<{
   isLoading: boolean
+  cartBlocked: boolean
 }>()
 
 const emit = defineEmits<{
@@ -451,6 +452,8 @@ function updateInlineAddress(address: DeliveryAddress) {
 }
 
 function handleSubmit() {
+  if (props.cartBlocked) return
+
   if (authStore.isRequired && !authStore.isAuthenticated) {
     if (authStore.isEnabled) {
       authStore.openModal()
@@ -828,7 +831,10 @@ function handleSubmit() {
           type="submit"
           :label="t('order.form.submit')"
           :disabled="
-            deliveryBlocked || !fulfillmentStore.canOrder || !orderTime.isAvailable(form.cook_by)
+            cartBlocked ||
+            deliveryBlocked ||
+            !fulfillmentStore.canOrder ||
+            !orderTime.isAvailable(form.cook_by)
           "
           icon="pi pi-check"
           iconPos="right"

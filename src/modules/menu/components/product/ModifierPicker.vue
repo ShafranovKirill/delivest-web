@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { formatPrice } from '@/utils/money'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
+import { useI18n } from 'vue-i18n'
 
 type Group = NonNullable<MenuProduct['modifier_groups']>[number]
 
-defineProps<{ groups: Group[] }>()
+const props = defineProps<{ groups: Group[]; combo?: boolean }>()
 const selected = defineModel<string[]>({ required: true })
+const { t } = useI18n()
 
 function hasPhotos(group: Group) {
   return group.modifiers.some((m) => m.photo_url)
@@ -23,6 +25,7 @@ function atLimit(group: Group) {
 }
 
 function unavailable(group: Group, id: string, stopped: boolean) {
+  if (props.combo && stopped && group.min === 0 && selected.value.includes(id)) return false
   return stopped || (atLimit(group) && !selected.value.includes(id))
 }
 
@@ -46,6 +49,9 @@ function toggle(group: Group, id: string) {
     <div v-for="group in groups" :key="group.id">
       <p class="mb-2 text-sm font-semibold text-gray-900">
         {{ group.name === 'Добавки' ? 'Дополни вкус' : group.name }}
+        <span v-if="combo" class="ml-1 font-normal text-gray-500">
+          {{ t(group.min ? 'menu.requiredComboGroup' : 'menu.optionalComboGroup') }}
+        </span>
       </p>
 
       <div v-if="group.is_size" class="flex gap-1 rounded-full bg-gray-100 p-1">
@@ -131,6 +137,9 @@ function toggle(group: Group, id: string) {
           {{ modifier.name }}
           <span v-if="modifier.price > 0" class="text-gray-500">
             +{{ formatPrice(modifier.price) }}
+          </span>
+          <span v-if="combo && modifier.stopped" class="text-gray-500">
+            {{ t('menu.soldOut') }}
           </span>
         </button>
       </div>

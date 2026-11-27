@@ -1552,6 +1552,8 @@ export interface components {
       id?: string
       /** @example true */
       is_active?: boolean
+      /** @description Комбо с выбором компонентов */
+      is_combo?: boolean
       /**
        * @description Единица измерения веса: граммы или миллилитры
        * @example g
@@ -1568,6 +1570,8 @@ export interface components {
         /** @example 1 */
         min: number
         modifiers: {
+          /** Format: uuid */
+          component_product_id?: string | null
           /** Format: uuid */
           id: string
           is_default: boolean
@@ -2478,6 +2482,7 @@ export interface components {
         | 'cart_is_empty'
         | 'cart_already_ordered'
         | 'cart_changed'
+        | 'combo_requires_delivest'
         | 'idempotency_conflict'
         | 'invalid_idempotency_key'
         | 'payment_unavailable'

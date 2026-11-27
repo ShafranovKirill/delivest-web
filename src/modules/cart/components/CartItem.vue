@@ -116,7 +116,13 @@ function handleIncrease() {
           v-if="item.stopped || item.unavailable"
           class="mt-1.5 inline-block rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600"
         >
-          {{ item.unavailable ? t('cart.unavailable') : t('cart.soldOut') }}
+          {{
+            item.unavailable_reason === 'combo_requires_delivest'
+              ? t('cart.comboRequiresDelivest')
+              : item.unavailable
+                ? t('cart.unavailable')
+                : t('cart.soldOut')
+          }}
         </span>
       </div>
     </div>
