@@ -5,7 +5,7 @@ import { useStocksQuery } from '../composables/useStocksQuery'
 import { useStoryRoute } from '../composables/useStoryRoute'
 import StoryCard from './StoryCard.vue'
 
-const { data, isLoading } = useStocksQuery()
+const { data } = useStocksQuery()
 const { open } = useStoryRoute()
 const photoQueue = inject(productPhotoQueueKey, null)
 
@@ -15,9 +15,6 @@ const storyKey = computed(() =>
 )
 const cards = ref<HTMLElement | null>(null)
 const coversPending = ref(false)
-const showCarousel = computed(
-  () => (isLoading.value && !stories.value.length) || coversPending.value,
-)
 let coverObserver: MutationObserver | undefined
 let generation = 0
 
@@ -66,10 +63,10 @@ onBeforeUnmount(() => coverObserver?.disconnect())
 
 <template>
   <section
-    v-if="stories.length || isLoading"
+    v-if="stories.length"
     class="story-strip relative w-full max-w-7xl mx-auto pb-4"
-    :class="{ 'story-strip--loading': showCarousel }"
-    :aria-busy="showCarousel"
+    :class="{ 'story-strip--loading': coversPending }"
+    :aria-busy="coversPending"
   >
     <div
       ref="cards"
