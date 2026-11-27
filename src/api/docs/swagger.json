@@ -7938,6 +7938,6 @@
     }
   },
   "security": [],
-  "servers": [{ "url": "/", "variables": {} }],
+  "servers": [{ "url": "http://localhost:4000", "variables": {} }],
   "tags": []
 }
