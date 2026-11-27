@@ -3,6 +3,7 @@ import { onMounted, onUnmounted, ref, watch, type Ref } from 'vue'
 export function useProximityImageSource(
   element: Ref<HTMLElement | null>,
   source: Ref<string | null | undefined>,
+  rootMargin = '1250px',
 ) {
   const imageSource = ref<string | null | undefined>()
   let nearby = false
@@ -23,7 +24,7 @@ export function useProximityImageSource(
     observer = new IntersectionObserver(entries => {
       nearby = entries[0]?.isIntersecting ?? false
       if (nearby) imageSource.value = source.value
-    }, { rootMargin: '1250px' })
+    }, { rootMargin })
     observer.observe(element.value)
   })
 

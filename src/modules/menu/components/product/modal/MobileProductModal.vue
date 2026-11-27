@@ -39,6 +39,8 @@ const selected = ref<string[]>([])
       <div class="w-full flex justify-center items-center shrink-0">
         <ProductImage
           :src="activeProduct?.photo_url"
+          :variants="activeProduct?.photo_variants"
+          sizes="(min-width: 640px) 256px, 200px"
           :alt="activeProduct?.name"
           class="aspect-square w-full max-w-50 rounded-4xl sm:max-w-64"
           :class="{ 'opacity-50 grayscale': activeProduct?.stopped }"
@@ -48,7 +50,7 @@ const selected = ref<string[]>([])
       <div class="mt-3 flex flex-col">
         <div class="flex flex-col gap-2">
           <ProductTagPills :tags="activeProduct?.tags ?? []" />
-          <h2 class="text-2xl font-semibold tracking-tight text-gray-900">
+          <h2 class="min-w-0 text-2xl font-semibold tracking-tight text-gray-900 [overflow-wrap:anywhere]">
             {{ activeProduct?.name }}
           </h2>
 

@@ -14,6 +14,7 @@ import { emptyDeliveryAddress, isComplete, type DeliveryAddress } from '../../ut
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 import { useFranchiseStore } from '@/modules/franchise/stores/franchise.store'
 import { lngLatOf } from '../../utils/deliveryAddress'
+import type { AddressNotice } from './addressNotice'
 
 const { t } = useI18n()
 const emit = defineEmits<{ mapUnavailable: [] }>()
@@ -35,6 +36,9 @@ const address = ref<DeliveryAddress>({
     (fulfillmentStore.current?.type === 'delivery' ? fulfillmentStore.current.address : null) ??
     emptyDeliveryAddress()),
 })
+const missingHouse = computed(
+  () => address.value.street.trim().length >= 4 && !address.value.house.trim(),
+)
 watch(
   [() => authStore.client?.id ?? 'guest', () => branchStore.activeBranch?.id],
   ([, branchId], [previousOwner, previousBranchId]) => {
@@ -130,29 +134,35 @@ function confirmWithOperator() {
     @zoom-too-low="requireZoom"
     @map-unavailable="emit('mapUnavailable')"
   >
-    <template #map-overlay="{ ready, locating }">
+    <template #map-overlay="{ ready, locating, notice }: { ready: boolean; locating: boolean; notice: AddressNotice | null }">
       <DeliveryQuoteSummary
+        :notice="notice"
         :quote="selecting || needsZoom ? null : delivery.quote.value"
         :has-point="address.latitude != null && address.longitude != null"
+        :missing-house="missingHouse"
         :ready="ready && !locating"
         :pending="delivery.pending.value"
         :selecting="selecting"
         :needs-zoom="needsZoom"
         :error="delivery.isError.value"
+        :retry-quote="() => delivery.retry()"
         :subtotal="delivery.subtotal.value"
       />
     </template>
-    <template #default="{ ready, locating, onMap }">
+    <template #default="{ ready, locating, onMap, notice }: { ready: boolean; locating: boolean; onMap: boolean; notice: AddressNotice | null }">
       <div class="flex min-w-0 flex-col gap-2" :class="onMap ? 'sm:flex-row sm:items-center' : ''">
         <DeliveryQuoteSummary
-          v-if="!onMap && !manualMode"
+          v-if="!onMap && (!manualMode || notice)"
+          :notice="notice"
           :quote="selecting || needsZoom ? null : delivery.quote.value"
           :has-point="address.latitude != null && address.longitude != null"
+          :missing-house="missingHouse"
           :ready="ready && !locating"
           :pending="delivery.pending.value"
           :selecting="selecting"
           :needs-zoom="needsZoom"
           :error="delivery.isError.value"
+          :retry-quote="() => delivery.retry()"
           :subtotal="delivery.subtotal.value"
         />
         <Button
@@ -182,13 +192,6 @@ function confirmWithOperator() {
           )
         }}
       </p>
-      <Button
-        v-if="!manualMode && delivery.isError.value"
-        :label="t('delivery.retry')"
-        variant="text"
-        class="w-full!"
-        @click="delivery.retry()"
-      />
       <Button
         v-if="canUseOperator"
         :label="t('fulfillment.tellOperator')"

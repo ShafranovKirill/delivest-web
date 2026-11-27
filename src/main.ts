@@ -18,6 +18,8 @@ import { registerServiceWorker } from './modules/pwa/registerServiceWorker'
 import { watch } from 'vue'
 import { useAuthStore } from './modules/auth/stores/auth.store'
 import { primeSession } from './router/primeSession'
+import { useBrandLogo } from './modules/franchise/composables/useBrandLogo'
+import { preloadBrandLogo } from './modules/franchise/utils/brandLogoPreload'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -51,4 +53,5 @@ watch(() => [auth.sessionEpoch, auth.client?.id, auth.accessToken, auth.sessionC
 void router.isReady().then(async () => {
   if (!useFranchiseStore(pinia).franchise) await useFranchiseStore(pinia).init()
 }).catch(error => console.error('[Storefront] Route initialization failed:', error))
+  .then(() => preloadBrandLogo(useBrandLogo().value))
   .finally(() => app.mount('#app'))

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LoyaltyEarnings from '@/modules/account/components/LoyaltyEarnings.vue'
-import courierIcon from '@/assets/icons/fulfillment/courier.png'
-import restaurantIcon from '@/assets/icons/fulfillment/restaurant.png'
+import courierIcon from '@/assets/icons/fulfillment/courier.webp'
+import restaurantIcon from '@/assets/icons/fulfillment/restaurant.webp'
 
 import { reactive, computed, ref, watch, nextTick } from 'vue'
 import { useToast } from 'primevue/usetoast'

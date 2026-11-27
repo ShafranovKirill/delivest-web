@@ -323,6 +323,18 @@
             "nullable": true,
             "type": "string"
           },
+          "photo_variants": {
+            "description": "Доступные WebP варианты изображения с фактической шириной в пикселях; для старых файлов может быть пустым",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["url", "width"],
+              "properties": {
+                "url": { "type": "string", "format": "uri" },
+                "width": { "type": "integer", "minimum": 1 }
+              }
+            }
+          },
           "popular": {
             "description": "Хит продаж филиала: попадает в блок «Популярное» по настройке режима популярных товаров",
             "type": "boolean"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseMap from '../map/BaseMap.vue'
 import DeliveryAddressForm from './DeliveryAddressForm.vue'
 import SavedAddresses from './SavedAddresses.vue'
@@ -12,6 +13,7 @@ import { useDeliveryAddresses } from '../../composables/useDeliveryAddresses'
 import { savedMarkers } from '../../utils/savedMarkers'
 import type { DeliveryAddress, LngLat } from '../../utils/deliveryAddress'
 import type { DeliveryZone } from '../../api/delivery.service'
+import type { AddressNotice } from './addressNotice'
 
 const props = withDefaults(
   defineProps<{
@@ -27,6 +29,7 @@ const props = withDefaults(
 const emit = defineEmits<{ selecting: []; zoomTooLow: []; mapUnavailable: [] }>()
 
 const address = defineModel<DeliveryAddress>({ required: true })
+const { t } = useI18n()
 
 const branchStore = useBranchStore()
 const franchiseStore = useFranchiseStore()
@@ -34,11 +37,11 @@ const hasMap = computed(() => franchiseStore.addressMap && branchStore.mapAddres
 const mapAvailable = ref(true)
 const showMap = computed(() => hasMap.value && mapAvailable.value)
 const savedAddresses = useDeliveryAddresses()
+const suggestionNotice = ref<AddressNotice | null>(null)
 
 const {
   mapCenter,
   isLocating,
-  locateError,
   notFound,
   locate,
   invalidate,
@@ -48,6 +51,12 @@ const {
   pickSuggestion,
   pickSaved,
 } = useAddressEditor(address, () => branchStore.requiresCoordinates)
+const notice = computed<AddressNotice | null>(() => {
+  if (suggestionNotice.value) return suggestionNotice.value
+  if (showMap.value && notFound.value)
+    return { message: t('fulfillment.form.houseNotFound'), retry: retryLocate }
+  return null
+})
 
 const markers = computed(() => (props.saved ? savedMarkers(savedAddresses.value) : []))
 
@@ -96,7 +105,7 @@ function mapUnavailable() {
         @select="pickSaved"
       />
       <template v-if="$slots['map-overlay']" #map-overlay>
-        <slot name="map-overlay" :ready="isReady" :locating="isLocating" />
+        <slot name="map-overlay" :ready="isReady" :locating="isLocating" :notice="notice" />
       </template>
     </BaseMap>
 
@@ -114,23 +123,12 @@ function mapUnavailable() {
           :floating-labels="floatingLabels"
           @select="pickSuggestion"
           @edit="invalidate"
+          @notice="suggestionNotice = $event"
         />
-        <div v-if="showMap && locateError" class="text-sm text-red-600" role="alert">
-          {{ $t('fulfillment.form.locateError') }}
-          <button type="button" class="ml-2 underline" @click="retryLocate">
-            {{ $t('fulfillment.form.retry') }}
-          </button>
-        </div>
-        <div v-else-if="showMap && notFound" class="text-sm text-gray-600" role="status">
-          {{ $t('fulfillment.form.houseNotFound') }}
-          <button type="button" class="ml-2 underline" @click="retryLocate">
-            {{ $t('fulfillment.form.retry') }}
-          </button>
-        </div>
       </div>
 
       <div class="flex flex-col gap-2 border-t border-gray-100 pt-4">
-        <slot :ready="isReady" :locating="isLocating" :on-map="showMap" />
+        <slot :ready="isReady" :locating="isLocating" :on-map="showMap" :notice="notice" />
       </div>
     </SheetPanel>
   </div>

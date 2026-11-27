@@ -5,7 +5,11 @@ const getProduct = vi.hoisted(() => vi.fn())
 const route = reactive({ params: {} as Record<string, string>, query: {} as Record<string, string> })
 const branch = reactive({ activeBranch: { id: 'branch-a' } })
 const router = { push: vi.fn().mockResolvedValue(undefined), replace: vi.fn().mockResolvedValue(undefined), back: vi.fn() }
-vi.mock('vue-router', () => ({ useRoute: () => route, useRouter: () => router }))
+vi.mock('vue-router', () => ({
+  useRoute: () => route,
+  useRouter: () => router,
+  isNavigationFailure: (result: { cancelled?: boolean } | undefined) => result?.cancelled === true,
+}))
 vi.mock('@/modules/branch/stores/branch.store', () => ({ useBranchStore: () => branch }))
 vi.mock('@/modules/menu/api/menu.service', () => ({ MenuService: { getProduct } }))
 import { useMenuStore } from '../src/modules/menu/stores/menu.store'
@@ -48,6 +52,35 @@ it('closing during point loading prevents a late response from reopening the car
   resolve({ id: 'product-a', slug: 'pizza' })
   await flush()
   expect(menu.activeProduct).toBeNull()
+  expect(menu.isProductModalOpen).toBe(false)
+})
+
+it('closing a card before its URL push completes returns to the menu', async () => {
+  route.params = { slug: 'center' }
+  let finishPush!: () => void
+  router.push.mockImplementationOnce(({ query }: { query: Record<string, string> }) =>
+    new Promise<void>(resolve => {
+      finishPush = () => { route.query = query; resolve() }
+    }),
+  )
+  const menu = open()
+  menu.openProductModal({ id: 'product-a', slug: 'pizza' })
+  expect(router.push).toHaveBeenCalledOnce()
+  menu.closeProductModal()
+  finishPush()
+  await flush()
+  expect(router.back).toHaveBeenCalledOnce()
+  expect(menu.isProductModalOpen).toBe(false)
+})
+
+it('an aborted card URL push does not navigate back from the menu', async () => {
+  route.params = { slug: 'center' }
+  router.push.mockResolvedValueOnce({ cancelled: true })
+  const menu = open()
+  menu.openProductModal({ id: 'product-a', slug: 'pizza' })
+  menu.closeProductModal()
+  await flush()
+  expect(router.back).not.toHaveBeenCalled()
   expect(menu.isProductModalOpen).toBe(false)
 })
 

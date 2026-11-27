@@ -4,7 +4,7 @@ import SkeletonProduct from '../product/SkeletonProduct.vue'
 
 <template>
   <div class="my-4">
-    <Skeleton class="mb-2 ml-2 w-55! h-8! rounded-4xl!"></Skeleton>
+    <Skeleton class="mb-2 ml-2 sm:ml-0 w-55! h-10! rounded-4xl!"></Skeleton>
     <div
       class="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-1 sm:gap-2 justify-items-center"
     >
@@ -12,3 +12,11 @@ import SkeletonProduct from '../product/SkeletonProduct.vue'
     </div>
   </div>
 </template>
+
+<style scoped>
+@media (prefers-reduced-motion: reduce) {
+  :deep(.p-skeleton::after) {
+    animation: none;
+  }
+}
+</style>

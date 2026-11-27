@@ -24,7 +24,7 @@ useMobCatBarScroll(activeCategoryId, containerRef)
 <template>
   <div class="bg-gray-200 w-full sticky top-15 z-50">
     <div class="min-h-18 py-4 bg-white rounded-t-4xl w-full overflow-hidden">
-      <SkeletonCategoryBar v-if="isLoading" class="px-4" />
+      <SkeletonCategoryBar v-if="isLoading && !menu" class="px-4" />
       <div
         v-else
         ref="containerRef"

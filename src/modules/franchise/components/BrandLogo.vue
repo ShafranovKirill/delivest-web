@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useFranchiseStore } from '../stores/franchise.store'
 import { useBrandLogo } from '../composables/useBrandLogo'
+import { hasFailedBrandLogo, markBrandLogoFailed } from '../utils/brandLogoPreload'
 
 const props = defineProps<{ fallback?: string }>()
 
@@ -12,7 +13,12 @@ const failed = ref(false)
 watch(logo, () => (failed.value = false))
 
 const name = computed(() => franchiseStore.name || props.fallback || '')
-const showImage = computed(() => Boolean(logo.value) && !failed.value)
+const showImage = computed(() => Boolean(logo.value) && !failed.value && !hasFailedBrandLogo(logo.value!))
+
+function onError() {
+  if (logo.value) markBrandLogoFailed(logo.value)
+  failed.value = true
+}
 </script>
 
 <template>
@@ -22,8 +28,10 @@ const showImage = computed(() => Boolean(logo.value) && !failed.value)
       :src="logo!"
       :alt="name"
       decoding="async"
+      loading="eager"
+      fetchpriority="high"
       class="h-full w-auto max-w-full object-contain object-left"
-      @error="failed = true"
+      @error="onError"
     />
     <span v-else class="font-brand font-medium tracking-tighter text-primary truncate">
       {{ name }}

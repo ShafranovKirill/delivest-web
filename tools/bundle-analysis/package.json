@@ -1,0 +1,8 @@
+{
+  "name": "delivest-bundle-analysis",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "rollup-plugin-visualizer": "6.0.5"
+  }
+}

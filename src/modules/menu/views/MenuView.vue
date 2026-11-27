@@ -1,6 +1,13 @@
 <script setup lang="ts">
-import LoyaltyModal from '@/modules/account/components/LoyaltyModal.vue'
-import { computed, nextTick, onMounted, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onMounted,
+  onScopeDispose,
+  provide,
+  watch,
+} from 'vue'
 import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import { useMenuStore } from '../stores/menu.store'
@@ -20,17 +27,53 @@ import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import NotificationCards from '@/modules/notifications/components/NotificationCards.vue'
 import { useCartStore } from '@/modules/cart/stores/cart.store.ts'
+import { useOpenCart } from '@/modules/cart/composables/useOpenCart'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { pendingPrivateSession } from '@/api/storefront'
 import MobileCategoryBar from '../components/category/MobileCategoryBar.vue'
 import DesktopCategoryBar from '../components/category/DesktopCategoryBar.vue'
 import SkeletonCategory from '../components/category/SkeletonCategory.vue'
 import CategoryComponent from '../components/category/CategoryComponent.vue'
-import ProductModal from '../components/product/modal/ProductModal.vue'
 import ErrorComponent from '../components/category/ErrorComponent.vue'
+import { useLoyaltyModalStore } from '@/modules/account/stores/loyalty.store'
+import { useI18n } from 'vue-i18n'
+import { menuDisplayState } from '../utils/menuDisplayState'
+import ProductModalPending from '../components/product/modal/ProductModalPending.vue'
+import { ProductPhotoQueue, productPhotoQueueKey } from '../utils/productPhotoQueue'
+import type { ProductPhotoHandle } from '../utils/productPhotoQueue'
+import { useStocksQuery } from '@/modules/stock/composables/useStocksQuery'
+
+let productModalModule: Promise<
+  typeof import('../components/product/modal/ProductModal.vue')
+> | null = null
+function loadProductModal() {
+  if (!productModalModule) {
+    productModalModule = import('../components/product/modal/ProductModal.vue').catch((error) => {
+      productModalModule = null
+      throw error
+    })
+  }
+  return productModalModule
+}
+const ProductModal = defineAsyncComponent({
+  loader: loadProductModal,
+  loadingComponent: ProductModalPending,
+  errorComponent: ProductModalPending,
+  delay: 0,
+  onError(_error, retry, fail, attempts) {
+    if (attempts < 2) retry()
+    else fail()
+  },
+})
+const LoyaltyModal = defineAsyncComponent(
+  () => import('@/modules/account/components/LoyaltyModal.vue'),
+)
+const loyaltyModal = useLoyaltyModalStore()
+const { t, locale } = useI18n()
 
 const viewportStore = useViewportStore()
 const cartStore = useCartStore()
+const openCart = useOpenCart()
 const branchStore = useBranchStore()
 const authStore = useAuthStore()
 const analytics = useFunnelAnalytics()
@@ -38,41 +81,182 @@ const route = useRoute()
 const fulfillmentStore = useFulfillmentStore()
 
 const { data: menuData, isLoading, isError, refetch } = useMenuQuery()
+const stocksEnabled = computed(() => !!branchStore.activeBranch?.branch_info?.stocks_enabled)
+const { isLoading: storiesLoading } = useStocksQuery(stocksEnabled)
+const menuStore = useMenuStore()
+const photoQueue = new ProductPhotoQueue()
+photoQueue.setBackgroundEnabled(false)
+provide(productPhotoQueueKey, photoQueue)
+onScopeDispose(() => photoQueue.dispose())
+const backgroundHandles = new Map<string, ProductPhotoHandle>()
+let backgroundScope = ''
+let backgroundVersion = 0
+function clearBackground() {
+  for (const handle of backgroundHandles.values()) handle.remove()
+  backgroundHandles.clear()
+}
+watch(
+  [() => branchStore.activeBranch?.id, locale],
+  () => {
+    backgroundVersion++
+    photoQueue.reset()
+    clearBackground()
+    backgroundScope = ''
+    photoQueue.setBackgroundEnabled(false)
+    photoQueue.resume()
+  },
+  { flush: 'sync' },
+)
+watch(
+  [menuData, isLoading, storiesLoading, stocksEnabled],
+  ([data, loading, loadingStories, stocks]) => {
+    photoQueue.setBackgroundEnabled(Boolean(data) && !loading && (!stocks || !loadingStories))
+  },
+  { flush: 'sync', immediate: true },
+)
+watch(
+  [menuData, isLoading, storiesLoading, () => branchStore.activeBranch?.id, locale],
+  async ([data, loading, loadingStories, branchId, language]) => {
+    const version = ++backgroundVersion
+    if (!data || loading || (stocksEnabled.value && loadingStories) || !branchId) return
+    const scope = `${branchId}:${language}`
+    await nextTick()
+    if (version !== backgroundVersion) return
+    const newScope = backgroundScope !== scope
+    if (newScope) clearBackground()
+    backgroundScope = scope
+    const urls = new Set(
+      data.flatMap((category) =>
+        (category.products ?? []).flatMap((product) =>
+          (product.modifier_groups ?? []).flatMap((group) =>
+            group.modifiers
+              .map((modifier) => modifier.photo_url)
+              .filter((url): url is string => !!url),
+          ),
+        ),
+      ),
+    )
+    for (const [url, handle] of backgroundHandles) {
+      if (!urls.has(url)) {
+        handle.remove()
+        backgroundHandles.delete(url)
+      }
+    }
+    for (const url of urls) {
+      if (backgroundHandles.has(url)) continue
+      let image: HTMLImageElement | null = null
+      const handle: ProductPhotoHandle = photoQueue.register(
+        document.createElement('span'),
+        url,
+        false,
+        () => {
+          image = new Image()
+          image.decoding = 'async'
+          image.fetchPriority = 'low'
+          image.onload = image.onerror = () => {
+            image = null
+            handle.settle()
+          }
+          image.src = url
+        },
+        () => {
+          if (image) {
+            image.onload = image.onerror = null
+            image.removeAttribute('src')
+            image = null
+          }
+        },
+        () => false,
+      )
+      backgroundHandles.set(url, handle)
+    }
+    if (newScope) {
+      photoQueue.whenVisibleReady(() => {
+        void loadProductModal().catch(() => {})
+      })
+    }
+  },
+  { flush: 'post', immediate: true },
+)
+useEventListener(window, 'scroll', () => photoQueue.viewportChanged(), { passive: true })
+useEventListener(window, 'resize', () => photoQueue.viewportChanged())
+watch(
+  () => menuStore.isProductModalOpen,
+  async (open, wasOpen) => {
+    if (!wasOpen || open) return
+    menuStore.editingKey = null
+    if (menuStore.returnToCart) {
+      menuStore.returnToCart = false
+      await nextTick()
+      openCart()
+    }
+  },
+)
 
 const menu = computed(() => {
   return menuData.value?.filter((category) => category.products && category.products.length > 0)
 })
+const displayState = computed(() =>
+  menuDisplayState(
+    Boolean(menuData.value),
+    isLoading.value,
+    isError.value,
+    menu.value?.length ?? 0,
+  ),
+)
 
-const menuStore = useMenuStore()
 let viewedScope: string | null = null
-watch([menu, () => branchStore.activeBranch?.id, () => branchStore.activeBranch?.branch_info?.analytics_funnel_enabled, () => authStore.client?.id, () => authStore.sessionEpoch], ([categories, branchId, , clientId, epoch]) => {
-  if (!branchId) { viewedScope = null; return }
-  const scope = `${clientId ?? 'guest'}:${epoch}:${branchId}`
-  if (categories?.length && branchId && viewedScope !== scope) {
-    analytics.track('menu_view')
-    viewedScope = scope
-  }
-}, { immediate: true })
-watch(() => [menuStore.isProductModalOpen, menuStore.activeProduct?.id] as const, ([open, id]) => {
-  if (open && id) {
-    analytics.track('product_view')
-    if (menuStore.activeProduct) analytics.product(menuStore.activeProduct)
-  } else analytics.closeProduct()
-})
+watch(
+  [
+    menu,
+    () => branchStore.activeBranch?.id,
+    () => branchStore.activeBranch?.branch_info?.analytics_funnel_enabled,
+    () => authStore.client?.id,
+    () => authStore.sessionEpoch,
+  ],
+  ([categories, branchId, , clientId, epoch]) => {
+    if (!branchId) {
+      viewedScope = null
+      return
+    }
+    const scope = `${clientId ?? 'guest'}:${epoch}:${branchId}`
+    if (categories?.length && branchId && viewedScope !== scope) {
+      analytics.track('menu_view')
+      viewedScope = scope
+    }
+  },
+  { immediate: true },
+)
+watch(
+  () => [menuStore.isProductModalOpen, menuStore.activeProduct?.id] as const,
+  ([open, id]) => {
+    if (open && id) {
+      analytics.track('product_view')
+      if (menuStore.activeProduct) analytics.product(menuStore.activeProduct)
+    } else analytics.closeProduct()
+  },
+)
 
 let categoryNavigation = 0
 let scrolledCategory: string | null = null
-watch([() => route.params.categoryId, () => branchStore.activeBranch?.id, menu], async ([key, , categories]) => {
-  const version = ++categoryNavigation
-  if (typeof key !== 'string') { scrolledCategory = null; return }
-  if (!categories?.some(category => category.id === key)) return
-  await nextTick()
-  if (version !== categoryNavigation) return
-  const navigation = `${branchStore.activeBranch?.id}:${key}`
-  if (scrolledCategory === navigation) return
-  scrolledCategory = navigation
-  await menuStore.scrollToCategory(key)
-}, { immediate: true, flush: 'post' })
+watch(
+  [() => route.params.categoryId, () => branchStore.activeBranch?.id, menu],
+  async ([key, , categories]) => {
+    const version = ++categoryNavigation
+    if (typeof key !== 'string') {
+      scrolledCategory = null
+      return
+    }
+    if (!categories?.some((category) => category.id === key)) return
+    await nextTick()
+    if (version !== categoryNavigation) return
+    const navigation = `${branchStore.activeBranch?.id}:${key}`
+    if (scrolledCategory === navigation) return
+    scrolledCategory = navigation
+    await menuStore.scrollToCategory(key)
+  },
+  { immediate: true, flush: 'post' },
+)
 
 watch(
   menu,
@@ -97,7 +281,10 @@ useProductRoute()
 onMounted(() => {
   cartStore.initBranchSync()
 
-  if (!cartStore.isInitialized && !pendingPrivateSession(branchStore.activeBranch?.id ?? '', authStore.sessionEpoch)) {
+  if (
+    !cartStore.isInitialized &&
+    !pendingPrivateSession(branchStore.activeBranch?.id ?? '', authStore.sessionEpoch)
+  ) {
     cartStore.fetchCart(branchStore.activeBranch?.id).catch(console.error)
   }
 })
@@ -116,17 +303,20 @@ onMounted(() => {
   </div>
   <MobileCategoryBar v-if="viewportStore.isMobile" />
   <DesktopCategoryBar v-if="!viewportStore.isMobile" />
-  <div v-if="isLoading" class="px-2 sm:px-4 max-w-7xl mx-auto">
+  <div v-if="displayState === 'loading'" class="px-2 sm:px-4 max-w-7xl mx-auto">
     <SkeletonCategory v-for="i in 4" :key="i"></SkeletonCategory>
   </div>
-  <div v-else-if="isError" class="px-2 sm:px-4 max-w-7xl mx-auto">
+  <div v-else-if="displayState === 'error'" class="px-2 sm:px-4 max-w-7xl mx-auto">
     <ErrorComponent :onRetry="refetch"></ErrorComponent>
   </div>
   <div v-else class="px-2 sm:px-4 max-w-7xl mx-auto">
+    <p v-if="displayState === 'empty'" class="py-12 text-center text-gray-600">
+      {{ t('menu.empty') }}
+    </p>
     <CategoryComponent v-for="category in menu" :key="category.id" :category="category" />
   </div>
-  <LoyaltyModal />
-  <ProductModal />
+  <LoyaltyModal v-if="loyaltyModal.isOpen" />
+  <ProductModal v-if="menuStore.isProductModalOpen" />
   <StoryViewer v-if="branchStore.activeBranch?.branch_info?.stocks_enabled" />
   <CartButtonMobile v-if="viewportStore.isMobile" />
 </template>
