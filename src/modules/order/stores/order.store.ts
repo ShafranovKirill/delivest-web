@@ -22,6 +22,7 @@ const PRICE_ERRORS = [
   'combo_requires_delivest',
   'promo_unavailable',
   'promo_gift_not_available',
+  'payment_amount_changed',
 ]
 
 export const useOrderStore = defineStore('order', () => {
@@ -148,6 +149,16 @@ export const useOrderStore = defineStore('order', () => {
       cart_id: cartId,
       cart_revision: cartStore.cart?.revision ?? undefined,
       expected_total: cartStore.totalAmount,
+      ...(form.payment_method === 'online' && authStore.isAuthenticated
+        ? form.saved_payment_method_id && form.confirmed_payment_total !== undefined
+          ? {
+              saved_payment_method_id: form.saved_payment_method_id,
+              confirmed_payment_total: form.confirmed_payment_total,
+            }
+          : form.save_payment_method === true
+            ? { save_payment_method: true }
+            : {}
+        : {}),
       ...(useFranchiseStore().cutleryEnabled ? { persons: cartStore.cutleryCount } : {}),
     }
 
@@ -168,7 +179,6 @@ export const useOrderStore = defineStore('order', () => {
       activeStep.value = 3
 
       cartStore.resetCutleryCount()
-
       void cartStore.fetchCart(branchId, true).catch((error) => {
         console.error('[OrderStore] Failed to refresh cart after order creation:', error)
       })

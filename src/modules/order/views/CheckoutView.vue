@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Message from 'primevue/message'
 
@@ -17,7 +17,7 @@ import { useI18n } from 'vue-i18n'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 import { pendingPrivateSession } from '@/api/storefront'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
-import { getApiErrorMessage } from '@/api/errors'
+import { getApiErrorCode, getApiErrorMessage } from '@/api/errors'
 
 const router = useRouter()
 const route = useRoute()
@@ -28,6 +28,7 @@ const authStore = useAuthStore()
 const orderStore = useOrderStore()
 const { t } = useI18n()
 const analytics = useFunnelAnalytics()
+const resetSavedPaymentKey = ref(0)
 watch(
   () => [
     route.name,
@@ -67,7 +68,10 @@ onMounted(async () => {
   }
   orderStore.resetOrderState()
   try {
-    const pending = pendingPrivateSession(branchStore.activeBranch?.id ?? '', authStore.sessionEpoch)
+    const pending = pendingPrivateSession(
+      branchStore.activeBranch?.id ?? '',
+      authStore.sessionEpoch,
+    )
     if (pending) await pending.catch(() => undefined)
     if (!cartStore.hasFreshCart()) await cartStore.fetchCart(branchStore.activeBranch?.id, true)
   } catch (e) {
@@ -88,7 +92,21 @@ onUnmounted(() => orderStore.resetOrderState())
 async function submitOrder(form: Parameters<typeof orderStore.createOrder>[0]) {
   const checkoutPath = route.fullPath
   const slug = route.params.slug
-  const order = await orderStore.createOrder(form)
+  let order
+  try {
+    order = await orderStore.createOrder(form)
+  } catch (error) {
+    if (
+      form.saved_payment_method_id &&
+      [
+        'saved_payment_methods_disabled',
+        'saved_payment_method_not_found',
+        'saved_payment_method_conflict',
+      ].includes(getApiErrorCode(error) ?? '')
+    )
+      resetSavedPaymentKey.value++
+    return
+  }
   if (order && route.fullPath === checkoutPath) {
     await router.replace({
       name: 'order-confirmation',
@@ -100,14 +118,13 @@ async function submitOrder(form: Parameters<typeof orderStore.createOrder>[0]) {
 
 watch(() => orderStore.activeStep, jumpToTop, { flush: 'post' })
 watch(
-  () => orderStore.createdOrderId,
-  (id) => {
-    if (id) {
-      try {
-        sessionStorage.removeItem('checkout-draft')
-      } catch {
-        // Checkout remains available when storage is unavailable.
-      }
+  () => orderStore.lastCreatedOrder,
+  (order) => {
+    if (!order || order.awaiting_payment) return
+    try {
+      sessionStorage.removeItem('checkout-draft')
+    } catch {
+      // Checkout remains available when storage is unavailable.
     }
   },
 )
@@ -131,7 +148,11 @@ watch(
     >
       <p>{{ t('cart.comboRequiresDelivest') }}</p>
       <ul class="space-y-1">
-        <li v-for="item in unavailableCombos" :key="item.key" class="flex items-center justify-between gap-3">
+        <li
+          v-for="item in unavailableCombos"
+          :key="item.key"
+          class="flex items-center justify-between gap-3"
+        >
           <span>{{ item.name }}</span>
           <button
             type="button"
@@ -184,6 +205,7 @@ watch(
       <OrderForm
         :is-loading="orderStore.isLoading"
         :cart-blocked="unavailableCombos.length > 0"
+        :reset-saved-payment-key="resetSavedPaymentKey"
         @submit="submitOrder"
         @back="returnToCart"
       />

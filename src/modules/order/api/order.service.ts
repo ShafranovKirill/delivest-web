@@ -33,11 +33,12 @@ export const OrderService = {
     return data.data
   },
 
-  async getPaymentLink(id: string): Promise<string> {
-    const { data } = await api.post<{ data: { confirmation_url: string } }>(
+  async getPaymentLink(id: string, fallbackToNewMethod = false): Promise<string | null> {
+    const { data } = await api.post<{ data: { confirmation_url: string | null } }>(
       `/client/orders/${id}/pay`,
+      fallbackToNewMethod ? { fallback_to_new_method: true } : {},
     )
-    return data.data.confirmation_url
+    return data.data.confirmation_url ?? null
   },
 
   async getActiveOrders(signal?: AbortSignal): Promise<ActiveOrder[]> {

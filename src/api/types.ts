@@ -580,6 +580,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/client/payment-methods/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /** Локально удалить сохранённый способ оплаты */
+    delete: operations['DelivestWeb.Client.PaymentMethodController.delete']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/client/{branch_id}/stocks': {
     parameters: {
       query?: never
@@ -646,6 +663,23 @@ export interface paths {
      * @description Возвращает список категорий с предзагруженными товарами для филиала из кеша или БД.
      */
     get: operations['DelivestWeb.Client.Menu.MenuController.index']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/client/payment-methods': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Сохранённые способы оплаты текущего клиента */
+    get: operations['DelivestWeb.Client.PaymentMethodController.index']
     put?: never
     post?: never
     delete?: never
@@ -1426,6 +1460,8 @@ export interface components {
       cash_given?: number | null
       /** @example Без лука */
       comment?: string | null
+      /** @description Подтверждённая итоговая сумма онлайн-оплаты, в копейках */
+      confirmed_payment_total?: number | null
       /**
        * Format: date_time
        * @description Желаемое время приготовления. Если пусто — как можно скорее. Не более 30 дней от текущей даты
@@ -1462,6 +1498,9 @@ export interface components {
        * @example 2
        */
       persons?: number | null
+      save_payment_method?: boolean | null
+      /** Format: uuid */
+      saved_payment_method_id?: string | null
       /**
        * @description Сколько звёзд списать с суммы заказа (1 звезда = 1 ₽). Только для вошедшего клиента в филиале с включённым списанием
        * @example 100
@@ -1677,6 +1716,7 @@ export interface components {
         apns_fcm: boolean
         web_push: boolean
       }
+      saved_payment_methods_enabled: boolean
       /** @enum {string} */
       timestamp_format: 'RFC3339'
     }
@@ -1984,7 +2024,7 @@ export interface components {
         /** @description Только в ответе на создание онлайн-заказа */
         payment?: {
           /** Format: uri */
-          confirmation_url?: string
+          confirmation_url?: string | null
         } | null
         /** @enum {string} */
         payment_method: 'cash' | 'card_offline' | 'online'
@@ -1998,6 +2038,7 @@ export interface components {
          */
         promised_delivery_at?: string | null
         promotions: components['schemas']['OrderPromotion'][]
+        saved_payment_fallback_available?: boolean
         /** @example 42 */
         short_number: string
         /**
@@ -2331,7 +2372,7 @@ export interface components {
     PaymentLinkResponse: {
       data: {
         /** Format: uri */
-        confirmation_url: string
+        confirmation_url: string | null
       }
     }
     /** GeoAddressListResponse */
@@ -2482,12 +2523,12 @@ export interface components {
         | 'cart_is_empty'
         | 'cart_already_ordered'
         | 'cart_changed'
-        | 'combo_requires_delivest'
         | 'idempotency_conflict'
         | 'invalid_idempotency_key'
         | 'payment_unavailable'
         | 'cart_branch_mismatch'
         | 'product_unavailable'
+        | 'combo_requires_delivest'
         | 'client_blocked'
         | 'quantity_limit_exceeded'
         | 'item_not_found'
@@ -2617,6 +2658,7 @@ export interface components {
        */
       promised_delivery_at?: string | null
       promotions: components['schemas']['OrderPromotion'][]
+      saved_payment_fallback_available?: boolean
       /** @example 42 */
       short_number: string
       /**
@@ -5181,7 +5223,14 @@ export interface operations {
       }
       cookie?: never
     }
-    requestBody?: never
+    /** @description Опциональный переход на обычную оплату после отменённой сохранённой попытки */
+    requestBody?: {
+      content: {
+        'application/json': {
+          fallback_to_new_method?: boolean
+        }
+      }
+    }
     responses: {
       /** @description Страница оплаты */
       200: {
@@ -5311,6 +5360,34 @@ export interface operations {
       }
     }
   }
+  'DelivestWeb.Client.PaymentMethodController.delete': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Локальный UUID способа оплаты */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Способ удалён */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Способ не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
   'DelivestWeb.Client.Stock.StockController.index': {
     parameters: {
       query?: never
@@ -5431,6 +5508,34 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  'DelivestWeb.Client.PaymentMethodController.index': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Способы оплаты */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data: {
+              /** Format: uuid */
+              id: string
+              last4?: string | null
+              title: string
+              type?: string | null
+            }[]
+          }
         }
       }
     }

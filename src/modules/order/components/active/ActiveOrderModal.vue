@@ -23,12 +23,15 @@ import { formatAddress, type AddressParts } from '@/modules/shared/utils/address
 import { useI18n } from 'vue-i18n'
 import { useBranchStore } from '@/modules/branch/stores/branch.store'
 import { courierDetailsEnabled } from './courierVisibility'
+import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { isCurrentPaymentRequest, type PaymentRequestContext } from './paymentRequestContext'
 
 const props = defineProps<{ order: ActiveOrder | null; repeatable?: boolean }>()
 const emit = defineEmits<{ close: []; repeat: [] }>()
 
 const contactsStore = useContactsStore()
 const branchStore = useBranchStore()
+const authStore = useAuthStore()
 const { t, locale } = useI18n()
 
 const showCourier = computed(
@@ -73,8 +76,21 @@ function cancelOrder() {
 }
 
 const pay = useMutation({
-  mutationFn: (id: string) => OrderService.getPaymentLink(id),
-  onSuccess: (url) => window.location.assign(url),
+  mutationFn: ({ orderId, fallback }: PaymentRequestContext & { fallback: boolean }) =>
+    OrderService.getPaymentLink(orderId, fallback),
+  onSuccess: (url, request) => {
+    const current =
+      props.order && props.order.branch_id === branchStore.activeBranch?.id
+        ? {
+            orderId: props.order.id,
+            branchId: props.order.branch_id,
+            sessionEpoch: authStore.sessionEpoch,
+          }
+        : null
+    if (!isCurrentPaymentRequest(request, current)) return
+    if (url) window.location.assign(url)
+    else queryClient.invalidateQueries({ queryKey: ACTIVE_ORDERS_KEY })
+  },
 })
 
 const address = computed(() => formatAddress(props.order?.address as AddressParts | null))
@@ -258,14 +274,29 @@ const placedDate = computed(() =>
         />
         <Button
           v-if="!repeatable && order?.awaiting_payment"
-          :label="t('order.pay.action')"
+          :label="
+            order.saved_payment_fallback_available
+              ? t('order.savedPayment.fallback', { amount: formatPrice(order.total_amount) })
+              : t('order.pay.action')
+          "
           :loading="pay.isPending.value"
           icon="pi pi-credit-card"
           class="h-11 w-full rounded-full! font-semibold"
-          @click="pay.mutate(order.id)"
+          @click="
+            pay.mutate({
+              orderId: order.id,
+              branchId: order.branch_id,
+              sessionEpoch: authStore.sessionEpoch,
+              fallback: order.saved_payment_fallback_available === true,
+            })
+          "
         />
         <p v-if="pay.isError.value" class="text-center text-sm text-red-600">
-          {{ t('order.pay.failed') }}
+          {{
+            order?.saved_payment_fallback_available
+              ? t('order.savedPayment.fallbackFailed')
+              : t('order.pay.failed')
+          }}
         </p>
         <div
           v-if="(!repeatable && order?.can_cancel) || contactsStore.phone"

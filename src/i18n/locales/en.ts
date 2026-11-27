@@ -135,6 +135,13 @@ export const en: typeof ru = {
       idempotency_conflict: 'An order was already placed for this cart. Check your active orders',
       invalid_idempotency_key: 'Could not place the order. Refresh the page',
       payment_unavailable: 'Could not open payment. Retry this order',
+      saved_payment_methods_disabled:
+        'Saved payments are unavailable. Choose ordinary online payment',
+      saved_payment_method_not_found:
+        'This payment method is no longer available. Choose ordinary online payment',
+      saved_payment_method_conflict: 'Choose one online payment method',
+      payment_amount_changed: 'The order total changed. Review it and confirm payment again',
+      expected_total_required: 'Refresh the cart and confirm the amount again',
       cart_branch_mismatch: 'The cart belongs to another branch. Refresh the page',
       product_unavailable: 'This product is currently unavailable',
       client_blocked: 'Unable to place the order. Please contact us by phone',
@@ -477,7 +484,8 @@ export const en: typeof ru = {
     removeSoldOut: 'Remove unavailable items to place the order',
     unavailable: 'Item unavailable — remove from cart',
     unavailableProduct: 'Unavailable product',
-    comboRequiresDelivest: 'Combos are unavailable because this location uses an external ordering system.',
+    comboRequiresDelivest:
+      'Combos are unavailable because this location uses an external ordering system.',
     removeCombo: 'Remove “{name}” from cart',
     promoGift: 'Promotion gift',
     remove: 'Remove from cart',
@@ -610,6 +618,15 @@ export const en: typeof ru = {
       cash: 'Cash',
       card_offline: 'Card on receipt',
       online: 'Online, card or SBP',
+    },
+    savedPayment: {
+      saveConsent:
+        'Save this payment method for future orders. You will confirm each amount separately; you can remove it here.',
+      remove: 'Remove payment method {title}',
+      loadFailed: 'Could not update payment methods. Please try again',
+      payAmount: 'Pay {amount}',
+      fallback: 'Pay another way · {amount}',
+      fallbackFailed: 'A new payment is not available yet. Check the order status later',
     },
     pay: {
       action: 'Pay',
