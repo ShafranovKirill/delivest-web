@@ -38,6 +38,7 @@ import OrderComposition from './OrderComposition.vue'
 import MessageFilledIcon from '~icons/tabler/message-filled'
 import CashBanknoteFilledIcon from '~icons/tabler/cash-banknote-filled'
 import CreditCardFilledIcon from '~icons/tabler/credit-card-filled'
+import { useSavedPaymentMethods } from '../composables/useSavedPaymentMethods'
 
 export interface OrderFormValues {
   customer_name: string
@@ -50,10 +51,15 @@ export interface OrderFormValues {
   cook_by: string | null
   address: DeliveryAddress | null
   call_operator_for_address: boolean
+  save_payment_method?: boolean
+  saved_payment_method_id?: string
+  confirmed_payment_total?: number
 }
 
-defineProps<{
+const props = defineProps<{
   isLoading: boolean
+  cartBlocked: boolean
+  resetSavedPaymentKey?: number
 }>()
 
 const emit = defineEmits<{
@@ -247,11 +253,27 @@ async function editComment() {
 }
 
 const paymentOpen = ref(false)
+const savedPayment = useSavedPaymentMethods(computed(() => form.payment_method === 'online'))
+watch(
+  () => props.resetSavedPaymentKey,
+  () => savedPayment.useOrdinaryPayment(),
+)
 
-const paymentLabel = computed(() => t(`order.payment.${form.payment_method}`))
+const paymentLabel = computed(() =>
+  savedPayment.selected.value
+    ? `${savedPayment.selected.value.title}${savedPayment.selected.value.last4 ? ` · ${savedPayment.selected.value.last4}` : ''}`
+    : t(`order.payment.${form.payment_method}`),
+)
 
 function pickPayment(method: OrderFormValues['payment_method']) {
   form.payment_method = method
+  savedPayment.useOrdinaryPayment()
+  paymentOpen.value = false
+}
+
+function selectSavedPayment(id: string) {
+  savedPayment.selectedId.value = id
+  savedPayment.saveNew.value = false
   paymentOpen.value = false
 }
 
@@ -451,6 +473,8 @@ function updateInlineAddress(address: DeliveryAddress) {
 }
 
 function handleSubmit() {
+  if (props.cartBlocked) return
+
   if (authStore.isRequired && !authStore.isAuthenticated) {
     if (authStore.isEnabled) {
       authStore.openModal()
@@ -502,6 +526,16 @@ function handleSubmit() {
 
   emit('submit', {
     ...form,
+    ...(form.payment_method === 'online' && savedPayment.available.value
+      ? savedPayment.selectedId.value
+        ? {
+            saved_payment_method_id: savedPayment.selectedId.value,
+            confirmed_payment_total: orderTotal.value,
+          }
+        : savedPayment.saveNew.value
+          ? { save_payment_method: true }
+          : {}
+      : {}),
     customer_phone: customerPhone,
     cash_given: null,
     spend_points: starsToSpend.value,
@@ -743,8 +777,55 @@ function handleSubmit() {
             <span>{{ option.label }}</span>
             <i v-if="form.payment_method === option.value" class="pi pi-check text-sm" />
           </button>
+          <template v-if="form.payment_method === 'online' && savedPayment.available.value">
+            <div v-for="method in savedPayment.methods.value" :key="method.id" class="flex gap-2">
+              <button
+                type="button"
+                class="flex min-w-0 flex-1 items-center justify-between rounded-2xl border-2 px-4 py-3.5 text-left font-semibold"
+                :class="
+                  savedPayment.selectedId.value === method.id
+                    ? 'border-primary-fill bg-white'
+                    : 'border-gray-100 bg-gray-50'
+                "
+                @click="selectSavedPayment(method.id)"
+              >
+                <span class="truncate"
+                  >{{ method.title }}{{ method.last4 ? ` · ${method.last4}` : '' }}</span
+                >
+                <i v-if="savedPayment.selectedId.value === method.id" class="pi pi-check text-sm" />
+              </button>
+              <button
+                type="button"
+                class="rounded-2xl px-3 text-red-600 hover:bg-red-50"
+                :disabled="savedPayment.removingId.value !== null"
+                :aria-label="
+                  t('order.savedPayment.remove', {
+                    title: `${method.title}${method.last4 ? ` · ${method.last4}` : ''}`,
+                  })
+                "
+                @click="savedPayment.remove(method.id)"
+              >
+                <i class="pi pi-trash" aria-hidden="true" />
+              </button>
+            </div>
+            <p v-if="savedPayment.error.value" class="text-sm text-red-600">
+              {{ t('order.savedPayment.loadFailed') }}
+            </p>
+          </template>
         </div>
       </ResponsiveSheet>
+
+      <label
+        v-if="
+          form.payment_method === 'online' &&
+          savedPayment.available.value &&
+          !savedPayment.selectedId.value
+        "
+        class="flex cursor-pointer items-start gap-3 rounded-2xl bg-gray-100 px-4 py-3 text-sm text-gray-900"
+      >
+        <input v-model="savedPayment.saveNew.value" type="checkbox" class="mt-1 accent-primary" />
+        <span>{{ t('order.savedPayment.saveConsent') }}</span>
+      </label>
 
       <div v-if="maxStars > 0" :class="sectionClass">
         <label
@@ -826,9 +907,16 @@ function handleSubmit() {
         </div>
         <Button
           type="submit"
-          :label="t('order.form.submit')"
+          :label="
+            savedPayment.selectedId.value && savedPayment.available.value
+              ? t('order.savedPayment.payAmount', { amount: formatPrice(orderTotal) })
+              : t('order.form.submit')
+          "
           :disabled="
-            deliveryBlocked || !fulfillmentStore.canOrder || !orderTime.isAvailable(form.cook_by)
+            cartBlocked ||
+            deliveryBlocked ||
+            !fulfillmentStore.canOrder ||
+            !orderTime.isAvailable(form.cook_by)
           "
           icon="pi pi-check"
           iconPos="right"

@@ -82,6 +82,7 @@ const selected = ref<string[]>([])
             :key="activeProduct?.id"
             v-model="selected"
             :groups="groups"
+            :combo="activeProduct?.is_combo"
             class="pt-2"
           />
         </div>

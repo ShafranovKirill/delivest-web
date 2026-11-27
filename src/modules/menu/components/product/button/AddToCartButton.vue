@@ -46,7 +46,13 @@ watch(
   () => {
     const line = editingLine.value
     selected.value = line
-      ? (line.modifiers ?? []).filter((m) => m.id).map((m) => m.id!)
+      ? (line.modifiers ?? [])
+          .map((modifier) => modifier.id)
+          .filter(
+            (id): id is string =>
+              Boolean(id) &&
+              (!props.product?.is_combo || modifiers.value.some((modifier) => modifier.id === id)),
+          )
       : modifiers.value.filter((m) => m.is_default && !m.stopped).map((m) => m.id)
   },
   { immediate: true },
@@ -56,8 +62,25 @@ const extra = computed(() =>
   modifiers.value.filter((m) => selected.value.includes(m.id)).reduce((sum, m) => sum + m.price, 0),
 )
 
+const comboReady = computed(() => {
+  if (!props.product?.is_combo) return true
+
+  return (
+    groups.value.length > 0 &&
+    groups.value.every((group) => {
+      const choices = group.modifiers.filter((modifier) => selected.value.includes(modifier.id))
+      return (
+        choices.length >= group.min &&
+        choices.length <= group.max &&
+        choices.every((modifier) => !modifier.stopped)
+      )
+    }) &&
+    selected.value.every((id) => modifiers.value.some((modifier) => modifier.id === id))
+  )
+})
+
 const handleAddToCart = async () => {
-  if (!props.product) return
+  if (!props.product || !comboReady.value) return
   try {
     const choice = groups.value.length
       ? selected.value.map((id) => ({ id, quantity: 1 }))
@@ -83,13 +106,14 @@ const handleAddToCart = async () => {
       v-if="showModifiers !== false && groups.length && !product?.stopped"
       v-model="selected"
       :groups="groups"
+      :combo="product?.is_combo"
     />
     <SoldOutLabel v-if="product?.stopped" class="py-3.5!" />
     <Button
       v-else
       @click="handleAddToCart"
       :loading="cartStore.isLoading"
-      :disabled="!product || cartStore.isLoading"
+      :disabled="!product || cartStore.isLoading || !comboReady"
       class="whitespace-nowrap rounded-3xl! w-full! flex items-center justify-center gap-2 py-3.5! px-6 font-semibold transition-all hover:opacity-95"
     >
       <span>{{

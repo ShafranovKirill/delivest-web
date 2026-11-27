@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import ProgressSpinner from 'primevue/progressspinner'
 import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/modules/cart/stores/cart.store'
+import { useMenuStore } from '@/modules/menu/stores/menu.store'
 import { useFulfillmentFlowStore } from '@/modules/fulfillment/stores/fulfillmentFlow.store'
 import { getApiErrorMessage } from '@/api/errors'
 import type { MenuProduct } from '@/modules/menu/api/menu.service'
@@ -12,6 +13,7 @@ import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ product: MenuProduct }>()
 const cartStore = useCartStore()
+const menuStore = useMenuStore()
 const flowStore = useFulfillmentFlowStore()
 const toast = useToast()
 const { t } = useI18n()
@@ -67,6 +69,14 @@ const handleRemove = async (event: Event) => {
 
 <template>
   <SoldOutLabel v-if="product.stopped" />
+  <button
+    v-else-if="product.is_combo"
+    type="button"
+    class="bg-(--p-primary-color) mt-auto flex min-h-10 w-full items-center justify-center rounded-full px-4 py-2 font-bold text-white hover:opacity-90"
+    @click.stop="menuStore.openProductModal(product)"
+  >
+    {{ t('menu.configureCombo') }}
+  </button>
   <div v-else class="mt-auto w-full flex justify-center">
     <template v-if="quantity > 0">
       <div

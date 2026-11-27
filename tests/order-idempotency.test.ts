@@ -19,4 +19,21 @@ describe('order checkout request', () => {
       headers: { 'Idempotency-Key': 'cart-1' },
     })
   })
+
+  it('keeps ordinary payment links and accepts a completed payment without a redirect', async () => {
+    post.mockResolvedValueOnce({
+      status: 200,
+      data: { data: { confirmation_url: 'https://payment.test/confirm' } },
+    })
+    await expect(OrderService.getPaymentLink('order-1')).resolves.toBe(
+      'https://payment.test/confirm',
+    )
+    expect(post).toHaveBeenLastCalledWith('/client/orders/order-1/pay', {})
+
+    post.mockResolvedValueOnce({ status: 204, data: '' })
+    await expect(OrderService.getPaymentLink('order-1', true)).resolves.toBeNull()
+    expect(post).toHaveBeenLastCalledWith('/client/orders/order-1/pay', {
+      fallback_to_new_method: true,
+    })
+  })
 })

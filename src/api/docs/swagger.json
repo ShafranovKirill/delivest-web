@@ -95,6 +95,11 @@
             "type": "integer"
           },
           "comment": { "example": "Без лука", "nullable": true, "type": "string" },
+          "confirmed_payment_total": {
+            "description": "Подтверждённая итоговая сумма онлайн-оплаты, в копейках",
+            "nullable": true,
+            "type": "integer"
+          },
           "cook_by": {
             "description": "Желаемое время приготовления. Если пусто — как можно скорее. Не более 30 дней от текущей даты",
             "example": "2026-10-05T18:30:00",
@@ -140,6 +145,8 @@
             "nullable": true,
             "type": "integer"
           },
+          "save_payment_method": { "nullable": true, "type": "boolean" },
+          "saved_payment_method_id": { "format": "uuid", "nullable": true, "type": "string" },
           "spend_points": {
             "description": "Сколько звёзд списать с суммы заказа (1 звезда = 1 ₽). Только для вошедшего клиента в филиале с включённым списанием",
             "example": 100,
@@ -260,6 +267,7 @@
             "type": "string"
           },
           "is_active": { "example": true, "type": "boolean" },
+          "is_combo": { "description": "Комбо с выбором компонентов", "type": "boolean" },
           "measure_unit": {
             "description": "Единица измерения веса: граммы или миллилитры",
             "enum": ["g", "ml"],
@@ -277,6 +285,11 @@
                 "modifiers": {
                   "items": {
                     "properties": {
+                      "component_product_id": {
+                        "format": "uuid",
+                        "nullable": true,
+                        "type": "string"
+                      },
                       "id": { "format": "uuid", "type": "string" },
                       "is_default": { "type": "boolean" },
                       "max_quantity": { "example": 1, "type": "integer" },
@@ -325,15 +338,15 @@
           },
           "photo_variants": {
             "description": "Доступные WebP варианты изображения с фактической шириной в пикселях; для старых файлов может быть пустым",
-            "type": "array",
             "items": {
-              "type": "object",
-              "required": ["url", "width"],
               "properties": {
-                "url": { "type": "string", "format": "uri" },
-                "width": { "type": "integer", "minimum": 1 }
-              }
-            }
+                "url": { "format": "uri", "type": "string" },
+                "width": { "minimum": 1, "type": "integer" }
+              },
+              "required": ["url", "width"],
+              "type": "object"
+            },
+            "type": "array"
           },
           "popular": {
             "description": "Хит продаж филиала: попадает в блок «Популярное» по настройке режима популярных товаров",
@@ -413,6 +426,7 @@
             "required": ["web_push", "apns_fcm"],
             "type": "object"
           },
+          "saved_payment_methods_enabled": { "type": "boolean" },
           "timestamp_format": { "enum": ["RFC3339"], "type": "string" }
         },
         "required": [
@@ -421,6 +435,7 @@
           "money_unit",
           "timestamp_format",
           "features",
+          "saved_payment_methods_enabled",
           "push",
           "deprecation"
         ],
@@ -813,6 +828,7 @@
                 "items": { "$ref": "#/components/schemas/OrderPromotion" },
                 "type": "array"
               },
+              "saved_payment_fallback_available": { "type": "boolean" },
               "short_number": { "example": "42", "type": "string" },
               "status": {
                 "enum": [
@@ -1459,6 +1475,7 @@
               "payment_unavailable",
               "cart_branch_mismatch",
               "product_unavailable",
+              "combo_requires_delivest",
               "client_blocked",
               "quantity_limit_exceeded",
               "item_not_found",
@@ -1609,6 +1626,7 @@
             "items": { "$ref": "#/components/schemas/OrderPromotion" },
             "type": "array"
           },
+          "saved_payment_fallback_available": { "type": "boolean" },
           "short_number": { "example": "42", "type": "string" },
           "status": {
             "enum": [
@@ -5207,6 +5225,18 @@
             "schema": { "type": "string" }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": { "fallback_to_new_method": { "type": "boolean" } },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Опциональный переход на обычную оплату после отменённой сохранённой попытки",
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -5216,6 +5246,7 @@
             },
             "description": "Страница оплаты"
           },
+          "204": { "description": "Ссылка на оплату не требуется" },
           "404": {
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
@@ -5345,6 +5376,27 @@
         "tags": ["Health"]
       }
     },
+    "/client/payment-methods/{id}": {
+      "delete": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.PaymentMethodController.delete",
+        "parameters": [
+          {
+            "description": "Локальный UUID способа оплаты",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Способ удалён" },
+          "404": { "description": "Способ не найден" }
+        },
+        "summary": "Локально удалить сохранённый способ оплаты",
+        "tags": ["Payments"]
+      }
+    },
     "/client/{branch_id}/stocks": {
       "get": {
         "callbacks": {},
@@ -5472,6 +5524,43 @@
         },
         "summary": "Получить меню филиала",
         "tags": ["Menu"]
+      }
+    },
+    "/client/payment-methods": {
+      "get": {
+        "callbacks": {},
+        "operationId": "DelivestWeb.Client.PaymentMethodController.index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "properties": {
+                          "id": { "format": "uuid", "type": "string" },
+                          "last4": { "nullable": true, "type": "string" },
+                          "title": { "type": "string" },
+                          "type": { "nullable": true, "type": "string" }
+                        },
+                        "required": ["id", "title"],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": ["data"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Способы оплаты"
+          }
+        },
+        "summary": "Сохранённые способы оплаты текущего клиента",
+        "tags": ["Payments"]
       }
     },
     "/client/cart/{cart_id}/repeat/{order_id}": {

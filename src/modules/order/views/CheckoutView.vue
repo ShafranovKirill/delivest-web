@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Message from 'primevue/message'
 
@@ -17,6 +17,7 @@ import { useI18n } from 'vue-i18n'
 import { useFunnelAnalytics } from '@/modules/analytics/useFunnelAnalytics'
 import { pendingPrivateSession } from '@/api/storefront'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
+import { getApiErrorCode, getApiErrorMessage } from '@/api/errors'
 
 const router = useRouter()
 const route = useRoute()
@@ -27,6 +28,7 @@ const authStore = useAuthStore()
 const orderStore = useOrderStore()
 const { t } = useI18n()
 const analytics = useFunnelAnalytics()
+const resetSavedPaymentKey = ref(0)
 watch(
   () => [
     route.name,
@@ -40,6 +42,19 @@ watch(
 )
 
 const step = computed(() => Number(orderStore.activeStep))
+const unavailableCombos = computed(() =>
+  cartStore.items.filter((item) => item.unavailable_reason === 'combo_requires_delivest'),
+)
+
+async function removeCombo(key: string) {
+  const path = route.fullPath
+  try {
+    await cartStore.removeAllOfItem(key)
+    if (route.fullPath === path) orderStore.errorMessage = null
+  } catch (error) {
+    if (route.fullPath === path) orderStore.errorMessage = getApiErrorMessage(error)
+  }
+}
 
 function jumpToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
@@ -53,7 +68,10 @@ onMounted(async () => {
   }
   orderStore.resetOrderState()
   try {
-    const pending = pendingPrivateSession(branchStore.activeBranch?.id ?? '', authStore.sessionEpoch)
+    const pending = pendingPrivateSession(
+      branchStore.activeBranch?.id ?? '',
+      authStore.sessionEpoch,
+    )
     if (pending) await pending.catch(() => undefined)
     if (!cartStore.hasFreshCart()) await cartStore.fetchCart(branchStore.activeBranch?.id, true)
   } catch (e) {
@@ -74,7 +92,21 @@ onUnmounted(() => orderStore.resetOrderState())
 async function submitOrder(form: Parameters<typeof orderStore.createOrder>[0]) {
   const checkoutPath = route.fullPath
   const slug = route.params.slug
-  const order = await orderStore.createOrder(form)
+  let order
+  try {
+    order = await orderStore.createOrder(form)
+  } catch (error) {
+    if (
+      form.saved_payment_method_id &&
+      [
+        'saved_payment_methods_disabled',
+        'saved_payment_method_not_found',
+        'saved_payment_method_conflict',
+      ].includes(getApiErrorCode(error) ?? '')
+    )
+      resetSavedPaymentKey.value++
+    return
+  }
   if (order && route.fullPath === checkoutPath) {
     await router.replace({
       name: 'order-confirmation',
@@ -86,14 +118,13 @@ async function submitOrder(form: Parameters<typeof orderStore.createOrder>[0]) {
 
 watch(() => orderStore.activeStep, jumpToTop, { flush: 'post' })
 watch(
-  () => orderStore.createdOrderId,
-  (id) => {
-    if (id) {
-      try {
-        sessionStorage.removeItem('checkout-draft')
-      } catch {
-        // Checkout remains available when storage is unavailable.
-      }
+  () => orderStore.lastCreatedOrder,
+  (order) => {
+    if (!order || order.awaiting_payment) return
+    try {
+      sessionStorage.removeItem('checkout-draft')
+    } catch {
+      // Checkout remains available when storage is unavailable.
     }
   },
 )
@@ -109,6 +140,32 @@ watch(
     >
       {{ orderStore.errorMessage }}
     </Message>
+
+    <section
+      v-if="step !== 3 && unavailableCombos.length"
+      class="mb-4 space-y-2 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-800"
+      aria-live="polite"
+    >
+      <p>{{ t('cart.comboRequiresDelivest') }}</p>
+      <ul class="space-y-1">
+        <li
+          v-for="item in unavailableCombos"
+          :key="item.key"
+          class="flex items-center justify-between gap-3"
+        >
+          <span>{{ item.name }}</span>
+          <button
+            type="button"
+            class="shrink-0 rounded-lg px-2 py-1 font-semibold underline disabled:opacity-50"
+            :aria-label="t('cart.removeCombo', { name: item.name })"
+            :disabled="cartStore.isLoading"
+            @click="removeCombo(item.key)"
+          >
+            {{ t('cart.removeShort') }}
+          </button>
+        </li>
+      </ul>
+    </section>
 
     <SkeletonList
       v-if="
@@ -145,7 +202,13 @@ watch(
       v-else-if="step !== 3"
       class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[auto_auto] gap-3 sm:gap-4 lg:gap-y-6 items-start"
     >
-      <OrderForm :isLoading="orderStore.isLoading" @submit="submitOrder" @back="returnToCart" />
+      <OrderForm
+        :is-loading="orderStore.isLoading"
+        :cart-blocked="unavailableCombos.length > 0"
+        :reset-saved-payment-key="resetSavedPaymentKey"
+        @submit="submitOrder"
+        @back="returnToCart"
+      />
       <aside class="hidden lg:col-start-2 lg:row-start-2 lg:block lg:self-start sticky top-28">
         <OrderComposition />
       </aside>
