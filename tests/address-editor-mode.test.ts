@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createSSRApp, defineComponent, h, reactive } from 'vue'
+import { createSSRApp, defineComponent, h, reactive, ref } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
 const branch = reactive({
@@ -16,7 +16,7 @@ vi.mock('../src/modules/fulfillment/components/MapDialog.vue', () => ({ default:
 vi.mock('@/modules/branch/stores/branch.store', () => ({ useBranchStore: () => branch }))
 vi.mock('@/modules/franchise/stores/franchise.store', () => ({ useFranchiseStore: () => franchise }))
 vi.mock('../src/modules/fulfillment/composables/useAddressEditor', () => ({
-  useAddressEditor: () => ({ mapCenter: [0, 0], isLocating: false, locate: vi.fn(), isReady: true, pickSuggestion: vi.fn(), pickSaved: vi.fn() }),
+  useAddressEditor: () => ({ mapCenter: [0, 0], isLocating: false, notFound: ref(false), locate: vi.fn(), invalidate: vi.fn(), startMoving: vi.fn(), retryLocate: vi.fn(), isReady: true, pickSuggestion: vi.fn(), pickSaved: vi.fn() }),
 }))
 vi.mock('../src/modules/fulfillment/composables/useDeliveryAddresses', () => ({ useDeliveryAddresses: () => ({ value: [] }) }))
 vi.mock('../src/modules/fulfillment/components/map/MapPlaceholder.vue', () => ({ default: defineComponent({ setup: () => () => h('div', { 'data-map-placeholder': '' }) }) }))

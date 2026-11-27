@@ -10,6 +10,9 @@ vi.mock('vue-i18n', async (importOriginal) => ({
 }))
 
 const baseProps = {
+  notice: null,
+  missingHouse: false,
+  subtotal: 0,
   ready: false,
   pending: false,
   selecting: false,
@@ -22,8 +25,8 @@ describe('delivery quote summary', () => {
     const html = await renderToString(
       createSSRApp(DeliveryQuoteSummary, { ...baseProps, quote: null, hasPoint: false }),
     )
-    expect(html).toContain('delivery.costTitle')
     expect(html).toContain('delivery.selectAddress')
+    expect(html).not.toContain('delivery.costTitle')
   })
 
   it('shows the quoted amount without the internal zone name', async () => {
