@@ -29,6 +29,7 @@ const { suggestions, error, loading, hasSearched, search, clear, dispose } = use
 type AutocompleteControl = { show: () => void; searching: boolean }
 const floatingAutocomplete = ref<AutocompleteControl | null>(null)
 const plainAutocomplete = ref<AutocompleteControl | null>(null)
+const overlayHeight = ref('192px')
 let retryRequested = false
 const options = computed(() =>
   suggestions.value.map((address) => ({
@@ -85,6 +86,15 @@ function onBlur() {
   if (autocomplete) autocomplete.searching = false
 }
 
+function fitOverlayBelowInput() {
+  const input = document.getElementById(inputId)
+  if (!input) return
+  const dialogBottom = input.closest('[role="dialog"]')?.getBoundingClientRect().bottom
+  const bottom = Math.min(window.innerHeight, dialogBottom ?? window.innerHeight)
+  const available = Math.floor(bottom - input.getBoundingClientRect().bottom - 4)
+  overlayHeight.value = `${Math.max(44, Math.min(192, available))}px`
+}
+
 function onInput(value: unknown) {
   if (typeof value !== 'string') return
   retryRequested = false
@@ -125,6 +135,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
         :loading="loading"
         :model-value="query"
         :suggestions="options"
+        :scroll-height="overlayHeight"
         option-label="label"
         :input-id="inputId"
         :delay="0"
@@ -136,6 +147,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
         fluid
         @update:model-value="onInput"
         @complete="search($event.query, city)"
+        @before-show="fitOverlayBelowInput"
         @blur="onBlur"
         @option-select="onSelect"
       />
@@ -155,6 +167,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
       :loading="loading"
       :model-value="query"
       :suggestions="options"
+      :scroll-height="overlayHeight"
       option-label="label"
       :input-id="inputId"
       :delay="0"
@@ -166,6 +179,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
       fluid
       @update:model-value="onInput"
       @complete="search($event.query, city)"
+      @before-show="fitOverlayBelowInput"
       @blur="onBlur"
       @option-select="onSelect"
     />
@@ -195,7 +209,6 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
   pointer-events: none;
 }
 :global(.address-suggest-overlay .p-autocomplete-list-container) {
-  max-height: 12rem !important;
   overflow-y: auto;
   scrollbar-width: none;
 }
