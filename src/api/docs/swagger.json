@@ -809,9 +809,7 @@
               "payment": {
                 "description": "Только в ответе на создание онлайн-заказа",
                 "nullable": true,
-                "properties": {
-                  "confirmation_url": { "format": "uri", "nullable": true, "type": "string" }
-                },
+                "properties": { "confirmation_url": { "format": "uri", "type": "string" } },
                 "type": "object"
               },
               "payment_method": { "enum": ["cash", "card_offline", "online"], "type": "string" },
@@ -1312,9 +1310,7 @@
       "PaymentLinkResponse": {
         "properties": {
           "data": {
-            "properties": {
-              "confirmation_url": { "format": "uri", "nullable": true, "type": "string" }
-            },
+            "properties": { "confirmation_url": { "format": "uri", "type": "string" } },
             "required": ["confirmation_url"],
             "type": "object"
           }
@@ -5250,6 +5246,7 @@
             },
             "description": "Страница оплаты"
           },
+          "204": { "description": "Ссылка на оплату не требуется" },
           "404": {
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }

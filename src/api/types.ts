@@ -2024,7 +2024,7 @@ export interface components {
         /** @description Только в ответе на создание онлайн-заказа */
         payment?: {
           /** Format: uri */
-          confirmation_url?: string | null
+          confirmation_url?: string
         } | null
         /** @enum {string} */
         payment_method: 'cash' | 'card_offline' | 'online'
@@ -2372,7 +2372,7 @@ export interface components {
     PaymentLinkResponse: {
       data: {
         /** Format: uri */
-        confirmation_url: string | null
+        confirmation_url: string
       }
     }
     /** GeoAddressListResponse */
@@ -5240,6 +5240,13 @@ export interface operations {
         content: {
           'application/json': components['schemas']['PaymentLinkResponse']
         }
+      }
+      /** @description Ссылка на оплату не требуется */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
       }
       /** @description Заказ не найден */
       404: {
