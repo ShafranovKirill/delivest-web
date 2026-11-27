@@ -121,7 +121,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
       <AutoComplete
         v-if="suggest"
         ref="floatingAutocomplete"
-        append-to="body"
+        append-to="self"
         :loading="loading"
         :model-value="query"
         :suggestions="options"
@@ -151,7 +151,7 @@ function onSelect({ value }: AutoCompleteOptionSelectEvent) {
     <AutoComplete
       v-else-if="suggest"
       ref="plainAutocomplete"
-      append-to="body"
+      append-to="self"
       :loading="loading"
       :model-value="query"
       :suggestions="options"
