@@ -145,8 +145,7 @@ watch(
     for (const url of urls) {
       if (backgroundHandles.has(url)) continue
       let image: HTMLImageElement | null = null
-      let handle: ProductPhotoHandle
-      handle = photoQueue.register(
+      const handle: ProductPhotoHandle = photoQueue.register(
         document.createElement('span'),
         url,
         false,
